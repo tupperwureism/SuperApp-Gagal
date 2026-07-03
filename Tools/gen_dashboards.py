@@ -254,13 +254,187 @@ HTML_ADMIN = f"""<!DOCTYPE html>
 with open(os.path.join(MOCKUP_DIR, 'mockup_dashboard_admin.html'), 'w', encoding='utf-8') as f:
     f.write(HTML_ADMIN.strip() + "\n")
 
-# 2. UPGRADE DASHBOARD MITRA UTAMA (REVISI BEDAH LAYOUT & LOGIKA BISNIS KEUANGAN SD-18)
-HTML_MITRA = f"""<!DOCTYPE html>
+# 2. UPGRADE DASHBOARD MITRA UTAMA (REVISI BEDAH LAYOUT & LOGIKA BISNIS KEUANGAN SD-18 & 3 DOMAIN PERSPEKTIF)
+def gen_mitra_html(domain_key):
+    if domain_key == 'medis':
+        initials = "DR"
+        name = "dr. Andi Saputra, Sp.A"
+        spec_title = "Sehatifiqa — Spesialis Anak"
+        reg_badge = "✔ STR KKI Terverifikasi"
+        reg_color = "#38bdf8"
+        border_color = "#38bdf8"
+        workstation_title = "Stasiun Kerja Dokter Spesialis Anak — Portal Mitra SuperApp LifeQ (Domain Medis)"
+        queue_html = """
+            <div class="queue-item" style="border-color: rgba(56,189,248,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #10b981; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">AR</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Anisa Rahma <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 3 thn)</span></div>
+                        <div style="color: #38bdf8; font-size: 0.85rem; margin-top: 2px;">Keluhan: Demam tinggi 38.8°C berhari-hari, batuk berdahak</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-88102 • Waktu Tunggu: 4 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_chat_room.html" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">💬 TERIMA & BUKA ROOM</a>
+            </div>
+
+            <div class="queue-item" style="border-color: rgba(56,189,248,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">BK</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Kurniawan <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Pro Bono SKTM</span> <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 7 thn)</span></div>
+                        <div style="color: #38bdf8; font-size: 0.85rem; margin-top: 2px;">Keluhan: Infeksi saluran pernapasan akut (ISPA), sesak napas ringan</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-88103 • Waktu Tunggu: 7 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_chat_room.html" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">💬 TERIMA & BUKA ROOM</a>
+            </div>"""
+        history_html = """
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Cindy Aurelia — <span style="color: #38bdf8;">Pemeriksaan DDI Checker & SOAP Note</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 14:00 WIB • Status: SOAP Note & e-Resep DDI Checker belum diisi</div>
+                </div>
+                <a href="mockup_modul_medis.html" class="btn btn-success" style="padding: 0.6rem 1.2rem; font-weight: 700;">📝 BUAT SOAP NOTE</a>
+            </div>
+
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Doni Saputra — <span style="color: #34d399;">Konsultasi Infeksi Saluran Pernapasan</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 13:15 WIB • Status: SOAP Note tersimpan, e-Resep diterbitkan</div>
+                </div>
+                <a href="mockup_modul_medis.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT REKAM MEDIS</a>
+            </div>"""
+        history_title = "Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note & e-Resep)"
+        balance_active = "Rp 14.850.000"
+        probono_claim = "Rp 4.500.000"
+        probono_label = "Klaim Pro Bono Medis Cair"
+        probono_sub = "15 Sesi Bantuan Medis Bersubsidi Kemensos"
+        waiting_reconcile = "Rp 2.150.000"
+        mod_url = "mockup_modul_medis.html"
+        mod_text = "🩺 Buka Workstation Sehatifiqa"
+    elif domain_key == 'hukum':
+        initials = "BS"
+        name = "Budi Santoso, S.H., M.H."
+        spec_title = "Justifiqa — Advokat Litigasi & Perdata"
+        reg_badge = "✔ NIA PERADI Terverifikasi"
+        reg_color = "#fbbf24"
+        border_color = "#fbbf24"
+        workstation_title = "Stasiun Kerja Advokat Profesional — Portal Mitra SuperApp LifeQ (Domain Hukum)"
+        queue_html = """
+            <div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">AS</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Ahmad Subarjo <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Pro Bono SKTM</span></div>
+                        <div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Wanprestasi kontrak kerja sepihak, butuh somasi hukum (IRAC)</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99201 • Waktu Tunggu: 3 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA & BUKA IRAC</a>
+            </div>
+
+            <div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">PT</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">PT Harapan Maju <span class="badge badge-info" style="font-size: 0.65rem; padding: 2px 6px;">Komersial Retainer</span></div>
+                        <div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Sengketa hak cipta perangkat lunak & tinjauan NDA perusahaan</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99202 • Waktu Tunggu: 8 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA & BUKA IRAC</a>
+            </div>"""
+        history_html = """
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Hendra Wijaya — <span style="color: #fbbf24;">Akta Perjanjian Damai e-Meterai</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 14:30 WIB • Status: Draf IRAC selesai, menunggu pembubuhan e-Meterai Perum Peruri</div>
+                </div>
+                <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📜 BUBUI E-METERAI</a>
+            </div>
+
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Siti Aminah — <span style="color: #34d399;">Gugatan Hak Asuh Anak (Pro Bono)</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 11:00 WIB • Status: Berkas gugatan pengadilan resmi diterbitkan</div>
+                </div>
+                <a href="mockup_modul_hukum.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT BERKAS HUKUM</a>
+            </div>"""
+        history_title = "Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC & e-Meterai)"
+        balance_active = "Rp 22.400.000"
+        probono_claim = "Rp 6.000.000"
+        probono_label = "Klaim Pro Bono Hukum Cair"
+        probono_sub = "8 Sesi Bantuan Litigasi Bersubsidi BPHN"
+        waiting_reconcile = "Rp 3.500.000"
+        mod_url = "mockup_modul_hukum.html"
+        mod_text = "⚖️ Buka Workstation Justifiqa"
+    elif domain_key == 'psikologi':
+        initials = "RW"
+        name = "Rina Wulandari, M.Psi., Psikolog"
+        spec_title = "Qualifa — Psikolog Klinis & Kerja"
+        reg_badge = "✔ SIPP IPK Terverifikasi"
+        reg_color = "#c084fc"
+        border_color = "#c084fc"
+        workstation_title = "Stasiun Kerja Psikolog Klinis — Portal Mitra SuperApp LifeQ (Domain Psikologi)"
+        queue_html = """
+            <div class="queue-item" style="border-color: rgba(192,132,252,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #a855f7; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">DL</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Dewi Lestari <span class="badge badge-purple" style="font-size: 0.65rem; padding: 2px 6px;">DASS-21 Severe</span></div>
+                        <div style="color: #c084fc; font-size: 0.85rem; margin-top: 2px;">Keluhan: Stres kerja berat, kecemasan akut, gejala burnout berat</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-77301 • Waktu Tunggu: 2 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">🧠 TERIMA & KONSELING</a>
+            </div>
+
+            <div class="queue-item" style="border-color: rgba(192,132,252,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #ef4444; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">RP</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Rama Pratama <span class="badge badge-danger" style="font-size: 0.65rem; padding: 2px 6px;">Crisis 119 Pro Bono</span></div>
+                        <div style="color: #f87171; font-size: 0.85rem; margin-top: 2px;">Keluhan: Serangan panik akut (Panic Attack), butuh intervensi stabilisasi emosi</div>
+                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-77302 • Waktu Tunggu: 5 menit lalu</div>
+                    </div>
+                </div>
+                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">🚨 TERIMA KRISIS 119</a>
+            </div>"""
+        history_html = """
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Maya Sari — <span style="color: #c084fc;">Evaluasi Gangguan Tidur & DAP Note</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 15:00 WIB • Status: DAP Note (Data, Assessment, Plan) belum dilengkapi</div>
+                </div>
+                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📝 BUAT DAP NOTE</a>
+            </div>
+
+            <div class="history-item">
+                <div>
+                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Kevin Jonathan — <span style="color: #34d399;">Konseling Pemulihan Trauma Relasional</span></div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 10:30 WIB • Status: DAP Note tersimpan, Rekonsiliasi Jadwal Sesi 2 aktif</div>
+                </div>
+                <a href="mockup_modul_psikologi.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT DAP NOTE</a>
+            </div>"""
+        history_title = "Sesi Selesai / Arsip Konseling (Wajib Isi DAP Note & Rekonsiliasi)"
+        balance_active = "Rp 11.250.000"
+        probono_claim = "Rp 3.200.000"
+        probono_label = "Klaim Pro Bono Mental Health"
+        probono_sub = "12 Sesi Bantuan Psikologi Bersubsidi Kemensos"
+        waiting_reconcile = "Rp 1.800.000"
+        mod_url = "mockup_modul_psikologi.html"
+        mod_text = "🧠 Buka Workstation Qualifa"
+
+    active_med = 'background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); font-weight: 700;' if domain_key=='medis' else 'color: #94a3b8;'
+    active_huk = 'background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); font-weight: 700;' if domain_key=='hukum' else 'color: #94a3b8;'
+    active_psi = 'background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.4); font-weight: 700;' if domain_key=='psikologi' else 'color: #94a3b8;'
+
+    return f"""<!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Mitra — Workstation Dokter, Advokat, & Psikolog (LifeQ)</title>
+    <title>Portal Mitra ({domain_key.upper()}) — Workstation Profesional (LifeQ)</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
     {SHARED_CSS}
     <style>
@@ -304,7 +478,7 @@ HTML_MITRA = f"""<!DOCTYPE html>
             align-items: center;
             justify-content: space-between;
             background: rgba(15,23,42,0.7);
-            border: 1px solid rgba(56,189,248,0.25);
+            border: 1px solid {border_color};
             border-radius: 12px;
             padding: 1.2rem 1.5rem;
             margin-bottom: 1rem;
@@ -328,7 +502,7 @@ HTML_MITRA = f"""<!DOCTYPE html>
         }}
         .payout-card {{
             background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.95));
-            border: 1px solid rgba(16,185,129,0.35);
+            border: 1px solid {border_color};
             border-radius: 16px;
             padding: 1.8rem;
             margin-top: 2rem;
@@ -338,17 +512,15 @@ HTML_MITRA = f"""<!DOCTYPE html>
 </head>
 <body>
     <div class="sidebar" style="width: 290px;">
-        <div class="brand">LIFEQ <span style="color: #38bdf8; font-size: 0.75rem; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.3);">MITRA</span></div>
+        <div class="brand">LIFEQ <span style="color: {reg_color}; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid {reg_color};">MITRA</span></div>
         
-        <!-- Sidebar Profile Area -->
         <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #38bdf8;">DR</div>
-            <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">dr. Andi Saputra, Sp.A</div>
-            <div style="font-size: 0.8rem; color: #38bdf8; margin-top: 4px;">Sehatifiqa — Spesialis Anak</div>
-            <span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">✔ STR KKI Terverifikasi</span>
+            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, {reg_color}, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid {reg_color};">{initials}</div>
+            <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">{name}</div>
+            <div style="font-size: 0.8rem; color: {reg_color}; margin-top: 4px;">{spec_title}</div>
+            <span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">{reg_badge}</span>
         </div>
 
-        <!-- Sidebar Toggle Switch Status Ketersediaan -->
         <div class="toggle-switch-container">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status Praktik:</span>
@@ -362,86 +534,48 @@ HTML_MITRA = f"""<!DOCTYPE html>
             </label>
         </div>
 
-        <!-- Menu Navigasi Bersih Sesuai Spesifikasi -->
         <ul class="nav-menu">
-            <li class="nav-item"><a href="mockup_dashboard_mitra.html" class="active">📊 Dasbor Utama</a></li>
-            <li class="nav-item"><a href="#antrean-section">⚡ Antrean Konsultasi</a></li>
-            <li class="nav-item"><a href="#history-section">📑 Riwayat Sesi & Notes</a></li>
-            <li class="nav-item"><a href="#dompet-section">💰 Dompet Saldo & Payout (SD-18)</a></li>
+            <li class="nav-item"><a href="javascript:void(0)" class="active" onclick="window.scrollTo({{top:0, behavior:'smooth'}}); return false;">📊 Dasbor Utama</a></li>
+            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('antrean-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">⚡ Antrean Konsultasi</a></li>
+            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('history-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">📑 Riwayat Sesi & Notes</a></li>
+            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('dompet-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">💰 Dompet Saldo & Payout</a></li>
             <li style="margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;">Domain Workstation</li>
-            <li class="nav-item"><a href="mockup_modul_medis.html" style="color: #38bdf8; font-weight: 600;">🩺 Buka Workstation Sehatifiqa</a></li>
+            <li class="nav-item"><a href="{mod_url}" style="color: {reg_color}; font-weight: 600;">{mod_text}</a></li>
+            
+            <li style="margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">🔄 Lihat Perspektif Lain</li>
+            <li class="nav-item"><a href="mockup_dashboard_mitra_medis.html" style="{active_med}">🩺 dr. Andi (Medis)</a></li>
+            <li class="nav-item"><a href="mockup_dashboard_mitra_hukum.html" style="{active_huk}">⚖️ Budi, S.H. (Advokat)</a></li>
+            <li class="nav-item"><a href="mockup_dashboard_mitra_psikologi.html" style="{active_psi}">🧠 Rina, M.Psi. (Psikolog)</a></li>
         </ul>
     </div>
     
     <div class="main">
-        <!-- Topbar Greeting Profesional -->
         <div class="topbar">
             <div>
-                <h1>Selamat Bekerja, dr. Andi Saputra, Sp.A</h1>
-                <p>Stasiun Kerja Dokter Spesialis Anak — Portal Mitra SuperApp LifeQ (Domain Medis)</p>
+                <h1>Selamat Bekerja, {name}</h1>
+                <p>{workstation_title}</p>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span class="badge badge-info" style="padding: 8px 16px; font-size: 0.85rem;">🛡️ E2EE Zero-Knowledge Ready</span>
             </div>
         </div>
 
-        <!-- Antrean Konsultasi Masuk (queue-section) -->
-        <div id="antrean-section" class="card" style="border-color: #38bdf8;">
+        <div id="antrean-section" class="card" style="border-color: {border_color};">
             <div class="card-title">
                 <span style="display: flex; align-items: center; gap: 8px;"><span>⚡</span> Antrean Konsultasi Masuk (2 Sesi Menunggu)</span>
                 <span class="badge badge-info">Realtime WebRTC Sync</span>
             </div>
-            
-            <div class="queue-item">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #10b981; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">AR</div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Anisa Rahma <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 3 thn)</span></div>
-                        <div style="color: #38bdf8; font-size: 0.85rem; margin-top: 2px;">Keluhan: Demam tinggi 38.8°C berhari-hari, batuk berdahak</div>
-                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-88102 • Waktu Tunggu: 4 menit lalu</div>
-                    </div>
-                </div>
-                <a href="mockup_chat_room.html" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">💬 TERIMA & BUKA ROOM</a>
-            </div>
-
-            <div class="queue-item">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">BK</div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Kurniawan <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Pro Bono SKTM</span> <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 7 thn)</span></div>
-                        <div style="color: #38bdf8; font-size: 0.85rem; margin-top: 2px;">Keluhan: Infeksi saluran pernapasan akut (ISPA), sesak napas ringan</div>
-                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-88103 • Waktu Tunggu: 7 menit lalu</div>
-                    </div>
-                </div>
-                <a href="mockup_chat_room.html" class="btn btn-primary" style="padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">💬 TERIMA & BUKA ROOM</a>
-            </div>
+            {queue_html}
         </div>
 
-        <!-- Sesi Selesai / Rekam Medis (history-section) -->
         <div id="history-section" class="card">
             <div class="card-title">
-                <span style="display: flex; align-items: center; gap: 8px;"><span>📑</span> Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note & e-Resep)</span>
+                <span style="display: flex; align-items: center; gap: 8px;"><span>📑</span> {history_title}</span>
                 <span class="badge badge-warning">1 Butuh Tindakan</span>
             </div>
-            
-            <div class="history-item">
-                <div>
-                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Cindy Aurelia — <span style="color: #38bdf8;">Pemeriksaan DDI Checker & SOAP Note</span></div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 14:00 WIB • Status: SOAP Note & e-Resep DDI Checker belum diisi</div>
-                </div>
-                <a href="mockup_modul_medis.html" class="btn btn-success" style="padding: 0.6rem 1.2rem; font-weight: 700;">📝 BUAT SOAP NOTE</a>
-            </div>
-
-            <div class="history-item">
-                <div>
-                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Doni Saputra — <span style="color: #34d399;">Konsultasi Infeksi Saluran Pernapasan</span></div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 13:15 WIB • Status: SOAP Note tersimpan, e-Resep diterbitkan</div>
-                </div>
-                <a href="mockup_modul_medis.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT REKAM MEDIS</a>
-            </div>
+            {history_html}
         </div>
 
-        <!-- Dompet Saldo & Penarikan Dana Mitra (SD-18 Payee Workstation) -->
         <div id="dompet-section" class="payout-card">
             <div class="card-title">
                 <span style="display: flex; align-items: center; gap: 8px;"><span>💰</span> Stasiun Kerja Keuangan Mitra & Penarikan Dana (SD-18)</span>
@@ -452,30 +586,29 @@ HTML_MITRA = f"""<!DOCTYPE html>
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;">
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);">
                     <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Aktif Siap Tarik</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;">Rp 14.850.000</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;">{balance_active}</div>
                     <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Sudah dipotong PPh 21 & Bagi Hasil Platform</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Klaim Pro Bono Cair (Kemensos)</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;">Rp 4.500.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">15 Sesi Bantuan Hukum/Medis Bersubsidi</div>
+                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">{probono_label}</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;">{probono_claim}</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">{probono_sub}</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);">
                     <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Menunggu Rekonsiliasi</div>
-                    <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;">Rp 2.150.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">6 Sesi Hari Ini (Proses Audit WORM)</div>
+                    <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;">{waiting_reconcile}</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Sesi Hari Ini (Proses Audit WORM)</div>
                 </div>
             </div>
 
             <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem;">
                 <div style="font-size: 0.85rem; color: #cbd5e1;">⚡ Payout via Escrow Bank Gateway — Diproses Real-Time ke Rekening BCA</div>
                 <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-outline" onclick="alert('📑 Mengunduh Bukti Potong PPh 21 & Laporan Audit WORM SHA-256...')">📑 Unduh Laporan Earning</button>
-                    <button class="btn btn-success" style="padding: 0.7rem 1.5rem; font-weight: 700;" onclick="alert('✅ Permintaan Payout Rp 14.850.000 ke BCA berhasil dikirim! Diproses secara otomatis.')">💸 Tarik Dana Sekarang (Payout)</button>
+                    <button class="btn btn-outline" onclick="alert('📑 Mengunduh Bukti Potong PPh 21 & Laporan Audit WORM SHA-256...')">📑 Unduh Bukti Potong PPh 21</button>
+                    <button class="btn btn-success" style="padding: 0.7rem 1.5rem; font-weight: 700;" onclick="alert('✅ Permintaan Payout {balance_active} ke BCA berhasil dikirim! Diproses secara otomatis.')">💸 Tarik Dana Sekarang (Payout)</button>
                 </div>
             </div>
         </div>
-
     </div>
 
     <script>
@@ -511,7 +644,13 @@ HTML_MITRA = f"""<!DOCTYPE html>
 """
 
 with open(os.path.join(MOCKUP_DIR, 'mockup_dashboard_mitra.html'), 'w', encoding='utf-8') as f:
-    f.write(HTML_MITRA.strip() + "\n")
+    f.write(gen_mitra_html('medis').strip() + "\n")
+with open(os.path.join(MOCKUP_DIR, 'mockup_dashboard_mitra_medis.html'), 'w', encoding='utf-8') as f:
+    f.write(gen_mitra_html('medis').strip() + "\n")
+with open(os.path.join(MOCKUP_DIR, 'mockup_dashboard_mitra_hukum.html'), 'w', encoding='utf-8') as f:
+    f.write(gen_mitra_html('hukum').strip() + "\n")
+with open(os.path.join(MOCKUP_DIR, 'mockup_dashboard_mitra_psikologi.html'), 'w', encoding='utf-8') as f:
+    f.write(gen_mitra_html('psikologi').strip() + "\n")
 
 # 3. UPGRADE DASHBOARD KLIEN UTAMA (REVISI MUTLAK: FULL-WIDTH, NO LEFT SIDEBAR, HERO SEARCH, 3 PILAR, 2-COL BOTTOM)
 HTML_KLIEN = f"""<!DOCTYPE html>

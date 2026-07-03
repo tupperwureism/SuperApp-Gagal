@@ -9,6 +9,9 @@ MOCKUP_FILES = [
     'mockup_auth.html',
     'mockup_dashboard_klien.html',
     'mockup_dashboard_mitra.html',
+    'mockup_dashboard_mitra_medis.html',
+    'mockup_dashboard_mitra_hukum.html',
+    'mockup_dashboard_mitra_psikologi.html',
     'mockup_dashboard_admin.html',
     'mockup_admin_verifikasi.html',
     'mockup_admin_pelanggaran.html',
@@ -29,7 +32,13 @@ for fname in MOCKUP_FILES:
     with open(fpath, 'r', encoding='utf-8') as f:
         raw = f.read()
     escaped = html.escape(raw)
-    label = fname.replace('mockup_', '').replace('.html', '').replace('_', ' ').title()
+    label_map = {
+        'mockup_dashboard_mitra.html': 'Dashboard Mitra (Medis - Default)',
+        'mockup_dashboard_mitra_medis.html': 'Dashboard Mitra (Medis)',
+        'mockup_dashboard_mitra_hukum.html': 'Dashboard Mitra (Hukum)',
+        'mockup_dashboard_mitra_psikologi.html': 'Dashboard Mitra (Psikologi)',
+    }
+    label = label_map.get(fname, fname.replace('mockup_', '').replace('.html', '').replace('_', ' ').title())
     sections.append((fname, label, escaped))
 
 page = '''<!DOCTYPE html>

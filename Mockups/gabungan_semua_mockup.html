@@ -56,16 +56,19 @@
     <div class="toc">
         <a href="#mockup_auth">1. Auth</a>
         <a href="#mockup_dashboard_klien">2. Dashboard Klien</a>
-        <a href="#mockup_dashboard_mitra">3. Dashboard Mitra</a>
-        <a href="#mockup_dashboard_admin">4. Dashboard Admin</a>
-        <a href="#mockup_admin_verifikasi">5. Admin Verifikasi</a>
-        <a href="#mockup_admin_pelanggaran">6. Admin Pelanggaran</a>
-        <a href="#mockup_admin_keuangan">7. Admin Keuangan</a>
-        <a href="#mockup_modul_medis">8. Modul Medis</a>
-        <a href="#mockup_modul_psikologi">9. Modul Psikologi</a>
-        <a href="#mockup_modul_hukum">10. Modul Hukum</a>
-        <a href="#mockup_payment_gateway">11. Payment Gateway</a>
-        <a href="#mockup_chat_room">12. Chat Room</a>
+        <a href="#mockup_dashboard_mitra">3. Dashboard Mitra (Medis - Default)</a>
+        <a href="#mockup_dashboard_mitra_medis">4. Dashboard Mitra (Medis)</a>
+        <a href="#mockup_dashboard_mitra_hukum">5. Dashboard Mitra (Hukum)</a>
+        <a href="#mockup_dashboard_mitra_psikologi">6. Dashboard Mitra (Psikologi)</a>
+        <a href="#mockup_dashboard_admin">7. Dashboard Admin</a>
+        <a href="#mockup_admin_verifikasi">8. Admin Verifikasi</a>
+        <a href="#mockup_admin_pelanggaran">9. Admin Pelanggaran</a>
+        <a href="#mockup_admin_keuangan">10. Admin Keuangan</a>
+        <a href="#mockup_modul_medis">11. Modul Medis</a>
+        <a href="#mockup_modul_psikologi">12. Modul Psikologi</a>
+        <a href="#mockup_modul_hukum">13. Modul Hukum</a>
+        <a href="#mockup_payment_gateway">14. Payment Gateway</a>
+        <a href="#mockup_chat_room">15. Chat Room</a>
     </div>
 
     <div class="mockup-section" id="mockup_auth">
@@ -821,7 +824,7 @@
 
     <div class="mockup-section" id="mockup_dashboard_mitra">
         <div class="section-label">
-            <span class="num">3</span> Dashboard Mitra
+            <span class="num">3</span> Dashboard Mitra (Medis - Default)
             <span class="file">mockup_dashboard_mitra.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -829,7 +832,7 @@
 &lt;head&gt;
     &lt;meta charset=&quot;UTF-8&quot;&gt;
     &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
-    &lt;title&gt;Portal Mitra — Workstation Dokter, Advokat, &amp; Psikolog (LifeQ)&lt;/title&gt;
+    &lt;title&gt;Portal Mitra (MEDIS) — Workstation Profesional (LifeQ)&lt;/title&gt;
     &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
     
 &lt;style&gt;
@@ -917,7 +920,7 @@
             align-items: center;
             justify-content: space-between;
             background: rgba(15,23,42,0.7);
-            border: 1px solid rgba(56,189,248,0.25);
+            border: 1px solid #38bdf8;
             border-radius: 12px;
             padding: 1.2rem 1.5rem;
             margin-bottom: 1rem;
@@ -941,7 +944,7 @@
         }
         .payout-card {
             background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.95));
-            border: 1px solid rgba(16,185,129,0.35);
+            border: 1px solid #38bdf8;
             border-radius: 16px;
             padding: 1.8rem;
             margin-top: 2rem;
@@ -951,17 +954,15 @@
 &lt;/head&gt;
 &lt;body&gt;
     &lt;div class=&quot;sidebar&quot; style=&quot;width: 290px;&quot;&gt;
-        &lt;div class=&quot;brand&quot;&gt;LIFEQ &lt;span style=&quot;color: #38bdf8; font-size: 0.75rem; background: rgba(56,189,248,0.1); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(56,189,248,0.3);&quot;&gt;MITRA&lt;/span&gt;&lt;/div&gt;
+        &lt;div class=&quot;brand&quot;&gt;LIFEQ &lt;span style=&quot;color: #38bdf8; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #38bdf8;&quot;&gt;MITRA&lt;/span&gt;&lt;/div&gt;
         
-        &lt;!-- Sidebar Profile Area --&gt;
         &lt;div style=&quot;display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;&quot;&gt;
-            &lt;div style=&quot;width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #38bdf8;&quot;&gt;DR&lt;/div&gt;
+            &lt;div style=&quot;width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #38bdf8;&quot;&gt;DR&lt;/div&gt;
             &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;dr. Andi Saputra, Sp.A&lt;/div&gt;
             &lt;div style=&quot;font-size: 0.8rem; color: #38bdf8; margin-top: 4px;&quot;&gt;Sehatifiqa — Spesialis Anak&lt;/div&gt;
             &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem; margin-top: 8px;&quot;&gt;✔ STR KKI Terverifikasi&lt;/span&gt;
         &lt;/div&gt;
 
-        &lt;!-- Sidebar Toggle Switch Status Ketersediaan --&gt;
         &lt;div class=&quot;toggle-switch-container&quot;&gt;
             &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center;&quot;&gt;
                 &lt;span style=&quot;font-size: 0.85rem; font-weight: 600; color: #cbd5e1;&quot;&gt;Status Praktik:&lt;/span&gt;
@@ -975,19 +976,22 @@
             &lt;/label&gt;
         &lt;/div&gt;
 
-        &lt;!-- Menu Navigasi Bersih Sesuai Spesifikasi --&gt;
         &lt;ul class=&quot;nav-menu&quot;&gt;
-            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra.html&quot; class=&quot;active&quot;&gt;📊 Dasbor Utama&lt;/a&gt;&lt;/li&gt;
-            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;#antrean-section&quot;&gt;⚡ Antrean Konsultasi&lt;/a&gt;&lt;/li&gt;
-            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;#history-section&quot;&gt;📑 Riwayat Sesi &amp; Notes&lt;/a&gt;&lt;/li&gt;
-            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;#dompet-section&quot;&gt;💰 Dompet Saldo &amp; Payout (SD-18)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; class=&quot;active&quot; onclick=&quot;window.scrollTo({top:0, behavior:&#x27;smooth&#x27;}); return false;&quot;&gt;📊 Dasbor Utama&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;antrean-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;⚡ Antrean Konsultasi&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;history-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;📑 Riwayat Sesi &amp; Notes&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;dompet-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;💰 Dompet Saldo &amp; Payout&lt;/a&gt;&lt;/li&gt;
             &lt;li style=&quot;margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;&quot;&gt;Domain Workstation&lt;/li&gt;
             &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_modul_medis.html&quot; style=&quot;color: #38bdf8; font-weight: 600;&quot;&gt;🩺 Buka Workstation Sehatifiqa&lt;/a&gt;&lt;/li&gt;
+            
+            &lt;li style=&quot;margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;&quot;&gt;🔄 Lihat Perspektif Lain&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_medis.html&quot; style=&quot;background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); font-weight: 700;&quot;&gt;🩺 dr. Andi (Medis)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_hukum.html&quot; style=&quot;color: #94a3b8;&quot;&gt;⚖️ Budi, S.H. (Advokat)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_psikologi.html&quot; style=&quot;color: #94a3b8;&quot;&gt;🧠 Rina, M.Psi. (Psikolog)&lt;/a&gt;&lt;/li&gt;
         &lt;/ul&gt;
     &lt;/div&gt;
     
     &lt;div class=&quot;main&quot;&gt;
-        &lt;!-- Topbar Greeting Profesional --&gt;
         &lt;div class=&quot;topbar&quot;&gt;
             &lt;div&gt;
                 &lt;h1&gt;Selamat Bekerja, dr. Andi Saputra, Sp.A&lt;/h1&gt;
@@ -998,14 +1002,13 @@
             &lt;/div&gt;
         &lt;/div&gt;
 
-        &lt;!-- Antrean Konsultasi Masuk (queue-section) --&gt;
         &lt;div id=&quot;antrean-section&quot; class=&quot;card&quot; style=&quot;border-color: #38bdf8;&quot;&gt;
             &lt;div class=&quot;card-title&quot;&gt;
                 &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;⚡&lt;/span&gt; Antrean Konsultasi Masuk (2 Sesi Menunggu)&lt;/span&gt;
                 &lt;span class=&quot;badge badge-info&quot;&gt;Realtime WebRTC Sync&lt;/span&gt;
             &lt;/div&gt;
             
-            &lt;div class=&quot;queue-item&quot;&gt;
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(56,189,248,0.3);&quot;&gt;
                 &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
                     &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #10b981; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;AR&lt;/div&gt;
                     &lt;div&gt;
@@ -1017,7 +1020,7 @@
                 &lt;a href=&quot;mockup_chat_room.html&quot; class=&quot;btn btn-primary&quot; style=&quot;padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;💬 TERIMA &amp; BUKA ROOM&lt;/a&gt;
             &lt;/div&gt;
 
-            &lt;div class=&quot;queue-item&quot;&gt;
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(56,189,248,0.3);&quot;&gt;
                 &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
                     &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;BK&lt;/div&gt;
                     &lt;div&gt;
@@ -1030,7 +1033,6 @@
             &lt;/div&gt;
         &lt;/div&gt;
 
-        &lt;!-- Sesi Selesai / Rekam Medis (history-section) --&gt;
         &lt;div id=&quot;history-section&quot; class=&quot;card&quot;&gt;
             &lt;div class=&quot;card-title&quot;&gt;
                 &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;📑&lt;/span&gt; Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note &amp; e-Resep)&lt;/span&gt;
@@ -1054,7 +1056,6 @@
             &lt;/div&gt;
         &lt;/div&gt;
 
-        &lt;!-- Dompet Saldo &amp; Penarikan Dana Mitra (SD-18 Payee Workstation) --&gt;
         &lt;div id=&quot;dompet-section&quot; class=&quot;payout-card&quot;&gt;
             &lt;div class=&quot;card-title&quot;&gt;
                 &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;💰&lt;/span&gt; Stasiun Kerja Keuangan Mitra &amp; Penarikan Dana (SD-18)&lt;/span&gt;
@@ -1069,26 +1070,931 @@
                     &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sudah dipotong PPh 21 &amp; Bagi Hasil Platform&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);&quot;&gt;
-                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Klaim Pro Bono Cair (Kemensos)&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Klaim Pro Bono Medis Cair&lt;/div&gt;
                     &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;&quot;&gt;Rp 4.500.000&lt;/div&gt;
-                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;15 Sesi Bantuan Hukum/Medis Bersubsidi&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;15 Sesi Bantuan Medis Bersubsidi Kemensos&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);&quot;&gt;
                     &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Menunggu Rekonsiliasi&lt;/div&gt;
                     &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;&quot;&gt;Rp 2.150.000&lt;/div&gt;
-                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;6 Sesi Hari Ini (Proses Audit WORM)&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sesi Hari Ini (Proses Audit WORM)&lt;/div&gt;
                 &lt;/div&gt;
             &lt;/div&gt;
 
             &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem;&quot;&gt;
                 &lt;div style=&quot;font-size: 0.85rem; color: #cbd5e1;&quot;&gt;⚡ Payout via Escrow Bank Gateway — Diproses Real-Time ke Rekening BCA&lt;/div&gt;
                 &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
-                    &lt;button class=&quot;btn btn-outline&quot; onclick=&quot;alert(&#x27;📑 Mengunduh Bukti Potong PPh 21 &amp; Laporan Audit WORM SHA-256...&#x27;)&quot;&gt;📑 Unduh Laporan Earning&lt;/button&gt;
+                    &lt;button class=&quot;btn btn-outline&quot; onclick=&quot;alert(&#x27;📑 Mengunduh Bukti Potong PPh 21 &amp; Laporan Audit WORM SHA-256...&#x27;)&quot;&gt;📑 Unduh Bukti Potong PPh 21&lt;/button&gt;
                     &lt;button class=&quot;btn btn-success&quot; style=&quot;padding: 0.7rem 1.5rem; font-weight: 700;&quot; onclick=&quot;alert(&#x27;✅ Permintaan Payout Rp 14.850.000 ke BCA berhasil dikirim! Diproses secara otomatis.&#x27;)&quot;&gt;💸 Tarik Dana Sekarang (Payout)&lt;/button&gt;
                 &lt;/div&gt;
             &lt;/div&gt;
         &lt;/div&gt;
+    &lt;/div&gt;
 
+    &lt;script&gt;
+        let isOnline = true;
+        function toggleSidebarStatus() {
+            isOnline = !isOnline;
+            const slider = document.getElementById(&#x27;sidebar-slider&#x27;);
+            const knob = document.getElementById(&#x27;sidebar-knob&#x27;);
+            const badge = document.getElementById(&#x27;status-badge&#x27;);
+            const text = document.getElementById(&#x27;status-text&#x27;);
+            
+            if(isOnline) {
+                slider.style.background = &#x27;#10b981&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(16,185,129,0.4)&#x27;;
+                knob.style.left = &#x27;27px&#x27;;
+                badge.className = &#x27;badge badge-success&#x27;;
+                badge.innerHTML = &#x27;🟢 ONLINE&#x27;;
+                text.style.color = &#x27;#a7f3d0&#x27;;
+                text.innerHTML = &#x27;Menerima Konsultasi&#x27;;
+            } else {
+                slider.style.background = &#x27;#ef4444&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(239,68,68,0.4)&#x27;;
+                knob.style.left = &#x27;3px&#x27;;
+                badge.className = &#x27;badge badge-danger&#x27;;
+                badge.innerHTML = &#x27;🔴 SIDANG / OPERASI&#x27;;
+                text.style.color = &#x27;#f87171&#x27;;
+                text.innerHTML = &#x27;Jadwal Tidak Tersedia&#x27;;
+            }
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+    </div>
+
+    <div class="mockup-section" id="mockup_dashboard_mitra_medis">
+        <div class="section-label">
+            <span class="num">4</span> Dashboard Mitra (Medis)
+            <span class="file">mockup_dashboard_mitra_medis.html</span>
+        </div>
+        <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;Portal Mitra (MEDIS) — Workstation Profesional (LifeQ)&lt;/title&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+    
+&lt;style&gt;
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: &#x27;Outfit&#x27;, sans-serif; }
+    body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+    
+    .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+    .brand { font-size: 1.4rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .brand span { color: #0ea5e9; }
+    .badge-admin { background: rgba(14,165,233,0.15); color: #38bdf8; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; border: 1px solid rgba(14,165,233,0.3); }
+    .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+    .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+    .nav-item a:hover, .nav-item a.active { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); }
+    
+    .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .topbar h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .topbar p { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
+    .user-profile { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+    
+    .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(12px); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 1rem; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 600; }
+    td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; vertical-align: middle; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-info { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    
+    .btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
+&lt;/style&gt;
+
+    &lt;style&gt;
+        .toggle-switch-container {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .toggle-slider {
+            width: 52px;
+            height: 28px;
+            background: #10b981;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(16,185,129,0.4);
+        }
+        .toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 27px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .queue-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid #38bdf8;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .queue-item:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 4px 15px rgba(56,189,248,0.15);
+            transform: translateX(3px);
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .history-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .payout-card {
+            background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.95));
+            border: 1px solid #38bdf8;
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;sidebar&quot; style=&quot;width: 290px;&quot;&gt;
+        &lt;div class=&quot;brand&quot;&gt;LIFEQ &lt;span style=&quot;color: #38bdf8; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #38bdf8;&quot;&gt;MITRA&lt;/span&gt;&lt;/div&gt;
+        
+        &lt;div style=&quot;display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;&quot;&gt;
+            &lt;div style=&quot;width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #38bdf8, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #38bdf8;&quot;&gt;DR&lt;/div&gt;
+            &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;dr. Andi Saputra, Sp.A&lt;/div&gt;
+            &lt;div style=&quot;font-size: 0.8rem; color: #38bdf8; margin-top: 4px;&quot;&gt;Sehatifiqa — Spesialis Anak&lt;/div&gt;
+            &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem; margin-top: 8px;&quot;&gt;✔ STR KKI Terverifikasi&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;toggle-switch-container&quot;&gt;
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center;&quot;&gt;
+                &lt;span style=&quot;font-size: 0.85rem; font-weight: 600; color: #cbd5e1;&quot;&gt;Status Praktik:&lt;/span&gt;
+                &lt;span id=&quot;status-badge&quot; class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem;&quot;&gt;🟢 ONLINE&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;label class=&quot;toggle-switch&quot; onclick=&quot;toggleSidebarStatus()&quot;&gt;
+                &lt;div id=&quot;sidebar-slider&quot; class=&quot;toggle-slider&quot;&gt;
+                    &lt;div id=&quot;sidebar-knob&quot; class=&quot;toggle-knob&quot;&gt;&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;span id=&quot;status-text&quot; style=&quot;font-size: 0.8rem; color: #a7f3d0; font-weight: 600;&quot;&gt;Menerima Konsultasi&lt;/span&gt;
+            &lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;ul class=&quot;nav-menu&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; class=&quot;active&quot; onclick=&quot;window.scrollTo({top:0, behavior:&#x27;smooth&#x27;}); return false;&quot;&gt;📊 Dasbor Utama&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;antrean-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;⚡ Antrean Konsultasi&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;history-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;📑 Riwayat Sesi &amp; Notes&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;dompet-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;💰 Dompet Saldo &amp; Payout&lt;/a&gt;&lt;/li&gt;
+            &lt;li style=&quot;margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;&quot;&gt;Domain Workstation&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_modul_medis.html&quot; style=&quot;color: #38bdf8; font-weight: 600;&quot;&gt;🩺 Buka Workstation Sehatifiqa&lt;/a&gt;&lt;/li&gt;
+            
+            &lt;li style=&quot;margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;&quot;&gt;🔄 Lihat Perspektif Lain&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_medis.html&quot; style=&quot;background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); font-weight: 700;&quot;&gt;🩺 dr. Andi (Medis)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_hukum.html&quot; style=&quot;color: #94a3b8;&quot;&gt;⚖️ Budi, S.H. (Advokat)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_psikologi.html&quot; style=&quot;color: #94a3b8;&quot;&gt;🧠 Rina, M.Psi. (Psikolog)&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    
+    &lt;div class=&quot;main&quot;&gt;
+        &lt;div class=&quot;topbar&quot;&gt;
+            &lt;div&gt;
+                &lt;h1&gt;Selamat Bekerja, dr. Andi Saputra, Sp.A&lt;/h1&gt;
+                &lt;p&gt;Stasiun Kerja Dokter Spesialis Anak — Portal Mitra SuperApp LifeQ (Domain Medis)&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                &lt;span class=&quot;badge badge-info&quot; style=&quot;padding: 8px 16px; font-size: 0.85rem;&quot;&gt;🛡️ E2EE Zero-Knowledge Ready&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;antrean-section&quot; class=&quot;card&quot; style=&quot;border-color: #38bdf8;&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;⚡&lt;/span&gt; Antrean Konsultasi Masuk (2 Sesi Menunggu)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-info&quot;&gt;Realtime WebRTC Sync&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(56,189,248,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #10b981; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;AR&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Anisa Rahma &lt;span style=&quot;font-weight: normal; color: #94a3b8; font-size: 0.85rem;&quot;&gt;(Pasien Anak - 3 thn)&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #38bdf8; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Demam tinggi 38.8°C berhari-hari, batuk berdahak&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-88102 • Waktu Tunggu: 4 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_chat_room.html&quot; class=&quot;btn btn-primary&quot; style=&quot;padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;💬 TERIMA &amp; BUKA ROOM&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(56,189,248,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;BK&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Budi Kurniawan &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.65rem; padding: 2px 6px;&quot;&gt;Pro Bono SKTM&lt;/span&gt; &lt;span style=&quot;font-weight: normal; color: #94a3b8; font-size: 0.85rem;&quot;&gt;(Pasien Anak - 7 thn)&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #38bdf8; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Infeksi saluran pernapasan akut (ISPA), sesak napas ringan&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-88103 • Waktu Tunggu: 7 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_chat_room.html&quot; class=&quot;btn btn-primary&quot; style=&quot;padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;💬 TERIMA &amp; BUKA ROOM&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;history-section&quot; class=&quot;card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;📑&lt;/span&gt; Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note &amp; e-Resep)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-warning&quot;&gt;1 Butuh Tindakan&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Cindy Aurelia — &lt;span style=&quot;color: #38bdf8;&quot;&gt;Pemeriksaan DDI Checker &amp; SOAP Note&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 14:00 WIB • Status: SOAP Note &amp; e-Resep DDI Checker belum diisi&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_medis.html&quot; class=&quot;btn btn-success&quot; style=&quot;padding: 0.6rem 1.2rem; font-weight: 700;&quot;&gt;📝 BUAT SOAP NOTE&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Doni Saputra — &lt;span style=&quot;color: #34d399;&quot;&gt;Konsultasi Infeksi Saluran Pernapasan&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 13:15 WIB • Status: SOAP Note tersimpan, e-Resep diterbitkan&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_medis.html&quot; class=&quot;btn btn-outline&quot; style=&quot;font-weight: 600;&quot;&gt;👁️ LIHAT REKAM MEDIS&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;dompet-section&quot; class=&quot;payout-card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;💰&lt;/span&gt; Stasiun Kerja Keuangan Mitra &amp; Penarikan Dana (SD-18)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-success&quot;&gt;Beneficiary Account: Bank BCA 8810-xxxx-xxxx&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;p style=&quot;color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;&quot;&gt;Pengelolaan penghasilan konsultasi profesional, riwayat klaim subsidi Pro Bono negara (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21.&lt;/p&gt;
+            
+            &lt;div style=&quot;display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;&quot;&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Saldo Aktif Siap Tarik&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;&quot;&gt;Rp 14.850.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sudah dipotong PPh 21 &amp; Bagi Hasil Platform&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Klaim Pro Bono Medis Cair&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;&quot;&gt;Rp 4.500.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;15 Sesi Bantuan Medis Bersubsidi Kemensos&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Menunggu Rekonsiliasi&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;&quot;&gt;Rp 2.150.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sesi Hari Ini (Proses Audit WORM)&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem;&quot;&gt;
+                &lt;div style=&quot;font-size: 0.85rem; color: #cbd5e1;&quot;&gt;⚡ Payout via Escrow Bank Gateway — Diproses Real-Time ke Rekening BCA&lt;/div&gt;
+                &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
+                    &lt;button class=&quot;btn btn-outline&quot; onclick=&quot;alert(&#x27;📑 Mengunduh Bukti Potong PPh 21 &amp; Laporan Audit WORM SHA-256...&#x27;)&quot;&gt;📑 Unduh Bukti Potong PPh 21&lt;/button&gt;
+                    &lt;button class=&quot;btn btn-success&quot; style=&quot;padding: 0.7rem 1.5rem; font-weight: 700;&quot; onclick=&quot;alert(&#x27;✅ Permintaan Payout Rp 14.850.000 ke BCA berhasil dikirim! Diproses secara otomatis.&#x27;)&quot;&gt;💸 Tarik Dana Sekarang (Payout)&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        let isOnline = true;
+        function toggleSidebarStatus() {
+            isOnline = !isOnline;
+            const slider = document.getElementById(&#x27;sidebar-slider&#x27;);
+            const knob = document.getElementById(&#x27;sidebar-knob&#x27;);
+            const badge = document.getElementById(&#x27;status-badge&#x27;);
+            const text = document.getElementById(&#x27;status-text&#x27;);
+            
+            if(isOnline) {
+                slider.style.background = &#x27;#10b981&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(16,185,129,0.4)&#x27;;
+                knob.style.left = &#x27;27px&#x27;;
+                badge.className = &#x27;badge badge-success&#x27;;
+                badge.innerHTML = &#x27;🟢 ONLINE&#x27;;
+                text.style.color = &#x27;#a7f3d0&#x27;;
+                text.innerHTML = &#x27;Menerima Konsultasi&#x27;;
+            } else {
+                slider.style.background = &#x27;#ef4444&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(239,68,68,0.4)&#x27;;
+                knob.style.left = &#x27;3px&#x27;;
+                badge.className = &#x27;badge badge-danger&#x27;;
+                badge.innerHTML = &#x27;🔴 SIDANG / OPERASI&#x27;;
+                text.style.color = &#x27;#f87171&#x27;;
+                text.innerHTML = &#x27;Jadwal Tidak Tersedia&#x27;;
+            }
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+    </div>
+
+    <div class="mockup-section" id="mockup_dashboard_mitra_hukum">
+        <div class="section-label">
+            <span class="num">5</span> Dashboard Mitra (Hukum)
+            <span class="file">mockup_dashboard_mitra_hukum.html</span>
+        </div>
+        <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;Portal Mitra (HUKUM) — Workstation Profesional (LifeQ)&lt;/title&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+    
+&lt;style&gt;
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: &#x27;Outfit&#x27;, sans-serif; }
+    body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+    
+    .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+    .brand { font-size: 1.4rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .brand span { color: #0ea5e9; }
+    .badge-admin { background: rgba(14,165,233,0.15); color: #38bdf8; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; border: 1px solid rgba(14,165,233,0.3); }
+    .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+    .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+    .nav-item a:hover, .nav-item a.active { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); }
+    
+    .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .topbar h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .topbar p { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
+    .user-profile { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+    
+    .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(12px); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 1rem; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 600; }
+    td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; vertical-align: middle; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-info { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    
+    .btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
+&lt;/style&gt;
+
+    &lt;style&gt;
+        .toggle-switch-container {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .toggle-slider {
+            width: 52px;
+            height: 28px;
+            background: #10b981;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(16,185,129,0.4);
+        }
+        .toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 27px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .queue-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid #fbbf24;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .queue-item:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 4px 15px rgba(56,189,248,0.15);
+            transform: translateX(3px);
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .history-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .payout-card {
+            background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.95));
+            border: 1px solid #fbbf24;
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;sidebar&quot; style=&quot;width: 290px;&quot;&gt;
+        &lt;div class=&quot;brand&quot;&gt;LIFEQ &lt;span style=&quot;color: #fbbf24; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24;&quot;&gt;MITRA&lt;/span&gt;&lt;/div&gt;
+        
+        &lt;div style=&quot;display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;&quot;&gt;
+            &lt;div style=&quot;width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #fbbf24;&quot;&gt;BS&lt;/div&gt;
+            &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Budi Santoso, S.H., M.H.&lt;/div&gt;
+            &lt;div style=&quot;font-size: 0.8rem; color: #fbbf24; margin-top: 4px;&quot;&gt;Justifiqa — Advokat Litigasi &amp; Perdata&lt;/div&gt;
+            &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem; margin-top: 8px;&quot;&gt;✔ NIA PERADI Terverifikasi&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;toggle-switch-container&quot;&gt;
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center;&quot;&gt;
+                &lt;span style=&quot;font-size: 0.85rem; font-weight: 600; color: #cbd5e1;&quot;&gt;Status Praktik:&lt;/span&gt;
+                &lt;span id=&quot;status-badge&quot; class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem;&quot;&gt;🟢 ONLINE&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;label class=&quot;toggle-switch&quot; onclick=&quot;toggleSidebarStatus()&quot;&gt;
+                &lt;div id=&quot;sidebar-slider&quot; class=&quot;toggle-slider&quot;&gt;
+                    &lt;div id=&quot;sidebar-knob&quot; class=&quot;toggle-knob&quot;&gt;&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;span id=&quot;status-text&quot; style=&quot;font-size: 0.8rem; color: #a7f3d0; font-weight: 600;&quot;&gt;Menerima Konsultasi&lt;/span&gt;
+            &lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;ul class=&quot;nav-menu&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; class=&quot;active&quot; onclick=&quot;window.scrollTo({top:0, behavior:&#x27;smooth&#x27;}); return false;&quot;&gt;📊 Dasbor Utama&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;antrean-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;⚡ Antrean Konsultasi&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;history-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;📑 Riwayat Sesi &amp; Notes&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;dompet-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;💰 Dompet Saldo &amp; Payout&lt;/a&gt;&lt;/li&gt;
+            &lt;li style=&quot;margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;&quot;&gt;Domain Workstation&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_modul_hukum.html&quot; style=&quot;color: #fbbf24; font-weight: 600;&quot;&gt;⚖️ Buka Workstation Justifiqa&lt;/a&gt;&lt;/li&gt;
+            
+            &lt;li style=&quot;margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;&quot;&gt;🔄 Lihat Perspektif Lain&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_medis.html&quot; style=&quot;color: #94a3b8;&quot;&gt;🩺 dr. Andi (Medis)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_hukum.html&quot; style=&quot;background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); font-weight: 700;&quot;&gt;⚖️ Budi, S.H. (Advokat)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_psikologi.html&quot; style=&quot;color: #94a3b8;&quot;&gt;🧠 Rina, M.Psi. (Psikolog)&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    
+    &lt;div class=&quot;main&quot;&gt;
+        &lt;div class=&quot;topbar&quot;&gt;
+            &lt;div&gt;
+                &lt;h1&gt;Selamat Bekerja, Budi Santoso, S.H., M.H.&lt;/h1&gt;
+                &lt;p&gt;Stasiun Kerja Advokat Profesional — Portal Mitra SuperApp LifeQ (Domain Hukum)&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                &lt;span class=&quot;badge badge-info&quot; style=&quot;padding: 8px 16px; font-size: 0.85rem;&quot;&gt;🛡️ E2EE Zero-Knowledge Ready&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;antrean-section&quot; class=&quot;card&quot; style=&quot;border-color: #fbbf24;&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;⚡&lt;/span&gt; Antrean Konsultasi Masuk (2 Sesi Menunggu)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-info&quot;&gt;Realtime WebRTC Sync&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(245,158,11,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;AS&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Ahmad Subarjo &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.65rem; padding: 2px 6px;&quot;&gt;Pro Bono SKTM&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #fbbf24; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Wanprestasi kontrak kerja sepihak, butuh somasi hukum (IRAC)&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-99201 • Waktu Tunggu: 3 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_hukum.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;⚖️ TERIMA &amp; BUKA IRAC&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(245,158,11,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;PT&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;PT Harapan Maju &lt;span class=&quot;badge badge-info&quot; style=&quot;font-size: 0.65rem; padding: 2px 6px;&quot;&gt;Komersial Retainer&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #fbbf24; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Sengketa hak cipta perangkat lunak &amp; tinjauan NDA perusahaan&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-99202 • Waktu Tunggu: 8 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_hukum.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;⚖️ TERIMA &amp; BUKA IRAC&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;history-section&quot; class=&quot;card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;📑&lt;/span&gt; Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC &amp; e-Meterai)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-warning&quot;&gt;1 Butuh Tindakan&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Hendra Wijaya — &lt;span style=&quot;color: #fbbf24;&quot;&gt;Akta Perjanjian Damai e-Meterai&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 14:30 WIB • Status: Draf IRAC selesai, menunggu pembubuhan e-Meterai Perum Peruri&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_hukum.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;&quot;&gt;📜 BUBUI E-METERAI&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Siti Aminah — &lt;span style=&quot;color: #34d399;&quot;&gt;Gugatan Hak Asuh Anak (Pro Bono)&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 11:00 WIB • Status: Berkas gugatan pengadilan resmi diterbitkan&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_hukum.html&quot; class=&quot;btn btn-outline&quot; style=&quot;font-weight: 600;&quot;&gt;👁️ LIHAT BERKAS HUKUM&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;dompet-section&quot; class=&quot;payout-card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;💰&lt;/span&gt; Stasiun Kerja Keuangan Mitra &amp; Penarikan Dana (SD-18)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-success&quot;&gt;Beneficiary Account: Bank BCA 8810-xxxx-xxxx&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;p style=&quot;color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;&quot;&gt;Pengelolaan penghasilan konsultasi profesional, riwayat klaim subsidi Pro Bono negara (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21.&lt;/p&gt;
+            
+            &lt;div style=&quot;display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;&quot;&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Saldo Aktif Siap Tarik&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;&quot;&gt;Rp 22.400.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sudah dipotong PPh 21 &amp; Bagi Hasil Platform&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Klaim Pro Bono Hukum Cair&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;&quot;&gt;Rp 6.000.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;8 Sesi Bantuan Litigasi Bersubsidi BPHN&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Menunggu Rekonsiliasi&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;&quot;&gt;Rp 3.500.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sesi Hari Ini (Proses Audit WORM)&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem;&quot;&gt;
+                &lt;div style=&quot;font-size: 0.85rem; color: #cbd5e1;&quot;&gt;⚡ Payout via Escrow Bank Gateway — Diproses Real-Time ke Rekening BCA&lt;/div&gt;
+                &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
+                    &lt;button class=&quot;btn btn-outline&quot; onclick=&quot;alert(&#x27;📑 Mengunduh Bukti Potong PPh 21 &amp; Laporan Audit WORM SHA-256...&#x27;)&quot;&gt;📑 Unduh Bukti Potong PPh 21&lt;/button&gt;
+                    &lt;button class=&quot;btn btn-success&quot; style=&quot;padding: 0.7rem 1.5rem; font-weight: 700;&quot; onclick=&quot;alert(&#x27;✅ Permintaan Payout Rp 22.400.000 ke BCA berhasil dikirim! Diproses secara otomatis.&#x27;)&quot;&gt;💸 Tarik Dana Sekarang (Payout)&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
+    &lt;script&gt;
+        let isOnline = true;
+        function toggleSidebarStatus() {
+            isOnline = !isOnline;
+            const slider = document.getElementById(&#x27;sidebar-slider&#x27;);
+            const knob = document.getElementById(&#x27;sidebar-knob&#x27;);
+            const badge = document.getElementById(&#x27;status-badge&#x27;);
+            const text = document.getElementById(&#x27;status-text&#x27;);
+            
+            if(isOnline) {
+                slider.style.background = &#x27;#10b981&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(16,185,129,0.4)&#x27;;
+                knob.style.left = &#x27;27px&#x27;;
+                badge.className = &#x27;badge badge-success&#x27;;
+                badge.innerHTML = &#x27;🟢 ONLINE&#x27;;
+                text.style.color = &#x27;#a7f3d0&#x27;;
+                text.innerHTML = &#x27;Menerima Konsultasi&#x27;;
+            } else {
+                slider.style.background = &#x27;#ef4444&#x27;;
+                slider.style.boxShadow = &#x27;0 0 12px rgba(239,68,68,0.4)&#x27;;
+                knob.style.left = &#x27;3px&#x27;;
+                badge.className = &#x27;badge badge-danger&#x27;;
+                badge.innerHTML = &#x27;🔴 SIDANG / OPERASI&#x27;;
+                text.style.color = &#x27;#f87171&#x27;;
+                text.innerHTML = &#x27;Jadwal Tidak Tersedia&#x27;;
+            }
+        }
+    &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;
+"></iframe>
+    </div>
+
+    <div class="mockup-section" id="mockup_dashboard_mitra_psikologi">
+        <div class="section-label">
+            <span class="num">6</span> Dashboard Mitra (Psikologi)
+            <span class="file">mockup_dashboard_mitra_psikologi.html</span>
+        </div>
+        <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html lang=&quot;id&quot;&gt;
+&lt;head&gt;
+    &lt;meta charset=&quot;UTF-8&quot;&gt;
+    &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width, initial-scale=1.0&quot;&gt;
+    &lt;title&gt;Portal Mitra (PSIKOLOGI) — Workstation Profesional (LifeQ)&lt;/title&gt;
+    &lt;link href=&quot;https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap&quot; rel=&quot;stylesheet&quot;&gt;
+    
+&lt;style&gt;
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: &#x27;Outfit&#x27;, sans-serif; }
+    body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+    
+    .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+    .brand { font-size: 1.4rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .brand span { color: #0ea5e9; }
+    .badge-admin { background: rgba(14,165,233,0.15); color: #38bdf8; font-size: 0.7rem; padding: 3px 8px; border-radius: 6px; font-weight: 600; text-transform: uppercase; border: 1px solid rgba(14,165,233,0.3); }
+    .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+    .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+    .nav-item a:hover, .nav-item a.active { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); }
+    
+    .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .topbar h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .topbar p { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
+    .user-profile { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #0ea5e9, #3b82f6); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+    
+    .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(12px); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 1rem; font-size: 0.85rem; color: #64748b; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 600; }
+    td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; vertical-align: middle; }
+    tr:hover { background: rgba(255,255,255,0.02); }
+    
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-info { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    
+    .btn { padding: 0.6rem 1.2rem; border-radius: 8px; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+    .btn-primary { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+    .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
+&lt;/style&gt;
+
+    &lt;style&gt;
+        .toggle-switch-container {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(56,189,248,0.3);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        }
+        .toggle-switch {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+            gap: 12px;
+            margin-top: 10px;
+        }
+        .toggle-slider {
+            width: 52px;
+            height: 28px;
+            background: #10b981;
+            border-radius: 14px;
+            position: relative;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 0 12px rgba(16,185,129,0.4);
+        }
+        .toggle-knob {
+            width: 22px;
+            height: 22px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            top: 3px;
+            left: 27px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        .queue-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(15,23,42,0.7);
+            border: 1px solid #c084fc;
+            border-radius: 12px;
+            padding: 1.2rem 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.2s;
+        }
+        .queue-item:hover {
+            border-color: #38bdf8;
+            box-shadow: 0 4px 15px rgba(56,189,248,0.15);
+            transform: translateX(3px);
+        }
+        .history-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.2rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .history-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+        .payout-card {
+            background: linear-gradient(135deg, rgba(16,185,129,0.12), rgba(15,23,42,0.95));
+            border: 1px solid #c084fc;
+            border-radius: 16px;
+            padding: 1.8rem;
+            margin-top: 2rem;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+    &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    &lt;div class=&quot;sidebar&quot; style=&quot;width: 290px;&quot;&gt;
+        &lt;div class=&quot;brand&quot;&gt;LIFEQ &lt;span style=&quot;color: #c084fc; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #c084fc;&quot;&gt;MITRA&lt;/span&gt;&lt;/div&gt;
+        
+        &lt;div style=&quot;display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;&quot;&gt;
+            &lt;div style=&quot;width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #c084fc, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #c084fc;&quot;&gt;RW&lt;/div&gt;
+            &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Rina Wulandari, M.Psi., Psikolog&lt;/div&gt;
+            &lt;div style=&quot;font-size: 0.8rem; color: #c084fc; margin-top: 4px;&quot;&gt;Qualifa — Psikolog Klinis &amp; Kerja&lt;/div&gt;
+            &lt;span class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem; margin-top: 8px;&quot;&gt;✔ SIPP IPK Terverifikasi&lt;/span&gt;
+        &lt;/div&gt;
+
+        &lt;div class=&quot;toggle-switch-container&quot;&gt;
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center;&quot;&gt;
+                &lt;span style=&quot;font-size: 0.85rem; font-weight: 600; color: #cbd5e1;&quot;&gt;Status Praktik:&lt;/span&gt;
+                &lt;span id=&quot;status-badge&quot; class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem;&quot;&gt;🟢 ONLINE&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;label class=&quot;toggle-switch&quot; onclick=&quot;toggleSidebarStatus()&quot;&gt;
+                &lt;div id=&quot;sidebar-slider&quot; class=&quot;toggle-slider&quot;&gt;
+                    &lt;div id=&quot;sidebar-knob&quot; class=&quot;toggle-knob&quot;&gt;&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;span id=&quot;status-text&quot; style=&quot;font-size: 0.8rem; color: #a7f3d0; font-weight: 600;&quot;&gt;Menerima Konsultasi&lt;/span&gt;
+            &lt;/label&gt;
+        &lt;/div&gt;
+
+        &lt;ul class=&quot;nav-menu&quot;&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; class=&quot;active&quot; onclick=&quot;window.scrollTo({top:0, behavior:&#x27;smooth&#x27;}); return false;&quot;&gt;📊 Dasbor Utama&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;antrean-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;⚡ Antrean Konsultasi&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;history-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;📑 Riwayat Sesi &amp; Notes&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;javascript:void(0)&quot; onclick=&quot;document.getElementById(&#x27;dompet-section&#x27;)?.scrollIntoView({behavior: &#x27;smooth&#x27;}); return false;&quot;&gt;💰 Dompet Saldo &amp; Payout&lt;/a&gt;&lt;/li&gt;
+            &lt;li style=&quot;margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;&quot;&gt;Domain Workstation&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_modul_psikologi.html&quot; style=&quot;color: #c084fc; font-weight: 600;&quot;&gt;🧠 Buka Workstation Qualifa&lt;/a&gt;&lt;/li&gt;
+            
+            &lt;li style=&quot;margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;&quot;&gt;🔄 Lihat Perspektif Lain&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_medis.html&quot; style=&quot;color: #94a3b8;&quot;&gt;🩺 dr. Andi (Medis)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_hukum.html&quot; style=&quot;color: #94a3b8;&quot;&gt;⚖️ Budi, S.H. (Advokat)&lt;/a&gt;&lt;/li&gt;
+            &lt;li class=&quot;nav-item&quot;&gt;&lt;a href=&quot;mockup_dashboard_mitra_psikologi.html&quot; style=&quot;background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.4); font-weight: 700;&quot;&gt;🧠 Rina, M.Psi. (Psikolog)&lt;/a&gt;&lt;/li&gt;
+        &lt;/ul&gt;
+    &lt;/div&gt;
+    
+    &lt;div class=&quot;main&quot;&gt;
+        &lt;div class=&quot;topbar&quot;&gt;
+            &lt;div&gt;
+                &lt;h1&gt;Selamat Bekerja, Rina Wulandari, M.Psi., Psikolog&lt;/h1&gt;
+                &lt;p&gt;Stasiun Kerja Psikolog Klinis — Portal Mitra SuperApp LifeQ (Domain Psikologi)&lt;/p&gt;
+            &lt;/div&gt;
+            &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                &lt;span class=&quot;badge badge-info&quot; style=&quot;padding: 8px 16px; font-size: 0.85rem;&quot;&gt;🛡️ E2EE Zero-Knowledge Ready&lt;/span&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;antrean-section&quot; class=&quot;card&quot; style=&quot;border-color: #c084fc;&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;⚡&lt;/span&gt; Antrean Konsultasi Masuk (2 Sesi Menunggu)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-info&quot;&gt;Realtime WebRTC Sync&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(192,132,252,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #a855f7; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;DL&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Dewi Lestari &lt;span class=&quot;badge badge-purple&quot; style=&quot;font-size: 0.65rem; padding: 2px 6px;&quot;&gt;DASS-21 Severe&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #c084fc; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Stres kerja berat, kecemasan akut, gejala burnout berat&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-77301 • Waktu Tunggu: 2 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_psikologi.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;🧠 TERIMA &amp; KONSELING&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;queue-item&quot; style=&quot;border-color: rgba(192,132,252,0.3);&quot;&gt;
+                &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
+                    &lt;div style=&quot;width: 50px; height: 50px; border-radius: 50%; background: #ef4444; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;&quot;&gt;RP&lt;/div&gt;
+                    &lt;div&gt;
+                        &lt;div style=&quot;font-weight: 700; font-size: 1.05rem; color: #fff;&quot;&gt;Rama Pratama &lt;span class=&quot;badge badge-danger&quot; style=&quot;font-size: 0.65rem; padding: 2px 6px;&quot;&gt;Crisis 119 Pro Bono&lt;/span&gt;&lt;/div&gt;
+                        &lt;div style=&quot;color: #f87171; font-size: 0.85rem; margin-top: 2px;&quot;&gt;Keluhan: Serangan panik akut (Panic Attack), butuh intervensi stabilisasi emosi&lt;/div&gt;
+                        &lt;div style=&quot;color: #64748b; font-size: 0.75rem; margin-top: 4px;&quot;&gt;ID Sesi: SES-77302 • Waktu Tunggu: 5 menit lalu&lt;/div&gt;
+                    &lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_psikologi.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;&quot;&gt;🚨 TERIMA KRISIS 119&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;history-section&quot; class=&quot;card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;📑&lt;/span&gt; Sesi Selesai / Arsip Konseling (Wajib Isi DAP Note &amp; Rekonsiliasi)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-warning&quot;&gt;1 Butuh Tindakan&lt;/span&gt;
+            &lt;/div&gt;
+            
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Maya Sari — &lt;span style=&quot;color: #c084fc;&quot;&gt;Evaluasi Gangguan Tidur &amp; DAP Note&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 15:00 WIB • Status: DAP Note (Data, Assessment, Plan) belum dilengkapi&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_psikologi.html&quot; class=&quot;btn&quot; style=&quot;background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;&quot;&gt;📝 BUAT DAP NOTE&lt;/a&gt;
+            &lt;/div&gt;
+
+            &lt;div class=&quot;history-item&quot;&gt;
+                &lt;div&gt;
+                    &lt;div style=&quot;font-weight: 600; font-size: 0.95rem; color: #fff;&quot;&gt;Kevin Jonathan — &lt;span style=&quot;color: #34d399;&quot;&gt;Konseling Pemulihan Trauma Relasional&lt;/span&gt;&lt;/div&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; margin-top: 4px;&quot;&gt;Sesi selesai 10:30 WIB • Status: DAP Note tersimpan, Rekonsiliasi Jadwal Sesi 2 aktif&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;a href=&quot;mockup_modul_psikologi.html&quot; class=&quot;btn btn-outline&quot; style=&quot;font-weight: 600;&quot;&gt;👁️ LIHAT DAP NOTE&lt;/a&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div id=&quot;dompet-section&quot; class=&quot;payout-card&quot;&gt;
+            &lt;div class=&quot;card-title&quot;&gt;
+                &lt;span style=&quot;display: flex; align-items: center; gap: 8px;&quot;&gt;&lt;span&gt;💰&lt;/span&gt; Stasiun Kerja Keuangan Mitra &amp; Penarikan Dana (SD-18)&lt;/span&gt;
+                &lt;span class=&quot;badge badge-success&quot;&gt;Beneficiary Account: Bank BCA 8810-xxxx-xxxx&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;p style=&quot;color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;&quot;&gt;Pengelolaan penghasilan konsultasi profesional, riwayat klaim subsidi Pro Bono negara (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21.&lt;/p&gt;
+            
+            &lt;div style=&quot;display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;&quot;&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Saldo Aktif Siap Tarik&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;&quot;&gt;Rp 11.250.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sudah dipotong PPh 21 &amp; Bagi Hasil Platform&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Klaim Pro Bono Mental Health&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;&quot;&gt;Rp 3.200.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;12 Sesi Bantuan Psikologi Bersubsidi Kemensos&lt;/div&gt;
+                &lt;/div&gt;
+                &lt;div style=&quot;background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);&quot;&gt;
+                    &lt;div style=&quot;color: #64748b; font-size: 0.8rem; text-transform: uppercase;&quot;&gt;Menunggu Rekonsiliasi&lt;/div&gt;
+                    &lt;div style=&quot;font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;&quot;&gt;Rp 1.800.000&lt;/div&gt;
+                    &lt;div style=&quot;color: #94a3b8; font-size: 0.75rem; margin-top: 4px;&quot;&gt;Sesi Hari Ini (Proses Audit WORM)&lt;/div&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 1.2rem;&quot;&gt;
+                &lt;div style=&quot;font-size: 0.85rem; color: #cbd5e1;&quot;&gt;⚡ Payout via Escrow Bank Gateway — Diproses Real-Time ke Rekening BCA&lt;/div&gt;
+                &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
+                    &lt;button class=&quot;btn btn-outline&quot; onclick=&quot;alert(&#x27;📑 Mengunduh Bukti Potong PPh 21 &amp; Laporan Audit WORM SHA-256...&#x27;)&quot;&gt;📑 Unduh Bukti Potong PPh 21&lt;/button&gt;
+                    &lt;button class=&quot;btn btn-success&quot; style=&quot;padding: 0.7rem 1.5rem; font-weight: 700;&quot; onclick=&quot;alert(&#x27;✅ Permintaan Payout Rp 11.250.000 ke BCA berhasil dikirim! Diproses secara otomatis.&#x27;)&quot;&gt;💸 Tarik Dana Sekarang (Payout)&lt;/button&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
     &lt;/div&gt;
 
     &lt;script&gt;
@@ -1126,7 +2032,7 @@
 
     <div class="mockup-section" id="mockup_dashboard_admin">
         <div class="section-label">
-            <span class="num">4</span> Dashboard Admin
+            <span class="num">7</span> Dashboard Admin
             <span class="file">mockup_dashboard_admin.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -1370,7 +2276,7 @@
 
     <div class="mockup-section" id="mockup_admin_verifikasi">
         <div class="section-label">
-            <span class="num">5</span> Admin Verifikasi
+            <span class="num">8</span> Admin Verifikasi
             <span class="file">mockup_admin_verifikasi.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -1632,7 +2538,7 @@
 
     <div class="mockup-section" id="mockup_admin_pelanggaran">
         <div class="section-label">
-            <span class="num">6</span> Admin Pelanggaran
+            <span class="num">9</span> Admin Pelanggaran
             <span class="file">mockup_admin_pelanggaran.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -1889,7 +2795,7 @@
 
     <div class="mockup-section" id="mockup_admin_keuangan">
         <div class="section-label">
-            <span class="num">7</span> Admin Keuangan
+            <span class="num">10</span> Admin Keuangan
             <span class="file">mockup_admin_keuangan.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -2112,7 +3018,7 @@
 
     <div class="mockup-section" id="mockup_modul_medis">
         <div class="section-label">
-            <span class="num">8</span> Modul Medis
+            <span class="num">11</span> Modul Medis
             <span class="file">mockup_modul_medis.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -2316,7 +3222,7 @@
 
     <div class="mockup-section" id="mockup_modul_psikologi">
         <div class="section-label">
-            <span class="num">9</span> Modul Psikologi
+            <span class="num">12</span> Modul Psikologi
             <span class="file">mockup_modul_psikologi.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -2593,7 +3499,7 @@
 
     <div class="mockup-section" id="mockup_modul_hukum">
         <div class="section-label">
-            <span class="num">10</span> Modul Hukum
+            <span class="num">13</span> Modul Hukum
             <span class="file">mockup_modul_hukum.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -2790,7 +3696,7 @@ Retensi WORM 10 tahun aktif.&#x27;);
 
     <div class="mockup-section" id="mockup_payment_gateway">
         <div class="section-label">
-            <span class="num">11</span> Payment Gateway
+            <span class="num">14</span> Payment Gateway
             <span class="file">mockup_payment_gateway.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
@@ -3059,7 +3965,7 @@ Retensi WORM 10 tahun aktif.&#x27;);
 
     <div class="mockup-section" id="mockup_chat_room">
         <div class="section-label">
-            <span class="num">12</span> Chat Room
+            <span class="num">15</span> Chat Room
             <span class="file">mockup_chat_room.html</span>
         </div>
         <iframe class="mockup-frame" srcdoc="&lt;!DOCTYPE html&gt;
