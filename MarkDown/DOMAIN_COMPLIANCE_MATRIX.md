@@ -23,8 +23,10 @@
 | | UU PDP (27/2022) | Pasal 15, 16, 26 | Data sensitif kesehatan mental, consent khusus |
 | **Hukum** | UU 18/2003 Advokat | Pasal 18, 19, 20 | Hak keistimewaan, kode etik, larang buka rahasia |
 | | Kode Etik Peradi 2022 | Pasal 3, 4, 5, 12 | Integritas, kerahasiaan, conflict of interest |
-| | KUHAP | Pasal 54, 55 | Hak tersangka, bantuan hukum |
 | | UU PDP (27/2022) | Pasal 15, 16, 26 | Data privilegede, cross-border larangan |
+| | UU 10/2020 Bea Meterai | Pasal 3, 11, 13 | Keabsahan e-Meterai Rp 10.000 pada Legal Opinion/Kontrak |
+| **Keuangan & Umum** | UU HPP & PER-16/PJ/2016 | Pasal 21, 23 | Pemotongan PPh 21 tenaga ahli otomatis, verifikasi NPWP |
+| | UU TPPU (8/2010) | Pasal 18, 19 | AML verification, cross-check nama rekening bank vs STR/SIPP/Peradi |
 
 ---
 
@@ -300,12 +302,15 @@
 6. PP No. 46 Tahun 2021 tentang Meterai Elektronik
 7. Peraturan Peruri tentang E-Meterai API
 
-### Umum
+### Umum & Keuangan
 1. UU No. 27 Tahun 2022 tentang Perlindungan Data Pribadi (UU PDP)
 2. ISO 27001:2022 (Information Security Management)
 3. ISO 27701:2019 (Privacy Information Management)
 4. OWASP ASVS 4.0.3 Level 2 (Application Security Verification)
 5. NIST Cybersecurity Framework 2.0
+6. UU No. 7 Tahun 2021 tentang Harmonisasi Peraturan Perpajakan (UU HPP) - Ketentuan PPh 21 Tenaga Ahli
+7. Peraturan Dirjen Pajak No. PER-16/PJ/2016 tentang Pemotongan PPh 21 atas Jasa Profesional
+8. UU No. 8 Tahun 2010 tentang Pencegahan dan Pemberantasan Tindak Pidana Pencucian Uang (UU TPPU / AML)
 
 ---
 
