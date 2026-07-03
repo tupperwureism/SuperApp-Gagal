@@ -306,9 +306,9 @@ def gen_mitra_html(domain_key):
             </div>"""
         history_title = "Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note & e-Resep)"
         balance_active = "Rp 14.850.000"
-        probono_claim = "Rp 4.500.000"
-        probono_label = "Saldo Tertahan (Pending Escrow)"
-        probono_sub = "Penghasilan Sesi Telemedisin (Proses Audit 24 Jam)"
+        probono_claim = "Rp 45.500.000"
+        probono_label = "Total Penghasilan (Total Earned)"
+        probono_sub = "Akumulasi Pendapatan Bersih Telemedisin"
         waiting_reconcile = "Rp 2.150.000"
         mod_url = "mockup_modul_medis.html"
         mod_text = "🩺 Buka Workstation Sehatifiqa"
@@ -364,8 +364,8 @@ def gen_mitra_html(domain_key):
         history_title = "Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC & e-Meterai)"
         balance_active = "Rp 22.400.000"
         probono_claim = "Rp 6.000.000"
-        probono_label = "Reimbursement Pro Bono (BPHN)"
-        probono_sub = "8 Sesi Bantuan Litigasi Bersubsidi BPHN"
+        probono_label = "Escrow Pro Bono (Pending BPHN)"
+        probono_sub = "8 Sesi Bantuan Litigasi Bersubsidi BPHN (AD-Huk-05)"
         waiting_reconcile = "Rp 3.500.000"
         mod_url = "mockup_modul_hukum.html"
         mod_text = "⚖️ Buka Workstation Justifiqa"
@@ -420,9 +420,9 @@ def gen_mitra_html(domain_key):
             </div>"""
         history_title = "Sesi Selesai / Arsip Konseling (Wajib Isi DAP Note & Rekonsiliasi)"
         balance_active = "Rp 11.250.000"
-        probono_claim = "Rp 3.200.000"
-        probono_label = "Saldo Tertahan (Pending Escrow)"
-        probono_sub = "Penghasilan Sesi Konseling (Proses Audit 24 Jam)"
+        probono_claim = "Rp 38.200.000"
+        probono_label = "Total Penghasilan (Total Earned)"
+        probono_sub = "Akumulasi Pendapatan Bersih Konseling"
         waiting_reconcile = "Rp 1.800.000"
         mod_url = "mockup_modul_psikologi.html"
         mod_text = "🧠 Buka Workstation Qualifa"
@@ -586,9 +586,9 @@ def gen_mitra_html(domain_key):
                     <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">{probono_sub}</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Menunggu Rekonsiliasi</div>
+                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Dibekukan (Frozen)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;">{waiting_reconcile}</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Sesi Hari Ini (Proses Audit WORM)</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Antrean Transfer / Approval Admin (SD-18)</div>
                 </div>
             </div>
 

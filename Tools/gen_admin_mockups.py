@@ -175,7 +175,7 @@ HTML_VERIFIKASI = f"""<!DOCTYPE html>
                             <th>NIK (Dukcapil Check)</th>
                             <th>Nomor SKTM / Kelurahan</th>
                             <th>Cross-Check DTKS Kemensos</th>
-                            <th>Dana Escrow Subsidi</th>
+                            <th>Alokasi Anggaran Pro Bono</th>
                             <th>Aksi Verifikasi</th>
                         </tr>
                     </thead>
@@ -185,8 +185,8 @@ HTML_VERIFIKASI = f"""<!DOCTYPE html>
                             <td><code>3172019901820001</code></td>
                             <td>SKTM-0912/Kel-Menteng/2026</td>
                             <td><span class="badge badge-success">✔ TERDAFTAR DTKS (Desil 1)</span></td>
-                            <td><span class="badge badge-success">Rp 0 (Subsidi Escrow)</span></td>
-                            <td><button class="btn btn-success" onclick="alert('✔ SKTM DIVERIFIKASI! Tiket Pro Bono Rp 0 terbit otomatis. Dana escrow dikunci.')">✔ Setujui Pro Bono</button></td>
+                            <td><span class="badge badge-success">Reimbursement BPHN / SKTM</span></td>
+                            <td><button class="btn btn-success" onclick="alert('✔ SKTM DIVERIFIKASI! Tiket Pro Bono terbit otomatis. Dana escrow dikunci.')">✔ Setujui Pro Bono</button></td>
                         </tr>
                         <tr>
                             <td><strong>Rina Wati</strong></td>
@@ -523,7 +523,7 @@ HTML_KEUANGAN = f"""<!DOCTYPE html>
             <div class="card" style="margin: 0; background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(15,23,42,0.9)); border-color: rgba(245,158,11,0.3);">
                 <div style="color: #fbbf24; font-size: 0.85rem;">ESCROW PRO BONO (LOCKED)</div>
                 <div style="font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 8px;">Rp 65.000.000</div>
-                <div style="color: #fbbf24; font-size: 0.75rem; margin-top: 6px;">🔒 Subsidi Bantuan Hukum</div>
+                <div style="color: #fbbf24; font-size: 0.75rem; margin-top: 6px;">🔒 Alokasi Anggaran Bantuan Hukum (BPHN)</div>
             </div>
         </div>
 
@@ -542,7 +542,7 @@ HTML_KEUANGAN = f"""<!DOCTYPE html>
                 <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border-left: 4px solid #c084fc;">
                     <div style="color: #94a3b8;">DOMAIN PSIKOLOGI</div>
                     <div style="font-size: 1.2rem; font-weight: 700; color: #fff; margin-top: 5px;">Platform 20% / Psikolog 80%</div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Subsidi fitur psikoedukasi audio</div>
+                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Dukungan fitur asesmen DASS-21 & Crisis 119</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border-left: 4px solid #fbbf24;">
                     <div style="color: #94a3b8;">DOMAIN HUKUM LITIGASI</div>
