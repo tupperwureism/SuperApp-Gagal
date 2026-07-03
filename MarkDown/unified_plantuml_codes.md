@@ -766,30 +766,33 @@ start
 |Sistem (Backend/DB)|
 :Melakukan validasi kecukupan saldo di database;
 if (Saldo Cukup?) then (Ya)
-  :Memindahkan saldo ke saldo_pending (Freeze);
-  :Memasukkan tiket ke antrean Dasbor Admin;
-  
-  |Admin Finansial|
-  :Meninjau antrean & mengklik "Setujui & Cairkan via API";
-  
-  |API Bank / Watchdog|
-  :Memproses transfer bank / Memantau batas waktu 24 jam;
-  :Mengirim status balasan (Webhook / Timeout Signal);
-  
-  |Sistem (Backend/DB)|
-  if (Status Balasan Transaksi?) then (Sukses / Berhasil)
-    :Potong saldo_pending permanen (Deduct);
-    :Kirim notifikasi dana berhasil dicairkan;
-  else (Gagal / Timeout)
-    if (Jenis Kendala?) then (Ditolak Bank - Alur 3b)
-      :Kembalikan saldo ke saldo_tersedia (Rollback);
-      :Kirim notifikasi error penarikan gagal;
-    else (Timeout > 24 Jam - Alur 3c)
-      :Batalkan antrean & kembalikan saldo (Timeout Rollback);
-      :Kirim notifikasi peringatan timeout bank;
+  :Memvalidasi NPWP dan Rekening Bank Profesi;
+  if (Rekening & NPWP Valid?) then (Ya)
+    :Memindahkan saldo ke saldo_dibekukan (Freeze);
+    if (Nominal Penarikan < Rp 5.000.000?) then (Ya - Auto Disburse)
+      |API Bank / Watchdog|
+      :Memproses transfer bank otomatis (Push Payout);
+    else (Tidak >= Rp 5 Juta - Manual Approval)
+      |Sistem (Backend/DB)|
+      :Memasukkan tiket ke antrean Dasbor Admin;
+      |Admin Finansial|
+      :Meninjau antrean & mengklik "Setujui & Cairkan via API";
+      |API Bank / Watchdog|
+      :Memproses transfer bank via Bank Gateway;
     endif
+    
+    |Sistem (Backend/DB)|
+    if (Status Balasan Transaksi?) then (Sukses / Berhasil)
+      :Potong saldo_dibekukan permanen (Deduct);
+      :Kirim notifikasi dana berhasil dicairkan;
+    else (Gagal / Ditolak Bank)
+      :Kembalikan saldo ke saldo_tersedia (Unfreeze Rollback);
+      :Kirim notifikasi error penarikan gagal;
+    endif
+  else (Tidak Valid)
+    :Menampilkan error kredensial rekening/NPWP tidak sah;
   endif
-else (Tidak - Alur 3a)
+else (Tidak)
   :Menampilkan pesan error saldo tidak cukup;
   :Membatalkan proses penarikan dana;
 endif
