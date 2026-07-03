@@ -467,8 +467,8 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Aktor Utama**: Mitra Profesional
 * **Aktor Pendukung**: Admin Finansial, Payment Gateway / Bank API
 * **Deskripsi Singkat**: Mitra Profesional memantau bagi hasil pendapatan jasa konsultasi, menghitung estimasi pajak PPh 21, dan mencairkan dana dari dompet platform ke rekening bank pribadi terdaftar.
-* **Pre-condition**: Mitra profesional sudah login, memiliki saldo pendapatan yang dapat dicairkan (*available balance* > Rp 50.000), dan rekening bank tujuan telah diverifikasi.
-* **Post-condition**: Permintaan penarikan dana diproses, saldo berpindah ke status `PENDING` (*freeze*), dan dana ditransfer ke rekening bank mitra melalui *auto-disbursement* atau persetujuan manual Admin Finansial.
+* **Pre-condition**: Mitra profesional sudah login, memiliki saldo pendapatan yang dapat dicairkan (*available balance* > Rp 50.000), serta rekening bank profesi dan NPWP telah diverifikasi.
+* **Post-condition**: Permintaan penarikan dana diproses, saldo berpindah ke status `DIBEKUKAN` (*frozen balance*), dan dana ditransfer ke rekening bank mitra melalui *auto-disbursement* atau persetujuan manual Admin Finansial.
 * **Compliance Checklist & Regulasi Domain**:
   * **Peraturan Dirjen Pajak (PPh 21 Compliance)**: Sistem secara otomatis mengalkulasi dan memotong Pajak Penghasilan (PPh 21) atas jasa tenaga ahli (Dokter/Advokat/Psikolog) berdasarkan persentase aturan perpajakan yang berlaku sebelum saldo bersih masuk ke dompet mitra.
   * **Standar Verifikasi Rekening Bank Faskes/BPJS Provider**: Khusus bagi mitra kesehatan yang terikat kontrak faskes, penarikan dana hanya diizinkan ke rekening bank resmi Faskes atau rekening pribadi yang nama pemiliknya 100% cocok dengan nama pada KTP/STR terdaftar (anti pencucian uang / AML).
@@ -477,13 +477,13 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   1. Mitra Profesional memilih menu "Saldo & Pencairan Dana" di navigasi Dasbor Mitra.
   2. Sistem menampilkan rincian keuangan: Total Pendapatan Kotor, Potongan Bagi Hasil Platform (merujuk ke UC-16), Potongan Pajak PPh 21, Saldo Tertahan (*Escrow/Pending*), dan Saldo Tersedia (*Available Balance*).
   3. Mitra mengklik tombol "Tarik Dana" dan memasukkan nominal yang ingin dicairkan (minimal Rp 50.000).
-  4. Sistem memvalidasi bahwa nominal tidak melebihi Saldo Tersedia dan rekening bank tujuan dalam status aktif/valid.
-  5. Sistem memotong Saldo Tersedia mitra di database dan memindahkannya ke tabel `saldo_pending` (*Balance Freeze*).
+  4. Sistem memvalidasi bahwa nominal tidak melebihi Saldo Tersedia, memverifikasi status NPWP (PPh 21), dan memeriksa keabsahan rekening bank profesi (Faskes/Peradi/HIMPSI).
+  5. Sistem memotong Saldo Tersedia mitra di database dan memindahkannya ke tabel `saldo_dibekukan` (*Balance Freeze*).
   6. Sistem memeriksa nominal penarikan terhadap aturan *Threshold Control*:
      * **Jika Nominal < Rp 5.000.000**: Sistem menginisiasi panggilan API *Auto-Disbursement* langsung ke Payment Gateway / Bank Switcher untuk mentransfer dana saat itu juga.
      * **Jika Nominal >= Rp 5.000.000**: Sistem memasukkan permintaan pencairan ke dalam antrean **Manual Approval** di Dasbor Admin Finansial. Admin Finansial mereview bukti pelayanan, mengklik "Setujui & Transfer", baru sistem memicu API Bank Gateway.
   7. API Bank Gateway membalas dengan status *Transfer Success*.
-  8. Sistem memperbarui status penarikan menjadi `DISBURSED`, menghapus dana dari `saldo_pending`, dan mencatat log mutasi finansial WORM.
+  8. Sistem memperbarui status penarikan menjadi `DISBURSED`, menghapus dana dari `saldo_dibekukan`, dan mencatat log mutasi finansial WORM.
   9. Sistem mengirimkan email bukti transfer (*Remittance Advice*) beserta slip pemotongan pajak PPh 21 kepada Mitra Profesional.
 * **Alur Alternatif/Gagal (Alternative Flow)**:
   * **4a. Rekening Bank Tujuan Tidak Cocok dengan Identitas STR/KTA (*Name Mismatch*)**:
@@ -491,15 +491,15 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
     2. Sistem menolak penarikan dana dan menampilkan pesan error AML: *"Penarikan dana ditolak. Demi kepatuhan anti-pencucian uang, rekening tujuan harus atas nama [Nama Mitra Terdaftar]"*.
   * **6a/7a. Webhook Bank Membalas Gagal (Transfer Ditolak / Rekening Diblokir)**:
     1. API Bank mengembalikan status gagal transfer karena nomor rekening tujuan salah, diblokir bank, atau sistem kliring bank sedang offline.
-    2. Sistem secara otomatis melakukan **Rollback Finansial**: mengembalikan uang dari `saldo_pending` kembali ke `saldo_tersedia` (*Unfreeze Balance*).
+    2. Sistem secara otomatis melakukan **Rollback Finansial**: mengembalikan uang dari `saldo_dibekukan` kembali ke `saldo_tersedia` (*Unfreeze Balance*).
     3. Sistem memperbarui status penarikan menjadi `FAILED` dan mengirimkan notifikasi peringatan ke aplikasi dan email mitra: *"Penarikan dana sebesar Rp [Nominal] gagal diproses oleh bank tujuan. Saldo Anda telah dikembalikan secara utuh ke dompet platform"*.
   * **6b. Admin Finansial Menolak Pencairan Manual (Terdeteksi Anomali/Fraud)**:
     1. Pada penarikan >= Rp 5.000.000, Admin Finansial menemukan adanya kejanggalan transaksi (misal: konsultasi fiktif atau manipulasi rating).
     2. Admin mengklik tombol "Tolak Pencairan & Investigasi" di dasbor admin.
-    3. Sistem menahan dana di `saldo_pending`, mengubah status menjadi `UNDER_INVESTIGATION`, dan menonaktifkan sementara fitur penarikan dana pada akun mitra tersebut hingga sidang etik/investigasi selesai (UC-15).
+    3. Sistem menahan dana di `saldo_dibekukan`, mengubah status menjadi `UNDER_INVESTIGATION`, dan menonaktifkan sementara fitur penarikan dana pada akun mitra tersebut hingga sidang etik/investigasi selesai (UC-15).
   * **7b. API Bank Timeout / Tidak Membalas (> 24 Jam Tanpa Callback)**:
     1. Sistem *Watchdog / Cron Job* mendeteksi transaksi penarikan berstatus `PROCESSING` di API Bank melebihi batas waktu 24 jam tanpa kejelasan *callback*.
-    2. Sistem menjalankan protokol **Safety Rollback**: membatalkan instruksi transfer di Payment Gateway, mengembalikan saldo dari `saldo_pending` ke `saldo_tersedia`, dan mengirimkan tiket investigasi otomatis ke tim engineer finansial.
+    2. Sistem menjalankan protokol **Safety Rollback**: membatalkan instruksi transfer di Payment Gateway, mengembalikan saldo dari `saldo_dibekukan` ke `saldo_tersedia`, dan mengirimkan tiket investigasi otomatis ke tim engineer finansial.
 
 ---
 
