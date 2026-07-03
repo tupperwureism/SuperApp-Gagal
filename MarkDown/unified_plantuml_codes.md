@@ -2388,9 +2388,9 @@ else [Saldo Cukup]
     alt [Domain = Kesehatan atau Psikologi]
         VS -> VS : 12b-kes-psi. validateNPWP(npwp) + validateClinicalAccount(accId)
         note right : Kes/Psi: wajib NPWP\n+ validasi rekening klinis/BPJS
-    else [Domain = Hukum dan isProbono]
-        VS -> VS : 12b-huk. checkEscrowStatus(sessionId)
-        note right : Huk Pro Bono: dana\ndi-escrow sampai selesai
+    else [Domain = Hukum]
+        VS -> VS : 12b-huk. validateNPWP(npwp) + validateLegalAccount(accId)
+        note right : Huk: wajib NPWP\n+ validasi rekening Peradi/BPHN
     end
 
     VS --> WC : 13b. ACCOUNT_VALID
