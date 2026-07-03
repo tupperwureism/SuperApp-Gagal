@@ -425,10 +425,6 @@ def gen_mitra_html(domain_key):
         mod_url = "mockup_modul_psikologi.html"
         mod_text = "🧠 Buka Workstation Qualifa"
 
-    active_med = 'background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.4); font-weight: 700;' if domain_key=='medis' else 'color: #94a3b8;'
-    active_huk = 'background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.4); font-weight: 700;' if domain_key=='hukum' else 'color: #94a3b8;'
-    active_psi = 'background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.4); font-weight: 700;' if domain_key=='psikologi' else 'color: #94a3b8;'
-
     return f"""<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -536,16 +532,8 @@ def gen_mitra_html(domain_key):
 
         <ul class="nav-menu">
             <li class="nav-item"><a href="javascript:void(0)" class="active" onclick="window.scrollTo({{top:0, behavior:'smooth'}}); return false;">📊 Dasbor Utama</a></li>
-            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('antrean-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">⚡ Antrean Konsultasi</a></li>
-            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('history-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">📑 Riwayat Sesi & Notes</a></li>
-            <li class="nav-item"><a href="javascript:void(0)" onclick="document.getElementById('dompet-section')?.scrollIntoView({{behavior: 'smooth'}}); return false;">💰 Dompet Saldo & Payout</a></li>
             <li style="margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;">Domain Workstation</li>
             <li class="nav-item"><a href="{mod_url}" style="color: {reg_color}; font-weight: 600;">{mod_text}</a></li>
-            
-            <li style="margin: 16px 0 5px; font-size: 0.75rem; color: #38bdf8; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 12px;">🔄 Lihat Perspektif Lain</li>
-            <li class="nav-item"><a href="mockup_dashboard_mitra_medis.html" style="{active_med}">🩺 dr. Andi (Medis)</a></li>
-            <li class="nav-item"><a href="mockup_dashboard_mitra_hukum.html" style="{active_huk}">⚖️ Budi, S.H. (Advokat)</a></li>
-            <li class="nav-item"><a href="mockup_dashboard_mitra_psikologi.html" style="{active_psi}">🧠 Rina, M.Psi. (Psikolog)</a></li>
         </ul>
     </div>
     

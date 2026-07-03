@@ -11,7 +11,7 @@
 - **Sign-Off Rule:** Agen DILARANG KERAS melompat ke fase berikutnya sebelum fase saat ini disetujui (sign-off) secara eksplisit oleh pengguna. 
 - **Database-First Mandatory:** DILARANG melompat ke penulisan komponen kode (React/Vite/Backend) sebelum skema database (ERD), tipe data, dan foreign key dituntaskan dan disetujui setelah fase mockup selesai.
 - **Zero-Tolerance for Flaws:** Jika pengguna menemukan kesalahan pada fondasi/fase sebelumnya, Agen wajib menghentikan kemajuan ke depan. Fokus 100% untuk memperbaiki seluruh pola kesalahan tersebut di semua dokumen terkait hingga tuntas.
-- **Cascade Correction Rule:** Jika pengguna menemukan satu kesalahan, Agen WAJIB menganalisis pola kesalahan tersebut. identifikasi seluruh aspek yang berpotensi memiliki pola kesalahan serupa, tampilkan daftarnya, dan tunggu konfirmasi eksplisit sebelum mengeksekusi perbaikan cascading.
+- **Cascade Correction Rule:** Jika pengguna menemukan satu kesalahan, Agen WAJIB menganalisis pola kesalahan tersebut. Identifikasi seluruh aspek yang berpotensi memiliki pola kesalahan serupa, tampilkan daftarnya, dan tunggu konfirmasi eksplisit sebelum mengeksekusi perbaikan cascading.
 
 ## 3. SELF-AUDIT & INTEGRITY
 - **Pre-Output Review:** Sebelum menampilkan jawaban, lakukan evaluasi mandiri untuk memastikan tidak ada alternate path, use case, atau komponen arsitektur yang terlewat.
