@@ -133,7 +133,7 @@ HTML_ADMIN = f"""<!DOCTYPE html>
             <div class="card" style="margin: 0; background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(15,23,42,0.9)); border-color: rgba(16,185,129,0.3);">
                 <div style="color: #34d399; font-size: 0.85rem;">TOTAL KLIEN & PASIEN</div>
                 <div style="font-size: 1.8rem; font-weight: 700; color: #fff; margin-top: 8px;">18.500 <span style="font-size: 1rem; font-weight: normal; color: #a7f3d0;">Akun</span></div>
-                <div style="color: #cbd5e1; font-size: 0.75rem; margin-top: 6px;">+120 Klien Pro Bono Rp 0</div>
+                <div style="color: #cbd5e1; font-size: 0.75rem; margin-top: 6px;">+120 Klien Pro Bono / Bersubsidi</div>
             </div>
             <div class="card" style="margin: 0; background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(15,23,42,0.9)); border-color: rgba(245,158,11,0.3);">
                 <div style="color: #fbbf24; font-size: 0.85rem;">ANTREAN VERIFIKASI</div>
@@ -178,7 +178,7 @@ HTML_ADMIN = f"""<!DOCTYPE html>
                 <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; align-items: center;">
                     <div>
                         <div style="color: #94a3b8; font-size: 0.8rem;">DUKCAPIL & DTKS KEMENSOS</div>
-                        <strong style="color: #fff; margin-top: 4px; display: block;">NIK & Desil 1 Pro Bono</strong>
+                        <strong style="color: #fff; margin-top: 4px; display: block;">NIK & Desil 1 DTKS / SKTM</strong>
                     </div>
                     <span class="badge badge-success">✔ ONLINE (15ms)</span>
                 </div>
@@ -281,7 +281,7 @@ def gen_mitra_html(domain_key):
                 <div style="display: flex; align-items: center; gap: 15px;">
                     <div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">BK</div>
                     <div>
-                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Kurniawan <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Subsidi BPJS PBI</span> <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 7 thn)</span></div>
+                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Kurniawan <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Telemedisin Bersubsidi</span> <span style="font-weight: normal; color: #94a3b8; font-size: 0.85rem;">(Pasien Anak - 7 thn)</span></div>
                         <div style="color: #38bdf8; font-size: 0.85rem; margin-top: 2px;">Keluhan: Infeksi saluran pernapasan akut (ISPA), sesak napas ringan</div>
                         <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-88103 • Waktu Tunggu: 7 menit lalu</div>
                     </div>
@@ -307,12 +307,12 @@ def gen_mitra_html(domain_key):
         history_title = "Sesi Selesai / Rekam Medis (Wajib Isi SOAP Note & e-Resep)"
         balance_active = "Rp 14.850.000"
         probono_claim = "Rp 4.500.000"
-        probono_label = "Klaim Subsidi BPJS PBI Cair"
-        probono_sub = "15 Sesi Bantuan Telemedisin Bersubsidi Kemenkes"
+        probono_label = "Saldo Tertahan (Pending Escrow)"
+        probono_sub = "Penghasilan Sesi Telemedisin (Proses Audit 24 Jam)"
         waiting_reconcile = "Rp 2.150.000"
         mod_url = "mockup_modul_medis.html"
         mod_text = "🩺 Buka Workstation Sehatifiqa"
-        finance_desc = "Pengelolaan penghasilan konsultasi profesional medis, riwayat klaim subsidi BPJS PBI/Kemenkes (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21."
+        finance_desc = "Pengelolaan penghasilan konsultasi profesional medis, pemantauan saldo tertahan escrow (SD-18), dan pencairan dana otomatis dengan pemotongan PPh 21."
     elif domain_key == 'hukum':
         initials = "BS"
         name = "Budi Santoso, S.H., M.H."
@@ -364,12 +364,12 @@ def gen_mitra_html(domain_key):
         history_title = "Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC & e-Meterai)"
         balance_active = "Rp 22.400.000"
         probono_claim = "Rp 6.000.000"
-        probono_label = "Klaim Pro Bono Hukum Cair"
+        probono_label = "Reimbursement Pro Bono (BPHN)"
         probono_sub = "8 Sesi Bantuan Litigasi Bersubsidi BPHN"
         waiting_reconcile = "Rp 3.500.000"
         mod_url = "mockup_modul_hukum.html"
         mod_text = "⚖️ Buka Workstation Justifiqa"
-        finance_desc = "Pengelolaan penghasilan konsultasi profesional advokat, riwayat klaim bantuan hukum Pro Bono negara (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21."
+        finance_desc = "Pengelolaan penghasilan konsultasi profesional advokat, riwayat klaim bantuan hukum Pro Bono negara (SD-18 & BPHN), dan pencairan dana otomatis dengan pemotongan PPh 21."
     elif domain_key == 'psikologi':
         initials = "RW"
         name = "Rina Wulandari, M.Psi., Psikolog"
@@ -421,12 +421,12 @@ def gen_mitra_html(domain_key):
         history_title = "Sesi Selesai / Arsip Konseling (Wajib Isi DAP Note & Rekonsiliasi)"
         balance_active = "Rp 11.250.000"
         probono_claim = "Rp 3.200.000"
-        probono_label = "Klaim Subsidi Konseling Cair"
-        probono_sub = "12 Sesi Bantuan Kesehatan Mental Bersubsidi Kemensos"
+        probono_label = "Saldo Tertahan (Pending Escrow)"
+        probono_sub = "Penghasilan Sesi Konseling (Proses Audit 24 Jam)"
         waiting_reconcile = "Rp 1.800.000"
         mod_url = "mockup_modul_psikologi.html"
         mod_text = "🧠 Buka Workstation Qualifa"
-        finance_desc = "Pengelolaan penghasilan konsultasi profesional psikologi, riwayat klaim subsidi konseling kesehatan mental Kemensos (Desil 1 DTKS), dan pencairan dana otomatis dengan pemotongan PPh 21."
+        finance_desc = "Pengelolaan penghasilan konsultasi profesional psikologi, pemantauan saldo tertahan escrow (SD-18), dan pencairan dana otomatis dengan pemotongan PPh 21."
 
     return f"""<!DOCTYPE html>
 <html lang="id">
