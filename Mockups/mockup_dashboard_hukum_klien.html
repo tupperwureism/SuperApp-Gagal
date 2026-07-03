@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Justifiqa — Dasbor Hukum Klien (Versi Klien)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+        
+        .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+        .brand { font-size: 1.4rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand span { color: #facc15; font-size: 0.7rem; background: rgba(234,179,8,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(234,179,8,0.4); font-weight: 700; }
+        .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+        .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+        .nav-item a:hover, .nav-item a.active { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        
+        .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .topbar h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+        .topbar p { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
+        .user-profile { display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.03); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); }
+        .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; font-weight: 700; color: #fff; }
+        
+        .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(12px); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+        .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+        
+        .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-warning { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .badge-info { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+        
+        .btn { padding: 0.7rem 1.4rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; text-decoration: none; }
+        .btn-gold { background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; box-shadow: 0 4px 12px rgba(245,158,11,0.3); }
+        .btn-gold:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+        .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: #facc15; color: #facc15; }
+        
+        .grid-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        @media (max-width: 900px) { .grid-2col { grid-template-columns: 1fr; } }
+        
+        .doc-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.06); border-radius: 12px; margin-bottom: 0.8rem; }
+        .progress-box { background: rgba(0,0,0,0.3); border-left: 4px solid #f59e0b; padding: 1.2rem; border-radius: 0 12px 12px 0; margin-bottom: 1rem; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="mockup_dashboard_klien.html" class="brand">Justifiqa <span>KLIEN</span></a>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="mockup_dashboard_klien.html">🏠 Portal Utama LifeQ</a></li>
+            <li class="nav-item"><a href="mockup_dashboard_hukum_klien.html" class="active">⚖️ Dasbor Hukum Klien</a></li>
+            <li class="nav-item"><a href="mockup_katalog_mitra.html?domain=hukum">🔍 Cari Advokat & Notaris</a></li>
+            <li class="nav-item"><a href="mockup_chat_room.html">💬 Ruang Chat Privileged</a></li>
+        </ul>
+        <div style="margin-top: auto; padding: 1rem; background: rgba(234,179,8,0.1); border-radius: 12px; border: 1px solid rgba(234,179,8,0.2);">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #facc15;">🔒 Attorney-Client Privilege</div>
+            <div style="font-size: 0.75rem; color: #94a3b8; margin-top: 4px;">Seluruh komunikasi & akta hukum dilindungi kerahasiaan mutlak E2EE.</div>
+        </div>
+    </div>
+
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <h1>Dasbor Hukum & Manajemen Kasus Klien</h1>
+                <p>Pantau drafting somasi (IRAC Engine), akta ber-e-Meterai Peruri, dan Bantuan Hukum Pro Bono</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">KD</div>
+                <div>
+                    <div style="font-size: 0.85rem; font-weight: 700;">Klien Dewasa</div>
+                    <div style="font-size: 0.7rem; color: #facc15;">Pencari Keadilan (Verifikasi Peradi)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Banner Sesi & Kasus Aktif -->
+        <div class="card" style="border-color: rgba(234,179,8,0.4); background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(15,23,42,0.95));">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 50px; height: 50px; border-radius: 14px; background: rgba(234,179,8,0.2); border: 1px solid #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.8rem;">👨‍⚖️</div>
+                    <div>
+                        <span class="badge badge-warning" style="margin-bottom: 6px;">⚖️ PENANGANAN KASUS AKTIF</span>
+                        <h3 style="font-size: 1.3rem; font-weight: 700; color: #fff;">Rizky Ramadhan, S.H., M.H. — Pengacara Pidana & Tipikor</h3>
+                        <p style="color: #94a3b8; font-size: 0.85rem; margin-top: 2px;">Ruang Privileged E2EE #99210 • Kasus: Penyusunan Somasi Terbuka & Kuasa Hukum Litigasi</p>
+                    </div>
+                </div>
+                <div style="text-align: right;">
+                    <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 600;">STATUS DRAFTING IRAC:</div>
+                    <div style="font-size: 1.4rem; font-weight: 800; color: #facc15; font-family: 'Roboto Mono', monospace; margin: 4px 0 8px;">80% FINISHED</div>
+                    <a href="mockup_chat_room.html" class="btn btn-gold">💬 Masuk Ruang Konsultasi</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="grid-2col">
+            <!-- Kolom Kiri: Dokumen Hukum & e-Meterai Peruri -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <span>📜 Dokumen Hukum & e-Meterai Asli (Huk-UC02)</span>
+                        <span class="badge badge-success">Peruri Validated</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.2rem;">Akta hukum resmi dengan tanda tangan elektronik & meterai digital sah bernilai bukti di pengadilan.</p>
+                    
+                    <div class="doc-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff;">Surat Kuasa Litigasi Khusus (No. SK-2026/07/02)</div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">Diterbitkan: 02 Jul 2026 • SHA-256 Hash Verified</div>
+                        </div>
+                        <span class="badge badge-success">e-Meterai Rp10.000</span>
+                    </div>
+                    
+                    <div class="doc-item">
+                        <div>
+                            <div style="font-weight: 700; color: #fff;">Perjanjian Kerja Sama (PKS / Engagement Letter)</div>
+                            <div style="font-size: 0.8rem; color: #64748b; margin-top: 2px;">Diterbitkan: 01 Jul 2026 • Status: Disetujui Dua Pihak</div>
+                        </div>
+                        <span class="badge badge-info">Digital Signed</span>
+                    </div>
+
+                    <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(234,179,8,0.1); border-radius: 12px; border: 1px dashed #f59e0b; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <div style="font-size: 0.85rem; font-weight: 700; color: #facc15;">🛡️ Unduh Arsip WORM Asli</div>
+                            <div style="font-size: 0.75rem; color: #cbd5e1; margin-top: 2px;">Dokumen PDF asli ber-seal kriptografi Peruri.</div>
+                        </div>
+                        <button class="btn btn-gold" style="font-size: 0.8rem; padding: 0.6rem 1rem;" onclick="alert('📥 Mengunduh Akta Hukum ber-e-Meterai Peruri asli...')">📥 Unduh Semua Akta</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Kolom Kanan: Progres Kasus & Pro Bono -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <span>⚖️ Tracking Kasus & Bantuan Hukum (Huk-UC03)</span>
+                        <span class="badge badge-info">Pro Bono Rp 0</span>
+                    </div>
+                    <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.2rem;">Layanan subsidi bantuan hukum bagi masyarakat tidak mampu (SKTM Terverifikasi).</p>
+
+                    <div class="progress-box">
+                        <div style="font-size: 0.85rem; color: #facc15; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">✅ Status Verifikasi SKTM (Dukcapil API)</div>
+                        <div style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.5;">Surat Keterangan Tidak Mampu (SKTM) Anda telah dinyatakan valid oleh Dinas Sosial & Dukcapil. Anda berhak menerima layanan konsultasi Pro Bono 100% gratis.</div>
+                    </div>
+
+                    <div class="progress-box" style="border-color: #38bdf8;">
+                        <div style="font-size: 0.85rem; color: #38bdf8; font-weight: 700; text-transform: uppercase; margin-bottom: 4px;">📌 Tahap Penanganan Selanjutnya</div>
+                        <div style="font-size: 0.95rem; color: #e2e8f0; line-height: 1.5;">
+                            • Advokat sedang menyelesaikan draf Somasi Pertama.<br>
+                            • Jadwal mediasi tripartit direncanakan pada 10 Juli 2026.<br>
+                            • Siapkan bukti rekaman komunikasi & transaksi terkait.
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+                        <button class="btn btn-outline" style="flex: 1; justify-content: center;" onclick="alert('📋 Membuka Lembar Kerja Kasus & Bukti Litigasi...')">📋 Lihat Kronologi Kasus</button>
+                        <a href="mockup_katalog_mitra.html?domain=hukum" class="btn btn-outline" style="flex: 1; justify-content: center; border-color: #f59e0b; color: #facc15;">🔍 Cari Advokat Lain</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

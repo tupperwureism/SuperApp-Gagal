@@ -1,4 +1,4 @@
-# Product Backlog: Justifica 3-in-1 Tele-Consultation Platform
+# Product Backlog: LifeQ SuperApp (Tele-Consultation Platform)
 
 Dokumen ini memetakan seluruh *Use Case* (Core & Domain-Specific) ke dalam struktur *Agile Product Backlog*. Setiap baris ditulis dalam format *User Story* yang dilengkapi dengan **Acceptance Criteria (AC)** yang ketat serta **Definition of Done (DoD)** tingkat korporasi untuk memastikan kepatuhan regulasi mutlak (UU 17/2023 Kesehatan, Permenkes 24/2022, Kode Etik HIMPSI, UU 18/2003 Advokat, UU 10/2020 e-Meterai, dan UU PDP No. 27/2022).
 

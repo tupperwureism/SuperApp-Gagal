@@ -1,6 +1,6 @@
 # Dokumen Gabungan: Diagram & Spesifikasi Skenario Use Case
 
-Dokumen ini merupakan gabungan dari seluruh diagram arsitektur sistem dan detail skenario Use Case untuk platform **Justifica 3-in-1 Tele-Consultation**.
+Dokumen ini merupakan gabungan dari seluruh diagram arsitektur sistem dan detail skenario Use Case untuk platform **LifeQ SuperApp (Tele-Consultation)**.
 
 ---
 
@@ -8,21 +8,17 @@ Dokumen ini merupakan gabungan dari seluruh diagram arsitektur sistem dan detail
 
 Berikut adalah tautan ke seluruh file diagram yang telah dihasilkan pada fase pemodelan UML. Silakan klik tautan di bawah ini untuk membuka diagram secara langsung:
 
-*   [Diagram Domain Hukum](file:///d:/justificadll/HALODOC/Diagram/Hukum.drawio.pdf)
-*   [Diagram Domain Kesehatan Fisik](file:///d:/justificadll/HALODOC/Diagram/Kesehatan.drawio.pdf)
-*   [Diagram Domain Psikologi (Asesmen)](file:///d:/justificadll/HALODOC/Diagram/Psikologi-AD-Psikologi_%20Mengisi%20Tes%20Asesmen%20Psikologi%20%28Psi-UC03%29.drawio.pdf)
-*   [Sequence Diagram Keseluruhan](file:///d:/justificadll/HALODOC/Diagram/SEQUENCE.drawio-1.pdf)
-*   [Use Case & Activity Diagram (Bagian 1)](file:///d:/justificadll/HALODOC/Diagram/UC&A.drawio-2.pdf)
-*   [Unified Diagram (Bagian 1)](file:///d:/justificadll/HALODOC/Diagram/UNIFIEDDIAGRAM.drawio-3.pdf)
-*   [Unified Diagram (Bagian 2)](file:///d:/justificadll/HALODOC/Diagram/UNIFIEDDIAGRAM.drawio-4.pdf)
-*   [Use Case Scenarios - Halodoc](file:///d:/justificadll/HALODOC/Diagram/use_case_scenarios_halodoc.pdf)
-*   [Unified Use Case Scenarios (Versi PDF Ekspor)](file:///d:/justificadll/HALODOC/Diagram/unified_use_case_scenarios.pdf)
+*   [Diagram Domain Hukum](file:///d:/justificadll/Diagram/Hukum.drawio.pdf)
+*   [Diagram Domain Kesehatan Fisik](file:///d:/justificadll/Diagram/Kesehatan.drawio.pdf)
+*   [Diagram Domain Psikologi (Asesmen)](file:///d:/justificadll/Diagram/Psikologi.drawio.pdf)
+*   [Sequence Diagram Keseluruhan (SD-01 s/d SD-18)](file:///d:/justificadll/Diagram/SEQUENCE.drawio-1.pdf)
+*   [Unified Diagram Terpadu (26 Use Case & AD)](file:///d:/justificadll/Diagram/UNIFIEDDIAGRAM.drawio-4.pdf)
 
 ---
 
-## 2. Spesifikasi Skenario Use Case - Unified Tele-Consultation Platform
+## 2. Spesifikasi Skenario Use Case - LifeQ SuperApp (Tele-Consultation Platform)
 
-Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh 16 Use Case terpadu pada sistem **Unified Tele-Consultation Platform** (Hukum, Psikologi, dan Kesehatan Fisik). Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
+Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh 26 Use Case terpadu pada sistem **LifeQ SuperApp (Tele-Consultation Platform)** (17 Core Use Case + 9 Domain Use Case untuk Hukum, Psikologi, dan Kesehatan Fisik). Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
 
 > **Catatan UML**: Aktor hanya diisi oleh entitas di luar sistem (*external entities*). Sistem itu sendiri bertindak sebagai batasan sistem (*system boundary*) sehingga tidak dimasukkan sebagai aktor pendukung.
 
@@ -392,6 +388,39 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
     1. Sistem mendeteksi tidak ada transaksi pada parameter filter yang ditentukan Admin.
     2. Sistem menampilkan pesan: *"Tidak ada data transaksi pada periode ini"*.
     3. Sistem menonaktifkan tombol ekspor laporan.
+
+---
+
+#### UC-17: Mengelola Saldo dan Penarikan Dana Mitra
+* **Aktor Utama**: Mitra Profesional
+* **Aktor Pendukung**: Admin Finansial, Payment Gateway / Bank API
+* **Deskripsi Singkat**: Mitra Profesional memantau bagi hasil pendapatan jasa konsultasi, menghitung estimasi pajak PPh 21, dan mencairkan dana dari dompet platform ke rekening bank pribadi terdaftar.
+* **Pre-condition**: Mitra profesional sudah login, memiliki saldo pendapatan yang dapat dicairkan (*available balance* > Rp 50.000), serta rekening bank profesi dan NPWP telah diverifikasi.
+* **Post-condition**: Permintaan penarikan dana diproses, saldo berpindah ke status `DIBEKUKAN` (*frozen balance*), dan dana ditransfer ke rekening bank mitra melalui *auto-disbursement* atau persetujuan manual Admin Finansial.
+* **Compliance Checklist & Regulasi Domain**:
+  * **Peraturan Dirjen Pajak (PPh 21 Compliance)**: Sistem secara otomatis mengalkulasi dan memotong Pajak Penghasilan (PPh 21) atas jasa tenaga ahli (Dokter/Advokat/Psikolog) berdasarkan persentase aturan perpajakan yang berlaku sebelum saldo bersih masuk ke dompet mitra.
+  * **Standar Verifikasi Rekening Bank Faskes/BPJS Provider**: Khusus bagi mitra kesehatan yang terikat kontrak faskes, penarikan dana hanya diizinkan ke rekening bank resmi Faskes atau rekening pribadi yang nama pemiliknya 100% cocok dengan nama pada KTP/STR terdaftar (anti pencucian uang / AML).
+  * **Threshold Control (Gerbang Batas Nominal)**: Penarikan dana di bawah Rp 5.000.000 diproses secara *Auto-Disburse* via API Bank Gateway. Penarikan bernominal >= Rp 5.000.000 **wajib** melalui verifikasi dan persetujuan manual (*Manual Approval*) oleh Admin Finansial demi pencegahan *fraud*.
+* **Alur Utama (Basic Flow)**:
+  1. Mitra Profesional memilih menu "Saldo & Pencairan Dana" di navigasi Dasbor Mitra.
+  2. Sistem menampilkan rincian keuangan: Total Pendapatan Kotor, Potongan Bagi Hasil Platform (merujuk ke UC-16), Potongan Pajak PPh 21, Saldo Tertahan (*Escrow/Pending*), dan Saldo Tersedia (*Available Balance*).
+  3. Mitra mengklik tombol "Tarik Dana" dan memasukkan nominal yang ingin dicairkan (minimal Rp 50.000).
+  4. Sistem memvalidasi bahwa nominal tidak melebihi Saldo Tersedia, memverifikasi status NPWP (PPh 21), dan memeriksa keabsahan rekening bank profesi (Faskes/Peradi/HIMPSI).
+  5. Sistem memotong Saldo Tersedia mitra di database dan memindahkannya ke tabel `saldo_dibekukan` (*Balance Freeze*).
+  6. Sistem memeriksa nominal penarikan terhadap aturan *Threshold Control*:
+     * **Jika Nominal < Rp 5.000.000**: Sistem menginisiasi panggilan API *Auto-Disbursement* langsung ke Payment Gateway / Bank Switcher untuk mentransfer dana saat itu juga.
+     * **Jika Nominal >= Rp 5.000.000**: Sistem memasukkan permintaan pencairan ke dalam antrean **Manual Approval** di Dasbor Admin Finansial. Admin Finansial mereview bukti pelayanan, mengklik "Setujui & Transfer", baru sistem memicu API Bank Gateway.
+  7. API Bank Gateway membalas dengan status *Transfer Success*.
+  8. Sistem memperbarui status penarikan menjadi `DISBURSED`, menghapus dana dari `saldo_dibekukan`, dan mencatat log mutasi finansial WORM.
+  9. Sistem mengirimkan email bukti transfer (*Remittance Advice*) beserta slip pemotongan pajak PPh 21 kepada Mitra Profesional.
+* **Alur Alternatif/Gagal (Alternative Flow)**:
+  * **4a. Rekening Bank Tujuan Tidak Cocok dengan Identitas STR/KTA (*Name Mismatch*)**:
+    1. Sistem mendeteksi bahwa rekening bank yang dipilih mitra memiliki nama pemilik yang berbeda dengan nama KTP/STR/KTA yang diverifikasi saat registrasi.
+    2. Sistem menolak penarikan dana dan menampilkan pesan error AML: *"Penarikan dana ditolak. Demi kepatuhan anti-pencucian uang, rekening tujuan harus atas nama [Nama Mitra Terdaftar]"*.
+  * **6a/7a. Webhook Bank Membalas Gagal (Transfer Ditolak / Rekening Diblokir)**:
+    1. API Bank mengembalikan status gagal transfer karena nomor rekening tujuan salah, diblokir bank, atau sistem kliring bank sedang offline.
+    2. Sistem secara otomatis melakukan **Rollback Finansial**: mengembalikan uang dari `saldo_dibekukan` kembali ke `saldo_tersedia` (*Unfreeze Balance*).
+    3. Sistem memperbarui status penarikan menjadi `FAILED` dan mengirimkan notifikasi peringatan ke aplikasi dan email mitra: *"Penarikan dana sebesar Rp [Nominal] gagal diproses oleh bank tujuan. Saldo Anda telah dikembalikan secara utuh ke dompet platform"*.
 
 ---
 

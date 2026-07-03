@@ -1,4 +1,4 @@
-# Traceability Matrix — Justifica 3-in-1
+# Traceability Matrix — LifeQ (SuperApp)
 
 **Format**: Markdown (bisa di-import ke Excel/Notion/Jira)  
 **Versi**: 1.0 — Aligned dengan GAP_REMEDIATION_PLAN.md  

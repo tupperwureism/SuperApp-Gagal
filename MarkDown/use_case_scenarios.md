@@ -1,6 +1,6 @@
-# Spesifikasi Skenario Use Case - Halodoc Clone (Halodoc Fake)
+# Spesifikasi Skenario Use Case - LifeQ SuperApp (Tele-Consultation Platform)
 
-Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh 16 Use Case yang teridentifikasi dalam rancangan sistem **Halodoc Clone**. Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
+Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh Use Case yang teridentifikasi dalam rancangan sistem **LifeQ SuperApp**. Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
 
 > **Catatan UML**: Aktor hanya diisi oleh entitas di luar sistem (*external entities*). Sistem itu sendiri bertindak sebagai batasan sistem (*system boundary*) sehingga tidak dimasukkan sebagai aktor pendukung.
 

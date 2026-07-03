@@ -1,4 +1,4 @@
-# Product Backlog: Justifica 3-in-1 Tele-Consultation Platform
+# Product Backlog: LifeQ SuperApp (Tele-Consultation Platform)
 
 Dokumen ini memetakan seluruh *Use Case* (Core & Domain-Specific) ke dalam struktur *Agile Product Backlog*. Setiap baris ditulis dalam format *User Story* agar siap dieksekusi oleh tim *programmer*.
 

@@ -1,4 +1,4 @@
-# Domain Compliance Matrix — Justifica 3-in-1
+# Domain Compliance Matrix — LifeQ (SuperApp)
 
 **Versi**: 1.0  
 **Tanggal**: 02 Juli 2026  
@@ -9,7 +9,7 @@
 
 ## 1. Ringkasan Regulasi Utama per Domain
 
-| Domain | Regulasi Utama | Pasal Kunci | Relevansi untuk Justifica |
+| Domain | Regulasi Utama | Pasal Kunci | Relevansi untuk LifeQ |
 |--------|----------------|-------------|---------------------------|
 | **Kesehatan** | UU 17/2023 Kesehatan | Pasal 172, 173, 184 | Telemedicine, e-resep, rekam medis elektronik |
 | | Permenkes 20/2019 Telemedicine | Pasal 4, 5, 6, 11 | Standar layanan, konsentimen, data pasien |
