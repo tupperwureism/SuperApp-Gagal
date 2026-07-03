@@ -106,6 +106,7 @@ rectangle "Halodoc (Kesehatan)" {
   usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
   usecase "UC-10: Melayani Konsultasi" as UC10
   usecase "UC-11: Membuat Catatan Sesi" as UC11
+  usecase "UC-12: Mengeluarkan Output Dokumen\n(Resep Elektronik & Anjuran)" as UC12
   
   ' Spesifik Kesehatan
   usecase "Kes-UC01: Menebus Resep & Membeli Obat" as KUC01
@@ -113,6 +114,8 @@ rectangle "Halodoc (Kesehatan)" {
   usecase "Kes-UC03: Melihat Rekam Medis & Family Care" as KUC03
   
   UC04 .> UC05 : <<include>>
+  UC12 .> UC11 : <<extend>>
+  KUC01 .> UC12 : <<include>>
 }
 
 Klien -- UC01
@@ -131,6 +134,7 @@ Klien -- UC10
 Mitra -- UC09
 Mitra -- UC10
 Mitra -- UC11
+Mitra -- UC12
 Mitra -- KUC01
 
 Apotek -- KUC01
@@ -164,6 +168,7 @@ rectangle "Riliv (Kesehatan Mental)" {
   usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
   usecase "UC-10: Melayani Konseling" as UC10
   usecase "UC-11: Membuat Catatan Sesi Terapi" as UC11
+  usecase "UC-12: Mengeluarkan Output Dokumen\n(Lembar Tugas & Worksheet CCBT)" as UC12
   
   ' Spesifik Psikologi
   usecase "Psi-UC01: Mengisi Jurnal Mood Harian" as PUC01
@@ -171,6 +176,7 @@ rectangle "Riliv (Kesehatan Mental)" {
   usecase "Psi-UC03: Mengisi Tes Asesmen Psikologi" as PUC03
   
   UC04 .> UC05 : <<include>>
+  UC12 .> UC11 : <<extend>>
 }
 
 Klien -- UC01
@@ -179,6 +185,7 @@ Klien -- UC03
 Klien -- UC04
 Klien -- UC05
 Klien -- UC06
+Klien -- UC12
 Klien -- PUC01
 Klien -- PUC02
 Klien -- PUC03
@@ -189,6 +196,7 @@ Klien -- UC10
 Mitra -- UC09
 Mitra -- UC10
 Mitra -- UC11
+Mitra -- UC12
 Mitra -- PUC01
 Mitra -- PUC03
 
