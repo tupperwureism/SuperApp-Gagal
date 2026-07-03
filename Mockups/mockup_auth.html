@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LifeQ - Portal Autentikasi</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        :root {
+            --bg-base: #020617;
+            --glass-bg: rgba(255, 255, 255, 0.04);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #0ea5e9; /* Cyan/Blue theme for auth */
+            --primary-glow: rgba(14, 165, 233, 0.5);
+            --mitra-color: #d97706; /* Gold for Mitra */
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: auto;
+            position: relative;
+            padding: 2rem 0;
+        }
+
+        /* Abstract Mesh Background */
+        .mesh-bg {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: 
+                radial-gradient(circle at 15% 50%, rgba(14, 165, 233, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(217, 119, 6, 0.1), transparent 25%);
+            filter: blur(60px);
+        }
+
+        .auth-container {
+            width: 1000px;
+            min-height: 600px;
+            display: flex;
+            border-radius: 24px;
+            overflow: hidden;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5);
+        }
+
+        /* Left Side: Branding */
+        .brand-section {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, rgba(0,0,0,0.2) 100%);
+            border-right: 1px solid var(--glass-border);
+        }
+
+        .logo { font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 10px; }
+        .logo i { color: var(--primary); }
+
+        .brand-text h1 { font-size: 2.2rem; margin-bottom: 1rem; line-height: 1.2; }
+        .brand-text p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
+
+        .feature-list { list-style: none; margin-top: 2rem; }
+        .feature-list li { display: flex; align-items: center; gap: 10px; margin-bottom: 1rem; color: var(--text-muted); }
+        .feature-list i { color: var(--primary); font-size: 1.2rem; }
+
+        /* Right Side: Form */
+        .form-section {
+            flex: 1;
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* Custom Tabs */
+        .tabs {
+            display: flex;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            padding: 5px;
+            margin-bottom: 2rem;
+            border: 1px solid var(--glass-border);
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            color: var(--text-muted);
+        }
+
+        .tab.active {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-main);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        .tab-mitra.active {
+            background: rgba(217, 119, 6, 0.15); /* Gold tint for Mitra */
+            border: 1px solid rgba(217, 119, 6, 0.3);
+        }
+
+        .form-title { font-size: 1.5rem; margin-bottom: 1.5rem; font-weight: 600; }
+
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: var(--text-muted); }
+        
+        .input-wrapper { position: relative; }
+        .input-wrapper i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+        
+        .input-field {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(14, 165, 233, 0.2);
+            background: rgba(0,0,0,0.4);
+        }
+
+        /* Mitra Upload Area */
+        .upload-area {
+            border: 1px dashed var(--glass-border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            background: rgba(0,0,0,0.1);
+            margin-bottom: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: none; /* Hidden by default, shown for Mitra Register */
+        }
+        
+        .upload-area:hover { border-color: var(--mitra-color); background: rgba(217, 119, 6, 0.05); }
+        .upload-area i { font-size: 2rem; color: var(--mitra-color); margin-bottom: 0.5rem; }
+        .upload-area p { font-size: 0.85rem; color: var(--text-muted); }
+
+        .btn-submit {
+            width: 100%;
+            padding: 1rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(14, 165, 233, 0.2);
+        }
+
+        .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 15px 25px rgba(14, 165, 233, 0.4); }
+
+        .form-footer { margin-top: 1.5rem; text-align: center; font-size: 0.9rem; color: var(--text-muted); }
+        .form-footer a { color: var(--primary); text-decoration: none; font-weight: 500; }
+        .form-footer a:hover { text-decoration: underline; }
+
+        @media (max-width: 900px) {
+            .auth-container { flex-direction: column; width: 90%; height: auto; }
+            .brand-section { border-right: none; border-bottom: 1px solid var(--glass-border); padding: 2rem; }
+            .form-section { padding: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="mesh-bg"></div>
+
+    <div class="auth-container">
+        
+        <!-- Left Branding -->
+        <div class="brand-section">
+            <div class="logo">
+                <i class="ph-fill ph-scales"></i> LifeQ
+            </div>
+            
+            <div class="brand-text">
+                <h1>Satu Portal.<br>Tiga Solusi Profesional.</h1>
+                <p>Akses konsultasi Hukum, Medis, dan Psikologi terverifikasi dalam satu aplikasi terintegrasi.</p>
+                
+                <ul class="feature-list">
+                    <li><i class="ph-fill ph-shield-check"></i> Enkripsi End-to-End</li>
+                    <li><i class="ph-fill ph-certificate"></i> Profesional Bersertifikasi</li>
+                    <li><i class="ph-fill ph-clock-user"></i> Tersedia 24/7</li>
+                </ul>
+            </div>
+            
+            <div style="font-size: 0.8rem; color: var(--text-muted);">
+                &copy; 2026 LifeQ Tele-Consultation
+            </div>
+        </div>
+
+        <!-- Right Form -->
+        <div class="form-section">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab('client')">Klien</div>
+                <div class="tab tab-mitra" onclick="switchTab('mitra')">Mitra Profesional</div>
+            </div>
+
+            <h2 class="form-title" id="formTitle">Selamat Datang Kembali</h2>
+
+            <form>
+                <div class="input-group">
+                    <label>Email atau Nomor Telepon</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-envelope-simple"></i>
+                        <input type="text" class="input-field" placeholder="contoh@email.com">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label>Kata Sandi</label>
+                    <div class="input-wrapper">
+                        <i class="ph ph-lock-key"></i>
+                        <input type="password" class="input-field" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <!-- Mitra Specific Registration Upload (Simulated as hidden in login state) -->
+                <div class="upload-area" id="mitraUpload">
+                    <i class="ph ph-cloud-arrow-up"></i>
+                    <p style="color: var(--text-main); font-weight: 500;">Unggah Lisensi Profesi (STR/SIP/Peradi)</p>
+                    <p>Format PDF/JPG, maks 5MB. Dibutuhkan untuk verifikasi Admin.</p>
+                </div>
+
+                <div class="upload-area" id="mitraUploadIjazah">
+                    <i class="ph ph-graduation-cap"></i>
+                    <p style="color: var(--text-main); font-weight: 500;">Unggah Ijazah Terakhir</p>
+                    <p>Format PDF/JPG, maks 5MB. Sebagai bukti kualifikasi akademik.</p>
+                </div>
+
+                <button type="button" class="btn-submit" id="btnSubmit">Masuk ke Dasbor</button>
+            </form>
+
+            <div class="form-footer">
+                Belum memiliki akun? <a href="javascript:void(0)" id="toggleMode">Daftar sekarang</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple JS to toggle UI states for demonstration purposes
+        let isMitra = false;
+        let isRegister = false;
+
+        function switchTab(type) {
+            const tabs = document.querySelectorAll('.tab');
+            tabs.forEach(t => t.classList.remove('active'));
+            
+            const btn = document.getElementById('btnSubmit');
+            const title = document.getElementById('formTitle');
+            
+            if(type === 'client') {
+                tabs[0].classList.add('active');
+                isMitra = false;
+                btn.style.background = 'var(--primary)';
+                btn.style.boxShadow = '0 10px 20px rgba(14, 165, 233, 0.2)';
+            } else {
+                tabs[1].classList.add('active');
+                isMitra = true;
+                btn.style.background = 'var(--mitra-color)';
+                btn.style.boxShadow = '0 10px 20px rgba(217, 119, 6, 0.2)';
+            }
+            updateUI();
+        }
+
+        document.getElementById('toggleMode').addEventListener('click', (e) => {
+            e.preventDefault();
+            isRegister = !isRegister;
+            updateUI();
+        });
+
+        function updateUI() {
+            const title = document.getElementById('formTitle');
+            const btn = document.getElementById('btnSubmit');
+            const toggle = document.getElementById('toggleMode');
+            const upload = document.getElementById('mitraUpload');
+            const uploadIjazah = document.getElementById('mitraUploadIjazah');
+
+            if(isRegister) {
+                title.innerText = isMitra ? 'Registrasi Mitra Profesional' : 'Buat Akun Klien';
+                btn.innerText = 'Daftar Sekarang';
+                toggle.innerText = 'Masuk ke akun yang ada';
+                upload.style.display = isMitra ? 'block' : 'none';
+                uploadIjazah.style.display = isMitra ? 'block' : 'none';
+            } else {
+                title.innerText = 'Selamat Datang Kembali';
+                btn.innerText = 'Masuk ke Dasbor';
+                toggle.innerText = 'Daftar sekarang';
+                upload.style.display = 'none';
+                uploadIjazah.style.display = 'none';
+            }
+        }
+    </script>
+
+
+<!-- [TAMBAHAN: Modal Verifikasi OTP] -->
+<div id="otpModal" class="modal-overlay" style="display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 1000; align-items: center; justify-content: center;">
+    <div class="modal-box" style="background: rgba(30,30,30,0.9); backdrop-filter: blur(10px); padding: 30px; border-radius: 15px; border: 1px solid rgba(255,255,255,0.1); width: 100%; max-width: 400px; text-align: center;">
+        <h3 style="color: #fff; margin-top: 0;">Verifikasi OTP</h3>
+        <p style="color: #aaa; font-size: 14px;">Masukkan 4 digit kode yang kami kirim ke email Anda.</p>
+        <div class="otp-inputs" style="display: flex; gap: 10px; justify-content: center; margin: 20px 0;">
+            <input type="text" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; background: rgba(0,0,0,0.5); border: 1px solid #4facfe; color: #fff; border-radius: 8px;" value="4">
+            <input type="text" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; background: rgba(0,0,0,0.5); border: 1px solid #4facfe; color: #fff; border-radius: 8px;" value="2">
+            <input type="text" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; background: rgba(0,0,0,0.5); border: 1px solid #4facfe; color: #fff; border-radius: 8px;" value="0">
+            <input type="text" maxlength="1" style="width: 50px; height: 50px; text-align: center; font-size: 24px; background: rgba(0,0,0,0.5); border: 1px solid #4facfe; color: #fff; border-radius: 8px;" value="8">
+        </div>
+        <button style="background: linear-gradient(135deg, #4facfe, #00f2fe); width: 100%; padding: 12px; border: none; border-radius: 8px; color: #fff; font-weight: bold; cursor: pointer;" onclick="document.getElementById('otpModal').style.display='none'">Verifikasi & Masuk</button>
+        <p style="color: #4facfe; font-size: 12px; margin-top: 15px; cursor: pointer;" onclick="document.getElementById('otpModal').style.display='none'">[Tutup Simulasi OTP]</p>
+    </div>
+</div>
+
+</body>
+</html>

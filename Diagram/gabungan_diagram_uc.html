@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gabungan Diagram UC, AD, SD - Justifica</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: #0a0a0f;
+            color: #f1f5f9;
+            padding: 2rem 3rem;
+        }
+
+        .master-header {
+            text-align: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(255,255,255,0.08);
+        }
+        .master-header h1 { font-size: 2rem; font-weight: 700; }
+        .master-header h1 span { color: #0ea5e9; }
+        .master-header p { color: #64748b; margin-top: 0.5rem; font-size: 0.9rem; }
+
+        .toc {
+            max-width: 900px; margin: 0 auto 3rem;
+            display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center;
+        }
+        .toc a {
+            padding: 0.6rem 1.4rem; background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+            color: #94a3b8; text-decoration: none; font-size: 0.85rem;
+            transition: all 0.2s;
+        }
+        .toc a:hover { background: rgba(14,165,233,0.1); border-color: rgba(14,165,233,0.3); color: #0ea5e9; }
+
+        .diagram-section { margin-bottom: 4rem; }
+        .section-label {
+            font-size: 1.1rem; font-weight: 600; color: #0ea5e9; margin-bottom: 1rem;
+            display: flex; align-items: center; gap: 12px;
+            padding: 1rem 1.5rem; background: rgba(14,165,233,0.06);
+            border: 1px solid rgba(14,165,233,0.15); border-radius: 14px;
+        }
+        .section-label .num {
+            background: #0ea5e9; color: #000; font-weight: 700; font-size: 0.8rem;
+            width: 30px; height: 30px; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+        }
+        .section-label .desc { font-size: 0.8rem; color: #64748b; font-weight: 400; margin-left: 0.5rem; }
+        .section-label .file { font-size: 0.75rem; color: #475569; margin-left: auto; }
+
+        .pdf-embed {
+            width: 100%; height: 1000px;
+            border: 1px solid rgba(255,255,255,0.06); border-radius: 12px;
+            background: #1e1e2e;
+        }
+
+        .note-box {
+            margin-top: 0.8rem; padding: 0.8rem 1.2rem;
+            background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.2);
+            border-radius: 10px; font-size: 0.82rem; color: #f59e0b; line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="master-header">
+        <h1>Justifica <span>3-in-1</span> &middot; Gabungan Diagram UML</h1>
+        <p>Use Case Diagram &middot; Activity Diagram &middot; Sequence Diagram &mdash; Diperbarui 02 Juli 2026</p>
+    </div>
+
+    <div class="toc">
+        <a href="#unified">1. Unified UC &amp; AD</a>
+        <a href="#sequence">2. Sequence Diagram</a>
+        <a href="#kesehatan">3. AD Kesehatan</a>
+        <a href="#psikologi">4. AD Psikologi</a>
+        <a href="#hukum">5. AD Hukum</a>
+    </div>
+
+    <!-- 1. UNIFIED DIAGRAM (UC Diagram + Activity Diagrams Utama) -->
+    <div class="diagram-section" id="unified">
+        <div class="section-label">
+            <span class="num">1</span>
+            Unified Use Case &amp; Activity Diagram
+            <span class="desc">&mdash; UC Diagram Terpadu (17 UC) + AD #1–#11</span>
+            <span class="file">UNIFIEDDIAGRAM.drawio-4.pdf</span>
+        </div>
+        <embed src="UNIFIEDDIAGRAM.drawio-4.pdf" type="application/pdf" class="pdf-embed">
+    </div>
+
+    <!-- 2. SEQUENCE DIAGRAM -->
+    <div class="diagram-section" id="sequence">
+        <div class="section-label">
+            <span class="num">2</span>
+            Sequence Diagram Keseluruhan
+            <span class="desc">&mdash; SD-01 s/d SD-17</span>
+            <span class="file">SEQUENCE.drawio-1.pdf</span>
+        </div>
+        <embed src="SEQUENCE.drawio-1.pdf" type="application/pdf" class="pdf-embed">
+    </div>
+
+    <!-- 3. KESEHATAN (Domain-specific AD) -->
+    <div class="diagram-section" id="kesehatan">
+        <div class="section-label">
+            <span class="num">3</span>
+            Activity Diagram &mdash; Domain Kesehatan Fisik
+            <span class="desc">&mdash; Kes-UC01, Kes-UC02, Kes-UC03</span>
+            <span class="file">Kesehatan.drawio.pdf</span>
+        </div>
+        <embed src="Kesehatan.drawio.pdf" type="application/pdf" class="pdf-embed">
+    </div>
+
+    <!-- 4. PSIKOLOGI (Domain-specific AD) -->
+    <div class="diagram-section" id="psikologi">
+        <div class="section-label">
+            <span class="num">4</span>
+            Activity Diagram &mdash; Domain Psikologi
+            <span class="desc">&mdash; Psi-UC01, Psi-UC02, Psi-UC03</span>
+            <span class="file">Psikologi.drawio.pdf</span>
+        </div>
+        <embed src="Psikologi.drawio.pdf" type="application/pdf" class="pdf-embed">
+    </div>
+
+    <!-- 5. HUKUM (Domain-specific AD) -->
+    <div class="diagram-section" id="hukum">
+        <div class="section-label">
+            <span class="num">5</span>
+            Activity Diagram &mdash; Domain Hukum
+            <span class="desc">&mdash; Huk-UC01, Huk-UC02, Huk-UC03</span>
+            <span class="file">Hukum.drawio.pdf</span>
+        </div>
+        <embed src="Hukum.drawio.pdf" type="application/pdf" class="pdf-embed">
+    </div>
+
+    <div class="note-box" style="max-width: 900px; margin: 0 auto;">
+        &#9888; Jika PDF tidak tampil di browser, pastikan membuka file ini via <strong>file:///</strong> protocol di Chrome/Edge. Firefox mungkin memblokir embed PDF lokal. Alternatif: buka PDF secara terpisah melalui link di atas.
+    </div>
+
+</body>
+</html>

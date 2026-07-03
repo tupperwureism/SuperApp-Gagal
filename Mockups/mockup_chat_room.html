@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>LifeQ - Ruang Konsultasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
+        :root {
+            --bg-base: #020617;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --primary: #0ea5e9;
+            --law-color: #d97706;
+            --law-glow: rgba(217, 119, 6, 0.2);
+            --danger: #ef4444;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: var(--bg-base); color: var(--text-main);
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            overflow: hidden; position: relative;
+        }
+
+        .mesh-bg {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;
+            background: radial-gradient(circle at 10% 90%, var(--law-glow), transparent 40%);
+            filter: blur(80px);
+        }
+
+        .container {
+            width: 1200px; height: 85vh; display: flex;
+            background: var(--glass-bg); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 24px;
+            overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 320px; border-right: 1px solid var(--glass-border);
+            display: flex; flex-direction: column; background: rgba(0,0,0,0.2);
+        }
+
+        .timer-section {
+            padding: 2rem; text-align: center; border-bottom: 1px solid var(--glass-border);
+        }
+        
+        .timer-label { font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 0.5rem; }
+        
+        .timer {
+            font-size: 3rem; font-weight: 700; color: var(--text-main);
+            text-shadow: 0 0 20px rgba(255,255,255,0.3); font-variant-numeric: tabular-nums;
+        }
+
+        .partner-profile {
+            padding: 2rem; display: flex; flex-direction: column; align-items: center; flex-grow: 1;
+        }
+        
+        .avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; margin-bottom: 1rem; border: 2px solid var(--law-color); box-shadow: 0 0 15px var(--law-glow); }
+        .name { font-size: 1.2rem; font-weight: 600; margin-bottom: 0.2rem; text-align: center; }
+        .spec { color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem; }
+        
+        .status {
+            display: flex; align-items: center; gap: 8px;
+            background: rgba(16, 185, 129, 0.1); color: #10b981;
+            padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500;
+        }
+        .status-dot { width: 8px; height: 8px; background: #10b981; border-radius: 50%; box-shadow: 0 0 8px #10b981; }
+
+        .btn-end {
+            margin: 2rem; padding: 1rem; background: rgba(239, 68, 68, 0.1);
+            color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+        }
+        .btn-end:hover { background: var(--danger); color: white; box-shadow: 0 5px 15px rgba(239, 68, 68, 0.3); }
+
+        /* Chat Area */
+        .chat-area {
+            flex: 1; display: flex; flex-direction: column; position: relative;
+        }
+
+        .chat-header {
+            padding: 1.5rem 2rem; border-bottom: 1px solid var(--glass-border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        
+        .chat-title { font-size: 1.1rem; font-weight: 500; }
+        
+        .encryption-badge {
+            display: flex; align-items: center; gap: 6px; font-size: 0.8rem; color: #10b981;
+            background: rgba(16, 185, 129, 0.1); padding: 0.4rem 0.8rem; border-radius: 8px;
+        }
+
+        .chat-history {
+            flex: 1; padding: 2rem; overflow-y: auto; display: flex; flex-direction: column; gap: 1.5rem;
+        }
+
+        /* Message Bubbles */
+        .msg-wrapper { display: flex; flex-direction: column; max-width: 70%; }
+        .msg-wrapper.partner { align-self: flex-start; }
+        .msg-wrapper.user { align-self: flex-end; }
+        
+        .msg-bubble { padding: 1rem 1.2rem; line-height: 1.5; font-size: 1rem; }
+        
+        .msg-wrapper.partner .msg-bubble {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            border-radius: 2px 20px 20px 20px; color: var(--text-main);
+        }
+        
+        .msg-wrapper.user .msg-bubble {
+            background: var(--law-color); color: white;
+            border-radius: 20px 2px 20px 20px; box-shadow: 0 5px 15px var(--law-glow);
+        }
+
+        .msg-time { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.4rem; }
+        .msg-wrapper.partner .msg-time { align-self: flex-start; }
+        .msg-wrapper.user .msg-time { align-self: flex-end; }
+
+        /* Document Bubble */
+        .doc-bubble {
+            display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2) !important;
+            border: 1px solid rgba(255,255,255,0.2) !important; color: var(--text-main) !important;
+        }
+        
+        .doc-icon {
+            width: 40px; height: 40px; background: rgba(255,255,255,0.1);
+            border-radius: 8px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem; color: #ef4444; /* PDF Red */
+        }
+        
+        .doc-info { display: flex; flex-direction: column; }
+        .doc-name { font-weight: 500; font-size: 0.95rem; }
+        .doc-size { font-size: 0.8rem; color: var(--text-muted); }
+
+        /* Input Area */
+        .input-area {
+            padding: 1.5rem 2rem; border-top: 1px solid var(--glass-border);
+            display: flex; align-items: center; gap: 1rem; background: rgba(0,0,0,0.2);
+        }
+
+        .btn-action {
+            width: 45px; height: 45px; border-radius: 50%; border: none;
+            background: rgba(255,255,255,0.05); color: var(--text-main);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer; transition: all 0.3s;
+        }
+        .btn-action:hover { background: rgba(255,255,255,0.1); }
+        
+        .btn-action.upload:hover { color: var(--law-color); border-color: var(--law-color); }
+
+        .chat-input {
+            flex: 1; padding: 1rem 1.5rem; border-radius: 25px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-main); font-size: 1rem; outline: none; transition: all 0.3s;
+        }
+        .chat-input:focus { border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.08); }
+
+        .btn-send {
+            width: 45px; height: 45px; border-radius: 50%; border: none;
+            background: var(--law-color); color: white;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem; cursor: pointer; transition: all 0.3s;
+            box-shadow: 0 5px 15px var(--law-glow);
+        }
+        .btn-send:hover { transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+    <div class="mesh-bg"></div>
+
+    <div class="container">
+        
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="timer-section">
+                <div class="timer-label">Sisa Waktu Konsultasi</div>
+                <div class="timer">44:59</div>
+            </div>
+            
+            <div class="partner-profile">
+                <!-- Placeholder avatar -->
+                <img src="https://ui-avatars.com/api/?name=Budi&background=d97706&color=fff" class="avatar" alt="Advokat">
+                <div class="name">Budi Santoso, S.H., M.H.</div>
+                <div class="spec">Konsultan Hukum Bisnis</div>
+                
+                <div class="status">
+                    <div class="status-dot"></div> Online
+                </div>
+            </div>
+            
+            <button class="btn-end">
+                <i class="ph-bold ph-phone-slash"></i> Akhiri Sesi
+            </button>
+        </div>
+
+        <!-- Chat Area -->
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-title">Konsultasi: Review Kontrak Sewa Ruko</div>
+                <div class="encryption-badge">
+                    <i class="ph-fill ph-lock-key"></i> Terenkripsi End-to-End
+                </div>
+            </div>
+            
+            <div class="chat-history">
+                
+                <div class="msg-wrapper partner">
+                    <div class="msg-bubble">
+                        Selamat siang. Saya Advokat Budi. Ada yang bisa saya bantu terkait masalah hukum Anda hari ini?
+                    </div>
+                    <div class="msg-time">14:00</div>
+                </div>
+                
+                <div class="msg-wrapper user">
+                    <div class="msg-bubble">
+                        Siang pak Budi. Saya ingin mengirimkan draft perjanjian sewa ruko saya untuk direview. Apakah ada celah hukum yang merugikan saya?
+                    </div>
+                    <div class="msg-time">14:02</div>
+                </div>
+
+                <!-- Encrypted Document Upload -->
+                <div class="msg-wrapper user">
+                    <div class="msg-bubble doc-bubble">
+                        <div class="doc-icon">
+                            <i class="ph-fill ph-file-pdf"></i>
+                        </div>
+                        <div class="doc-info">
+                            <span class="doc-name">Draft_Sewa_Ruko_Final.pdf</span>
+                            <span class="doc-size">1.2 MB • Enkripsi Aktif</span>
+                        </div>
+                    </div>
+                    <div class="msg-time">14:03</div>
+                </div>
+
+            </div>
+            
+            <div class="input-area">
+                <button class="btn-action upload" title="Unggah Berkas (Huk-UC01)">
+                    <i class="ph ph-paperclip"></i>
+                </button>
+                <input type="text" class="chat-input" placeholder="Ketik pesan Anda di sini...">
+                <button class="btn-send">
+                    <i class="ph-fill ph-paper-plane-right"></i>
+                </button>
+            </div>
+        </div>
+        
+    </div>
+
+<!-- [TAMBAHAN: Modal Konfirmasi Keluar Sepihak] -->
+<div id="exitConfirmModal" class="modal-overlay" style="display: flex; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;">
+    <div class="modal-box" style="background: rgba(30,30,40,0.95); padding: 30px; border-radius: 12px; border: 1px solid #ff4d4d; width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(255, 77, 77, 0.2);">
+        <i class="ph ph-warning-octagon" style="font-size: 48px; color: #ff4d4d;"></i>
+        <h3 style="color: #fff;">Keluar Ruang Chat?</h3>
+        <p style="color: #ccc; font-size: 14px;">Jika Anda keluar sekarang, sesi dianggap selesai sepihak. <strong>Tidak ada pengembalian dana (Refund).</strong></p>
+        <div style="display: flex; gap: 10px; margin-top: 25px;">
+            <button style="flex: 1; background: #ff4d4d; border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;">Ya, Akhiri</button>
+            <button style="flex: 1; background: #57606f; border: none; color: #fff; padding: 12px; border-radius: 8px; cursor: pointer;" onclick="this.parentElement.parentElement.parentElement.style.display='none'">Batal</button>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

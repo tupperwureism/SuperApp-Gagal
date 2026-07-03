@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Wireframe - Modul Medis</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: monospace; color: #333; }
+        body { background-color: #f5f5f5; padding: 20px; display: flex; justify-content: center; }
+        .wf-container { width: 1000px; background-color: #fff; border: 2px solid #666; display: flex; flex-direction: column; min-height: 80vh; }
+        .wf-box { border: 2px dashed #999; background-color: #eaeaea; display: flex; align-items: center; justify-content: center; text-align: center; }
+        
+        .wf-header { padding: 20px; border-bottom: 2px solid #666; display: flex; align-items: center; justify-content: space-between; }
+        .wf-title { height: 30px; width: 300px; }
+        
+        .wf-content { display: flex; padding: 30px; gap: 30px; }
+        
+        /* Left: E-Prescription & Pharmacy */
+        .wf-left { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .wf-section { border: 2px solid #666; padding: 20px; }
+        .wf-sec-title { width: 200px; height: 20px; margin-bottom: 15px; }
+        
+        .wf-prescription { border: 2px dashed #999; padding: 15px; margin-bottom: 15px; }
+        .wf-med-item { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .wf-line { width: 150px; height: 15px; background: #ccc; }
+        .wf-line-sm { width: 50px; height: 15px; background: #999; }
+        
+        .wf-btn-buy { width: 100%; height: 40px; background: #666; color: white; }
+        
+        /* Right: Hospital Booking */
+        .wf-right { flex: 1; display: flex; flex-direction: column; gap: 20px; }
+        .wf-hospital-card { border: 2px dashed #999; padding: 15px; margin-bottom: 15px; display: flex; gap: 15px; }
+        .wf-hosp-img { width: 80px; height: 80px; }
+        .wf-hosp-info { flex: 1; display: flex; flex-direction: column; gap: 10px; }
+        
+        .wf-btn-book { height: 30px; background: #999; color: white; margin-top: auto; }
+    </style>
+</head>
+<body>
+    <div class="wf-container">
+        <div class="wf-header">
+            <div class="wf-box" style="width: 50px; height: 30px;">[<]</div>
+            <div class="wf-box wf-title">[Pusat Layanan Medis Terpadu]</div>
+            <div class="wf-box" style="width: 80px; height: 30px;">[Cart]</div>
+        </div>
+        
+        <div class="wf-content">
+            <!-- Left: Apotek & Resep -->
+            <div class="wf-left">
+                <div class="wf-section">
+                    <div class="wf-box wf-sec-title">[Resep Elektronik Anda]</div>
+                    
+                    <div class="wf-prescription">
+                        <div style="font-weight: bold; margin-bottom: 10px;">Dari: dr. Andi Pratama</div>
+                        <div class="wf-med-item">
+                            <div class="wf-line"></div>
+                            <div class="wf-line-sm"></div>
+                        </div>
+                        <div class="wf-med-item">
+                            <div class="wf-line" style="width: 120px;"></div>
+                            <div class="wf-line-sm"></div>
+                        </div>
+                        <button class="wf-box wf-btn-buy">[Tebus Resep & Beli Obat]</button>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Right: Rumah Sakit -->
+            <div class="wf-right">
+                <div class="wf-section">
+                    <div class="wf-box wf-sec-title">[Booking Rumah Sakit]</div>
+                    
+                    <div class="wf-hospital-card">
+                        <div class="wf-box wf-hosp-img">[Img RS]</div>
+                        <div class="wf-hosp-info">
+                            <div class="wf-line" style="background:#666;"></div>
+                            <div class="wf-line" style="width: 100px;"></div>
+                            <button class="wf-box wf-btn-book">[Buat Janji Temu Offline]</button>
+                        </div>
+                    </div>
+                    
+                    <div class="wf-hospital-card">
+                        <div class="wf-box wf-hosp-img">[Img RS]</div>
+                        <div class="wf-hosp-info">
+                            <div class="wf-line" style="background:#666;"></div>
+                            <div class="wf-line" style="width: 100px;"></div>
+                            <button class="wf-box wf-btn-book">[Buat Janji Temu Offline]</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
