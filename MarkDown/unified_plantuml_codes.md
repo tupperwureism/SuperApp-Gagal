@@ -2385,9 +2385,9 @@ else [Saldo Cukup]
 
     WC -> VS : 11b. validateBankAccount(mitraId, domain)
 
-    alt [Domain = Kesehatan]
-        VS -> VS : 12b-kes. validateNPWP(npwp) + validateBPJSProvider(bpjsId)
-        note right : Kes: wajib NPWP\n+ rekening BPJS Provider
+    alt [Domain = Kesehatan atau Psikologi]
+        VS -> VS : 12b-kes-psi. validateNPWP(npwp) + validateClinicalAccount(accId)
+        note right : Kes/Psi: wajib NPWP\n+ validasi rekening klinis/BPJS
     else [Domain = Hukum dan isProbono]
         VS -> VS : 12b-huk. checkEscrowStatus(sessionId)
         note right : Huk Pro Bono: dana\ndi-escrow sampai selesai
