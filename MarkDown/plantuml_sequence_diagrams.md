@@ -1,2152 +1,735 @@
-# Kumpulan Kode PlantUML: Sequence Diagrams - LifeQ SuperApp
+# Kumpulan Kode PlantUML: Sequence Diagrams - 100% Siloed Architecture (Justifiqa & Qualifa)
 
-Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Sequence Diagram pada sistem **LifeQ SuperApp** (17 Core Use Case + 9 Domain Use Case).
+Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Sequence Diagram pada dua aplikasi mandiri yang **100% terisolasi dan berdiri sendiri (*Siloed Architecture*)**: **Justifiqa** (Domain Hukum) dan **Qualifa** (Domain Psikologi). Penomoran diagram telah distandarisasi untuk mencerminkan arsitektur terisolasi dan bersesuaian 1-to-1 dengan Activity Diagram: **`SD-J-xx`** untuk Justifiqa dan **`SD-Q-xx`** untuk Qualifa.
 
 ---
 
 ## Cara Import ke Draw.io
-1. Buka Draw.io (pp.diagrams.net).
+1. Buka Draw.io (`app.diagrams.net`).
 2. Pada toolbar bagian atas, klik tombol **+ (Insert)** atau pilih menu **Arrange -> Insert**.
-3. Pilih **Advanced -> PlantUML...** (atau **Mermaid...**).
+3. Pilih **Advanced -> PlantUML...**.
 4. Salin dan tempel kode di bawah ini, lalu klik **Insert**.
 
 ---
 
-## Sequence Diagrams (Diagram Urutan)
+## BAGIAN I: SEQUENCE DIAGRAMS - APLIKASI MANDIRI JUSTIFIQA (DOMAIN HUKUM)
 
-Berikut adalah kumpulan kode PlantUML untuk Sequence Diagram terpadu pada platform.
-
-### SD-01: Sequence Diagram - Melakukan Login (UC-02 & UC-08)
-*Diagram ini merepresentasikan alur pesan sinkron/asinkron untuk proses verifikasi login Klien dan Mitra Profesional.*
-
-#### Opsi A: Versi Mermaid (Sangat Direkomendasikan untuk Draw.io)
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> Mermaid... -> Paste kode di bawah ini -> Insert.*
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Pengguna as Pengguna<br/>(Klien/Mitra)
-    participant UI as :HalamanLoginUI
-    participant Auth as :AuthManager
-    participant DBUser as :TabelUser
-    participant DBMitra as :TabelMitra
-
-    Pengguna->>UI: inputKredensial(email, password)
-    activate Pengguna
-    activate UI
-    UI->>Auth: requestLogin(email, password)
-    activate Auth
-
-    Auth->>DBUser: verifyCredentials(email)
-    activate DBUser
-    DBUser-->>Auth: returnUserRecord(isValid, status)
-    deactivate DBUser
-
-    alt Kredensial Tidak Cocok
-        Auth-->>UI: tampilkanError("Email/Sandi Salah")
-        UI-->>Pengguna: tampilkanPesanError()
-    else Kredensial Cocok
-        alt Status Akun SUSPENDED
-            Auth-->>UI: tampilkanError("Akun Dinonaktifkan")
-            UI-->>Pengguna: tampilkanPesanError()
-        else Status Akun Tidak SUSPENDED
-            alt Pengguna adalah Mitra
-                Auth->>DBMitra: checkVerificationStatus(mitraId)
-                activate DBMitra
-                DBMitra-->>Auth: returnStatus(status)
-                deactivate DBMitra
-                
-                alt Status PENDING/REJECTED
-                    Auth-->>UI: tampilkanErrorVerifikasiBerkas()
-                    UI-->>Pengguna: tampilkanPesanError()
-                else Status ACTIVE
-                    %% Alur berlanjut ke pengiriman OTP di bawah
-                end
-            else Pengguna adalah Klien
-                %% Alur berlanjut ke pengiriman OTP di bawah
-            end
-            
-            Auth->>Auth: generateAndSendOTP()
-            activate Auth
-            deactivate Auth
-            Auth-->>UI: tampilkanHalamanOTP()
-            
-            note over Pengguna,DBMitra: Tantangan Dua Faktor (2FA / OTP)
-            
-            Pengguna->>UI: memasukkanKodeOTP()
-            UI->>Auth: verifyOTP(code)
-            
-            alt OTP Tidak Valid / Kadaluarsa
-                Auth-->>UI: tampilkanErrorOTP()
-                UI-->>Pengguna: tampilkanPesanError()
-            else OTP Valid
-                Auth->>Auth: generateTokenSesi(JWT)
-                activate Auth
-                deactivate Auth
-                Auth-->>UI: redirectDashboard()
-                UI-->>Pengguna: masukKeDashboard()
-            end
-        end
-    end
-
-    deactivate Auth
-    deactivate UI
-    deactivate Pengguna
-```
-
-#### Opsi B: Versi PlantUML
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> PlantUML... -> Paste kode di bawah ini -> Insert.*
+### SD-J-01: Registrasi Akun Klien & Advokat (J-UC01, J-UC07)
+*Sequence diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa.*
 
 ```plantuml
 @startuml
 autonumber
+actor "Pengguna (Klien/Advokat)" as User
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+participant "API Dukcapil / Peradi" as Ext
 
-actor "Pengguna\n(Klien/Mitra)" as Pengguna
-participant ":HalamanLoginUI" as UI
-participant ":AuthManager" as Auth
-database ":TabelUser" as DBUser
-database ":TabelMitra" as DBMitra
+User -> FE : Buka Halaman Registrasi & Pilih Jenis Akun
+FE -> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
+User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
+FE -> BE : POST /api/v1/auth/register (Payload & Files)
 
-Pengguna -> UI : inputKredensial(email, password)
-activate Pengguna
-activate UI
-UI -> Auth : requestLogin(email, password)
-activate Auth
+BE -> DB : Check Existing Email/No HP/NIK
+DB --> BE : Status Uniqueness Result
 
-Auth -> DBUser : verifyCredentials(email)
-activate DBUser
-DBUser --> Auth : returnUserRecord(isValid, status)
-deactivate DBUser
+alt Email / No HP / NIK Sudah Terdaftar
+    BE --> FE : 400 Bad Request (Akun Sudah Ada)
+    FE --> User : Tampilkan Error "Kredensial Sudah Terdaftar"
+else Kredensial Baru & Valid
+    alt Jenis Akun = Klien (Pencari Keadilan)
+        BE -> Ext : Verify NIK & KK to API Dukcapil
+        Ext --> BE : Validasi NIK Cocok
+        BE -> DB : Insert Klien (Status: AKTIF)
+        DB --> BE : Success DB Insert
+        BE --> FE : 201 Created (Registrasi Sukses)
+        FE --> User : Arahkan ke Halaman Login Justifiqa
+    else Jenis Akun = Advokat / Notaris
+        BE -> DB : Insert Advokat (Status: PENDING_VERIFICATION)
+        DB --> BE : Success DB Insert
+        BE -> BE : Add to Admin Audit Queue (Verifikasi SIPP/Peradi)
+        BE --> FE : 201 Created (Menunggu Verifikasi Admin)
+        FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
+    end
+end
+@enduml
+```
+
+---
+
+### SD-J-02: Login Akun Klien & Advokat (J-UC02, J-UC08)
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA).*
+
+```plantuml
+@startuml
+autonumber
+actor "Pengguna Justifiqa" as User
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+participant "SMS / Email Gateway" as SMS
+
+User -> FE : Masukkan Email/No HP & Password
+FE -> BE : POST /api/v1/auth/login (Credentials)
+
+BE -> DB : Query User by Email/No HP
+DB --> BE : Return User Record & Password Hash
 
 alt Kredensial Tidak Cocok
-  Auth --> UI : tampilkanError("Email/Sandi Salah")
-  UI --> Pengguna : tampilkanPesanError()
+    BE --> FE : 401 Unauthorized (Kredensial Salah)
+    FE --> User : Tampilkan Error & Sisa Percobaan Login
 else Kredensial Cocok
-  alt Status Akun SUSPENDED
-    Auth --> UI : tampilkanError("Akun Dinonaktifkan")
-    UI --> Pengguna : tampilkanPesanError()
-  else Status Akun Tidak SUSPENDED
-    alt Pengguna adalah Mitra
-      Auth -> DBMitra : checkVerificationStatus(mitraId)
-      activate DBMitra
-      DBMitra --> Auth : returnStatus(status)
-      deactivate DBMitra
-      
-      alt Status PENDING/REJECTED
-        Auth --> UI : tampilkanErrorVerifikasiBerkas()
-        UI --> Pengguna : tampilkanPesanError()
-      else Status ACTIVE
-        ' Alur berlanjut ke pengiriman OTP di bawah
-      end
-    else Pengguna adalah Klien
-      ' Alur berlanjut ke pengiriman OTP di bawah
-    end
-    
-    Auth -> Auth : generateAndSendOTP()
-    activate Auth
-    deactivate Auth
-    Auth --> UI : tampilkanHalamanOTP()
-    
-    ... Menunggu Pengguna Menerima & Memasukkan Kode OTP ...
-    
-    Pengguna -> UI : memasukkanKodeOTP()
-    UI -> Auth : verifyOTP(code)
-    
-    alt OTP Tidak Valid / Kadaluarsa
-      Auth --> UI : tampilkanErrorOTP()
-      UI --> Pengguna : tampilkanPesanError()
-    else OTP Valid
-      Auth -> Auth : generateTokenSesi(JWT)
-      activate Auth
-      deactivate Auth
-      Auth --> UI : redirectDashboard()
-      UI --> Pengguna : masukKeDashboard()
-    end
-  end
-end
-
-deactivate Auth
-deactivate UI
-deactivate Pengguna
-@enduml
-```
-
----
-
-### SD-02: Sequence Diagram - Transaksi Pembayaran & Inisiasi Konsultasi (UC-04 & UC-05)
-*Diagram ini merepresentasikan alur pesan untuk pemrosesan token pembayaran dari Payment Gateway (Fase 1) dan penanganan Callback Notification secara asinkron di latar belakang (Fase 2).*
-
-#### Opsi A: Versi Mermaid (Sangat Direkomendasikan untuk Draw.io)
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> Mermaid... -> Paste kode di bawah ini -> Insert.*
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Pengguna as Pengguna (Klien)
-    participant UI as :HalamanPembayaranUI
-    participant Payment as :PaymentManager
-    participant DB as :TabelTransaksi
-    participant PG as :PaymentGatewayServer
-
-    note over Pengguna,PG: FASE 1: Permintaan Token Pembayaran (Synchronous)
-
-    Pengguna->>UI: pilihMetodeDanKlikBayar()
-    activate Pengguna
-    activate UI
-    UI->>Payment: initiatePayment(bookingId, total)
-    activate Payment
-
-    Payment->>PG: requestSnapToken(transactionDetails)
-    activate PG
-    PG-->>Payment: returnSnapToken
-    deactivate PG
-
-    Payment-->>UI: tampilkanPaymentModal(snapToken)
-    deactivate Payment
-    deactivate UI
-
-    Pengguna->PG: melakukanTransferDana()
-    deactivate Pengguna
-
-    note over Pengguna,PG: FASE 2: Proses Callback Notifikasi (Asynchronous & Latar Belakang)
-
-    PG->Payment: postCallbackNotification(orderId, status_code)
-    activate PG
-    activate Payment
-
-    alt Status == SUCCESS
-        Payment->>DB: updateStatusToPaid(orderId)
-        activate DB
-        DB-->>Payment: return
-        deactivate DB
+    alt Status Akun = SUSPENDED (Due Process Legal)
+        BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
+        FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
+    else Status Akun = AKTIF
+        BE -> BE : Generate OTP 6-Digit (Expire 5 Menit)
+        BE -> SMS : Kirim Kode OTP via SMS / WhatsApp / Email
+        SMS --> User : Terima Pesan Kode OTP
+        BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+        FE --> User : Tampilkan Layar Input OTP
         
-        Payment->>DB: terbitkanTiketKonsultasi()
-        activate DB
-        DB-->>Payment: return
-        deactivate DB
+        User -> FE : Masukkan Kode OTP 6-Digit
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
         
-        Payment-->>PG: return HTTP 200 OK
-        deactivate PG
-        
-        Payment->UI: notifyPaymentSuccess()
-        activate UI
-        deactivate Payment
-        
-        UI->Pengguna: tampilkanNotifikasiSukses()
-        activate Pengguna
-        deactivate Pengguna
-        deactivate UI
-    else Status == EXPIRED / DENIED
-        Payment->>DB: updateStatusToCancel(orderId)
-        activate DB
-        DB-->>Payment: return
-        deactivate DB
-        
-        Payment-->>PG: return HTTP 200 OK
-        deactivate PG
-        
-        Payment->UI: notifyPaymentFailed()
-        activate UI
-        deactivate Payment
-        
-        UI->Pengguna: tampilkanNotifikasiGagal()
-        activate Pengguna
-        deactivate Pengguna
-        deactivate UI
-    end
-```
-
-#### Opsi B: Versi PlantUML
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> PlantUML... -> Paste kode di bawah ini -> Insert.*
-
-```plantuml
-@startuml
-autonumber
-
-actor "Pengguna (Klien)" as Pengguna
-participant ":HalamanPembayaranUI" as UI
-participant ":PaymentManager" as Payment
-database ":TabelTransaksi" as DB
-participant ":PaymentGatewayServer" as PG
-
-== FASE 1: Permintaan Token Pembayaran (Synchronous) ==
-
-Pengguna -> UI : pilihMetodeDanKlikBayar()
-activate Pengguna
-activate UI
-UI -> Payment : initiatePayment(bookingId, total)
-activate Payment
-
-Payment -> PG : requestSnapToken(transactionDetails)
-activate PG
-PG --> Payment : returnSnapToken
-deactivate PG
-
-Payment --> UI : tampilkanPaymentModal(snapToken)
-deactivate Payment
-deactivate UI
-
-Pengguna -> PG : melakukanTransferDana()
-deactivate Pengguna
-
-== FASE 2: Proses Callback Notifikasi (Asynchronous & Latar Belakang) ==
-
-PG ->> Payment : postCallbackNotification(orderId, status_code)
-activate PG
-activate Payment
-
-alt Status == SUCCESS
-  Payment -> DB : updateStatusToPaid(orderId)
-  activate DB
-  DB --> Payment : return
-  deactivate DB
-  
-  Payment -> DB : terbitkanTiketKonsultasi()
-  activate DB
-  DB --> Payment : return
-  deactivate DB
-  
-  Payment --> PG : return HTTP 200 OK
-  deactivate PG
-  
-  Payment -> UI : notifyPaymentSuccess()
-  activate UI
-  deactivate Payment
-  
-  UI -> Pengguna : tampilkanNotifikasiSukses()
-  activate Pengguna
-  deactivate Pengguna
-  deactivate UI
-else Status == EXPIRED / DENIED
-  PG -[hidden]-> PG
-  activate PG
-  activate Payment
-  
-  Payment -> DB : updateStatusToCancel(orderId)
-  activate DB
-  DB --> Payment : return
-  deactivate DB
-  
-  Payment --> PG : return HTTP 200 OK
-  deactivate PG
-  
-  Payment -> UI : notifyPaymentFailed()
-  activate UI
-  deactivate Payment
-  
-  UI -> Pengguna : tampilkanNotifikasiGagal()
-  activate Pengguna
-  deactivate Pengguna
-  deactivate UI
-end
-@enduml
-```
-
----
-
-### SD-03: Sequence Diagram - Sesi Konsultasi & Penutupan Chat (UC-04 & UC-10)
-*Diagram ini merepresentasikan alur obrolan real-time (looping) antara Klien dan Mitra Profesional serta alur penutupan/penguncian sesi chat setelah selesai.*
-
-#### Opsi A: Versi Mermaid (Sangat Direkomendasikan untuk Draw.io)
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> Mermaid... -> Paste kode di bawah ini -> Insert.*
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Klien as Pengguna (Klien)
-    participant UIKlien as :RuangChatKlienUI
-    participant ChatController as :ChatController
-    participant TChat as :TabelChat
-    participant TTransaksi as :TabelTransaksi
-    participant UIMitra as :RuangChatMitraUI
-    actor Mitra as Mitra Profesional
-
-    loop Selama Sesi Konsultasi Aktif
-        Klien->>UIKlien: ketikPesanDanKlikKirim(roomId, teks)
-        activate Klien
-        activate UIKlien
-        
-        UIKlien->>ChatController: sendMessage(roomId, teks, sender: Klien)
-        activate ChatController
-        
-        ChatController->>TChat: saveMessagePayload()
-        activate TChat
-        TChat-->>ChatController: returnSaveStatus(success)
-        deactivate TChat
-        
-        ChatController->>UIMitra: broadcastIncomingMessage(teks)
-        activate UIMitra
-        UIMitra-->>Mitra: tampilkanPesanBaruDiLayar()
-        activate Mitra
-        deactivate Mitra
-        deactivate UIMitra
-        
-        ChatController-->>UIKlien: confirmMessageDelivered()
-        deactivate ChatController
-        deactivate UIKlien
-        deactivate Klien
-        
-        Mitra->>UIMitra: ketikBalasanDanKlikKirim(roomId, teks)
-        activate Mitra
-        activate UIMitra
-        
-        UIMitra->>ChatController: sendMessage(roomId, teks, sender: Mitra)
-        activate ChatController
-        
-        ChatController->>TChat: saveMessagePayload()
-        activate TChat
-        TChat-->>ChatController: returnSaveStatus(success)
-        deactivate TChat
-        
-        ChatController->>UIKlien: broadcastIncomingMessage(teks)
-        activate UIKlien
-        UIKlien-->>Klien: tampilkanPesanBaruDiLayar()
-        activate Klien
-        deactivate Klien
-        deactivate UIKlien
-        
-        ChatController-->>UIMitra: confirmMessageDelivered()
-        deactivate ChatController
-        deactivate UIMitra
-        deactivate Mitra
-    end
-
-    note over Klien,Mitra: Penutupan & Penguncian Ruang Chat oleh Mitra
-
-    Mitra->>UIMitra: klikAkhiriSesiDanBuatCatatan()
-    activate Mitra
-    activate UIMitra
-    
-    UIMitra->>ChatController: endConsultationSession(roomId)
-    activate ChatController
-    
-    ChatController->>TTransaksi: updateStatusToCompleted(roomId)
-    activate TTransaksi
-    TTransaksi-->>ChatController: confirmStatusUpdated
-    deactivate TTransaksi
-    
-    ChatController-->>UIKlien: lockChatRoom(status: COMPLETED)
-    activate UIKlien
-    UIKlien-->>Klien: tampilkanStatusSesiBerakhir()
-    activate Klien
-    deactivate Klien
-    deactivate UIKlien
-    
-    ChatController-->>UIMitra: lockChatAndRedirectToNotes()
-    deactivate ChatController
-    
-    UIMitra-->>Mitra: tampilkanFormCatatanSesiKonsultasi(UC-11)
-    deactivate UIMitra
-    deactivate Mitra
-```
-
-#### Opsi B: Versi PlantUML
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> PlantUML... -> Paste kode di bawah ini -> Insert.*
-
-```plantuml
-@startuml
-autonumber
-
-actor "Pengguna (Klien)" as Klien
-participant ":RuangChatKlienUI" as UIKlien
-participant ":ChatController" as ChatController
-database ":TabelChat" as TChat
-database ":TabelTransaksi" as TTransaksi
-participant ":RuangChatMitraUI" as UIMitra
-actor "Mitra Profesional" as Mitra
-
-loop Selama Sesi Konsultasi Aktif
-  Klien -> UIKlien : ketikPesanDanKlikKirim(roomId, teks)
-  activate Klien
-  activate UIKlien
-  
-  UIKlien -> ChatController : sendMessage(roomId, teks, sender: Klien)
-  activate ChatController
-  
-  ChatController -> TChat : saveMessagePayload()
-  activate TChat
-  TChat --> ChatController : returnSaveStatus(success)
-  deactivate TChat
-  
-  ChatController ->> UIMitra : broadcastIncomingMessage(teks)
-  activate UIMitra
-  UIMitra --> Mitra : tampilkanPesanBaruDiLayar()
-  activate Mitra
-  deactivate Mitra
-  deactivate UIMitra
-  
-  ChatController --> UIKlien : confirmMessageDelivered()
-  deactivate ChatController
-  deactivate UIKlien
-  deactivate Klien
-  
-  Mitra -> UIMitra : ketikBalasanDanKlikKirim(roomId, teks)
-  activate Mitra
-  activate UIMitra
-  
-  UIMitra -> ChatController : sendMessage(roomId, teks, sender: Mitra)
-  activate ChatController
-  
-  ChatController -> TChat : saveMessagePayload()
-  activate TChat
-  TChat --> ChatController : returnSaveStatus(success)
-  deactivate TChat
-  
-  ChatController ->> UIKlien : broadcastIncomingMessage(teks)
-  activate UIKlien
-  UIKlien --> Klien : tampilkanPesanBaruDiLayar()
-  activate Klien
-  deactivate Klien
-  deactivate UIKlien
-  
-  ChatController --> UIMitra : confirmMessageDelivered()
-  deactivate ChatController
-  deactivate UIMitra
-  deactivate Mitra
-end
-
-== Penutupan & Penguncian Ruang Chat oleh Mitra ==
-
-Mitra -> UIMitra : klikAkhiriSesiDanBuatCatatan()
-activate Mitra
-activate UIMitra
-
-UIMitra -> ChatController : endConsultationSession(roomId)
-activate ChatController
-
-ChatController -> TTransaksi : updateStatusToCompleted(roomId)
-activate TTransaksi
-TTransaksi --> ChatController : confirmStatusUpdated
-deactivate TTransaksi
-
-ChatController --> UIKlien : lockChatRoom(status: COMPLETED)
-activate UIKlien
-UIKlien --> Klien : tampilkanStatusSesiBerakhir()
-activate Klien
-deactivate Klien
-deactivate UIKlien
-
-ChatController --> UIMitra : lockChatAndRedirectToNotes()
-deactivate ChatController
-
-UIMitra --> Mitra : tampilkanFormCatatanSesiKonsultasi(UC-11)
-deactivate UIMitra
-deactivate Mitra
-@enduml
-```
-
----
-
-### SD-04: Sequence Diagram - Mengelola Data Akun & Force Logout (UC-14 & UC-15)
-*Diagram ini merepresentasikan alur penangguhan (suspend) akun klien/mitra oleh Admin dan proses force logout instan dengan menghapus token sesi JWT.*
-
-#### Opsi A: Versi Mermaid (Sangat Direkomendasikan untuk Draw.io)
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> Mermaid... -> Paste kode di bawah ini -> Insert.*
-
-```mermaid
-sequenceDiagram
-    autonumber
-    actor Admin as Admin Sistem
-    participant UI as :DashboardAdminUI
-    participant AccountManager as :AccountManager
-    participant TUser as :TabelUser
-    participant TToken as :TabelSessionToken
-
-    Admin->>UI: pilihMenuKelolaAkun()
-    activate Admin
-    activate UI
-
-    UI->>AccountManager: fetchAccountData(role)
-    activate AccountManager
-
-    AccountManager->>TUser: getAllAccounts()
-    activate TUser
-    TUser-->>AccountManager: returnAccountList
-    deactivate TUser
-
-    AccountManager-->>UI: tampilkanDaftarAkun()
-    deactivate AccountManager
-    deactivate UI
-    deactivate Admin
-
-    alt Perlu Tindakan Penangguhan
-        Admin->>UI: klikTombolSuspend(userId)
-        activate Admin
-        activate UI
-        
-        UI->>AccountManager: suspendUserAccount(userId)
-        activate AccountManager
-        
-        AccountManager->>TUser: updateStatusToSUSPENDED(userId)
-        activate TUser
-        TUser-->>AccountManager: return
-        deactivate TUser
-        
-        AccountManager->>TToken: revokeOrDeleteActiveToken(userId)
-        activate TToken
-        TToken-->>AccountManager: confirmTokenRevoked
-        deactivate TToken
-        
-        AccountManager-->>UI: tampilkanNotifikasiSukses()
-        deactivate AccountManager
-    else Tidak Perlu Tindakan Penangguhan
-        Admin->>UI: abaikanDanTetapLihatDaftar()
-        activate Admin
-        activate UI
-        UI->>UI: tinjauDanScrollDaftarAkun()
-    end
-
-    UI-->>Admin: kembaliKeDashboardUtama()
-    deactivate UI
-    deactivate Admin
-```
-
-#### Opsi B: Versi PlantUML
-*Cara Import ke Draw.io: Arrange -> Insert -> Advanced -> PlantUML... -> Paste kode di bawah ini -> Insert.*
-
-```plantuml
-@startuml
-autonumber
-
-actor "Admin Sistem" as Admin
-participant ":DashboardAdminUI" as UI
-participant ":AccountManager" as AccountManager
-database ":TabelUser" as TUser
-database ":TabelSessionToken" as TToken
-
-Admin -> UI : pilihMenuKelolaAkun()
-activate Admin
-activate UI
-
-UI -> AccountManager : fetchAccountData(role)
-activate AccountManager
-
-AccountManager -> TUser : getAllAccounts()
-activate TUser
-TUser --> AccountManager : returnAccountList
-deactivate TUser
-
-AccountManager --> UI : tampilkanDaftarAkun()
-deactivate AccountManager
-deactivate UI
-deactivate Admin
-
-alt Perlu Tindakan Penangguhan
-  Admin -> UI : klikTombolSuspend(userId)
-  activate Admin
-  activate UI
-  
-  UI -> AccountManager : suspendUserAccount(userId)
-  activate AccountManager
-  
-  AccountManager -> TUser : updateStatusToSUSPENDED(userId)
-  activate TUser
-  TUser --> AccountManager : return
-  deactivate TUser
-  
-  AccountManager -> TToken : revokeOrDeleteActiveToken(userId)
-  activate TToken
-  TToken --> AccountManager : confirmTokenRevoked
-  deactivate TToken
-  
-  AccountManager --> UI : tampilkanNotifikasiSukses()
-  deactivate AccountManager
-else Tidak Perlu Tindakan Penangguhan
-  Admin -[hidden]-> Admin
-  activate Admin
-  activate UI
-  
-  Admin -> UI : abaikanDanTetapLihatDaftar()
-  UI -> UI : tinjauDanScrollDaftarAkun()
-end
-
-UI --> Admin : kembaliKeDashboardUtama()
-deactivate UI
-deactivate Admin
-@enduml
-```
-
----
-
-### SD-14: Sequence Diagram - Catatan Sesi dan Output Dokumen (UC-11 dan UC-12)
-*Diagram ini merepresentasikan alur pengisian catatan sesi dengan template domain-specific: SOAP Note + ICD-10 (Kes), DAP Note + Risk Assessment (Psi), Case Memo + Legal Opinion IRAC (Huk), serta penerbitan output dokumen.*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-14: Catatan Sesi dan Output Dokumen (UC-11 dan UC-12)
-
-actor "Mitra" as M
-participant ":FormCatatanSesi" as UI
-participant ":SessionNoteController" as SNC
-participant ":TemplateEngine" as TE
-participant ":DocumentGenerator" as DG
-participant ":EncryptionService" as ES
-database ":DB_Catatan" as DB
-
-== FASE 1: Isi Catatan Sesi (UC-11) ==
-
-M -> UI : 1. Buka form catatan sesi
-activate M
-activate UI
-UI -> SNC : 2. loadTemplate(sessionId, domain)
-activate SNC
-
-alt [Domain = Kesehatan]
-    SNC -> TE : 3a. getSOAPTemplate()
-    activate TE
-    TE --> SNC : 4a. template{Subjective, Objective, Assessment(ICD-10), Plan}
-    deactivate TE
-    note right : SOAP Note format\ndengan kode ICD-10
-else [Domain = Psikologi]
-    SNC -> TE : 3b. getDAPTemplate()
-    activate TE
-    TE --> SNC : 4b. template{Data, Assessment, Plan, RiskLevel}
-    deactivate TE
-    note right : DAP Note + kolom\nRisk Assessment (crisis flag)
-else [Domain = Hukum]
-    SNC -> TE : 3c. getCaseMemoTemplate()
-    activate TE
-    TE --> SNC : 4c. template{Issue, Rule, Application, Conclusion}
-    deactivate TE
-    note right : IRAC method untuk\nlegal opinion terstruktur
-end
-
-SNC --> UI : 5. renderTemplate(template)
-UI --> M : 6. Tampilkan form terstruktur sesuai domain
-
-M -> UI : 7. Isi semua field catatan + klik "Simpan"
-UI -> SNC : 8. saveCatatan(sessionId, noteData)
-SNC -> ES : 9. encryptNote(noteData, fieldLevel=true)
-activate ES
-ES --> SNC : 10. encryptedNote
-deactivate ES
-SNC -> DB : 11. saveEncryptedNote(sessionId, encryptedNote)
-activate DB
-DB --> SNC : 12. NOTE_SAVED
-deactivate DB
-
-== FASE 2: Output Dokumen (UC-12 - Extend) ==
-
-alt [Domain = Kesehatan dan hasilAssessment memerlukan Resep]
-    M -> UI : 13a. Klik "Buat Resep Elektronik"
-    UI -> SNC : 14a. generatePrescription(sessionId, obatList[])
-    SNC -> DG : 15a. buildResepPDF(format=Permenkes73)
-    activate DG
-    DG --> SNC : 16a. resepPDF + digitalSignature
-    deactivate DG
-    note right : Format Permenkes 73/2016\n+ tanda tangan digital dokter
-    SNC -> DB : 17a. saveResep(sessionId, resepPDF)
-    activate DB
-    DB --> SNC : resep_saved
-    deactivate DB
-else [Domain = Psikologi dan hasilAssessment ada Tugas]
-    M -> UI : 13b. Klik "Buat Lembar Tugas"
-    UI -> SNC : 14b. generateHomework(sessionId, taskList[])
-    SNC -> DG : 15b. buildHomeworkPDF()
-    activate DG
-    DG --> SNC : 16b. homeworkPDF
-    deactivate DG
-    SNC -> DB : 17b. saveHomework(sessionId, homeworkPDF)
-    activate DB
-    DB --> SNC : homework_saved
-    deactivate DB
-else [Domain = Hukum dan hasilAnalisis ada Legal Opinion]
-    M -> UI : 13c. Klik "Buat Legal Opinion"
-    UI -> SNC : 14c. generateLegalOpinion(sessionId, iracData)
-    SNC -> DG : 15c. buildLegalOpinionPDF(privilegeMarked=true)
-    activate DG
-    DG --> SNC : 16c. opinionPDF + privilegeStamp
-    deactivate DG
-    note right : Auto-stamp "PRIVILEGED\nand CONFIDENTIAL"
-    SNC -> DB : 17c. saveLegalOpinion(sessionId, opinionPDF, retention=10yr)
-    activate DB
-    DB --> SNC : opinion_saved
-    deactivate DB
-end
-
-SNC --> UI : 18. notifySaved("Catatan & dokumen berhasil disimpan")
-UI --> M : 19. Tampilkan konfirmasi + preview dokumen
-
-deactivate SNC
-deactivate UI
-deactivate M
-@enduml
-```
----
-
-### SD-08: Sequence Diagram - Registrasi Klien (UC-01)
-*Diagram ini merepresentasikan alur registrasi klien dengan validasi duplikasi NIK/BPJS (Kes), verifikasi email domain .ac.id untuk psikolog magang (Psi), serta consent granular per domain.*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-08: Registrasi Klien (UC-01)
-
-actor "Klien" as K
-participant ":HalamanRegisterUI" as UI
-participant ":RegistrationController" as RC
-participant ":ValidationService" as VS
-participant ":ConsentService" as CS
-database ":DB_User" as DB
-
-== FASE 1: Input Data & Validasi Format ==
-
-K -> UI : 1. Input data (nama, email, noHP, NIK, password)
-activate K
-activate UI
-UI -> RC : 2. registerKlien(formData)
-activate RC
-RC -> VS : 3. validateFormat(formData)
-activate VS
-
-alt [Format Tidak Valid]
-    VS --> RC : 4a. FORMAT_ERROR(fields[])
-    RC --> UI : 5a. tampilkanErrorFormat()
-    UI --> K : 6a. Highlight field bermasalah
-else [Format Valid]
-    VS --> RC : 4b. FORMAT_OK
-    deactivate VS
-end
-
-== FASE 2: Cek Duplikasi (Domain-Aware) ==
-
-RC -> DB : 7. cekDuplikasi(email, noHP)
-activate DB
-DB --> RC : 8. isDuplicate: true/false
-deactivate DB
-
-alt [Duplikasi Ditemukan]
-    RC --> UI : 9a. tampilkanErrorDuplikasi("Email/HP sudah terdaftar")
-    UI --> K : 10a. Pesan error + link "Lupa Password?"
-else [Data Baru - Lanjut]
-
-    RC -> VS : 9b. validateNIK(NIK)
-    activate VS
-    VS --> RC : 10b. NIK_VALID / NIK_INVALID
-    deactivate VS
-    note right : Validasi format NIK 16 digit\n+ cek duplikasi NIK di DB
-
-    == FASE 3: Consent Collection ==
-
-    RC -> CS : 11. getRequiredConsents(domain)
-    activate CS
-    CS --> RC : 12. consentForms[privacyPolicy, termsOfService, dataSensitif]
-    deactivate CS
-    RC --> UI : 13. renderConsentForms(consentForms)
-    UI --> K : 14. Tampilkan checkbox consent (wajib centang semua)
-
-    K -> UI : 15. Centang semua consent + klik "Daftar"
-    UI -> RC : 16. submitRegistration(formData, consents[])
-
-    RC -> CS : 17. recordConsent(userId, consents[], version, timestamp)
-    activate CS
-    CS -> DB : 18. saveConsent(consentRecord)
-    activate DB
-    DB --> CS : 19. CONSENT_SAVED
-    deactivate DB
-    deactivate CS
-
-    RC -> DB : 20. saveNewUser(formData, status=ACTIVE)
-    activate DB
-    DB --> RC : 21. USER_CREATED(userId)
-    deactivate DB
-
-    RC --> UI : 22. tampilkanRegistrasiBerhasil()
-    UI --> K : 23. Redirect ke halaman Login
-end
-
-deactivate RC
-deactivate UI
-deactivate K
-@enduml
-```
----
-
-### SD-11: Sequence Diagram - Registrasi Mitra Profesional (UC-07)
-*Diagram ini merepresentasikan alur registrasi mitra dengan upload berkas domain-specific: STR + SIP + BPJS Provider (Kes), SIPP + HIMPSI Membership (Psi), KTA Peradi + SK Pengacara (Huk). Status awal PENDING_VERIFICATION.*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-11: Registrasi Mitra Profesional (UC-07)
-
-actor "Mitra" as M
-participant ":HalamanRegisterMitraUI" as UI
-participant ":MitraRegistrationController" as MRC
-participant ":FileUploadService" as FU
-participant ":ValidationService" as VS
-participant ":NotificationService" as NS
-database ":DB_Mitra" as DB
-
-== FASE 1: Input Data Pribadi ==
-
-M -> UI : 1. Input data (nama, email, noHP, password, domain)
-activate M
-activate UI
-UI -> MRC : 2. registerMitra(formData)
-activate MRC
-MRC -> VS : 3. validateFormat(formData)
-activate VS
-VS --> MRC : 4. FORMAT_OK / FORMAT_ERROR
-deactivate VS
-
-alt [Format Error]
-    MRC --> UI : 5a. tampilkanError()
-    UI --> M : 6a. Highlight field bermasalah
-end
-
-== FASE 2: Upload Berkas Domain-Specific ==
-
-alt [Domain = Kesehatan]
-    MRC --> UI : 7a. renderUploadForm([STR, SIP, BPJS_Provider])
-    UI --> M : 8a. Form upload: STR + SIP + No. BPJS Provider
-    M -> UI : 9a. Upload file STR, SIP, input BPJS
-    UI -> FU : 10a. uploadFiles([str.pdf, sip.pdf])
-    activate FU
-    FU --> UI : 11a. fileUrls[]
-    deactivate FU
-    note right : STR (Surat Tanda Registrasi)\nSIP (Surat Izin Praktik)\nBPJS Provider ID
-else [Domain = Psikologi]
-    MRC --> UI : 7b. renderUploadForm([SIPP, HIMPSI_Member, Ijazah])
-    UI --> M : 8b. Form upload: SIPP + Kartu HIMPSI + Ijazah
-    M -> UI : 9b. Upload file SIPP, HIMPSI, Ijazah
-    UI -> FU : 10b. uploadFiles([sipp.pdf, himpsi.pdf, ijazah.pdf])
-    activate FU
-    FU --> UI : 11b. fileUrls[]
-    deactivate FU
-    note right : SIPP (Surat Izin Praktik Psikolog)\nHIMPSI Membership Card
-else [Domain = Hukum]
-    MRC --> UI : 7c. renderUploadForm([KTA_Peradi, SK_Pengacara, Ijazah])
-    UI --> M : 8c. Form upload: KTA Peradi + SK + Ijazah
-    M -> UI : 9c. Upload file KTA, SK, Ijazah
-    UI -> FU : 10c. uploadFiles([kta.pdf, sk.pdf, ijazah.pdf])
-    activate FU
-    FU --> UI : 11c. fileUrls[]
-    deactivate FU
-    note right : KTA Peradi (Kartu Tanda Advokat)\nSK Pengangkatan Pengacara
-end
-
-== FASE 3: Simpan & Status Pending ==
-
-UI -> MRC : 12. submitMitraRegistration(formData, fileUrls[])
-MRC -> DB : 13. saveMitra(formData, fileUrls, status=PENDING_VERIFICATION)
-activate DB
-DB --> MRC : 14. MITRA_CREATED(mitraId)
-deactivate DB
-
-MRC -> NS : 15. sendNotif(mitra, "Pendaftaran diterima, menunggu verifikasi Admin")
-activate NS
-NS --> MRC : 16. NOTIF_SENT
-deactivate NS
-MRC -> NS : 17. sendNotif(admin, "Mitra baru mendaftar, silakan verifikasi")
-activate NS
-NS --> MRC : 18. NOTIF_SENT
-deactivate NS
-
-MRC --> UI : 19. tampilkanPendingScreen()
-UI --> M : 20. "Akun Anda sedang dalam proses verifikasi (est. 1x24 jam)"
-
-deactivate MRC
-deactivate UI
-deactivate M
-@enduml
-```
----
-
-### SD-12: Sequence Diagram - Login Mitra dengan MFA (UC-08)
-*Diagram ini merepresentasikan alur login khusus Mitra Profesional yang mewajibkan Multi-Factor Authentication (TOTP/SMS) sebagai compliance data sensitif pasien/klien.*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-12: Login Mitra dengan MFA (UC-08)
-
-actor "Mitra" as M
-participant ":HalamanLoginMitraUI" as UI
-participant ":AuthController" as AC
-participant ":MFAService" as MFA
-participant ":AuditLogService" as AL
-database ":DB_Auth" as DB
-
-== FASE 1: Kredensial Primer ==
-
-M -> UI : 1. Input email + password
-activate M
-activate UI
-UI -> AC : 2. loginMitra(email, password)
-activate AC
-AC -> DB : 3. verifyCredentials(email, hashPassword)
-activate DB
-DB --> AC : 4. {valid: true, mitraId, domain, mfaMethod}
-deactivate DB
-
-alt [Kredensial Salah]
-    AC -> AL : 5a. logFailedLogin(email, ip, timestamp)
-    activate AL
-    AL --> AC : log_saved
-    deactivate AL
-    AC --> UI : 6a. "Email atau password salah"
-    UI --> M : 7a. Tampilkan error + sisa percobaan
-else [Kredensial Benar]
-
-    == FASE 2: Multi-Factor Authentication ==
-
-    alt [MFA Method = TOTP (Authenticator App)]
-        AC -> MFA : 5b. requestTOTP(mitraId)
-        activate MFA
-        MFA --> AC : 6b. TOTP_REQUESTED
-        deactivate MFA
-        AC --> UI : 7b. Tampilkan input 6-digit TOTP
-        UI --> M : 8b. "Masukkan kode dari Authenticator App"
-        M -> UI : 9b. Input kode TOTP
-        UI -> AC : 10b. verifyTOTP(mitraId, code)
-        AC -> MFA : 11b. validateTOTP(mitraId, code)
-        activate MFA
-        MFA --> AC : 12b. TOTP_VALID / TOTP_INVALID
-        deactivate MFA
-    else [MFA Method = SMS OTP]
-        AC -> MFA : 5c. sendSMSOTP(mitraId, noHP)
-        activate MFA
-        MFA --> AC : 6c. OTP_SENT(expiresIn=300s)
-        deactivate MFA
-        AC --> UI : 7c. Tampilkan input 4-digit OTP
-        UI --> M : 8c. "Kode OTP terkirim ke HP Anda"
-        M -> UI : 9c. Input kode OTP
-        UI -> AC : 10c. verifyOTP(mitraId, code)
-        AC -> MFA : 11c. validateOTP(mitraId, code)
-        activate MFA
-        MFA --> AC : 12c. OTP_VALID / OTP_INVALID
-        deactivate MFA
-    end
-
-    alt [MFA Invalid]
-        AC -> AL : 13a. logFailedMFA(mitraId, method, ip)
-        activate AL
-        AL --> AC : log_saved
-        deactivate AL
-        AC --> UI : 14a. "Kode verifikasi salah"
-    else [MFA Valid]
-
-        == FASE 3: Session & Audit ==
-
-        AC -> DB : 13b. createSession(mitraId, ip, userAgent)
-        activate DB
-        DB --> AC : 14b. sessionToken + refreshToken
-        deactivate DB
-        AC -> AL : 15. logSuccessLogin(mitraId, ip, domain, mfaMethod)
-        activate AL
-        note right : Audit log wajib untuk\nakses data sensitif pasien/klien
-        AL --> AC : 16. LOG_SAVED(WORM)
-        deactivate AL
-        AC --> UI : 17. redirect(dashboardMitra, sessionToken)
-        UI --> M : 18. Tampilkan Dashboard Mitra
-    end
-end
-
-deactivate AC
-deactivate UI
-deactivate M
-@enduml
-```
----
-
-### SD-09: Sequence Diagram - Memilih Mitra Profesional (UC-03)
-*Diagram ini merepresentasikan alur klien memilih mitra profesional dengan filter domain-specific: STR aktif (Kes), SIPP aktif (Psi), Peradi aktif (Huk), radius geolocation, dan status ketersediaan.*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-09: Memilih Mitra Profesional (UC-03)
-
-actor "Klien" as K
-participant ":HalamanCariMitra" as UI
-participant ":MitraController" as MC
-participant ":FilterService" as FS
-participant ":LicenseValidator" as LV
-database ":DB_Mitra" as DB
-
-== FASE 1: Pencarian & Filter ==
-
-K -> UI : 1. Buka halaman "Cari Mitra"
-activate K
-activate UI
-UI -> MC : 2. loadMitraList(domain, filters)
-activate MC
-MC -> FS : 3. applyFilters(domain, spesialisasi, lokasi, rating, harga)
-activate FS
-
-alt [Domain = Kesehatan]
-    FS -> LV : 4a. validateSTR(mitraId)
-    activate LV
-    LV --> FS : 5a. STR_ACTIVE / EXPIRED
-    deactivate LV
-    note right : Filter hanya tampilkan\nMitra dengan STR aktif
-else [Domain = Psikologi]
-    FS -> LV : 4b. validateSIPP(mitraId)
-    activate LV
-    LV --> FS : 5b. SIPP_ACTIVE / EXPIRED
-    deactivate LV
-else [Domain = Hukum]
-    FS -> LV : 4c. validatePeradi(mitraId)
-    activate LV
-    LV --> FS : 5c. PERADI_ACTIVE / SUSPENDED
-    deactivate LV
-end
-
-FS -> DB : 6. queryMitra(filters, licenseStatus=ACTIVE)
-activate DB
-DB --> FS : 7. filteredMitraList[]
-deactivate DB
-FS --> MC : 8. return sortedList (by rating, distance)
-deactivate FS
-MC --> UI : 9. renderMitraCards(list)
-UI --> K : 10. Tampilkan daftar Mitra terfilter
-
-== FASE 2: Pilih & Lihat Profil ==
-
-K -> UI : 11. Klik kartu profil Mitra
-UI -> MC : 12. getMitraProfile(mitraId)
-MC -> DB : 13. fetchProfile(mitraId)
-activate DB
-DB --> MC : 14. profileData + jadwal + rating + spesialisasi
-deactivate DB
-MC --> UI : 15. renderProfileDetail()
-UI --> K : 16. Tampilkan profil lengkap + slot jadwal tersedia
-
-K -> UI : 17. Pilih slot jadwal & klik "Lanjut ke Pembayaran"
-UI -> MC : 18. reserveSlot(mitraId, slotId, clientId)
-MC -> DB : 19. lockSlot(slotId, TTL=15min)
-activate DB
-DB --> MC : 20. SLOT_RESERVED
-deactivate DB
-MC --> UI : 21. redirect ke Payment Gateway (UC-05)
-
-deactivate MC
-deactivate UI
-deactivate K
-@enduml
-```
----
-
-### SD-10: Sequence Diagram - Memberikan Ulasan dan Rating (UC-06)
-*Diagram ini merepresentasikan alur klien memberikan ulasan setelah sesi konsultasi selesai, termasuk logika domain-specific: wajib isi adverse event jika rating <= 2 (Kes), anonimisasi nama klien untuk review hukum (Huk).*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-10: Memberikan Ulasan dan Rating (UC-06)
-
-actor "Klien" as K
-participant ":ModalReview" as UI
-participant ":ReviewController" as RC
-participant ":AnonymizationService" as AS
-participant ":NotificationService" as NS
-database ":DB_Review" as DB
-
-== FASE 1: Trigger Modal Post-Session ==
-
-K -> UI : 1. Sesi selesai, modal rating otomatis muncul
-activate K
-activate UI
-UI --> K : 2. Tampilkan form: bintang (1-5) + textarea komentar
-
-K -> UI : 3. Isi rating (misal: 4) + komentar
-UI -> RC : 4. submitReview(sessionId, rating, comment, domain)
-activate RC
-
-== FASE 2: Validasi Domain-Specific ==
-
-alt [Domain = Kesehatan dan Rating <= 2]
-    RC --> UI : 5a. showAdverseEventForm()
-    UI --> K : 6a. Tampilkan form tambahan: "Adverse Event Report"
-    K -> UI : 7a. Isi detail adverse event
-    UI -> RC : 8a. attachAdverseEvent(eventData)
-    note right : Wajib lapor adverse event\njika rating <= 2 (regulasi Kes)
-else [Domain = Hukum]
-    RC -> AS : 5b. anonymizeClientName(reviewData)
-    activate AS
-    AS --> RC : 6b. reviewData.clientName = "Anonim"
-    deactivate AS
-    note right : Privilege: nama klien\ndianonimkan di review publik
-else [Domain = Psikologi]
-    RC -> RC : 5c. sanitizeContent(removePHI)
-    note right : Hapus data sensitif\nkesehatan mental dari komentar
-end
-
-== FASE 3: Simpan & Notifikasi ==
-
-RC -> DB : 9. saveReview(reviewData)
-activate DB
-DB --> RC : 10. REVIEW_SAVED
-deactivate DB
-RC -> NS : 11. notifyMitra(mitraId, "Review baru diterima")
-activate NS
-NS --> RC : 12. NOTIF_SENT
-deactivate NS
-RC --> UI : 13. showSuccessMessage("Terima kasih atas ulasan Anda")
-UI --> K : 14. Tampilkan konfirmasi + tutup modal
-
-deactivate RC
-deactivate UI
-deactivate K
-@enduml
-```
----
-
-### SD-13: Sequence Diagram - Mengonfirmasi Status Ketersediaan (UC-09)
-*Diagram ini merepresentasikan alur mitra mengelola status ketersediaan (online/offline/sibuk), termasuk sinkronisasi ke jadwal RS/Faskes (Kes) dan jadwal sidang pengadilan (Huk).*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-13: Mengonfirmasi Status Ketersediaan (UC-09)
-
-actor "Mitra" as M
-participant ":DashboardMitra" as UI
-participant ":AvailabilityController" as AC
-participant ":ExternalSyncService" as ES
-participant ":NotificationService" as NS
-database ":DB_Jadwal" as DB
-
-== FASE 1: Toggle Status ==
-
-M -> UI : 1. Klik toggle "Status Ketersediaan"
-activate M
-activate UI
-UI -> AC : 2. updateStatus(mitraId, newStatus)
-activate AC
-
-AC -> DB : 3. getCurrentSchedule(mitraId)
-activate DB
-DB --> AC : 4. currentSlots[]
-deactivate DB
-
-alt [newStatus = ONLINE]
-    AC -> DB : 5a. setStatus(mitraId, ONLINE)
-    activate DB
-    DB --> AC : 6a. STATUS_UPDATED
-    deactivate DB
-else [newStatus = OFFLINE]
-    AC -> DB : 5b. setStatus(mitraId, OFFLINE)
-    activate DB
-    DB --> AC : status_offline
-    deactivate DB
-    AC -> NS : 6b. notifyWaitingClients("Mitra tidak tersedia")
-    activate NS
-    NS --> AC : notif_sent
-    deactivate NS
-else [newStatus = SIBUK]
-    AC -> DB : 5c. setStatus(mitraId, BUSY, estimatedReturn)
-    activate DB
-    DB --> AC : status_busy
-    deactivate DB
-end
-
-== FASE 2: Sinkronisasi Eksternal (Domain-Specific) ==
-
-alt [Domain = Kesehatan]
-    AC -> ES : 7a. syncWithFaskesAPI(mitraId, jadwalRS)
-    activate ES
-    ES --> AC : 8a. faskesSchedule[]
-    deactivate ES
-    AC -> DB : 9a. mergeSchedule(platformSlots, faskesSlots)
-    activate DB
-    DB --> AC : schedule_merged
-    deactivate DB
-    note right : Sinkron jadwal praktik di RS\nagar tidak double-booking
-else [Domain = Hukum]
-    AC -> ES : 7b. syncWithCourtAPI(mitraId, jadwalSidang)
-    activate ES
-    ES --> AC : 8b. courtSchedule[]
-    deactivate ES
-    AC -> DB : 9b. blockSlots(courtSchedule)
-    activate DB
-    DB --> AC : slots_blocked
-    deactivate DB
-    note right : Block jadwal saat\nadvokat sidang di pengadilan
-else [Domain = Psikologi]
-    AC -> AC : 7c. applySessionGap(30min)
-    note right : Psikolog wajib gap 30 menit\nantar-sesi (Kode Etik HIMPSI)
-end
-
-== FASE 3: Konfirmasi ==
-
-AC --> UI : 10. renderUpdatedStatus()
-UI --> M : 11. Tampilkan status terbaru + jadwal tersinkronisasi
-
-deactivate AC
-deactivate UI
-deactivate M
-@enduml
-```
----
-
-### SD-15: Sequence Diagram - Memverifikasi Berkas Kredensial Mitra dan SKTM (UC-13)
-*Diagram ini merepresentasikan alur Admin memverifikasi berkas lisensi profesi Mitra serta dokumen SKTM klien Pro Bono, termasuk cross-check ke API Konsil Kedokteran (Kes), HIMPSI (Psi), Peradi (Huk), dan Dukcapil (SKTM).*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-15: Memverifikasi Berkas Kredensial Mitra dan SKTM (UC-13)
-
-actor "Admin Sistem" as A
-participant ":PanelVerifikasi" as UI
-participant ":VerificationController" as VC
-participant ":ExternalAPIGateway" as API
-participant ":NotificationService" as NS
-database ":DB_Mitra" as DBM
-database ":DB_Klien" as DBK
-
-== FASE 1: Verifikasi Lisensi Mitra ==
-
-A -> UI : 1. Buka panel "Verifikasi Berkas Pending"
-activate A
-activate UI
-UI -> VC : 2. loadPendingVerifications()
-activate VC
-VC -> DBM : 3. fetchPending(status=PENDING_VERIFICATION)
-activate DBM
-DBM --> VC : 4. pendingList[]
-deactivate DBM
-VC --> UI : 5. renderTable(pendingList)
-UI --> A : 6. Tampilkan daftar mitra pending
-
-A -> UI : 7. Klik "Review" pada satu mitra
-UI -> VC : 8. getMitraDocuments(mitraId)
-VC -> DBM : 9. fetchDocuments(mitraId)
-activate DBM
-DBM --> VC : 10. documents[lisensi, ijazah, foto]
-deactivate DBM
-
-alt [Domain Mitra = Kesehatan]
-    VC -> API : 11a. verifySTR(nomorSTR)
-    activate API
-    API --> VC : 12a. {valid: true, nama, spesialis, masaBerlaku}
-    deactivate API
-    note right : Cross-check Konsil\nKedokteran Indonesia API
-else [Domain Mitra = Psikologi]
-    VC -> API : 11b. verifySIPP(nomorSIPP)
-    activate API
-    API --> VC : 12b. {valid: true, nama, kompetensi}
-    deactivate API
-    VC -> API : 13b. verifyHIMPSI(membershipId)
-    activate API
-    API --> VC : 14b. {active: true, level: klinis/konselor}
-    deactivate API
-else [Domain Mitra = Hukum]
-    VC -> API : 11c. verifyPeradi(ktaNumber)
-    activate API
-    API --> VC : 12c. {valid: true, nama, wilayah, status}
-    deactivate API
-    VC -> API : 13c. checkBlacklist(ktaNumber)
-    activate API
-    API --> VC : 14c. {blacklisted: false}
-    deactivate API
-    note right : Cek daftar hitam\nadvokat Peradi
-end
-
-VC --> UI : 15. renderVerificationResult(apiResult + documents)
-UI --> A : 16. Tampilkan hasil verifikasi + dokumen
-
-alt [Admin Setuju]
-    A -> UI : 17a. Klik "Approve"
-    UI -> VC : 18a. approveMitra(mitraId)
-    VC -> DBM : 19a. updateStatus(mitraId, VERIFIED)
-    activate DBM
-    DBM --> VC : status_updated
-    deactivate DBM
-    VC -> NS : 20a. sendNotif(mitra, "Akun Anda telah diverifikasi")
-    activate NS
-    NS --> VC : notif_sent
-    deactivate NS
-else [Admin Tolak]
-    A -> UI : 17b. Klik "Reject" + isi alasan
-    UI -> VC : 18b. rejectMitra(mitraId, reason)
-    VC -> DBM : 19b. updateStatus(mitraId, REJECTED)
-    activate DBM
-    DBM --> VC : status_updated
-    deactivate DBM
-    VC -> NS : 20b. sendNotif(mitra, "Berkas ditolak: " + reason)
-    activate NS
-    NS --> VC : notif_sent
-    deactivate NS
-end
-
-== FASE 2: Verifikasi SKTM Klien Pro Bono (Huk-UC03) ==
-
-A -> UI : 21. Buka tab "Verifikasi SKTM"
-UI -> VC : 22. loadPendingSKTM()
-VC -> DBK : 23. fetchPending(type=SKTM, status=PENDING_SKTM)
-activate DBK
-DBK --> VC : 24. sktmList[]
-deactivate DBK
-VC --> UI : 25. renderSKTMTable(sktmList)
-
-A -> UI : 26. Klik "Review" pada satu SKTM
-UI -> VC : 27. getSKTMDetail(sktmId)
-VC -> DBK : 28. fetchSKTMDocument(sktmId)
-activate DBK
-DBK --> VC : 29. {fileSKTM, NIK, namaKlien}
-deactivate DBK
-
-VC -> API : 30. verifyDukcapil(NIK)
-activate API
-API --> VC : 31. {valid: true, nama, alamat, statusEkonomi}
-deactivate API
-note right : Cross-check NIK ke\nDukcapil untuk validasi SKTM
-
-VC --> UI : 32. renderSKTMVerification(dukcapilResult + document)
-
-alt [Admin Setuju SKTM]
-    A -> UI : 33a. Klik "Approve SKTM"
-    UI -> VC : 34a. approveSKTM(sktmId)
-    VC -> DBK : 35a. updateSKTMStatus(sktmId, SKTM_APPROVED)
-    activate DBK
-    DBK --> VC : status_updated
-    deactivate DBK
-    VC -> NS : 36a. sendNotif(klien, "SKTM disetujui, silakan pilih advokat Pro Bono")
-    activate NS
-    NS --> VC : notif_sent
-    deactivate NS
-else [Admin Tolak SKTM]
-    A -> UI : 33b. Klik "Reject SKTM" + alasan
-    UI -> VC : 34b. rejectSKTM(sktmId, reason)
-    VC -> DBK : 35b. updateSKTMStatus(sktmId, SKTM_REJECTED)
-    activate DBK
-    DBK --> VC : status_updated
-    deactivate DBK
-    VC -> NS : 36b. sendNotif(klien, "SKTM ditolak: " + reason)
-    activate NS
-    NS --> VC : notif_sent
-    deactivate NS
-end
-
-deactivate VC
-deactivate UI
-deactivate A
-@enduml
-```
----
-
-### SD-16: Sequence Diagram - Memantau Laporan Transaksi (UC-16)
-*Diagram ini merepresentasikan alur Admin memantau laporan transaksi platform, termasuk filter per domain, perhitungan revenue sharing (Kes 15%, Psi 20%, Huk 25%), dan ekspor audit-ready (XLSX/PDF + hash).*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-16: Memantau Laporan Transaksi (UC-16)
-
-actor "Admin Sistem" as A
-participant ":DashboardLaporan" as UI
-participant ":ReportController" as RC
-participant ":RevenueService" as RS
-participant ":ExportService" as ES
-database ":DB_Transaksi" as DB
-
-== FASE 1: Load Dashboard ==
-
-A -> UI : 1. Buka halaman "Laporan Transaksi"
-activate A
-activate UI
-UI -> RC : 2. loadDashboard(dateRange, domainFilter)
-activate RC
-RC -> DB : 3. aggregateTransactions(dateRange, domain)
-activate DB
-DB --> RC : 4. rawTransactionData[]
-deactivate DB
-
-RC -> RS : 5. calculateRevenue(rawData)
-activate RS
-
-RS -> RS : 6. applyRevenueSharing()
-note right : Platform Fee:\n- Kesehatan: 15%\n- Psikologi: 20%\n- Hukum: 25%
-
-RS --> RC : 7. revenueBreakdown{totalGross, platformFee, mitraPayout, perDomain}
-deactivate RS
-RC --> UI : 8. renderDashboard(charts, tables, summary)
-UI --> A : 9. Tampilkan grafik + tabel per domain
-
-== FASE 2: Filter & Drill-Down ==
-
-A -> UI : 10. Pilih filter (domain, tanggal, status, mitra)
-UI -> RC : 11. applyFilter(filterParams)
-RC -> DB : 12. queryFiltered(filterParams)
-activate DB
-DB --> RC : 13. filteredData[]
-deactivate DB
-RC --> UI : 14. updateTable(filteredData)
-UI --> A : 15. Tampilkan data terfilter
-
-A -> UI : 16. Klik baris transaksi untuk detail
-UI -> RC : 17. getTransactionDetail(txId)
-RC -> DB : 18. fetchDetail(txId)
-activate DB
-DB --> RC : 19. {txId, klien, mitra, domain, nominal, fee, status, timestamp}
-deactivate DB
-RC --> UI : 20. renderDetailModal()
-UI --> A : 21. Tampilkan detail transaksi + breakdown fee
-
-== FASE 3: Ekspor Audit-Ready ==
-
-A -> UI : 22. Klik "Ekspor Laporan"
-UI -> RC : 23. requestExport(format, dateRange, domain)
-RC -> ES : 24. generateReport(data, format)
-activate ES
-
-alt [Format = XLSX]
-    ES -> ES : 25a. buildExcelWorkbook(sheets: perDomain)
-else [Format = PDF]
-    ES -> ES : 25b. buildPDFReport(charts + tables + summary)
-end
-
-ES -> ES : 26. generateHash(SHA256, fileContent)
-note right : Hash untuk integritas\naudit trail (WORM)
-
-ES --> RC : 27. {fileBlob, hash, timestamp}
-deactivate ES
-RC -> DB : 28. logExportEvent(adminId, format, hash, timestamp)
-activate DB
-DB --> RC : log_saved
-deactivate DB
-RC --> UI : 29. downloadFile(fileBlob, filename)
-UI --> A : 30. File terunduh + hash ditampilkan untuk verifikasi
-
-deactivate RC
-deactivate UI
-deactivate A
-@enduml
-```
----
-
-### SD-18: Sequence Diagram - Mengelola Saldo dan Penarikan Dana Mitra (UC-17)
-*Diagram ini merepresentasikan alur pengecekan saldo, pengajuan pencairan dana dengan logika auto-disburse (< Rp 5 juta) vs manual approval (>= Rp 5 juta), validasi NPWP dan rekening BPJS (Kes), serta mekanisme escrow untuk dana pro bono (Huk).*
-
-```plantuml
-@startuml
-autonumber
-skinparam sequenceArrowThickness 2
-skinparam maxMessageSize 250
-
-title SD-18: Mengelola Saldo dan Penarikan Dana Mitra (UC-17)
-
-actor "Mitra" as M
-actor "Admin Sistem\n(Sub-role Finansial)" as A
-participant ":DashboardSaldo" as UI
-participant ":WalletController" as WC
-participant ":PayoutService" as PS
-participant ":ValidationService" as VS
-participant ":BankGateway" as BG
-participant ":NotificationService" as NS
-database ":DB_Wallet" as DB
-
-== FASE 1: Cek Saldo & Riwayat ==
-
-M -> UI : 1. Buka halaman "Saldo Pendapatan"
-activate M
-activate UI
-UI -> WC : 2. getWalletInfo(mitraId)
-activate WC
-WC -> DB : 3. fetchBalance(mitraId)
-activate DB
-DB --> WC : 4. {available, pending, frozen, totalEarned}
-deactivate DB
-WC --> UI : 5. renderSaldoCard(balanceData)
-UI --> M : 6. Tampilkan saldo + riwayat penarikan
-
-== FASE 2: Ajukan Penarikan ==
-
-M -> UI : 7. Klik "Tarik Dana" + input nominal
-UI -> WC : 8. requestWithdrawal(mitraId, nominal, rekeningTujuan)
-
-WC -> VS : 9. validateWithdrawal(mitraId, nominal)
-activate VS
-
-alt [Saldo Tidak Cukup]
-    VS --> WC : 10a. INSUFFICIENT_BALANCE
-    WC --> UI : 11a. "Saldo tidak mencukupi"
-    UI --> M : 12a. Tampilkan error
-else [Saldo Cukup]
-    VS --> WC : 10b. BALANCE_OK
-
-    WC -> VS : 11b. validateBankAccount(mitraId, domain)
-
-    alt [Domain = Kesehatan atau Psikologi]
-        VS -> VS : 12b-kes-psi. validateNPWP(npwp) + validateClinicalAccount(accId)
-        note right : Kes/Psi: wajib NPWP\n+ validasi rekening klinis/BPJS
-    else [Domain = Hukum]
-        VS -> VS : 12b-huk. validateNPWP(npwp) + validateLegalAccount(accId)
-        note right : Huk: wajib NPWP\n+ validasi rekening Peradi/BPHN
-    end
-
-    VS --> WC : 13b. ACCOUNT_VALID
-    deactivate VS
-
-    == FASE 2.5: Gerbang Nominal ==
-
-    WC -> DB : 14. freezeBalance(mitraId, nominal)
-    activate DB
-    DB --> WC : 15. BALANCE_FROZEN
-    deactivate DB
-
-    alt [Nominal < 5.000.000 (Auto-Disburse)]
-        WC -> PS : 16a. autoPayout(mitraId, nominal, rekening)
-        activate PS
-        PS -> BG : 17a. pushWithdrawal(amount, bankAccount)
-        activate BG
-        BG --> PS : 18a. CALLBACK(status=SUCCESS/FAILED)
-        deactivate BG
-
-        alt [Callback SUCCESS]
-            PS -> DB : 19a-ok. updateStatus(withdrawalId, SUCCESS)
-            activate DB
-            DB --> PS : status_updated
-            deactivate DB
-            PS -> DB : 20a-ok. deductBalance(mitraId, nominal)
-            activate DB
-            DB --> PS : balance_deducted
-            deactivate DB
-            PS -> NS : 21a-ok. sendNotif(mitra, "Penarikan Rp X berhasil")
-            activate NS
-            NS --> PS : notif_sent
-            deactivate NS
-        else [Callback FAILED / TIMEOUT]
-            PS -> DB : 19a-fail. unfreezeBalance(mitraId, nominal)
-            activate DB
-            DB --> PS : balance_unfrozen
-            deactivate DB
-            PS -> DB : 20a-fail. updateStatus(withdrawalId, FAILED)
-            activate DB
-            DB --> PS : status_updated
-            deactivate DB
-            PS -> NS : 21a-fail. sendNotif(mitra, "Penarikan gagal, saldo dikembalikan")
-            activate NS
-            NS --> PS : notif_sent
-            deactivate NS
+        alt OTP Valid & Belum Expire
+            BE -> DB : Update Last Login Timestamp
+            BE -> BE : Generate JWT Session Token Justifiqa
+            BE --> FE : 200 OK (JWT Token, User Profile)
+            FE --> User : Masuk ke Dasbor Utama Justifiqa
+        else OTP Salah / Kadaluarsa
+            BE --> FE : 400 Bad Request (OTP Invalid)
+            FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
         end
-        deactivate PS
-
-    else [Nominal >= 5.000.000 (Manual Approval)]
-        WC -> DB : 16b. createPendingApproval(withdrawalId, nominal)
-        activate DB
-        DB --> WC : pending_created
-        deactivate DB
-        WC -> NS : 17b. sendNotif(admin, "Penarikan >= 5jt menunggu approval")
-        activate NS
-        NS --> WC : notif_sent
-        deactivate NS
-        WC --> UI : 18b. "Penarikan dalam antrian persetujuan Admin"
-        UI --> M : 19b. Status = PENDING_APPROVAL
-
-        == FASE 3: Admin Approval ==
-
-        A -> UI : 20b. Buka panel "Permintaan Penarikan Dana"
-        activate A
-        A -> UI : 21b. Review detail penarikan
-
-        alt [Admin Setuju]
-            A -> UI : 22b-ok. Klik "Approve & Cairkan"
-            UI -> PS : 23b-ok. approveAndDisburse(withdrawalId)
-            activate PS
-            PS -> BG : 24b-ok. pushWithdrawal(amount, bankAccount)
-            activate BG
-            BG --> PS : 25b-ok. CALLBACK(status)
-            deactivate BG
-
-            alt [SUCCESS]
-                PS -> DB : 26b-ok. updateStatus(SUCCESS)
-                activate DB
-                DB --> PS : status_updated
-                deactivate DB
-                PS -> DB : 27b-ok. deductBalance(mitraId, nominal)
-                activate DB
-                DB --> PS : balance_deducted
-                deactivate DB
-                PS -> NS : 28b-ok. sendNotif(mitra, "Penarikan disetujui & berhasil dicairkan")
-                activate NS
-                NS --> PS : notif_sent
-                deactivate NS
-            else [FAILED]
-                PS -> DB : 26b-fail. unfreezeBalance(mitraId, nominal)
-                activate DB
-                DB --> PS : balance_unfrozen
-                deactivate DB
-                PS -> NS : 27b-fail. sendNotif(mitra, "Pencairan gagal, saldo dikembalikan")
-                activate NS
-                NS --> PS : notif_sent
-                deactivate NS
-            end
-            deactivate PS
-
-        else [Admin Tolak]
-            A -> UI : 22b-no. Klik "Reject" + alasan
-            UI -> WC : 23b-no. rejectWithdrawal(withdrawalId, reason)
-            WC -> DB : 24b-no. unfreezeBalance(mitraId, nominal)
-            activate DB
-            DB --> WC : balance_unfrozen
-            deactivate DB
-            WC -> DB : 25b-no. updateStatus(withdrawalId, REJECTED)
-            activate DB
-            DB --> WC : status_updated
-            deactivate DB
-            WC -> NS : 26b-no. sendNotif(mitra, "Penarikan ditolak: " + reason)
-            activate NS
-            NS --> WC : notif_sent
-            deactivate NS
-        end
-        deactivate A
     end
 end
-
-deactivate WC
-deactivate UI
-deactivate M
-@enduml
-```
----
-
-### SD-Psikologi: Mengisi Jurnal Mood Harian (Psi-UC01)
-*Diagram ini merepresentasikan alur klien memasukkan status emosi hariannya sebagai bagian dari self-care.*
-
-```plantuml
-@startuml
-autonumber
-
-actor "Klien (User)" as Klien
-participant ":HalamanMoodTrackerUI" as UI
-participant ":MoodManager" as Manager
-database ":TabelMoodLog" as DB
-
-Klien -> UI : bukaHalamanJurnal()
-activate Klien
-activate UI
-UI --> Klien : tampilkanOpsiEmotikon()
-
-Klien -> UI : pilihMood(emotikon, catatan)
-UI -> Manager : saveMoodLog(userId, emotikon, catatan, tanggal)
-activate Manager
-
-Manager -> DB : insertMoodLog(data)
-activate DB
-DB --> Manager : successStatus
-deactivate DB
-
-Manager --> UI : tampilkanNotifikasi("Jurnal Tersimpan")
-deactivate Manager
-
-UI --> Klien : tampilkanRiwayatJurnalBulanIni()
-deactivate UI
-deactivate Klien
 @enduml
 ```
 
 ---
 
-### SD-Hukum: Mengunggah Berkas Perkara (Huk-UC01)
-*Diagram ini merepresentasikan alur klien mengunggah berkas kasus rahasia yang dienkripsi agar bisa ditinjau Advokat di ruang chat.*
+### SD-J-03: Konsultasi Hukum & Pembayaran Escrow (J-UC03, J-UC04, J-UC05, J-UC10)
+*Sequence diagram reservasi, pembayaran escrow yang ditahan sistem Justifiqa, pelaksanaan sesi chat E2EE, hingga pelepasan dana setelah sesi selesai.*
 
 ```plantuml
 @startuml
 autonumber
+actor "Klien Justifiqa" as Klien
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "Payment Gateway" as PG
+actor "Advokat Justifiqa" as Mitra
 
-actor "Klien (Pencari Keadilan)" as Klien
-participant ":RuangChatUI" as UI
-participant ":FileEncryptionManager" as Manager
-database ":TabelDokumenKasus" as DB
-actor "Advokat (Mitra)" as Mitra
+Klien -> FE : Pilih Advokat, Jadwal Sesi, & Klik Reservasi
+FE -> BE : POST /api/v1/consultations/book (Advokat ID, Slot)
+BE -> PG : Create Payment Invoice & Virtual Account
+PG --> BE : Return Invoice URL & VA Number
+BE --> FE : Return Billing Detail (Rp250.000 + Fee)
+FE --> Klien : Tampilkan Halaman Pembayaran
 
-Klien -> UI : klikUnggahDokumen(fileBerkas)
-activate Klien
-activate UI
+Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
+PG -> BE : Webhook Notification (POST /webhook/payment PAID)
+BE -> BE : Tahan Dana di Rekening Escrow Sementara Justifiqa
+BE -> BE : Update Booking Status = TERKONFIRMASI
+BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
 
-UI -> Manager : uploadAndEncryptFile(fileBerkas, roomId)
-activate Manager
+note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
+Klien -> FE : Masuk Ruang Chat E2EE Justifiqa
+Mitra -> FE : Masuk Ruang Chat E2EE Justifiqa
+Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
+Mitra -> Klien : Berikan Analisis & Nasihat Hukum
 
-note over Manager: Sistem melakukan enkripsi (E2EE) \npada file sebelum disimpan.
-
-Manager -> DB : saveEncryptedFile(encryptedData, roomId)
-activate DB
-DB --> Manager : returnFileId
-deactivate DB
-
-Manager --> UI : tampilkanPesanAttachment(fileId)
-deactivate Manager
-
-UI --> Klien : tampilkanBubbleChatBerkas()
-UI -> Mitra : pushNotification(fileId)
-activate Mitra
-
-Mitra -> UI : klikUnduhDanBukaBerkas(fileId)
-UI -> Manager : decryptAndServeFile(fileId)
-activate Manager
-Manager --> UI : returnDecryptedFile
-deactivate Manager
-UI --> Mitra : tampilkanBerkasKasus()
-deactivate Mitra
-
-deactivate UI
-deactivate Klien
+Mitra -> FE : Klik Akhiri Sesi Konsultasi
+FE -> BE : POST /api/v1/consultations/end (Sesi ID)
+BE -> BE : Tutup Ruang Chat & Simpan Metadata Transaksi
+BE -> FE : Trigger Rating & Ulasan Modal (J-UC06)
+BE -> BE : Cairkan Dana Escrow ke Saldo Advokat (Potong Fee 25% & PPh 21)
 @enduml
 ```
 
 ---
 
-### SD-Kesehatan: Menebus Resep & Membeli Obat (Kes-UC01)
-*Diagram ini merepresentasikan alur klien menebus resep digital ke apotek mitra dan pengantaran obat oleh kurir.*
+### SD-J-04: Mengatur Status Ketersediaan Praktik Advokat (J-UC09)
+*Sequence diagram pengaturan jadwal praktik dan toggle ketersediaan real-time advokat.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Pasien (Klien)" as Klien
-participant ":HalamanResepUI" as UI
-participant ":OrderManager" as Manager
-database ":TabelOrderObat" as DB
-actor "Apotek / Kurir" as Apotek
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
 
-Klien -> UI : bukaHalamanResep(sessionId)
-activate UI
-UI -> Manager : getResepDetail(sessionId)
-activate Manager
-Manager --> UI : returnDataResep
-deactivate Manager
-UI --> Klien : tampilkanDaftarObatDanHarga()
+Mitra -> FE : Buka Pengaturan Jadwal & Klik Toggle ONLINE
+FE -> BE : PUT /api/v1/advocate/availability (Status: ONLINE)
 
-Klien -> UI : klikTebusResep()
-UI -> Manager : createOrder(obatList, userId)
-activate Manager
-Manager -> DB : insertNewOrder(status: PENDING_PAYMENT)
-activate DB
-DB --> Manager : return OrderId
-deactivate DB
+BE -> DB : Check Active Booking & Konflik Jadwal
+DB --> BE : Return Booking Schedule
 
-note over UI, DB : Proses Pembayaran (Via Payment Gateway) terjadi di sini
+alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan
+    BE --> FE : 409 Conflict (Jadwal Bentrok)
+    FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot
+else Slot Jadwal Aman
+    BE -> DB : Update Status Praktik = AVAILABLE / ONLINE
+    DB --> BE : Success Update
+    BE --> FE : 200 OK (Status Berhasil Diubah)
+    FE --> Mitra : Tampilkan Status Aktif Siap Menerima Klien
+end
+@enduml
+```
 
-alt Pembayaran Berhasil
-    Manager -> DB : updateStatus(PAID)
-    activate DB
-    DB --> Manager : return Status Updated
-    deactivate DB
-    Manager -> Apotek : notifikasiPesananBaru(orderId)
-    activate Apotek
-    Apotek -> Manager : konfirmasiPesananDiproses()
-    Manager -> DB : updateStatus(PROCESSING)
-    activate DB
-    DB --> Manager : return Status Updated
-    deactivate DB
-    Apotek -> Manager : updateStatusPengiriman(SHIPPED)
-    deactivate Apotek
-    Manager -> DB : updateStatus(SHIPPED)
-    activate DB
-    DB --> Manager : return Status Updated
-    deactivate DB
-    Manager --> UI : tampilkanStatusPengiriman()
-    UI --> Klien : melacakPengirimanObat()
-else Pembayaran Gagal / Dibatalkan
-    Manager -> DB : updateStatus(CANCELLED)
-    activate DB
-    DB --> Manager : return Status Updated
-    deactivate DB
-    Manager --> UI : tampilkanPesanGagal("Pembayaran gagal / dibatalkan")
-    UI --> Klien : tampilkanPesanGagal()
+---
+
+### SD-J-05: Mengunggah Berkas Perkara E2EE Zero-Knowledge (J-UC13)
+*Sequence diagram pengunggahan bukti perkara yang dienkripsi sebelum meninggalkan perangkat klien agar tidak dapat dibaca oleh server maupun pihak ketiga.*
+
+```plantuml
+@startuml
+autonumber
+actor "Klien Justifiqa" as Klien
+participant "Sistem Klien (Local E2EE Engine)" as LocK
+participant "Backend Independen Justifiqa" as BE
+database "WORM Hash Storage" as WORM
+participant "Sistem Advokat (Local E2EE Engine)" as LocM
+actor "Advokat Justifiqa" as Mitra
+
+Klien -> LocK : Pilih Berkas Bukti Perkara (PDF/JPG)
+LocK -> LocK : Enkripsi File Lokal dengan Session Key (Zero-Knowledge)
+LocK -> BE : POST /api/v1/chat/upload-secure (Encrypted Blob, SHA-256 Hash)
+BE -> WORM : Simpan Blob Terenkripsi & Hash Intergritas
+WORM --> BE : Storage Confirmation
+BE --> LocM : Kirim Webhook Notification File Baru Diunggah
+
+Mitra -> LocM : Klik Unduh Bukti Perkara
+LocM -> BE : GET /api/v1/chat/download-secure (File ID)
+BE --> LocM : Return Encrypted Blob
+LocM -> LocM : Dekripsi Lokal dengan Session Key
+LocM --> Mitra : Tampilkan Dokumen Utuh untuk Ditelusuri
+@enduml
+```
+
+---
+
+### SD-J-06: Membuat Draf Dokumen Hukum & e-Meterai Peruri (J-UC12, J-UC14)
+*Sequence diagram pembuatan opini hukum/kontrak oleh advokat serta pembubuhan e-Meterai resmi Peruri.*
+
+```plantuml
+@startuml
+autonumber
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Generator Hukum" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "API Peruri Stamping" as Peruri
+database "Database Justifiqa" as DB
+actor "Klien Justifiqa" as Klien
+
+Mitra -> FE : Buat Draf Legal Opinion / Kontrak & Pilih e-Meterai
+FE -> BE : POST /api/v1/legal-docs/generate (Payload, Stamping Req)
+
+alt Pembubuhan e-Meterai Peruri = TRUE
+    BE -> Peruri : POST /api/v3/stamp (SHA-256 Hash Dokumen)
+    Peruri -> Peruri : Verifikasi Kuota & Bubuhkan Serial Number e-Meterai
+    Peruri --> BE : Return Stamped Document & Certificate Hash
+    BE -> DB : Simpan Dokumen Bersertifikat Resmi
+else Tanpa e-Meterai
+    BE -> DB : Simpan Dokumen Hukum Standar
 end
 
-deactivate Manager
-deactivate UI
+DB --> BE : Save Confirmed
+BE --> FE : 201 Created (Dokumen Siap)
+FE --> Mitra : Tampilkan Konfirmasi Sukses Penerbitan
+BE -> Klien : Kirim Email & Push Notif Dokumen Hukum Baru
+Klien -> BE : Unduh Dokumen Hukum Resmi
 @enduml
 ```
 
 ---
 
-### SD-Kesehatan: Membuat Janji Temu RS Offline (Kes-UC02)
-*Diagram ini merepresentasikan alur klien memesan jadwal janji temu fisik di rumah sakit.*
+### SD-J-07: Konsultasi Pro Bono SKTM (J-UC15)
+*Sequence diagram pengajuan bantuan hukum cuma-cuma (Pro Bono) melalui verifikasi Surat Keterangan Tidak Mampu (SKTM) Dukcapil.*
 
 ```plantuml
 @startuml
 autonumber
-actor Klien
-participant ":JanjiTemuUI" as UI
-participant ":BookingManager" as Manager
-participant ":SistemRS (Faskes)" as Faskes
+actor "Klien Justifiqa" as Klien
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "API Dukcapil / Dinsos" as Ext
+actor "Advokat Pro Bono Mitra" as Mitra
 
-Klien -> UI : bukaMenuJanjiTemu()
-activate UI
-UI -> Manager : fetchDokterDanJadwal()
-activate Manager
-Manager -> Faskes : getAvailableDoctors()
-activate Faskes
-Faskes --> Manager : listDokterDanJadwal
-deactivate Faskes
-Manager --> UI : tampilkanDaftarDokter
-deactivate Manager
+Klien -> FE : Ajukan Bantuan Pro Bono & Unggah Foto SKTM
+FE -> BE : POST /api/v1/pro-bono/apply (SKTM Blob, KTP)
+BE -> Ext : Verify Keabsahan Nomor SKTM & NIK
+Ext --> BE : Return SKTM Verification Status
 
-Klien -> UI : pilihDokter(dokterId)
-UI --> Klien : tampilkanJadwalDokter(dokterId)
-
-Klien -> UI : pilihJadwal(rsId, dokterId, waktu)
-UI -> Manager : requestBooking(rsId, dokterId, waktu)
-activate Manager
-
-Manager -> Faskes : checkAvailability(waktu)
-activate Faskes
-Faskes --> Manager : returnStatus(tersedia)
-
-alt Jadwal Tersedia
-  Manager -> Faskes : confirmBooking(klienId)
-  Faskes --> Manager : bookingId
-  Manager --> UI : tampilkanTiketBooking(bookingId)
-  UI --> Klien : tampilkanTiket()
-else Jadwal Penuh
-  Faskes --> Manager : returnStatus(penuh)
-  deactivate Faskes
-  Manager --> UI : tampilkanError("Jadwal penuh, pilih waktu lain")
-  UI --> Klien : tampilkanPesanError()
+alt SKTM Tidak Valid / Palsu
+    BE --> FE : 400 Bad Request (SKTM Tidak Terverifikasi)
+    FE --> Klien : Tampilkan Error & Tawarkan Sesi Berbayar Reguler
+else SKTM Sah & Terverifikasi
+    BE -> BE : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
+    BE -> Mitra : Assign Kasus ke Advokat Kuota Pro Bono Aktif
+    Mitra --> BE : Terima Penugasan Pro Bono
+    BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
+    FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis
 end
-deactivate Manager
-deactivate UI
 @enduml
 ```
 
 ---
 
-### SD-Kesehatan: Melihat Rekam Medis (Kes-UC03)
-*Diagram ini merepresentasikan alur penarikan riwayat rekam medis klien atau keluarganya.*
+### SD-J-08: Membuat Catatan Sesi IRAC Note Advokat (J-UC11)
+*Sequence diagram pembuatan catatan terstruktur metode IRAC (Issue, Rule, Application, Conclusion) oleh advokat.*
 
 ```plantuml
 @startuml
 autonumber
-actor Klien
-participant ":RekamMedisUI" as UI
-participant ":MedicalRecordManager" as Manager
-database ":TabelRekamMedis" as DB
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa (Encrypted)" as DB
 
-Klien -> UI : bukaMenuRekamMedis()
-activate UI
-UI -> Manager : fetchFamilyProfiles(klienId)
-activate Manager
-Manager --> UI : listProfilKeluarga
-UI --> Klien : pilihProfil(profilId)
+Mitra -> FE : Buka Form Catatan IRAC & Isi Kolom (Issue, Rule, App, Concl)
+FE -> BE : POST /api/v1/advocate/notes/irac (Session ID, IRAC Payload)
+BE -> BE : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
+BE -> DB : Simpan Catatan IRAC ke Rekam Perkara Klien
+DB --> BE : Success Insert Note
+BE --> FE : 201 Created (Catatan Tersimpan Aman)
+FE --> Mitra : Tampilkan Notifikasi Catatan Berhasil Diarsip
+@enduml
+```
 
-Klien -> UI : klikProfil(profilId)
-UI -> Manager : fetchMedicalHistory(profilId)
-Manager -> DB : queryHistory(profilId)
-activate DB
+---
 
-alt Data Ditemukan
-  DB --> Manager : dataRekamMedis
-  Manager --> UI : renderMedicalHistory(dataRekamMedis)
-  UI --> Klien : tampilkanRiwayat()
-else Data Kosong
-  DB --> Manager : emptySet
-  deactivate DB
-  Manager --> UI : renderEmptyState()
-  UI --> Klien : tampilkanPesan("Belum ada riwayat")
+### SD-J-09: Verifikasi Kredensial & Moderasi Akun Admin Justifiqa (J-UC16, J-UC17)
+*Sequence diagram audit verifikasi advokat oleh Admin Legal serta proses penahanan akun (Due Process Suspend).*
+
+```plantuml
+@startuml
+autonumber
+actor "Admin Legal Justifiqa" as Admin
+participant "Panel Admin Justifiqa" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+participant "Pangkalan Data MA / Peradi" as Peradi
+actor "Advokat Terlapor / Pendaftar" as Mitra
+
+Admin -> FE : Buka Antrean Audit Advokat Baru
+FE -> BE : GET /api/v1/admin/audits/advocates (Pending List)
+BE --> FE : Return Dokumen SIPP, KTP, & Peradi
+Admin -> Peradi : Verifikasi Keabsahan Nomor SIPP & Berita Acara Sumpah
+
+alt Kredensial Palsu / Kadaluarsa
+    Admin -> FE : Klik Tolak Kredensial & Isi Alasan
+    FE -> BE : POST /api/v1/admin/audits/reject (Advocate ID)
+    BE -> DB : Update Status = REJECTED
+    BE -> Mitra : Kirim Email Alasan Penolakan Akun
+else Kredensial Sah & Aktif
+    Admin -> FE : Klik Setujui Kredensial
+    FE -> BE : POST /api/v1/admin/audits/approve (Advocate ID)
+    BE -> DB : Update Status = AKTIF / VERIFIED
+    BE -> Mitra : Kirim Email Akun Aktif Siap Praktik
 end
-deactivate Manager
-deactivate UI
+
+note over Admin, Mitra : Alur Moderasi Laporan Pelanggaran Etik / Hukum
+Admin -> FE : Proses Laporan Pelanggaran Berat & Klik Suspend
+FE -> BE : POST /api/v1/admin/moderation/suspend (Advocate ID, Reason)
+BE -> DB : Update Status Akun = SUSPENDED (Due Process)
+BE -> Mitra : Kirim Surat Panggilan Klarifikasi Internal
 @enduml
 ```
 
 ---
 
-### SD-Psikologi: Mengakses Audio Meditasi (Psi-UC02)
-*Diagram ini merepresentasikan alur streaming audio relaksasi.*
+### SD-J-10: Audit Log WORM Hash & Pencairan Dana Escrow PPh 21 (J-UC18, J-UC19)
+*Sequence diagram pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta perhitungan otomatis PPh 21 saat penarikan dana advokat.*
 
 ```plantuml
 @startuml
 autonumber
-actor Klien
-participant ":AudioPlayerUI" as UI
-participant ":MediaStreamer" as Streamer
-database ":AudioStorage" as Storage
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "Payment Gateway Disbursement" as PG
+database "WORM Hash Storage" as WORM
 
-Klien -> UI : bukaMenuMeditasi()
-activate UI
-UI -> Streamer : fetchAudioCategories()
-activate Streamer
-Streamer -> Storage : getAudioList()
-activate Storage
-Storage --> Streamer : listAudioTracks
-deactivate Storage
-Streamer --> UI : tampilkanDaftarAudio
-deactivate Streamer
+Mitra -> FE : Ajukan Pencairan Dana (Withdrawal) ke Rekening Bank
+FE -> BE : POST /api/v1/advocate/payouts/withdraw (Amount, Bank Acc)
 
-Klien -> UI : pilihTrek(trackId)
-UI --> Klien : tampilkanPlayer(trackId)
+BE -> BE : Validasi Saldo & Hitung Potongan Pajak PPh 21
+BE -> PG : POST /api/disbursement/transfer (Net Amount, Bank Detail)
+PG --> BE : Webhook Transfer SUCCESS (Bank Ref Number)
 
-Klien -> UI : klikPlay(trackId)
-UI -> Streamer : requestStream(trackId, token)
-activate Streamer
+BE -> BE : Kurangi Saldo Available Advokat & Terbitkan Bukti Potong PPh 21
+BE -> WORM : Simpan SHA-256 Hash Log Transaksi & Audit PPh 21
+WORM --> BE : Hash Written Permanently
+BE --> FE : 200 OK (Pencairan Berhasil Diproses)
+FE --> Mitra : Tampilkan Resi Transfer & Bukti Potong Pajak
+@enduml
+```
 
-Streamer -> Storage : getAudioFile(trackId)
-activate Storage
-Storage --> Streamer : audioDataChunk
+---
 
-alt Streaming Berhasil
-  Streamer --> UI : streamAudio(audioDataChunk)
-  UI --> Klien : putarAudio()
-else Koneksi Putus / File Hilang
-  Storage --> Streamer : fileNotFound
-  deactivate Storage
-  Streamer --> UI : streamError()
-  UI --> Klien : tampilkanPesanError("Audio tidak dapat diputar")
+## BAGIAN II: SEQUENCE DIAGRAMS - APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
+
+### SD-Q-01: Registrasi Akun Klien & Psikolog Klinis (Q-UC01, Q-UC07)
+*Sequence diagram alur pendaftaran akun mandiri Klien dan Psikolog Klinis (verifikasi STR & SIPP HIMPSI) di platform Qualifa.*
+
+```plantuml
+@startuml
+autonumber
+actor "Pengguna (Klien/Psikolog)" as User
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+
+User -> FE : Buka Halaman Registrasi Qualifa & Pilih Jenis Akun
+FE -> User : Tampilkan Formulir Registrasi Spesifik Qualifa
+User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
+FE -> BE : POST /api/v1/auth/register (Payload & Files)
+
+BE -> DB : Check Existing Email/No HP
+DB --> BE : Status Uniqueness Result
+
+alt Email / No HP Sudah Terdaftar
+    BE --> FE : 400 Bad Request (Akun Sudah Ada)
+    FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar"
+else Kredensial Baru & Valid
+    alt Jenis Akun = Klien (Pasien/User)
+        BE -> DB : Insert Klien (Status: AKTIF)
+        DB --> BE : Success DB Insert
+        BE --> FE : 201 Created (Registrasi Sukses)
+        FE --> User : Arahkan ke Halaman Login Qualifa
+    else Jenis Akun = Psikolog Klinis
+        BE -> DB : Insert Psikolog (Status: PENDING_VERIFICATION)
+        DB --> BE : Success DB Insert
+        BE -> BE : Add to Admin Audit Queue (Verifikasi STR HIMPSI)
+        BE --> FE : 201 Created (Menunggu Verifikasi Etik)
+        FE --> User : Tampilkan Pesan "Menunggu Verifikasi Etik 1x24 Jam"
+    end
 end
-deactivate Streamer
-deactivate UI
 @enduml
 ```
 
 ---
 
-### SD-Psikologi: Mengisi Tes Asesmen Psikologi (Psi-UC03)
-*Diagram ini merepresentasikan alur pengisian kuesioner psikometri.*
+### SD-Q-02: Login Akun Klien & Psikolog Klinis (Q-UC02, Q-UC08)
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA).*
 
 ```plantuml
 @startuml
 autonumber
-actor Klien
-participant ":AssessmentUI" as UI
-participant ":ScoringEngine" as Engine
-database ":TabelHasilTes" as DB
+actor "Pengguna Qualifa" as User
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "SMS / Email Gateway" as SMS
 
-Klien -> UI : bukaMenuAsesmen()
-activate UI
-UI -> Engine : fetchQuestions(DASS21)
-activate Engine
-Engine --> UI : listPertanyaan
-deactivate Engine
-UI --> Klien : tampilkanKuesioner
+User -> FE : Masukkan Email/No HP & Password
+FE -> BE : POST /api/v1/auth/login (Credentials)
 
-Klien -> UI : jawabSeluruhPertanyaan()
-Klien -> UI : submitJawaban(listJawaban)
-UI -> Engine : calculateScore(listJawaban)
-activate Engine
+BE -> DB : Query User by Email/No HP
+DB --> BE : Return User Record & Password Hash
 
-Engine -> Engine : applyDASS21Algorithm()
-Engine -> DB : saveResult(klienId, scoreData)
-activate DB
-DB --> Engine : savedSuccessfully
-deactivate DB
-
-Engine --> UI : returnResult(scoreData, rekomendasi)
-deactivate Engine
-
-UI --> Klien : tampilkanHasilTes(tingkatStres)
-deactivate UI
-@enduml
-```
-
----
-
-### SD-Hukum: Membuat Draf Dokumen Hukum (Huk-UC02)
-*Diagram ini merepresentasikan alur merender template hukum oleh advokat.*
-
-```plantuml
-@startuml
-autonumber
-actor Advokat
-participant ":LegalDraftingUI" as UI
-participant ":DocumentGenerator" as Generator
-database ":TemplateDB" as DB
-
-Advokat -> UI : bukaMenuDrafting()
-activate UI
-UI -> Generator : fetchTemplateList()
-activate Generator
-Generator -> DB : getAllTemplates()
-activate DB
-DB --> Generator : listTemplates
-deactivate DB
-Generator --> UI : tampilkanDaftarTemplate
-deactivate Generator
-
-Advokat -> UI : cariDanPilihTemplate(keyword)
-UI --> Advokat : tampilkanFormInput(templateId)
-
-Advokat -> UI : isiVariabelTemplate(templateId, dataVariabel)
-UI -> Generator : generatePDF(templateId, dataVariabel)
-activate Generator
-
-Generator -> DB : fetchTemplate(templateId)
-activate DB
-
-alt Template Ditemukan
-  DB --> Generator : templateFile
-  Generator -> Generator : replaceVariablesAndRenderPDF()
-  Generator --> UI : returnPdfURL
-  UI --> Advokat : tampilkanPratinjauPDF()
-else Template Tidak Ditemukan
-  DB --> Generator : notFound
-  deactivate DB
-  Generator --> UI : returnError()
-  UI --> Advokat : tampilkanPesanError("Template tidak tersedia")
+alt Kredensial Tidak Cocok
+    BE --> FE : 401 Unauthorized (Kredensial Salah)
+    FE --> User : Tampilkan Error & Sisa Percobaan Login
+else Kredensial Cocok
+    alt Status Akun = SUSPENDED (Komite Etik)
+        BE --> FE : 403 Forbidden (Akun Suspended oleh Komite Etik)
+        FE --> User : Tampilkan Error Akun Dalam Investigasi Etik
+    else Status Akun = AKTIF
+        BE -> BE : Generate OTP 6-Digit (Expire 5 Menit)
+        BE -> SMS : Kirim Kode OTP via SMS / WhatsApp / Email
+        SMS --> User : Terima Pesan Kode OTP
+        BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+        FE --> User : Tampilkan Layar Input OTP
+        
+        User -> FE : Masukkan Kode OTP 6-Digit
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
+        
+        alt OTP Valid & Belum Expire
+            BE -> DB : Update Last Login Timestamp
+            BE -> BE : Generate JWT Session Token Qualifa
+            BE --> FE : 200 OK (JWT Token, User Profile)
+            FE --> User : Masuk ke Dasbor Utama Qualifa
+        else OTP Salah / Kadaluarsa
+            BE --> FE : 400 Bad Request (OTP Invalid)
+            FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
+        end
+    end
 end
-deactivate Generator
-deactivate UI
 @enduml
 ```
 
 ---
 
-### SD-Hukum: Melakukan Konsultasi Pro Bono (Huk-UC03)
-*Diagram ini merepresentasikan alur validasi SKTM untuk konsultasi gratis.*
+### SD-Q-03: Sesi Konseling Klinis & Pembayaran (Q-UC03, Q-UC04, Q-UC05, Q-UC10)
+*Sequence diagram reservasi psikolog, pembayaran konseling, pelaksanaan sesi terapi (chat/audio/video), dan penyelesaian sesi.*
 
 ```plantuml
 @startuml
 autonumber
-actor Klien
-participant ":ProBonoUI" as UI
-participant ":VerificationManager" as Manager
-participant ":TicketEngine" as Engine
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Payment Gateway" as PG
+actor "Psikolog Klinis Qualifa" as Mitra
 
-Klien -> UI : unggahSKTM(fileSKTM)
-activate UI
-UI -> Manager : verifyProBonoEligibility(klienId, fileSKTM)
-activate Manager
+Klien -> FE : Pilih Psikolog, Jadwal Sesi Terapi, & Klik Reservasi
+FE -> BE : POST /api/v1/counseling/book (Psikolog ID, Slot)
+BE -> PG : Create Payment Invoice & Virtual Account
+PG --> BE : Return Invoice URL & VA Number
+BE --> FE : Return Billing Detail (Rp300.000 + Fee)
+FE --> Klien : Tampilkan Halaman Pembayaran
 
-Manager -> Manager : checkAdvocateQuota()
+Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
+PG -> BE : Webhook Notification (POST /webhook/payment PAID)
+BE -> BE : Tahan Dana di Rekening Sementara Qualifa
+BE -> BE : Update Booking Status = TERKONFIRMASI
+BE -> Mitra : Kirim Push Notification Pengingat Jadwal Terapi
 
-alt Kuota Tersedia
-  Manager -> Engine : generateFreeTicket(klienId)
-  activate Engine
-  Engine --> Manager : ticketId
-  deactivate Engine
-  Manager --> UI : redirectKeRuangTunggu(ticketId)
-  UI --> Klien : tampilkanRuangTunggu()
-else Kuota Habis
-  Manager --> UI : returnErrorQuota()
-  deactivate Manager
-  UI --> Klien : tampilkanPesan("Kuota Pro Bono hari ini habis")
-end
-deactivate UI
+note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
+Klien -> FE : Masuk Ruang Konseling E2EE Qualifa
+Mitra -> FE : Masuk Ruang Konseling E2EE Qualifa
+Klien -> Mitra : Sesi Konseling Teks / Audio / Video Call (E2EE)
+Mitra -> Klien : Berikan Intervensi Klinis & Dukungan Psikologis
+
+Mitra -> FE : Klik Akhiri Sesi Konseling
+FE -> BE : POST /api/v1/counseling/end (Sesi ID)
+BE -> BE : Tutup Ruang Terapi & Simpan Metadata Sesi
+BE -> FE : Trigger Rating & Ulasan Modal (Q-UC06)
+BE -> BE : Cairkan Honor Sesi ke Saldo Psikolog (Potong Fee 20% & PPh 21)
 @enduml
 ```
 
 ---
 
+### SD-Q-04: Mengatur Status Ketersediaan & Buffer 30 Mnt (Q-UC09)
+*Sequence diagram pengaturan jadwal praktik psikolog dengan aturan wajib jeda istirahat emosional (buffer rule) 30 menit antar sesi.*
+
+```plantuml
+@startuml
+autonumber
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+
+Mitra -> FE : Buka Pengaturan Jadwal & Klik Toggle ONLINE
+FE -> BE : PUT /api/v1/psychologist/availability (Status: ONLINE)
+
+BE -> DB : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
+DB --> BE : Return Last Session End Time
+
+alt Jeda Istirahat Antar Sesi < 30 Menit (Pelanggaran Kode Etik)
+    BE --> FE : 422 Unprocessable Entity (Buffer Rule Violation)
+    FE --> Mitra : Tampilkan Peringatan "Wajib Jeda Istirahat 30 Menit Antar Sesi"
+else Jeda Waktu Memenuhi Syarat (> 30 Menit)
+    BE -> DB : Update Status Praktik = AVAILABLE / ONLINE
+    DB --> BE : Success Update
+    BE --> FE : 200 OK (Status Berhasil Diubah)
+    FE --> Mitra : Tampilkan Status Aktif Siap Konseling
+end
+@enduml
+```
+
+---
+
+### SD-Q-05: Mengisi Jurnal Mood Tracker Harian Proactive Alert (Q-UC13)
+*Sequence diagram pengisian jurnal emosi harian yang dilengkapi sistem pendeteksi risiko penurunan kesehatan mental otomatis.*
+
+```plantuml
+@startuml
+autonumber
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Wellness Alert Engine" as Alert
+
+Klien -> FE : Pilih Emotikon Emosi, Pemicu, & Tulis Jurnal Harian
+FE -> BE : POST /api/v1/wellness/mood-tracker (Mood Score, Notes)
+BE -> DB : Simpan Catatan Jurnal & Update Riwayat Emosi
+DB --> BE : Return Last 7 Days Mood Trend
+
+BE -> BE : Analisis Tren Emosi 7 Hari Terakhir
+alt Terdeteksi Tren Sedih / Cemas Ekstrem 5 Hari Beruntun
+    BE -> Alert : Trigger Proactive Wellness Alert
+    Alert -> Alert : Generate Rekomendasi Psikoedukasi & Bantuan Klinis
+    Alert --> FE : Push Alert pop-up & Bantuan Konseling Prioritas
+    FE --> Klien : Munculkan Peringatan Lembut & Saran Konseling
+else Tren Emosi Stabil / Normal
+    BE --> FE : 200 OK (Jurnal Berhasil Disimpan)
+    FE --> Klien : Perbarui Grafik Mood di Dasbor Klien
+end
+@enduml
+```
+
+---
+
+### SD-Q-06: Mengakses Streaming Audio Meditasi & Relaksasi (Q-UC14)
+*Sequence diagram pemutaran trek audio terapi relaksasi dengan penyesuaian kualitas bitrate adaptif.*
+
+```plantuml
+@startuml
+autonumber
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Media CDN Server" as CDN
+database "Database Qualifa" as DB
+
+Klien -> FE : Buka Menu Relaksasi & Pilih Trek Audio Meditasi
+FE -> BE : GET /api/v1/wellness/meditation/stream (Track ID, Bandwidth)
+BE -> BE : Evaluate Client Bandwidth & Network Speed
+
+alt Koneksi Cepat / Wi-Fi
+    BE -> CDN : Request High Quality Audio URL (320 kbps)
+    CDN --> BE : Return CDN Secure Stream URL (HQ)
+else Koneksi Seluler / Lambat
+    BE -> CDN : Request Adaptive Smooth Audio URL (128 kbps)
+    CDN --> BE : Return CDN Secure Stream URL (Smooth)
+end
+
+BE -> DB : Log Exercise Activity Start
+BE --> FE : 200 OK (Stream URL)
+FE -> CDN : Start Audio Streaming
+FE --> Klien : Putar Audio Meditasi & Tampilkan Timer Relaksasi
+@enduml
+```
+
+---
+
+### SD-Q-07: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119 (Q-UC15)
+*Sequence diagram pengisian tes stres klinis DASS-21 yang memicu protokol kedaruratan bunuh diri/krisis 119 jika skor berada pada tingkat bahaya ekstrem.*
+
+```plantuml
+@startuml
+autonumber
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Emergency Crisis System" as Crisis
+
+Klien -> FE : Isi 21 Pertanyaan Asesmen DASS-21 & Submit
+FE -> BE : POST /api/v1/assessment/dass21 (Responses Array)
+BE -> BE : Hitung Skor Sub-Skala Depresi, Anxiety, & Stress
+BE -> DB : Simpan Hasil Skor Asesmen di Profil Klinis Klien
+
+alt Skor Depresi / Anxiety = EXTREME (Risk of Self-Harm)
+    BE -> Crisis : Trigger Emergency 119 Crisis Protocol (User ID)
+    Crisis -> Crisis : Notify Registered Emergency Family Contact
+    Crisis --> BE : Protocol Triggered Successfully
+    BE --> FE : 200 OK (Result: EXTREME, Trigger Red Alert)
+    FE --> Klien : Tampilkan Layar Darurat Merah & Tombol Hotline Krisis 119
+else Skor Normal / Sedang / Ringan
+    BE --> FE : 200 OK (Result: Normal/Moderate, Education Suggestions)
+    FE --> Klien : Tampilkan Hasil Asesmen & Saran Artikel Kesehatan Mental
+end
+@enduml
+```
+
+---
+
+### SD-Q-08: Membuat Catatan Terapi DAP Note & Worksheet CCBT (Q-UC11, Q-UC12)
+*Sequence diagram pembuatan catatan klinis metode DAP (Data, Assessment, Plan) dan penugasan lembar kerja terapi perilaku kognitif (CCBT).*
+
+```plantuml
+@startuml
+autonumber
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa (Encrypted)" as DB
+actor "Klien Qualifa" as Klien
+
+Mitra -> FE : Buat Catatan DAP Note & Pilih Tugas Worksheet CCBT
+FE -> BE : POST /api/v1/psychologist/clinical-notes (Sesi ID, DAP Payload)
+BE -> BE : Enkripsi Catatan Klinis dengan Field-Level Encryption
+BE -> DB : Simpan Catatan DAP Note di Arsip Rahasia Klien
+DB --> BE : Save Confirmed
+
+alt Psikolog Memberikan Tugas CCBT Worksheet
+    Mitra -> FE : Assign Worksheet (Thought Record / Behavioral Activation)
+    FE -> BE : POST /api/v1/counseling/ccbt/assign (Sesi ID, Template ID)
+    BE -> DB : Simpan Tugas di Dasbor Klien
+    BE -> Klien : Kirim Push Notification Tugas CCBT Baru
+    BE --> FE : 201 Created (Tugas Terkirim ke Klien)
+else Tanpa Tugas CCBT
+    BE --> FE : 201 Created (Catatan DAP Note Tersimpan)
+end
+
+FE --> Mitra : Tampilkan Konfirmasi Sukses Pengarsipan Klinis
+@enduml
+```
+
+---
+
+### SD-Q-09: Verifikasi STR/HIMPSI & Moderasi Komite Etik Admin Qualifa (Q-UC16, Q-UC17)
+*Sequence diagram audit keabsahan surat tanda registrasi psikolog klinis serta penanganan laporan kode etik.*
+
+```plantuml
+@startuml
+autonumber
+actor "Admin Etik Qualifa" as Admin
+participant "Panel Admin Qualifa" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Pangkalan Data HIMPSI / STR" as HIMPSI
+actor "Psikolog Terlapor / Pendaftar" as Mitra
+
+Admin -> FE : Buka Antrean Verifikasi Psikolog Baru
+FE -> BE : GET /api/v1/admin/audits/psychologists (Pending List)
+BE --> FE : Return Dokumen STR, SIPP, & Kartu HIMPSI
+Admin -> HIMPSI : Cek Keabsahan STR & Status Keanggotaan HIMPSI
+
+alt STR Tidak Sah / Kadaluarsa
+    Admin -> FE : Tolak Verifikasi & Isi Alasan
+    FE -> BE : POST /api/v1/admin/audits/reject (Psychologist ID)
+    BE -> DB : Update Status = REJECTED
+    BE -> Mitra : Kirim Email Alasan Penolakan Kredensial
+else STR Sah & Aktif
+    Admin -> FE : Setujui Verifikasi
+    FE -> BE : POST /api/v1/admin/audits/approve (Psychologist ID)
+    BE -> DB : Update Status = AKTIF / VERIFIED
+    BE -> Mitra : Kirim Email Selamat Datang & Panduan Etik
+end
+
+note over Admin, Mitra : Alur Pemeriksaan Pelanggaran Kode Etik / Malpraktik
+Admin -> FE : Proses Laporan Pelanggaran Etik & Klik Suspend
+FE -> BE : POST /api/v1/admin/ethics/suspend (Psychologist ID, Reason)
+BE -> DB : Update Status Akun = SUSPENDED (Investigasi Etik)
+BE -> Mitra : Kirim Surat Panggilan Klarifikasi Komite Etik Qualifa
+@enduml
+```
+
+---
+
+### SD-Q-10: Audit Log WORM Hash & Manajemen Honor Psikolog (Q-UC18, Q-UC19)
+*Sequence diagram pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta pencairan honor sesi psikolog klinis.*
+
+```plantuml
+@startuml
+autonumber
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Payment Gateway Disbursement" as PG
+database "WORM Hash Storage" as WORM
+
+Mitra -> FE : Ajukan Pencairan Honor Sesi ke Rekening Bank
+FE -> BE : POST /api/v1/psychologist/payouts/withdraw (Amount, Bank Acc)
+
+BE -> BE : Validasi Saldo Honor & Hitung Potongan Pajak PPh 21
+BE -> PG : POST /api/disbursement/transfer (Net Amount, Bank Detail)
+PG --> BE : Webhook Transfer SUCCESS (Bank Ref Number)
+
+BE -> BE : Kurangi Saldo Available Psikolog & Terbitkan Bukti Potong PPh 21
+BE -> WORM : Simpan SHA-256 Hash Log Transaksi & Audit PPh 21
+WORM --> BE : Hash Written Permanently
+BE --> FE : 200 OK (Pencairan Honor Berhasil Diproses)
+FE --> Mitra : Tampilkan Resi Transfer & Detail Potongan Pajak
+@enduml
+```

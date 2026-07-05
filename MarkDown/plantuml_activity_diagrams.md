@@ -1,54 +1,72 @@
-# Kumpulan Kode PlantUML: Activity Diagrams - LifeQ SuperApp
+# Kumpulan Kode PlantUML: Activity Diagrams - 100% Siloed Architecture (Justifiqa & Qualifa)
 
-Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Activity Diagram pada sistem **LifeQ SuperApp** (17 Core Use Case + 9 Domain Use Case + Admin Flow).
+Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Activity Diagram pada dua aplikasi mandiri yang **100% terisolasi dan berdiri sendiri (*Siloed Architecture*)**: **Justifiqa** (Domain Hukum) dan **Qualifa** (Domain Psikologi). Penomoran diagram telah distandarisasi menggunakan pengenal spesifik aplikasi: **`AD-J-xx`** untuk Justifiqa dan **`AD-Q-xx`** untuk Qualifa.
 
 ---
 
 ## Cara Import ke Draw.io
-1. Buka Draw.io (pp.diagrams.net).
+1. Buka Draw.io (`app.diagrams.net`).
 2. Pada toolbar bagian atas, klik tombol **+ (Insert)** atau pilih menu **Arrange -> Insert**.
 3. Pilih **Advanced -> PlantUML...**.
 4. Salin dan tempel kode di bawah ini, lalu klik **Insert**.
 
 ---
 
-### 1. Activity Diagram: Registrasi Klien (UC-01)
-*Diagram alur pendaftaran akun Klien baru.*
+## BAGIAN I: ACTIVITY DIAGRAMS - APLIKASI MANDIRI JUSTIFIQA (DOMAIN HUKUM)
+
+### AD-J-01: Registrasi Akun Klien & Advokat (J-UC01, J-UC07)
+*Diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa.*
 
 ```plantuml
 @startuml
-|Klien|
+|Pengguna (Klien/Advokat)|
 start
-:Buka Halaman Pendaftaran;
+:Buka Halaman Registrasi Justifiqa;
+:Pilih Jenis Akun (Klien atau Advokat);
 
-|Sistem (Backend/DB)|
-:Tampilkan Formulir Registrasi;
+|Backend Independen Justifiqa|
+:Tampilkan Formulir Registrasi Spesifik;
 
-|Klien|
+|Pengguna (Klien/Advokat)|
 --> (A)
-:Isi Formulir & Klik Daftar;
+:Isi Data Diri & Unggah Dokumen Kredensial;
+note right
+Klien: NIK KTP Dukcapil
+Advokat: Kartu Peradi & SIPP/SK Notaris
+end note
+:Klik Daftar;
 
-|Sistem (Backend/DB)|
-if (Apakah Format Data Valid?) then (Ya)
-  if (Apakah Email/No HP Terdaftar?) then (Tidak)
-    :Simpan Akun Baru di DB (Status: AKTIF);
-    :Tampilkan Pesan Sukses & Arahkan ke Login;
-    |Klien|
+|Backend Independen Justifiqa|
+if (Apakah Format & Ukuran File Valid?) then (Ya)
+  if (Apakah Email/No HP/NIK Sudah Terdaftar?) then (Tidak)
+    if (Jenis Akun = Advokat?) then (Ya)
+      :Simpan Akun di DB Justifiqa (Status: PENDING_VERIFICATION);
+      :Kirim Antrean Audit ke Admin Legal Justifiqa;
+      :Tampilkan Pesan "Menunggu Verifikasi Admin 1x24 Jam";
+    else (Tidak - Klien)
+      :Verifikasi NIK ke API Dukcapil;
+      if (NIK Valid?) then (Ya)
+        :Simpan Akun Klien di DB Justifiqa (Status: AKTIF);
+        :Tampilkan Pesan Sukses & Arahkan ke Login;
+      else (Tidak)
+        :Tampilkan Error "NIK Tidak Valid / Tidak Cocok";
+      endif
+    endif
+    |Pengguna (Klien/Advokat)|
     stop
   else (Ya)
-    |Sistem (Backend/DB)|
-    :Tampilkan Error "Email/No HP Sudah Terdaftar";
+    |Backend Independen Justifiqa|
+    :Tampilkan Error "Email/No HP/NIK Sudah Terdaftar";
   endif
 else (Tidak)
-  |Sistem (Backend/DB)|
-  :Tampilkan Error Validasi Format;
+  |Backend Independen Justifiqa|
+  :Tampilkan Error Validasi Format/File;
 endif
 
-|Klien|
+|Pengguna (Klien/Advokat)|
 :Perbaiki Input Data;
 if (Coba Daftar Lagi?) then (Ya)
   (A)
-  detach
 else (Tidak)
   stop
 endif
@@ -57,59 +75,60 @@ endif
 
 ---
 
-### 2. Activity Diagram: Melakukan Login (UC-02 & UC-08)
-*Diagram alur masuk Klien dan Mitra Profesional dengan verifikasi OTP.*
+### AD-J-02: Login Akun Klien & Advokat (J-UC02, J-UC08)
+*Diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA).*
 
 ```plantuml
 @startuml
-|Pengguna (Klien/Mitra)|
+|Pengguna Justifiqa|
 start
-:Memasukkan Kredensial & Klik Masuk;
+:Buka Halaman Login Justifiqa;
+--> (A)
+:Masukkan Email/No HP & Password;
+:Klik Login;
 
-|Sistem (Backend/DB)|
-:Verifikasi Kredensial di DB;
-if (Apakah Kredensial Cocok?) then (Tidak)
-  :Tampilkan Error "Email/Sandi Salah";
-  |Pengguna (Klien/Mitra)|
-  stop
-else (Ya)
-  |Sistem (Backend/DB)|
-  if (Apakah Status Akun SUSPENDED?) is (Ya) then
-    :Tampilkan Error "Akun Dinonaktifkan";
-    |Pengguna (Klien/Mitra)|
-    stop
-  else (Tidak)
-    |Sistem (Backend/DB)|
-    if (Apakah Pengguna adalah Mitra?) then (Ya)
-      if (Apakah Status PENDING/REJECTED?) is (Ya) then
-        :Tampilkan Error Verifikasi Berkas;
-        |Pengguna (Klien/Mitra)|
-        stop
-      else (Tidak/ACTIVE)
-      endif
-    else (Tidak/Klien)
-    endif
+|Backend Independen Justifiqa|
+if (Apakah Kredensial Cocok di DB Justifiqa?) then (Ya)
+  if (Apakah Akun Diblokir / Suspend?) then (Tidak)
+    :Generate Kode OTP 6-Digit (Expire 5 Menit);
+    :Kirim OTP via SMS/WhatsApp/Email;
     
-    |Sistem (Backend/DB)|
-    :Kirim OTP ke Email & Tampilkan Halaman OTP;
+    |Pengguna Justifiqa|
+    :Terima & Masukkan Kode OTP;
     
-    |Pengguna (Klien/Mitra)|
-    --> (B)
-    :Memasukkan Kode OTP;
-    
-    |Sistem (Backend/DB)|
-    if (Apakah OTP Valid & Belum Kadaluarsa?) then (Tidak)
-      :Tampilkan Error OTP;
-      |Pengguna (Klien/Mitra)|
-      (B)
-      detach
-    else (Ya)
-      |Sistem (Backend/DB)|
-      :Generate Token Sesi (JWT);
-      :Arahkan ke Dashboard;
-      |Pengguna (Klien/Mitra)|
+    |Backend Independen Justifiqa|
+    if (Apakah OTP Valid & Belum Expire?) then (Ya)
+      :Generate Token Sesi JWT Independen Justifiqa;
+      :Catat Log Login Sukses (IP & Device);
+      :Arahkan ke Dasbor (Klien atau Advokat);
+      |Pengguna Justifiqa|
       stop
+    else (Tidak)
+      |Backend Independen Justifiqa|
+      :Tampilkan Error "Kode OTP Salah/Kadaluarsa";
+      |Pengguna Justifiqa|
+      if (Minta Kirim Ulang OTP?) then (Ya)
+        :Klik Resend OTP;
+        |Backend Independen Justifiqa|
+        :Generate & Kirim OTP Baru;
+      else (Tidak)
+        stop
+      endif
     endif
+  else (Ya)
+    |Backend Independen Justifiqa|
+    :Tampilkan Error "Akun Suspended karena Due Process Legal";
+    |Pengguna Justifiqa|
+    stop
+  endif
+else (Tidak)
+  |Backend Independen Justifiqa|
+  :Tampilkan Error "Kredensial Salah (Sisa Percobaan: X)";
+  |Pengguna Justifiqa|
+  if (Coba Login Lagi?) then (Ya)
+    (A)
+  else (Tidak)
+    stop
   endif
 endif
 @enduml
@@ -117,438 +136,233 @@ endif
 
 ---
 
-### 3. Activity Diagram: Melakukan Konsultasi (UC-04 & UC-10)
-*Diagram alur utama sesi obrolan (chat) real-time antara Klien dan Mitra Profesional.*
+### AD-J-03: Konsultasi Hukum & Pembayaran Escrow (J-UC03, J-UC04, J-UC05, J-UC10)
+*Diagram alur reservasi, pembayaran escrow yang ditahan sistem Justifiqa, pelaksanaan sesi chat E2EE, hingga pelepasan dana setelah sesi selesai.*
 
 ```plantuml
 @startuml
-|Klien|
+|Klien Justifiqa|
 start
-:Memilih Mitra dan Klik Konsultasi;
+:Buka Katalog Advokat & Notaris;
+:Filter Spesialisasi (Pidana, Perdata, Bisnis, Pertanahan);
+:Pilih Advokat & Pilih Jadwal Konsultasi;
+:Klik Konfirmasi Reservasi;
 
-|Sistem (Backend/DB)|
-:Menampilkan Detail Tarif;
-
-|Klien|
-:Melakukan Pembayaran / Checkout;
-
-|Sistem (Backend/DB)|
-if (Apakah Pembayaran Sukses?) is (Ya) then
-  :Membuka Ruang Obrolan (Chat Room);
-  :Mengirim Notifikasi Konsultasi ke Mitra Profesional;
-  
-  |Mitra Profesional|
-  :Menerima Permintaan Konsultasi;
-  :Melangsungkan Sesi Chat & Konsultasi;
-  :Membuat Catatan Sesi & Dokumen Output;
-  
-  |Sistem (Backend/DB)|
-  :Menutup Ruang Obrolan & Menyimpan Data Sesi;
-  
-  |Klien|
-  :Memberikan Rating dan Ulasan Mitra;
-  stop
-else (Tidak / Batal)
-  |Sistem (Backend/DB)|
-  :Batalkan Booking & Tampilkan Notifikasi Pembatalan;
-  stop
-endif
-@enduml
-```
-
----
-
-### 4. Activity Diagram: Melakukan Pembayaran (UC-05)
-*Diagram integrasi pembayaran digital antara Klien, Sistem, dan Payment Gateway.*
-
-```plantuml
-@startuml
-|Klien|
-start
-:Pilih Metode Pembayaran;
-
-|Sistem (Backend/DB)|
-:Buat Snap Token Transaksi;
-:Tampilkan Halaman Pembayaran Gateway;
-
-|Klien|
-:Lakukan Transfer / Input OTP;
+|Backend Independen Justifiqa|
+:Buat Tagihan (Invoice) & Kirim ke Payment Gateway;
 
 |Payment Gateway|
-:Validasi Saldo & Proses Transaksi;
-:Kirim Status Transaksi Callback ke Sistem;
+:Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
 
-|Sistem (Backend/DB)|
-if (Apakah Pembayaran Berhasil?) is (Ya) then
-  :Terbitkan Tiket Konsultasi;
-  |Klien|
-  :Menerima Konfirmasi Sukses;
-  stop
+|Klien Justifiqa|
+:Lakukan Pembayaran Sesuai Nominal;
+
+|Payment Gateway|
+:Verifikasi Transaksi & Kirim Webhook PAID ke Justifiqa;
+
+|Backend Independen Justifiqa|
+:Tahan Dana di Rekening Escrow Sementara;
+:Ubah Status Reservasi Jadi TERKONFIRMASI;
+:Kirim Notifikasi Jadwal ke Advokat;
+
+|Advokat Justifiqa|
+:Terima Notifikasi & Masuk ke Ruang Konsultasi pada Waktunya;
+
+|Klien Justifiqa|
+:Masuk ke Ruang Chat E2EE Justifiqa;
+:Lakukan Konsultasi Teks / Audio / Video;
+
+|Advokat Justifiqa|
+:Berikan Advice & Analisis Hukum;
+:Klik Akhiri Sesi Konsultasi;
+
+|Backend Independen Justifiqa|
+:Tutup Ruang Chat & Arsip Log Metadata;
+:Minta Klien Memberikan Rating & Ulasan (J-UC06);
+:Cairkan Dana Escrow ke Saldo Advokat (Potong Fee & PPh 21);
+stop
+@enduml
+```
+
+---
+
+### AD-J-04: Mengatur Status Ketersediaan Praktik Advokat (J-UC09)
+*Diagram alur pengaturan jadwal praktik dan toggle ketersediaan real-time advokat.*
+
+```plantuml
+@startuml
+|Advokat Justifiqa|
+start
+:Buka Dasbor Advokat Menu Pengaturan Jadwal;
+:Pilih Hari & Jam Operasional Praktik;
+:Aktifkan Toggle "Online / Siap Konsultasi Sekarang";
+
+|Backend Independen Justifiqa|
+:Validasi Apakah Ada Sesi Aktif yang BENTROK?;
+if (Jadwal Bentrok?) then (Ya)
+  :Tampilkan Peringatan "Ada Sesi Konsultasi pada Jam Tersebut";
+  |Advokat Justifiqa|
+  :Sesuaikan Kembali Slot Waktu;
 else (Tidak)
-  |Sistem (Backend/DB)|
-  :Tampilkan Status Pembayaran Gagal;
-  |Klien|
-  :Pilih Kembali Metode Pembayaran;
-  stop
+  |Backend Independen Justifiqa|
+  :Update Status Advokat di Database (ONLINE / AVAILABLE);
+  :Tampilkan Advokat di Urutan Atas Katalog Pencarian Klien;
 endif
+stop
 @enduml
 ```
 
 ---
 
-### 5. Activity Diagram: Registrasi & Verifikasi Kredensial Mitra (UC-07 & UC-13)
-*Diagram onboarding untuk Calon Mitra Profesional baru (Dokter/Advokat/Psikolog) beserta peninjauan dokumen resmi oleh Admin.*
+### AD-J-05: Mengunggah Berkas Perkara E2EE Zero-Knowledge (J-UC13)
+*Diagram alur pengunggahan bukti perkara yang dienkripsi sebelum meninggalkan perangkat klien agar tidak dapat dibaca oleh server maupun pihak ketiga.*
 
 ```plantuml
 @startuml
-|Mitra Profesional|
+|Klien Justifiqa|
 start
-:Isi Form Profil & Unggah Kredensial;
-:Klik Kirim Pendaftaran;
+:Buka Ruang Chat Konsultasi Aktif dengan Advokat;
+:Klik Tombol "Unggah Bukti Perkara";
+:Pilih Dokumen Hukum (PDF/JPG, Maks 15 MB);
+:Sistem Klien Melakukan Enkripsi E2EE Lokal (Zero-Knowledge);
 
-|Sistem (Backend/DB)|
-:Simpan Data dengan Status PENDING;
-:Kirim Notifikasi ke Dasbor Admin;
+|Backend Independen Justifiqa|
+:Terima Blob Terenkripsi & Verifikasi Hash Intergritas;
+:Simpan Blob di WORM Storage Hukum;
+:Teruskan Notifikasi File Baru ke Ruang Chat Advokat;
 
-|Admin Sistem|
-:Tinjau Berkas Kredensial (STR/KTA/SIPP);
-if (Apakah Berkas Valid?) then (Ya)
-  |Sistem (Backend/DB)|
-  :Ubah Status Mitra Jadi AKTIF;
-  :Kirim Email Hasil Verifikasi (Sukses);
+|Advokat Justifiqa|
+:Klik Unduh Berkas Perkara;
+:Sistem Advokat Melakukan Dekripsi Lokal dengan Kunci Sesi;
+:Review Bukti Perkara (Kontrak, Sertifikat, Bukti Transfer);
+:Berikan Analisis Hukum Berdasarkan Bukti Terlampir;
+stop
+@enduml
+```
+
+---
+
+### AD-J-06: Membuat Draf Dokumen Hukum & e-Meterai Peruri (J-UC12, J-UC14)
+*Diagram alur pembuatan opini hukum/kontrak oleh advokat serta pembubuhan e-Meterai resmi Peruri.*
+
+```plantuml
+@startuml
+|Advokat Justifiqa|
+start
+:Buka Menu "Generator Draf Hukum / Legal Opinion";
+:Pilih Template Dokumen (Surat Somasi / Perjanjian / LO);
+:Isi Klausul Hukum & Identitas Para Pihak;
+:Klik Create & Review Draf Akhir;
+if (Perlu e-Meterai Peruri?) then (Ya)
+  :Centang Opsi "Bubuhkan e-Meterai Peruri Rp10.000";
+  |Backend Independen Justifiqa|
+  :Kirim Request Token Stamping ke API Peruri;
+  |API Peruri|
+  :Verifikasi Saldo Token & Bubuhkan Serial Number e-Meterai;
+  :Kirim Balasan Dokumen Bersertifikat Digital SHA-256;
 else (Tidak)
-  |Sistem (Backend/DB)|
-  :Ubah Status Mitra Jadi DITOLAK;
-  :Kirim Email Hasil Verifikasi (Gagal);
+  |Advokat Justifiqa|
+  :Terbitkan Dokumen Tanpa Meterai;
 endif
 
-|Mitra Profesional|
-:Menerima Notifikasi Status Akun;
+|Backend Independen Justifiqa|
+:Simpan Dokumen Hukum di Database Klien;
+:Kirim Notifikasi Dokumen Siap Diunduh ke Klien;
+
+|Klien Justifiqa|
+:Unduh Dokumen Hukum Resmi Ber-e-Meterai;
 stop
 @enduml
 ```
 
 ---
 
-### 6. Activity Diagram: Membuat Catatan Sesi & Output Konsultasi (UC-11 & UC-12)
-*Menggambarkan pengisian ringkasan sesi oleh Mitra Profesional beserta opsi pemberian dokumen output (Resep/Telaah Kontrak/Lembar Tugas) secara opsional (<<extend>>).*
+### AD-J-07: Konsultasi Pro Bono SKTM (J-UC15)
+*Diagram alur pengajuan bantuan hukum cuma-cuma (Pro Bono) melalui verifikasi Surat Keterangan Tidak Mampu (SKTM) Dukcapil.*
 
 ```plantuml
 @startuml
-|Mitra Profesional|
+|Klien Justifiqa|
 start
-:Klik Opsi Buat Catatan Konsultasi;
+:Pilih Menu "Bantuan Hukum Pro Bono (Gratis)";
+:Isi Formulir Pengajuan Kasus (Pidana/Perdata);
+:Unggah Foto SKTM (Surat Keterangan Tidak Mampu) & KTP;
+:Klik Ajukan Pro Bono;
 
-|Sistem (Backend/DB)|
-:Tampilkan Formulir Rekam/Sesi;
-
-|Mitra Profesional|
-:Isi Keluhan & Opini/Diagnosis;
-if (Apakah Perlu Output Dokumen? (Extend)) then (Ya)
-  :Pilih Tambah Output Dokumen dari Katalog;
-  |Sistem (Backend/DB)|
-  :Tampilkan Hasil Pencarian Katalog;
-  |Mitra Profesional|
-  :Tentukan Detail Output Dokumen;
-  :Simpan Dokumen Output;
+|Backend Independen Justifiqa|
+:Kirim Payload SKTM ke API Verifikasi Dukcapil / Dinsos;
+if (SKTM Valid & Terverifikasi?) then (Ya)
+  :Ubah Status Pengajuan Jadi APPROVED;
+  :Cari Advokat Mitra yang Menyediakan Slot Pro Bono;
+  :Buat Sesi Konsultasi Gratis (Rp0);
+  |Advokat Justifiqa|
+  :Terima Penugasan Pro Bono dari Sistem;
+  :Lakukan Sesi Konsultasi & Bantuan Hukum (J-UC04);
 else (Tidak)
-  note right: Lanjut tanpa dokumen output
+  |Backend Independen Justifiqa|
+  :Tolak Pengajuan & Tampilkan Alasan "SKTM Tidak Terverifikasi";
+  |Klien Justifiqa|
+  :Tampilkan Opsi Beralih ke Konsultasi Berbayar Reguler;
 endif
-
-|Mitra Profesional|
-:Klik Simpan Catatan Sesi;
-
-|Sistem (Backend/DB)|
-:Simpan Catatan Sesi & Output ke Database;
-:Tampilkan Konfirmasi Data Tersimpan;
 stop
 @enduml
 ```
 
 ---
 
-### 7. Activity Diagram: Memantau Laporan Transaksi (UC-16)
-*Menampilkan peninjauan transaksi keuangan dan penarikan laporan Excel/PDF oleh Admin Sistem.*
+### AD-J-08: Membuat Catatan Sesi IRAC Note Advokat (J-UC11)
+*Diagram alur pembuatan catatan terstruktur metode IRAC (Issue, Rule, Application, Conclusion) oleh advokat.*
 
 ```plantuml
 @startuml
-|Admin Sistem|
+|Advokat Justifiqa|
 start
-:Buka Menu Laporan Keuangan;
+:Selesai Melayani Sesi Konsultasi Hukum;
+:Buka Menu "Catatan Sesi Advokat (IRAC Framework)";
+:Isi Kolom Issue (Rumusan Masalah Hukum Klien);
+:Isi Kolom Rule (Dasar UU / Yurisprudensi yang Berlaku);
+:Isi Kolom Application (Analisis Penerapan Hukum pada Kasus);
+:Isi Kolom Conclusion (Kesimpulan & Saran Langkah Hukum);
+:Pilih Status Privasi (Internal Advokat atau Bagikan ke Klien);
+:Klik Simpan Catatan IRAC;
 
-|Sistem (Backend/DB)|
-:Ambil Seluruh Data Transaksi di DB;
-:Tampilkan Tabel Keuangan Default;
+|Backend Independen Justifiqa|
+:Enkripsi Catatan dengan Field-Level Encryption (AES-256);
+:Simpan di Arsip Perkara Klien Justifiqa;
+stop
+@enduml
+```
 
-|Admin Sistem|
-if (Apakah Ingin Memfilter Data?) then (Ya)
-  :Pilih Filter Tanggal / Spesialisasi;
-  |Sistem (Backend/DB)|
-  :Ambil Data Sesuai Filter di DB;
-  :Tampilkan Data Terfilter;
+---
+
+### AD-J-09: Verifikasi Kredensial & Moderasi Akun Admin Justifiqa (J-UC16, J-UC17)
+*Diagram alur audit verifikasi advokat oleh Admin Legal serta proses penahanan akun (Due Process Suspend).*
+
+```plantuml
+@startuml
+|Admin Legal Justifiqa|
+start
+:Buka Dasbor Admin Menu "Verifikasi Advokat Baru";
+:Periksa Dokumen KTP, Kartu Peradi, & SK SIPP/Notaris;
+:Verifikasi Keabsahan Nomor SIPP ke Pangkalan Data Mahkamah Agung / Peradi;
+if (Kredensial Sah & Aktif?) then (Ya)
+  |Backend Independen Justifiqa|
+  :Ubah Status Akun Advokat Jadi VERIFIED / AKTIF;
+  :Kirim Email Pemberitahuan Akun Aktif;
+else (Tidak - Palsu/Kadaluarsa)
+  |Backend Independen Justifiqa|
+  :Ubah Status Akun Jadi REJECTED;
+  :Kirim Email Alasan Penolakan Kredensial;
+endif
+
+|Admin Legal Justifiqa|
+:Buka Menu "Moderasi & Laporan Pelanggaran Etik";
+if (Ada Laporan Pelanggaran Berat?) then (Ya)
+  :Jalankan Protokol Due Process Investigation;
+  :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
+  :Kirim Surat Panggilan Klarifikasi Internal;
 else (Tidak)
-endif
-
-|Admin Sistem|
-:Lihat Detail Transaksi;
-:Klik Ekspor ke Excel/PDF;
-
-|Sistem (Backend/DB)|
-:Generate File Laporan (Excel/PDF);
-
-|Admin Sistem|
-:Menerima Unduhan File Laporan;
-stop
-@enduml
-```
-
----
-
-### 8. Activity Diagram: Mengonfirmasi Status Ketersediaan (UC-09)
-*Alur kerja Mitra Profesional dalam menyalakan/mematikan status online agar muncul di hasil pencarian.*
-
-```plantuml
-@startuml
-|Mitra Profesional|
-start
-:Buka Halaman Pengaturan Ketersediaan;
-:Ubah Toggle Status Online/Offline;
-
-|Sistem (Backend/DB)|
-:Update Status Ketersediaan Mitra di DB;
-:Update Tampilan Dashboard Mitra;
-
-|Mitra Profesional|
-:Lihat Perubahan Status di Layar;
-stop
-@enduml
-```
-
----
-
-### AD-Admin-01: Activity Diagram - Mengelola Data Akun Klien / Suspend (UC-14)
-*Diagram ini merepresentasikan alur due process untuk suspend akun klien: warning 3x, evidence log, notifikasi hukum (surat resmi), dan appeal window 14 hari.*
-
-```plantuml
-@startuml
-|Admin Sistem|
-start
-:Menerima laporan pelanggaran klien;
-:Membuka panel "Manajemen Akun Klien";
-:Mereview bukti pelanggaran;
-
-|Sistem (Backend/DB)|
-:Menampilkan riwayat warning klien;
-
-if (Warning count < 3?) then (ya)
-  |Admin Sistem|
-  :Mengirim Warning ke klien;
-  |Sistem (Backend/DB)|
-  :Mencatat warning (count + 1);
-  :Menyimpan evidence log (WORM);
-  note right
-    Warning ke-1: Peringatan ringan
-    Warning ke-2: Peringatan keras
-    Warning ke-3: Peringatan akhir
-  end note
-  :Mengirim notifikasi warning ke klien;
-  |Klien|
-  :Menerima peringatan sistem;
-  
-else (tidak, warning >= 3)
-  |Admin Sistem|
-  :Memutuskan untuk Suspend akun;
-  |Sistem (Backend/DB)|
-  :Generate Surat Resmi Suspend;
-  note right
-    Surat berisi:
-    - Alasan suspend
-    - Bukti pelanggaran
-    - Hak banding (14 hari)
-    - Kontak pengajuan banding
-  end note
-  
-  :Mengirim Surat ke email klien;
-  :Mengubah status akun menjadi SUSPENDED;
-  :Memblokir akses klien ke platform;
-  |Klien|
-  :Menerima surat suspend & akses terblokir;
-  if (Klien mengajukan banding dalam 14 hari?) then (ya)
-    |Klien|
-    :Mengajukan permohonan banding + bukti;
-    |Admin Sistem|
-    :Menerima permohonan banding;
-    :Mereview bukti baru dari klien;
-    
-    if (Banding diterima?) then (ya)
-      :Mengubah status menjadi ACTIVE;
-      |Sistem (Backend/DB)|
-      :Mengirim notifikasi reinstatement;
-      :Warning count di-reset;
-      |Klien|
-      :Aksesi akun dipulihkan;
-    else (tidak)
-      |Admin Sistem|
-      :Menolak banding + isi alasan;
-      |Sistem (Backend/DB)|
-      :Mengirim notifikasi penolakan final;
-      :Status tetap SUSPENDED (permanen);
-    endif
-    
-  else (tidak, 14 hari lewat)
-    |Sistem (Backend/DB)|
-    :Mengunci suspend secara permanen;
-    :Mengirim notifikasi final ke klien;
-  endif
-endif
-
-stop
-@enduml
-```
----
-
-### AD-Admin-02: Activity Diagram - Mengelola Data Akun Mitra / Suspend (UC-15)
-*Diagram ini merepresentasikan alur Ethics Committee Flow untuk suspend mitra: laporan masuk, tim etik multidisiplin (dokter/psikolog/advokat), hearing, keputusan, dan report ke Konsil/Peradi/HIMPSI.*
-
-```plantuml
-@startuml
-|Admin Sistem|
-start
-:Menerima laporan pelanggaran Mitra;
-:Membuka panel "Manajemen Akun Mitra";
-:Mereview laporan + bukti;
-
-|Sistem (Backend/DB)|
-:Menampilkan riwayat warning Mitra;
-
-if (Pelanggaran ringan (Warning count < 3)?) then (ya)
-  |Admin Sistem|
-  :Mengirim Warning ke Mitra;
-  |Sistem (Backend/DB)|
-  :Mencatat warning + evidence (WORM);
-  :Mengirim notifikasi ke Mitra;
-  |Mitra Profesional|
-  :Menerima peringatan sistem;
-  
-else (tidak, pelanggaran berat atau warning >= 3)
-  |Admin Sistem|
-  :Membentuk Tim Etik Multidisiplin;
-  note right
-    Tim Etik terdiri dari:
-    - 1 Dokter Senior (jika Kes)
-    - 1 Psikolog Senior (jika Psi)
-    - 1 Advokat Senior (jika Huk)
-    - 1 Admin Compliance
-  end note
-  
-  |Sistem (Backend/DB)|
-  :Menjadwalkan Hearing;
-  :Mengirim undangan hearing ke Mitra;
-  |Mitra Profesional|
-  :Menerima undangan & menyiapkan pembelaan;
-  
-  |Tim Etik Multidisiplin|
-  :Melaksanakan Hearing bersama Mitra;
-  :Memberikan keputusan etik;
-  
-  if (Keputusan = Dibebaskan?) then (ya)
-    |Sistem (Backend/DB)|
-    :Mencatat hasil hearing;
-    :Status Mitra tetap ACTIVE;
-    :Warning count di-reset;
-    
-  else (Keputusan = Suspend)
-    |Sistem (Backend/DB)|
-    :Mengubah status menjadi SUSPENDED;
-    :Memblokir akses Mitra;
-    if (Domain = Kesehatan?) then (ya)
-      :Generate laporan ke Konsil Kedokteran;
-      |Badan Profesi (Konsil/HIMPSI/Peradi)|
-      :Menerima laporan pelanggaran etik dokter;
-    else if (Domain = Psikologi?) then (ya)
-      |Sistem (Backend/DB)|
-      :Generate laporan ke HIMPSI;
-      |Badan Profesi (Konsil/HIMPSI/Peradi)|
-      :Menerima laporan pelanggaran etik psikolog;
-    else (Domain = Hukum)
-      |Sistem (Backend/DB)|
-      :Generate laporan ke Peradi;
-      |Badan Profesi (Konsil/HIMPSI/Peradi)|
-      :Menerima laporan pelanggaran etik advokat;
-    endif
-    
-    |Admin Sistem|
-    :Mengonfirmasi pengiriman laporan resmi;
-    |Sistem (Backend/DB)|
-    :Menyimpan seluruh evidence + keputusan;
-    note right
-      WORM storage:
-      Tidak bisa diubah/dihapus
-      Retention: permanen
-    end note
-    
-    :Mengirim notifikasi final ke Mitra;
-    note right
-      Surat berisi:
-      - Alasan suspend
-      - Hasil hearing
-      - Laporan ke badan profesi
-      - Tidak ada appeal (final)
-    end note
-    |Mitra Profesional|
-    :Akses terblokir permanen;
-  endif
-endif
-
-stop
-@enduml
-```
----
-
-### 11. Activity Diagram: Mengelola Saldo dan Penarikan Dana Mitra (UC-17)
-*Menggambarkan alur pemantauan saldo dan permintaan pencairan dana ke rekening bank oleh Mitra Profesional.*
-
-```plantuml
-@startuml
-|Mitra Profesional|
-start
-:Mengklik menu "Saldo Pendapatan";
-|Sistem (Backend/DB)|
-:Menampilkan sisa saldo dan riwayat penarikan sebelumnya;
-|Mitra Profesional|
-:Mengklik tombol "Tarik Dana" dan memasukkan nominal;
-|Sistem (Backend/DB)|
-:Melakukan validasi kecukupan saldo di database;
-if (Saldo Cukup?) then (Ya)
-  :Memvalidasi NPWP dan Rekening Bank Profesi;
-  if (Rekening & NPWP Valid?) then (Ya)
-    :Memindahkan saldo ke saldo_dibekukan (Freeze);
-    if (Nominal Penarikan < Rp 5.000.000?) then (Ya - Auto Disburse)
-      |API Bank / Watchdog|
-      :Memproses transfer bank otomatis (Push Payout);
-    else (Tidak >= Rp 5 Juta - Manual Approval)
-      |Sistem (Backend/DB)|
-      :Memasukkan tiket ke antrean Dasbor Admin;
-      |Admin Finansial|
-      :Meninjau antrean & mengklik "Setujui & Cairkan via API";
-      |API Bank / Watchdog|
-      :Memproses transfer bank via Bank Gateway;
-    endif
-    
-    |Sistem (Backend/DB)|
-    if (Status Balasan Transaksi?) then (Sukses / Berhasil)
-      :Potong saldo_dibekukan permanen (Deduct);
-      :Kirim notifikasi dana berhasil dicairkan;
-    else (Gagal / Ditolak Bank)
-      :Kembalikan saldo ke saldo_tersedia (Unfreeze Rollback);
-      :Kirim notifikasi error penarikan gagal;
-    endif
-  else (Tidak Valid)
-    :Menampilkan error kredensial rekening/NPWP tidak sah;
-  endif
-else (Tidak)
-  :Menampilkan pesan error saldo tidak cukup;
-  :Membatalkan proses penarikan dana;
+  :Arsip Laporan sebagai Clear;
 endif
 stop
 @enduml
@@ -556,148 +370,146 @@ stop
 
 ---
 
----
-
-## F. Activity Diagram Fitur Spesifik Domain
-
-### AD-Kes-04: Activity Diagram - Menebus Resep dan Membeli Obat (Kes-UC01)
-*Diagram ini merepresentasikan alur menebus resep digital termasuk validasi SIA (Sistem Informasi Apotek), cek interaksi obat (drug-drug interaction), dan workflow berbeda untuk obat non-controlled vs controlled (Narkotika/Psikotropika).*
+### AD-J-10: Audit Log WORM Hash & Pencairan Dana Escrow PPh 21 (J-UC18, J-UC19)
+*Diagram alur pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta perhitungan otomatis PPh 21 saat penarikan dana advokat.*
 
 ```plantuml
 @startuml
-|Klien|
+|Advokat Justifiqa|
 start
-:Membuka halaman "Tebus Resep";
-|Sistem (Backend/DB)|
-:Menampilkan daftar resep aktif;
-|Klien|
-:Memilih resep yang ingin ditebus;
-|Sistem (Backend/DB)|
-:Memvalidasi format resep (Permenkes 73/2016);
+:Buka Menu Dompet Saldo Advokat Justifiqa;
+:Klik Penarikan Dana (Withdrawal) ke Rekening Bank Bersangkutan;
 
-if (Format resep valid?) then (ya)
-  :Mengirim data resep ke SIA Apotek Mitra;
-  |SIA Apotek Mitra|
-  :Menerima dan memproses resep;
-  :Melakukan cek interaksi obat (Drug-Drug Interaction);
-  
-  if (Ada interaksi Major?) then (ya)
-    :Mengirim alert ke Dokter penulis resep;
-    |Dokter|
-    :Mereview dan merevisi resep;
-    |Sistem (Backend/DB)|
-    :Memperbarui resep;
-    |SIA Apotek Mitra|
-  else (tidak)
-  endif
-  
-  if (Resep mengandung Narkotika/Psikotropika?) then (ya)
-    :Menerapkan workflow Controlled Drug;
-    note right
-      3 rangkap: Apotek, Pasien, BPOM
-      Validasi SIP Narkotika Dokter
-      Log ke sistem BNN
-    end note
-    :Memvalidasi SIP Narkotika dokter;
-    :Mencetak resep 3 rangkap;
-  else (tidak)
-    :Memproses resep standar;
-  endif
-  
-  |Sistem (Backend/DB)|
-  :Menampilkan rincian obat + harga;
-  |Klien|
-  :Memilih metode pembayaran;
-  :Melakukan pembayaran (UC-05);
-  
-  |Sistem (Backend/DB)|
-  if (Pembayaran berhasil?) then (ya)
-    :Mengonfirmasi ke Apotek;
-    |Klien|
-    :Mengisi alamat pengiriman;
-    |SIA Apotek Mitra|
-    :Memproses pengiriman obat;
-    |Sistem (Backend/DB)|
-    :Mengirim notifikasi + tracking;
-  else (tidak)
-    :Membatalkan transaksi resep;
-    :Resep dikembalikan ke status aktif;
-  endif
-  
-else (tidak)
-  |Sistem (Backend/DB)|
-  :Menampilkan error format resep;
-  |Klien|
-  :Diarahkan menghubungi Dokter;
-endif
+|Backend Independen Justifiqa|
+:Periksa Saldo Available & Validasi Rekening Tujuan;
+:Hitung Potongan Pajak PPh 21 Sesuai Regulasi Ditjen Pajak;
+:Buat Instruksi Pencairan Dana Bersih;
+:Kirim Request Transfer ke Payment Gateway Disbursement;
 
-stop
-@enduml
-```
----
+|Payment Gateway|
+:Proses Transfer Real-time ke Bank Advokat;
+:Kirim Webhook SUCCESS ke Backend Justifiqa;
 
-### AD-Psikologi: Mengisi Jurnal Mood Harian (Psi-UC01)
-*Diagram ini merepresentasikan alur pengisian jurnal harian oleh klien sebagai bagian dari proses self-care sebelum sesi konseling.*
-
-```plantuml
-@startuml
-|Klien|
-start
-:Buka menu Jurnal Mood;
-
-|Sistem|
-:Tampilkan Pilihan Emotikon & Kolom Teks;
-
-|Klien|
-:Pilih Emotikon Dominan;
-:Isi Catatan Pemicu (Opsional);
-:Klik "Simpan Jurnal";
-
-|Sistem|
-:Enkripsi Data Jurnal;
-:Simpan ke Database;
-:Tampilkan Notifikasi "Tersimpan";
+|Backend Independen Justifiqa|
+:Kurangi Saldo Advokat & Simpan Bukti Potong PPh 21;
+:Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
+:Kirim Email Bukti Transfer & Bukti Potong Pajak ke Advokat;
 stop
 @enduml
 ```
 
 ---
 
-### AD-Hukum: Mengunggah Berkas Perkara (Huk-UC01)
-*Diagram ini merepresentasikan alur unggah dokumen rahasia oleh klien yang dienkripsi secara end-to-end sebelum dianalisis oleh advokat.*
+## BAGIAN II: ACTIVITY DIAGRAMS - APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
+
+### AD-Q-01: Registrasi Akun Klien & Psikolog Klinis (Q-UC01, Q-UC07)
+*Diagram alur pendaftaran akun mandiri Klien dan Psikolog Klinis (verifikasi STR & SIPP HIMPSI) di platform Qualifa.*
 
 ```plantuml
 @startuml
-|Klien (Pencari Keadilan)|
+|Pengguna (Klien/Psikolog)|
 start
-:Buka Chat Konsultasi;
+:Buka Halaman Registrasi Qualifa;
+:Pilih Jenis Akun (Klien atau Psikolog Klinis);
+
+|Backend Independen Qualifa|
+:Tampilkan Formulir Registrasi Spesifik Qualifa;
+
+|Pengguna (Klien/Psikolog)|
 --> (A)
-:Klik tombol "Unggah Bukti/Dokumen";
-:Pilih File (PDF/Gambar);
+:Isi Data Diri & Unggah Dokumen Kredensial;
+note right
+Klien: Profil Diri & Kontak Darurat
+Psikolog: Kartu HIMPSI & STR / SIPP Psikologi
+end note
+:Klik Daftar;
 
-|Sistem|
-if (Format & Ukuran Valid?) then (Ya)
-  :Enkripsi File (End-to-End Encryption);
-  :Simpan File di Database (Tabel Dokumen);
-  :Tampilkan Attachment di Ruang Chat;
-  
-  |Advokat|
-  :Klik Unduh/Buka File;
-  
-  |Sistem|
-  :Dekripsi File;
-  
-  |Advokat|
-  :Buka Berkas Bukti & Analisis;
-  stop
+|Backend Independen Qualifa|
+if (Apakah Format & Ukuran File Valid?) then (Ya)
+  if (Apakah Email/No HP Sudah Terdaftar?) then (Tidak)
+    if (Jenis Akun = Psikolog?) then (Ya)
+      :Simpan Akun di DB Qualifa (Status: PENDING_VERIFICATION);
+      :Kirim Antrean Audit ke Admin Etik Qualifa;
+      :Tampilkan Pesan "Menunggu Verifikasi HIMPSI 1x24 Jam";
+    else (Tidak - Klien)
+      :Simpan Akun Klien di DB Qualifa (Status: AKTIF);
+      :Tampilkan Pesan Sukses & Arahkan ke Login;
+    endif
+    |Pengguna (Klien/Psikolog)|
+    stop
+  else (Ya)
+    |Backend Independen Qualifa|
+    :Tampilkan Error "Email/No HP Sudah Terdaftar";
+  endif
 else (Tidak)
-  |Sistem|
-  :Tampilkan Error "File Tidak Valid";
-  
-  |Klien (Pencari Keadilan)|
-  if (Unggah Ulang?) then (Ya)
+  |Backend Independen Qualifa|
+  :Tampilkan Error Validasi Format/File;
+endif
+
+|Pengguna (Klien/Psikolog)|
+:Perbaiki Input Data;
+if (Coba Daftar Lagi?) then (Ya)
+  (A)
+else (Tidak)
+  stop
+endif
+@enduml
+```
+
+---
+
+### AD-Q-02: Login Akun Klien & Psikolog Klinis (Q-UC02, Q-UC08)
+*Diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA).*
+
+```plantuml
+@startuml
+|Pengguna Qualifa|
+start
+:Buka Halaman Login Qualifa;
+--> (A)
+:Masukkan Email/No HP & Password;
+:Klik Login;
+
+|Backend Independen Qualifa|
+if (Apakah Kredensial Cocok di DB Qualifa?) then (Ya)
+  if (Apakah Akun Diblokir / Suspend?) then (Tidak)
+    :Generate Kode OTP 6-Digit (Expire 5 Menit);
+    :Kirim OTP via SMS/WhatsApp/Email;
+    
+    |Pengguna Qualifa|
+    :Terima & Masukkan Kode OTP;
+    
+    |Backend Independen Qualifa|
+    if (Apakah OTP Valid & Belum Expire?) then (Ya)
+      :Generate Token Sesi JWT Independen Qualifa;
+      :Catat Log Login Sukses (IP & Device);
+      :Arahkan ke Dasbor (Klien atau Psikolog);
+      |Pengguna Qualifa|
+      stop
+    else (Tidak)
+      |Backend Independen Qualifa|
+      :Tampilkan Error "Kode OTP Salah/Kadaluarsa";
+      |Pengguna Qualifa|
+      if (Minta Kirim Ulang OTP?) then (Ya)
+        :Klik Resend OTP;
+        |Backend Independen Qualifa|
+        :Generate & Kirim OTP Baru;
+      else (Tidak)
+        stop
+      endif
+    endif
+  else (Ya)
+    |Backend Independen Qualifa|
+    :Tampilkan Error "Akun Suspended oleh Komite Etik Qualifa";
+    |Pengguna Qualifa|
+    stop
+  endif
+else (Tidak)
+  |Backend Independen Qualifa|
+  :Tampilkan Error "Kredensial Salah (Sisa Percobaan: X)";
+  |Pengguna Qualifa|
+  if (Coba Login Lagi?) then (Ya)
     (A)
-    detach
   else (Tidak)
     stop
   endif
@@ -707,549 +519,264 @@ endif
 
 ---
 
-### AD-Kesehatan: Membuat Janji Temu RS Offline (Kes-UC02)
-*Diagram ini merepresentasikan alur pemilihan rumah sakit dan jadwal fisik.*
+### AD-Q-03: Sesi Konseling Klinis & Pembayaran (Q-UC03, Q-UC04, Q-UC05, Q-UC10)
+*Diagram alur reservasi psikolog, pembayaran konseling, pelaksanaan sesi terapi (chat/audio/video), dan penyelesaian sesi.*
 
 ```plantuml
 @startuml
-|Klien|
+|Klien Qualifa|
 start
-:Buka Menu Janji Temu RS;
-:Pilih Faskes & Jadwal;
-|Sistem|
-if (Apakah Jadwal Tersedia?) is (Ya) then
-  :Konfirmasi ke Faskes;
-  :Terbitkan Tiket Booking;
-  |Klien|
-  :Menerima Tiket;
-  stop
+:Buka Katalog Psikolog Klinis;
+:Filter Keahlian (Kecemasan, Depresi, Relasi, Trauma);
+:Pilih Psikolog & Pilih Jadwal Sesi Terapi (45 - 60 Menit);
+:Klik Konfirmasi Reservasi;
+
+|Backend Independen Qualifa|
+:Buat Tagihan (Invoice) & Kirim ke Payment Gateway;
+
+|Payment Gateway|
+:Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
+
+|Klien Qualifa|
+:Lakukan Pembayaran Sesuai Nominal;
+
+|Payment Gateway|
+:Verifikasi Transaksi & Kirim Webhook PAID ke Qualifa;
+
+|Backend Independen Qualifa|
+:Tahan Dana di Rekening Sementara Qualifa;
+:Ubah Status Reservasi Jadi TERKONFIRMASI;
+:Kirim Pengingat Jadwal ke Psikolog & Klien;
+
+|Psikolog Qualifa|
+:Masuk ke Ruang Terapi Virtual pada Waktunya;
+
+|Klien Qualifa|
+:Masuk ke Ruang Konseling E2EE Qualifa;
+:Lakukan Sesi Konseling Klinis (Chat / Audio / Video Call);
+
+|Psikolog Qualifa|
+:Berikan Intervensi Klinis & Dukungan Psikologis;
+:Klik Akhiri Sesi Terapi;
+
+|Backend Independen Qualifa|
+:Tutup Ruang Terapi & Arsip Log Metadata Sesi;
+:Minta Klien Memberikan Rating & Ulasan (Q-UC06);
+:Cairkan Honor Sesi ke Saldo Psikolog Klinis;
+stop
+@enduml
+```
+
+---
+
+### AD-Q-04: Mengatur Status Ketersediaan & Buffer 30 Mnt (Q-UC09)
+*Diagram alur pengaturan jadwal praktik psikolog dengan aturan wajib jeda istirahat emosional (buffer rule) 30 menit antar sesi.*
+
+```plantuml
+@startuml
+|Psikolog Qualifa|
+start
+:Buka Dasbor Psikolog Menu Pengaturan Jadwal Praktik;
+:Pilih Hari & Jam Operasional Konseling;
+:Aktifkan Toggle "Online / Siap Konseling Sekarang";
+
+|Backend Independen Qualifa|
+:Validasi Aturan Buffer Waktu 30 Menit Antar Sesi Terapi;
+if (Apakah Ada Sesi Sebelumnya < 30 Menit yang Lalu?) then (Ya)
+  :Tampilkan Peringatan "Sesuai Kode Etik, Wajib Jeda Istirahat 30 Menit Antar Sesi";
+  |Psikolog Qualifa|
+  :Slot Waktu Otomatis Diterapkan Buffer Jeda Istirahat;
 else (Tidak)
-  |Sistem|
-  :Tampilkan "Jadwal Penuh";
-  |Klien|
-  stop
+  |Backend Independen Qualifa|
+  :Update Status Psikolog di Database (ONLINE / AVAILABLE);
+  :Tampilkan Psikolog di Urutan Atas Katalog Pencarian Klien;
 endif
+stop
 @enduml
 ```
 
 ---
 
-### AD-Kesehatan: Melihat Rekam Medis (Kes-UC03)
-*Diagram ini merepresentasikan alur klien melihat riwayat konsultasinya.*
+### AD-Q-05: Mengisi Jurnal Mood Tracker Harian Proactive Alert (Q-UC13)
+*Diagram alur pengisian jurnal emosi harian yang dilengkapi sistem pendeteksi risiko penurunan kesehatan mental otomatis.*
 
 ```plantuml
 @startuml
-|Klien|
+|Klien Qualifa|
 start
-:Buka Menu Rekam Medis;
-:Pilih Profil Keluarga;
-|Sistem|
-:Cari Data Historis di DB;
-if (Apakah Ada Data?) is (Ya) then
-  :Tampilkan Riwayat & Resep;
-  |Klien|
-  :Membaca Rekam Medis;
-  stop
+:Buka Widget "Jurnal Mood Harian (Mood Tracker)";
+:Pilih Emotikon Emosi Hari Ini (Senang, Tenang, Cemas, Sedih, Panik);
+:Pilih Faktor Pemicu (Pekerjaan, Keluarga, Keuangan, Relasi);
+:Tulis Catatan Jurnal Pribadi (Opsional);
+:Klik Simpan Jurnal;
+
+|Backend Independen Qualifa|
+:Enkripsi Catatan Jurnal & Simpan di DB Qualifa;
+:Analisis Tren Emosi 7 Hari Terakhir Klien;
+if (Apakah Terdeteksi Tren Sedih/Cemas Ekstrem Selama 5 Hari Beruntun?) then (Ya)
+  :Trigger Proactive Wellness Alert System;
+  :Munculkan Pop-up Psikoedukasi & Rekomendasi Konseling;
+  :Kirim Notifikasi Peringatan Lembut via Email/Push Notif;
 else (Tidak)
-  |Sistem|
-  :Tampilkan Pesan "Data Kosong";
-  |Klien|
-  stop
+  :Perbarui Grafik Tren Emosi di Dasbor Klien;
 endif
+stop
 @enduml
 ```
 
 ---
 
-### AD-Psikologi: Mengakses Audio Meditasi (Psi-UC02)
-*Diagram ini merepresentasikan alur pemutaran audio terapi.*
+### AD-Q-06: Mengakses Streaming Audio Meditasi & Relaksasi (Q-UC14)
+*Diagram alur pemutaran trek audio terapi relaksasi dengan penyesuaian kualitas bitrate adaptif.*
 
 ```plantuml
 @startuml
-|Klien|
+|Klien Qualifa|
 start
-:Buka Menu Meditasi;
-:Pilih Trek Audio;
-|Sistem|
-:Ambil File Audio;
-if (File Ditemukan & Koneksi Stabil?) is (Ya) then
-  :Mulai Streaming Audio;
-  |Klien|
-  :Mendengarkan Audio;
-  stop
+:Buka Menu "Relaksasi & Audio Meditasi Qualifa";
+:Pilih Kategori Meditasi (Tidur Nyenyak, Redakan Cemas, Mindfulness);
+:Pilih Trek Audio & Klik Tombol Play;
+
+|Backend Independen Qualifa|
+:Periksa Kecepatan Koneksi Internet Klien;
+if (Koneksi Cepat / Wi-Fi?) then (Ya)
+  :Streaming Audio Bitrate Tinggi (320 kbps High Quality);
+else (Tidak - Koneksi Seluler/Lambat)
+  :Streaming Audio Bitrate Adaptif (128 kbps Smooth);
+endif
+
+|Klien Qualifa|
+:Dengarkan Audio Meditasi;
+:Sistem Mencatat Durasi Latihan di Riwayat Wellness Klien;
+stop
+@enduml
+```
+
+---
+
+### AD-Q-07: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119 (Q-UC15)
+*Diagram alur pengisian tes stres klinis DASS-21 yang memicu protokol kedaruratan bunuh diri/krisis 119 jika skor berada pada tingkat bahaya ekstrem.*
+
+```plantuml
+@startuml
+|Klien Qualifa|
+start
+:Buka Menu "Tes Asesmen Klinis DASS-21";
+:Jawab 21 Pertanyaan Skala Intensitas Stres, Kecemasan, & Depresi;
+:Klik Submit Jawaban;
+
+|Backend Independen Qualifa|
+:Hitung Skor Sub-Skala Depresi, Anxiety, & Stress;
+if (Apakah Skor Depresi/Anxiety Masuk Kategori EXTREME / RISK OF SELF-HARM?) then (Ya)
+  :Aktifkan Protokol Kedaruratan Krisis (Crisis 119 Protocol);
+  :Munculkan Layar Peringatan Merah & Tombol "Hubungi Hotline Krisis 119 Sekarang";
+  :Kirim Notifikasi Darurat ke Nomor Kontak Darurat Terdaftar Klien;
+  :Tawarkan Sesi Konseling Darurat Gratis/Prioritas dengan Psikolog Klinis Siaga;
+else (Tidak - Normal / Sedang)
+  :Tampilkan Hasil Skor & Penjelasan Psikoedukasi Klinis;
+  :Rekomendasikan Artikel Kesehatan Mental & Audio Meditasi yang Relevan;
+endif
+stop
+@enduml
+```
+
+---
+
+### AD-Q-08: Membuat Catatan Terapi DAP Note & Worksheet CCBT (Q-UC11, Q-UC12)
+*Diagram alur pembuatan catatan klinis metode DAP (Data, Assessment, Plan) dan penugasan lembar kerja terapi perilaku kognitif (CCBT).*
+
+```plantuml
+@startuml
+|Psikolog Qualifa|
+start
+:Selesai Melayani Sesi Konseling Klinis;
+:Buka Menu "Catatan Klinis Psikolog (DAP Note Framework)";
+:Isi Kolom Data (Observasi Perilaku & Keluhan Klien);
+:Isi Kolom Assessment (Analisis Klinis & Dinamika Psikologis);
+:Isi Kolom Plan (Rencana Intervensi & Target Terapi Lanjutan);
+:Klik Simpan Catatan DAP Note;
+
+|Backend Independen Qualifa|
+:Enkripsi Catatan Klinis dengan Field-Level Encryption;
+:Simpan di Arsip Terapi Klien Qualifa (Sangat Rahasia);
+if (Perlu Berikan Tugas Terapi CCBT ke Klien?) then (Ya)
+  |Psikolog Qualifa|
+  :Buka Menu "Generator Worksheet CCBT";
+  :Pilih Template Tugas (Thought Record / Behavioral Activation);
+  :Kirim Tugas ke Dasbor Klien;
+  |Backend Independen Qualifa|
+  :Kirim Notifikasi Tugas Baru ke Aplikasi Klien;
+  |Klien Qualifa|
+  :Mengerjakan Worksheet CCBT di Aplikasi Sebelum Sesi Berikutnya;
 else (Tidak)
-  |Sistem|
-  :Tampilkan Error Streaming;
-  |Klien|
-  stop
+  |Psikolog Qualifa|
+  :Selesai;
 endif
-@enduml
-```
-
----
-
-### AD-Psi-04: Activity Diagram - Mengisi Tes Asesmen Psikologi DASS-21 (Psi-UC03)
-*Diagram ini merepresentasikan alur pengisian asesmen DASS-21 termasuk scoring otomatis, risk protocol untuk skor Severe/Extreme (mandatory crisis hotline, auto-assign psikolog klinis), dan informed consent ulang.*
-
-```plantuml
-@startuml
-|Klien|
-start
-:Membuka halaman "Asesmen DASS-21";
-|Sistem (Backend/DB)|
-:Menampilkan informed consent asesmen;
-|Klien|
-:Menyetujui informed consent;
-
-|Sistem (Backend/DB)|
-:Menampilkan 21 pertanyaan DASS-21;
-|Klien|
-:Mengisi semua pertanyaan (skor 0-3);
-:Klik "Lihat Hasil Analisis";
-
-|Sistem (Backend/DB)|
-:Menghitung skor per subskala;
-note right
-  Depression: sum(Q3,5,10,13,16,17,21) x 2
-  Anxiety: sum(Q2,4,7,9,15,19,20) x 2
-  Stress: sum(Q1,6,8,11,12,14,18) x 2
-end note
-
-:Mengklasifikasikan tingkat keparahan;
-
-if (Ada subskala Severe/Extremely Severe?) then (ya)
-  #pink:Memicu Crisis Protocol;
-  :Tampilkan pop-up wajib: hotline krisis (119 ext 8);
-  note right
-    Pop-up TIDAK BISA ditutup
-    selama 10 detik (mandatory read)
-  end note
-  
-  :Auto-assign ke Psikolog Klinis;
-  note right
-    Bukan konselor biasa.
-    Harus psikolog klinis
-    bersertifikat HIMPSI.
-  end note
-  
-  :Meminta informed consent ulang;
-  |Klien|
-  :Menyetujui re-consent;
-  
-  |Sistem (Backend/DB)|
-  :Mengirim alert ke Supervisor;
-  |Supervisor|
-  :Menerima alert krisis;
-  |Sistem (Backend/DB)|
-  :Menampilkan rekomendasi + daftar Psikolog Klinis;
-else (tidak)
-  |Sistem (Backend/DB)|
-  :Menampilkan hasil normal;
-  :Tampilkan grafik skor + interpretasi;
-  :Tampilkan rekomendasi (self-help / konsultasi);
-endif
-
-|Sistem (Backend/DB)|
-:Menyimpan hasil (encrypted, field-level);
-|Klien|
-:Dapat melihat riwayat asesmen;
-
 stop
 @enduml
 ```
+
 ---
 
-### AD-Huk-04: Activity Diagram - Membuat Draf Dokumen Hukum (Huk-UC02)
-*Diagram ini merepresentasikan alur template engine untuk legal drafting termasuk validasi variabel (NPWP, NIK, Nomor Akta), integrasi e-meterai Peruri, dan version control draf (v1, v2, final).*
+### AD-Q-09: Verifikasi STR/HIMPSI & Moderasi Komite Etik Admin Qualifa (Q-UC16, Q-UC17)
+*Diagram alur audit keabsahan surat tanda registrasi psikolog klinis serta penanganan laporan kode etik.*
 
 ```plantuml
 @startuml
-|Advokat|
+|Admin Etik Qualifa|
 start
-:Membuka halaman "Legal Drafting";
-|Sistem (Backend/DB)|
-:Menampilkan daftar template dokumen;
-note right
-  - Surat Kuasa Khusus
-  - Perjanjian Kerja Sama
-  - Somasi
-  - Gugatan Sederhana
-  - dll.
-end note
-
-|Advokat|
-:Memilih template;
-|Sistem (Backend/DB)|
-:Me-render form variabel template;
-
-|Advokat|
-:Mengisi variabel;
-note right
-  Nama Pihak, NIK, NPWP,
-  Nomor Akta, Pasal, Nominal,
-  Tanggal, dll.
-end note
-
-|Sistem (Backend/DB)|
-:Memvalidasi variabel;
-
-if (Semua variabel valid?) then (ya)
-  :Generate draf v1 (PDF preview);
-  |Advokat|
-  :Mereview draf v1;
-  
-  if (Perlu revisi?) then (ya)
-    :Mengedit variabel/teks;
-    |Sistem (Backend/DB)|
-    :Generate draf v2;
-    note right
-      Version control:
-      v1, v2, ... vN, final
-      Setiap versi tersimpan
-    end note
-    |Advokat|
-    :Ulangi review;
-  else (tidak)
-  endif
-  
-  |Advokat|
-  :Klik "Finalisasi Dokumen";
-  |Sistem (Backend/DB)|
-  :Menandai draf sebagai FINAL;
-  
-  if (Memerlukan e-Meterai?) then (ya)
-    :Menghubungi API Peruri;
-    |API Peruri (e-Meterai)|
-    :Mengembalikan e-Meterai (Rp 10.000);
-    |Sistem (Backend/DB)|
-    if (e-Meterai berhasil?) then (ya)
-      :Menempelkan e-Meterai pada PDF;
-      :Dokumen ditandai "PRIVILEGED AND CONFIDENTIAL";
-    else (tidak)
-      :Menampilkan error e-Meterai;
-      |Advokat|
-      :Dapat retry atau skip (Phase 3);
-      |Sistem (Backend/DB)|
-    endif
-  else (tidak)
-  endif
-  
-  |Sistem (Backend/DB)|
-  :Menyimpan dokumen final;
-  note right
-    Retention: 10 tahun minimum
-    Privilege marking otomatis
-    Legal Hold flag aktif
-  end note
-  |Advokat|
-  :Mengirim dokumen ke klien via chat;
-  |Klien|
-  :Menerima dokumen hukum final;
-  
-else (tidak)
-  |Sistem (Backend/DB)|
-  :Menampilkan error validasi;
-  |Advokat|
-  :Memperbaiki variabel;
+:Buka Dasbor Admin Menu "Verifikasi Psikolog Baru";
+:Periksa Dokumen STR Klinis, SIPP, & Kartu Anggota HIMPSI;
+:Verifikasi Nomor STR ke Pangkalan Data HIMPSI / Kemenkes;
+if (Kredensial Sah & STR Masih Berlaku?) then (Ya)
+  |Backend Independen Qualifa|
+  :Ubah Status Akun Psikolog Jadi VERIFIED / AKTIF;
+  :Kirim Email Selamat Datang & Panduan Kode Etik Qualifa;
+else (Tidak - STR Kadaluarsa / Tidak Sah)
+  |Backend Independen Qualifa|
+  :Ubah Status Akun Jadi REJECTED;
+  :Kirim Email Alasan Penolakan Kredensial;
 endif
 
+|Admin Etik Qualifa|
+:Buka Menu "Moderasi & Komite Etik Psikologi";
+if (Ada Laporan Pelanggaran Kode Etik / Malpraktik?) then (Ya)
+  :Jalankan Protokol Pemeriksaan Komite Etik Qualifa;
+  :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
+  :Kirim Surat Panggilan Klarifikasi Komite Etik;
+else (Tidak)
+  :Arsip Laporan sebagai Clear;
+endif
 stop
 @enduml
 ```
+
 ---
 
-### AD-Huk-05: Activity Diagram - Melakukan Konsultasi Pro Bono (Huk-UC03)
-*Diagram ini merepresentasikan alur pengajuan Pro Bono termasuk means test (verifikasi SKTM cross-check Dukcapil), quota management per advokat (max 3 kasus/bulan), dan legal aid report untuk LBH.*
+### AD-Q-10: Audit Log WORM Hash & Manajemen Honor Psikolog (Q-UC18, Q-UC19)
+*Diagram alur pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta pencairan honor sesi psikolog klinis.*
 
 ```plantuml
 @startuml
-|Klien|
+|Psikolog Qualifa|
 start
-:Membuka halaman "Bantuan Hukum Pro Bono";
-:Mengisi form pengajuan;
-:Mengunggah file SKTM;
+:Buka Menu Dompet Saldo Psikolog Qualifa;
+:Klik Penarikan Honor (Withdrawal) ke Rekening Bank Bersangkutan;
 
-|Sistem (Backend/DB)|
-:Menyimpan pengajuan (status: PENDING_SKTM);
-:Mengirim notifikasi ke Admin;
-|Admin Sistem|
-:Membuka panel verifikasi SKTM;
-:Mereview dokumen SKTM;
+|Backend Independen Qualifa|
+:Periksa Saldo Available & Validasi Rekening Bank Tujuan;
+:Hitung Potongan Pajak PPh 21 Sesuai Regulasi Ditjen Pajak;
+:Buat Instruksi Pencairan Honor Bersih;
+:Kirim Request Transfer ke Payment Gateway Disbursement;
 
-|Sistem (Backend/DB)|
-:Cross-check NIK ke Dukcapil API;
-|Dukcapil API|
-:Mengembalikan validitas NIK & status ekonomi;
+|Payment Gateway|
+:Proses Transfer Real-time ke Bank Psikolog;
+:Kirim Webhook SUCCESS ke Backend Qualifa;
 
-|Admin Sistem|
-if (NIK valid dan status ekonomi sesuai?) then (ya)
-  if (Admin menyetujui?) then (ya)
-    |Sistem (Backend/DB)|
-    :Mengubah status menjadi SKTM_APPROVED;
-    :Mengirim notifikasi ke Klien;
-    |Klien|
-    :Memilih advokat Pro Bono dari daftar;
-    |Sistem (Backend/DB)|
-    :Mengecek quota advokat;
-    
-    if (Quota advokat tersedia (< 3 kasus/bulan)?) then (ya)
-      :Membuat tiket konsultasi Pro Bono;
-      :Mengurangi quota advokat (n+1);
-      :Dana konsultasi di-escrow oleh platform;
-      note right
-        Escrow: dana ditahan
-        sampai sesi selesai
-        dan laporan LBH dikirim
-      end note
-      |Advokat Pro Bono|
-      :Menerima notifikasi sesi baru;
-      :Sesi konsultasi dimulai (UC-04);
-      :Mengisi laporan LBH;
-      |Sistem (Backend/DB)|
-      :Generate Legal Aid Report;
-      :Melepas escrow ke advokat;
-      
-    else (tidak)
-      :Menampilkan "Quota advokat penuh";
-      |Klien|
-      :Memilih advokat lain;
-    endif
-    
-  else (tidak)
-    |Admin Sistem|
-    :Menolak SKTM + isi alasan;
-    |Sistem (Backend/DB)|
-    :Mengubah status menjadi SKTM_REJECTED;
-    :Mengirim notifikasi penolakan ke Klien;
-  endif
-else (tidak)
-  |Dukcapil API|
-  :NIK tidak valid / tidak sesuai;
-  |Admin Sistem|
-  :Menolak pengajuan;
-  |Sistem (Backend/DB)|
-  :Klien diarahkan untuk upload ulang;
-endif
-
-stop
-@enduml
-```
----
-
-### AD-Kes-05: Activity Diagram - Catatan Sesi dan Resep Elektronik Kesehatan (UC-11 dan UC-12 Domain Kes)
-*Diagram ini merepresentasikan alur pengisian SOAP Note oleh dokter, generate PDF resep format Permenkes 73/2016, dan pengiriman ke SIA apotek mitra.*
-
-```plantuml
-@startuml
-|Dokter|
-start
-:Membuka form catatan sesi;
-|Sistem (Backend/DB)|
-:Menampilkan template SOAP Note;
-
-|Dokter|
-:Mengisi Subjective (keluhan pasien);
-:Mengisi Objective (hasil pemeriksaan);
-:Mengisi Assessment (diagnosis + kode ICD-10);
-:Mengisi Plan (rencana terapi);
-
-:Klik "Simpan Catatan";
-|Sistem (Backend/DB)|
-:Menyimpan SOAP Note (encrypted, field-level);
-
-if (Pasien memerlukan resep?) then (ya)
-  |Dokter|
-  :Klik "Buat Resep Elektronik";
-  |Sistem (Backend/DB)|
-  :Menampilkan form resep;
-  
-  |Dokter|
-  :Mengisi daftar obat + dosis + aturan pakai;
-  |Sistem (Backend/DB)|
-  :Melakukan cek interaksi obat otomatis;
-  
-  if (Ada interaksi Major?) then (ya)
-    :Menampilkan warning interaksi;
-    |Dokter|
-    :Merevisi resep atau override dengan alasan;
-    |Sistem (Backend/DB)|
-  else (tidak)
-  endif
-  
-  :Generate PDF Resep (format Permenkes 73/2016);
-  |Dokter|
-  :Menandatangani resep secara digital;
-  |Sistem (Backend/DB)|
-  :Menyimpan resep + kirim ke SIA Apotek;
-  |SIA Apotek|
-  :Menerima e-Resep tersertifikasi;
-  
-  |Sistem (Backend/DB)|
-  :Mengirim notifikasi ke Klien;
-  note right
-    "Resep Anda telah diterbitkan.
-     Silakan tebus di Apotek Mitra."
-  end note
-  |Klien|
-  :Menerima notifikasi resep;
-else (tidak)
-  |Sistem (Backend/DB)|
-  :Catatan sesi disimpan tanpa resep;
-endif
-
-|Sistem (Backend/DB)|
-:Menutup form dan kembali ke dashboard;
-
-stop
-@enduml
-```
----
-
-### AD-Psi-05: Activity Diagram - Catatan Sesi dan Lembar Tugas Psikologi (UC-11 dan UC-12 Domain Psi)
-*Diagram ini merepresentasikan alur pengisian DAP Note oleh psikolog, generate homework sheet (PDF), dan mood tracker correlation view.*
-
-```plantuml
-@startuml
-|Psikolog|
-start
-:Membuka form catatan sesi;
-|Sistem (Backend/DB)|
-:Menampilkan template DAP Note;
-
-|Psikolog|
-:Mengisi Data (observasi + laporan klien);
-:Mengisi Assessment (evaluasi klinis);
-
-if (Ada indikasi risiko (suicidal/self-harm)?) then (ya)
-  |Sistem (Backend/DB)|
-  #pink:Memicu Crisis Flag;
-  :Mengirim alert real-time ke Supervisor;
-  |Supervisor|
-  :Menerima alert & memantau sesi;
-  |Psikolog|
-  :Mengisi Risk Assessment detail;
-  |Sistem (Backend/DB)|
-  :Mencatat level risiko (Low/Medium/High/Critical);
-else (tidak)
-endif
-
-|Psikolog|
-:Mengisi Plan (rencana intervensi);
-:Klik "Simpan Catatan";
-|Sistem (Backend/DB)|
-:Menyimpan DAP Note (encrypted);
-
-if (Psikolog ingin memberikan tugas rumah?) then (ya)
-  |Psikolog|
-  :Klik "Buat Lembar Tugas";
-  |Sistem (Backend/DB)|
-  :Menampilkan template homework;
-  
-  |Psikolog|
-  :Mengisi daftar tugas + instruksi;
-  note right
-    Contoh tugas:
-    - Journaling harian
-    - Teknik grounding 5-4-3-2-1
-    - Mindfulness 10 menit/hari
-  end note
-  
-  |Sistem (Backend/DB)|
-  :Generate homework PDF;
-  :Mengirim ke klien via chat;
-  |Klien|
-  :Menerima notifikasi tugas baru;
-else (tidak)
-endif
-
-|Psikolog|
-:Mereview mood tracker correlation;
-note right
-  Korelasi antara:
-  - Jurnal Mood harian (Psi-UC01)
-  - Skor asesmen (Psi-UC03)
-  - Progress terapi (DAP Notes)
-end note
-
-|Sistem (Backend/DB)|
-:Menutup form;
-
-stop
-@enduml
-```
----
-
-### AD-Huk-06: Activity Diagram - Catatan Sesi dan Legal Opinion Hukum (UC-11 dan UC-12 Domain Huk)
-*Diagram ini merepresentasikan alur pengisian Case Memo oleh advokat, legal opinion template (IRAC method), privilege marking, dan retention policy 10 tahun.*
-
-```plantuml
-@startuml
-|Advokat|
-start
-:Membuka form catatan sesi;
-|Sistem (Backend/DB)|
-:Menampilkan template Case Memo;
-
-|Advokat|
-:Mengisi ringkasan fakta kasus;
-:Mengisi analisis hukum;
-:Mengisi rekomendasi tindakan;
-
-:Klik "Simpan Catatan";
-|Sistem (Backend/DB)|
-:Menyimpan Case Memo (E2EE);
-:Otomatis menandai "PRIVILEGED AND CONFIDENTIAL";
-note right
-  Privilege marking otomatis
-  pada semua dokumen hukum.
-  Hanya Advokat & Klien yang
-  dapat mengakses (Admin tidak).
-end note
-
-if (Advokat ingin membuat Legal Opinion?) then (ya)
-  |Advokat|
-  :Klik "Buat Legal Opinion";
-  |Sistem (Backend/DB)|
-  :Menampilkan template IRAC;
-  
-  |Advokat|
-  :Mengisi Issue (isu hukum);
-  :Mengisi Rule (dasar hukum/pasal);
-  :Mengisi Application (penerapan pada kasus);
-  :Mengisi Conclusion (kesimpulan);
-  
-  |Sistem (Backend/DB)|
-  :Generate Legal Opinion PDF;
-  :Menandai dokumen dengan privilege stamp;
-  
-  if (Advokat ingin kirim ke klien?) then (ya)
-    :Mengirim via chat (E2EE);
-    |Klien|
-    :Menerima notifikasi dokumen baru;
-    note right
-      Download gate:
-      Klien harus verifikasi
-      pembayaran sebelum unduh
-    end note
-  else (tidak)
-    |Sistem (Backend/DB)|
-    :Dokumen tersimpan sebagai draft internal;
-  endif
-  
-else (tidak)
-endif
-
-|Sistem (Backend/DB)|
-:Menerapkan retention policy;
-note right
-  Retention: 10 tahun minimum
-  Legal Hold: aktif otomatis
-  Disposal: hanya via
-  privilege waiver dari klien
-end note
-
-:Menutup form;
-
+|Backend Independen Qualifa|
+:Kurangi Saldo Psikolog & Simpan Bukti Potong PPh 21;
+:Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
+:Kirim Email Bukti Transfer & Detail Honor ke Psikolog;
 stop
 @enduml
 ```

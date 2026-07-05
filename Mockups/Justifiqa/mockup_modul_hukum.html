@@ -57,11 +57,11 @@
 </head>
 <body>
     <div class="sidebar">
-        <div class="brand">JUSTIFIQA <span style="color: #facc15; font-size: 0.75rem; background: rgba(234,179,8,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(234,179,8,0.4);">BY LIFEQ</span></div>
+        <div class="brand">JUSTIFIQA <span style="color: #facc15; font-size: 0.75rem; background: rgba(234,179,8,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(234,179,8,0.4);">STANDALONE</span></div>
         <ul class="nav-menu">
             <li class="nav-item"><a href="mockup_dashboard_mitra_hukum.html">📊 Dashboard Advokat</a></li>
             <li class="nav-item"><a href="mockup_modul_hukum.html" class="active">⚖️ IRAC Drafting & e-Meterai</a></li>
-            <li class="nav-item"><a href="mockup_chat_room.html">💬 Chat Privileged (E2EE)</a></li>
+            <li class="nav-item"><a href="mockup_chat_justifiqa.html?role=mitra">💬 Chat Privileged (E2EE)</a></li>
         </ul>
     </div>
     <div class="main">
@@ -178,11 +178,11 @@
     </div>
     <script>
         function stampMeterai() {
-            alert('✔ e-METERAI PERUM PERURI Rp 10.000 BERHASIL DIBUBUHKAN!
-
-Dokumen akta hukum telah ditandatangani secara digital dengan cryptographic seal SHA-256: 7a8b9c...e12f.
-Retensi WORM 10 tahun aktif.');
+            alert('✔ e-METERAI PERUM PERURI Rp 10.000 BERHASIL DIBUBUHKAN!\n\nDokumen akta hukum telah ditandatangani secara digital dengan cryptographic seal SHA-256: 7a8b9c...e12f.\nRetensi WORM 10 tahun aktif.');
         }
+        window.addEventListener('DOMContentLoaded', () => {
+            localStorage.setItem('user_role_justifiqa', 'mitra');
+        });
     </script>
 </body>
 </html>

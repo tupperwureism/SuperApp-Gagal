@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Mitra (PSIKOLOGI) — Workstation Profesional (LifeQ)</title>
+    <title>Qualifa — Workstation Mitra Psikolog Klinis HIMPSI</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
     
 <style>
@@ -125,7 +125,7 @@
 </head>
 <body>
     <div class="sidebar" style="width: 290px;">
-        <div class="brand">LIFEQ <span style="color: #c084fc; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #c084fc;">MITRA</span></div>
+        <div class="brand">QUALIFA <span style="color: #c084fc; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #c084fc;">MITRA</span></div>
         
         <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;">
             <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #c084fc, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #c084fc;">RW</div>
@@ -148,9 +148,11 @@
         </div>
 
         <ul class="nav-menu">
-            <li class="nav-item"><a href="javascript:void(0)" class="active" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">📊 Dasbor Utama</a></li>
-            <li style="margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;">Domain Workstation</li>
-            <li class="nav-item"><a href="mockup_modul_psikologi.html" style="color: #c084fc; font-weight: 600;">🧠 Buka Workstation Qualifa</a></li>
+            <li class="nav-item"><a href="mockup_dasbor_psikologi.html">🏠 Portal Utama Qualifa (Hub)</a></li>
+            <li class="nav-item"><a href="mockup_dashboard_mitra_psikologi.html" class="active">📊 Dasbor Utama Mitra</a></li>
+            <li class="nav-item"><a href="mockup_modul_psikologi_mitra.html" style="color: #c084fc; font-weight: 600;">🩺 Buka Workstation Klinis DAP Note</a></li>
+            <li class="nav-item"><a href="#" onclick="showSubscribedPatientsModal(); return false;">💬 Ruang Terapi WebRTC</a></li>
+            <li class="nav-item"><a href="#" onclick="showComplianceModal(); return false;">🛡️ Status Kepatuhan HIMPSI</a></li>
         </ul>
     </div>
     
@@ -158,7 +160,7 @@
         <div class="topbar">
             <div>
                 <h1>Selamat Bekerja, Rina Wulandari, M.Psi., Psikolog</h1>
-                <p>Stasiun Kerja Psikolog Klinis — Portal Mitra SuperApp LifeQ (Domain Psikologi)</p>
+                <p>Stasiun Kerja Psikolog Klinis — Portal Mitra Standalone Qualifa (Domain Psikologi)</p>
             </div>
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span class="badge badge-info" style="padding: 8px 16px; font-size: 0.85rem;">🛡️ E2EE Zero-Knowledge Ready</span>
@@ -180,7 +182,7 @@
                         <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-77301 • Waktu Tunggu: 2 menit lalu</div>
                     </div>
                 </div>
-                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">🧠 TERIMA & KONSELING</a>
+                <a href="mockup_chat_qualifa.html?role=mitra" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">💬 MASUK RUANG TERAPI</a>
             </div>
 
             <div class="queue-item" style="border-color: rgba(192,132,252,0.3);">
@@ -192,7 +194,7 @@
                         <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-77302 • Waktu Tunggu: 5 menit lalu</div>
                     </div>
                 </div>
-                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">🚨 TERIMA KRISIS 119</a>
+                <a href="mockup_chat_qualifa.html?role=mitra" class="btn" style="background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">🚨 MASUK RUANG KRISIS 119</a>
             </div>
         </div>
 
@@ -207,7 +209,7 @@
                     <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Maya Sari — <span style="color: #c084fc;">Evaluasi Gangguan Tidur & DAP Note</span></div>
                     <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 15:00 WIB • Status: DAP Note (Data, Assessment, Plan) belum dilengkapi</div>
                 </div>
-                <a href="mockup_modul_psikologi.html" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📝 BUAT DAP NOTE</a>
+                <a href="mockup_modul_psikologi_mitra.html" class="btn" style="background: linear-gradient(135deg, #a855f7, #7e22ce); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📝 BUAT DAP NOTE</a>
             </div>
 
             <div class="history-item">
@@ -215,7 +217,7 @@
                     <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Kevin Jonathan — <span style="color: #34d399;">Konseling Pemulihan Trauma Relasional</span></div>
                     <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 10:30 WIB • Status: DAP Note tersimpan, Rekonsiliasi Jadwal Sesi 2 aktif</div>
                 </div>
-                <a href="mockup_modul_psikologi.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT DAP NOTE</a>
+                <a href="mockup_modul_psikologi_mitra.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT DAP NOTE</a>
             </div>
         </div>
 
@@ -228,19 +230,19 @@
             
             <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;">
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Aktif Siap Tarik</div>
+                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Dompet Aktif (Siap Tarik)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #34d399; margin-top: 6px;">Rp 11.250.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Sudah dipotong PPh 21 & Bagi Hasil Platform</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Uang bersih tersedia di dompet (Sudah potong PPh 21 & platform)</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Total Penghasilan (Total Earned)</div>
+                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Total Riwayat Penghasilan (Lifetime)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #38bdf8; margin-top: 6px;">Rp 38.200.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Akumulasi Pendapatan Bersih Konseling</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Akumulasi kumulatif seluruh pendapatan sejak hari pertama</div>
                 </div>
                 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Dibekukan (Frozen)</div>
+                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase;">Saldo Dibekukan (Escrow Frozen)</div>
                     <div style="font-size: 1.6rem; font-weight: 700; color: #fbbf24; margin-top: 6px;">Rp 1.800.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Antrean Transfer / Approval Admin (SD-18)</div>
+                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Antrean pencairan / verifikasi rekening (SD-18)</div>
                 </div>
             </div>
 
@@ -281,6 +283,102 @@
                 text.innerHTML = 'Jadwal Tidak Tersedia';
             }
         }
+
+        function showComplianceModal() {
+            document.getElementById('complianceModal').style.display = 'flex';
+        }
+        function closeComplianceModal() {
+            document.getElementById('complianceModal').style.display = 'none';
+        }
+        function showSubscribedPatientsModal() {
+            document.getElementById('subscribedPatientsModal').style.display = 'flex';
+        }
+        function closeSubscribedPatientsModal() {
+            document.getElementById('subscribedPatientsModal').style.display = 'none';
+        }
+    </script>
+
+    <!-- MODAL STATUS KEPATUHAN HIMPSI & WORM -->
+    <div id="complianceModal" class="modal" style="display: none; position: fixed; z-index: 10000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); align-items: center; justify-content: center;">
+        <div style="background: #0f172a; border: 2px solid #a855f7; border-radius: 20px; width: 550px; padding: 2rem; color: #fff; box-shadow: 0 0 40px rgba(168,85,247,0.4);">
+            <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem; margin-bottom: 1.5rem;">
+                <h3 style="margin: 0; font-size: 1.25rem; color: #c084fc;">🛡️ Status Kepatuhan SIPP & Etik HIMPSI</h3>
+                <button onclick="closeComplianceModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div style="font-size: 0.9rem; color: #cbd5e1; line-height: 1.6;">
+                <div style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); padding: 12px; border-radius: 10px; margin-bottom: 1rem;">
+                    <strong style="color: #34d399;">✅ SIPP / STR Klinis Aktif & Terverifikasi</strong>
+                    <div style="font-size: 0.8rem; color: #a7f3d0; margin-top: 4px;">Nomor SIPP: SIPP-0992-HIMPSI | Berlaku s/d: 12 Mei 2029</div>
+                </div>
+                <div style="margin-bottom: 0.8rem;">🔒 <strong>Enkripsi Rekam Medis:</strong> AES-256 GCM Field-Level (Aktif)</div>
+                <div style="margin-bottom: 0.8rem;">📑 <strong>Log WORM DAP Note:</strong> SHA-256 Immutable Hash (Verified)</div>
+                <div style="margin-bottom: 1.5rem;">⚖️ <strong>Status Etik Majelis HIMPSI:</strong> Bebas Pelanggaran / Tidak Ada Sidang Etik</div>
+            </div>
+            <button class="btn btn-primary" style="width: 100%; justify-content: center; padding: 0.8rem;" onclick="closeComplianceModal()">Tutup Papan Kepatuhan</button>
+        </div>
+    </div>
+    <!-- Modal Daftar Pasien yang Mensubscribe Saya (Active Caseload) -->
+    <div id="subscribedPatientsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 9999; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div style="background: #0f172a; border: 1px solid #a855f7; border-radius: 20px; width: 720px; max-width: 90%; padding: 2rem; box-shadow: 0 20px 50px rgba(168,85,247,0.3); position: relative; max-height: 85vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.3rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px;">📋 Daftar Klien & Pasien Langganan Saya (Caseload)</h2>
+                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 4px;">Daftar klien yang sedang berlangganan sesi terapi dengan Anda di ekosistem Qualifa.</p>
+                </div>
+                <button onclick="closeSubscribedPatientsModal()" style="background: rgba(255,255,255,0.1); border: none; color: #fff; width: 36px; height: 36px; border-radius: 50%; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 1rem;">
+                <!-- Pasien 1 -->
+                <div style="background: rgba(168,85,247,0.15); border: 1px solid #a855f7; border-radius: 14px; padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: #a855f7; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👤</div>
+                        <div>
+                            <span class="badge badge-purple" style="font-size: 0.7rem; padding: 2px 6px;">🟢 Sesi WebRTC Ready</span>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #fff; margin-top: 4px;">Dewi Lestari (ID: SES-77301)</div>
+                            <div style="color: #c084fc; font-size: 0.8rem;">Keluhan: Stres kerja berat, kecemasan akut • DASS-21: Severe</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="mockup_modul_psikologi_mitra.html" class="btn btn-outline" style="padding: 0.6rem 1rem; font-size: 0.8rem;">📝 DAP Note</a>
+                        <a href="mockup_chat_qualifa.html?role=mitra" class="btn btn-purple" style="padding: 0.6rem 1rem; font-size: 0.8rem; font-weight: 700;">💬 Masuk WebRTC</a>
+                    </div>
+                </div>
+
+                <!-- Pasien 2 -->
+                <div style="background: rgba(239,68,68,0.15); border: 1px solid #ef4444; border-radius: 14px; padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: #ef4444; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🚨</div>
+                        <div>
+                            <span class="badge badge-danger" style="font-size: 0.7rem; padding: 2px 6px;">🔴 Crisis Hotline 119</span>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #fff; margin-top: 4px;">Rama Pratama (ID: SES-77302)</div>
+                            <div style="color: #f87171; font-size: 0.8rem;">Keluhan: Serangan panik akut (Panic Attack) • Subsidi Tarif Khusus</div>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <a href="mockup_chat_qualifa.html?role=mitra" class="btn btn-danger" style="padding: 0.6rem 1rem; font-size: 0.8rem; font-weight: 700;">🚨 Tangani Krisis 119</a>
+                    </div>
+                </div>
+
+                <!-- Pasien 3 -->
+                <div style="background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <div style="width: 50px; height: 50px; border-radius: 12px; background: rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">👤</div>
+                        <div>
+                            <span class="badge badge-warning" style="font-size: 0.7rem; padding: 2px 6px;">⏸️ Menunggu Sesi Berikutnya</span>
+                            <div style="font-weight: 700; font-size: 1.05rem; color: #fff; margin-top: 4px;">Kevin Jonathan (ID: SES-77289)</div>
+                            <div style="color: #cbd5e1; font-size: 0.8rem;">Konseling Pemulihan Trauma Relasional • Sesi 2: Lusa 10:00 WIB</div>
+                        </div>
+                    </div>
+                    <a href="mockup_modul_psikologi_mitra.html" class="btn btn-outline" style="padding: 0.6rem 1rem; font-size: 0.8rem;">👁️ Lihat DAP Note</a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            localStorage.setItem('user_role_qualifa', 'mitra');
+        });
     </script>
 </body>
 </html>

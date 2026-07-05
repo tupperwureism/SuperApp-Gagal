@@ -1,6 +1,6 @@
-# Kumpulan Kode PlantUML Terpadu - Unified Tele-Consultation Platform
+# Kumpulan Kode PlantUML - 100% Siloed Architecture (Justifiqa & Qualifa Standalone Apps)
 
-Dokumen ini berisi kumpulan kode PlantUML untuk diagram-diagram utama pada sistem **Unified Tele-Consultation Platform** (Hukum, Psikologi, dan Kesehatan Fisik). Kode-kode ini telah diabstraksikan menggunakan aktor terpadu (*Klien*, *Mitra Profesional*, *Admin Sistem*, dan *Payment Gateway*).
+Dokumen ini berisi kumpulan kode PlantUML untuk diagram Use Case pada dua aplikasi yang **100% berdiri sendiri dan terisolasi total (*Siloed Architecture*)**: **Justifiqa** (Platform Konsultasi & Bantuan Hukum Digital) dan **Qualifa** (Platform Kesehatan Mental & Konseling Psikologi). Tidak ada *shared core engine* atau *single sign-on*; masing-masing memiliki sistem autentikasi, transaksi, dan panel administratif independen.
 
 ---
 
@@ -12,42 +12,50 @@ Dokumen ini berisi kumpulan kode PlantUML untuk diagram-diagram utama pada siste
 
 ---
 
-### 0. Use Case Diagram Terpadu (Unified Use Case Diagram)
-*Diagram ini merepresentasikan seluruh 17 Use Case terpadu dengan 4 Aktor Sistem (Admin Sistem mencakup sub-peran Admin Finansial untuk UC-17).*
+### 1. Use Case Diagram - Aplikasi Mandiri Justifiqa (Domain Hukum)
+*Representasi sistem mandiri Justifiqa yang mencakup seluruh alur pengguna (Klien, Advokat, Admin Justifiqa, dan Payment Gateway) dari registrasi, konsultasi hukum, e-Meterai, pro bono, hingga manajemen administratif independen.*
 
 ```plantuml
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 
-actor "Klien (Client)" as Klien
-actor "Mitra Profesional\n(Professional Partner)" as Mitra
-actor "Admin Sistem\n(System Admin)" as Admin
+actor "Klien (Pencari Keadilan)" as Klien
+actor "Advokat / Notaris (Mitra Profesional)" as Mitra
+actor "Admin Justifiqa (System & Legal Admin)" as Admin
 actor "Payment Gateway" as PG
 
-rectangle "Unified Tele-Consultation Platform" {
-  usecase "UC-01: Melakukan Registrasi Klien" as UC01
-  usecase "UC-02: Melakukan Login Klien\n(dengan Verifikasi OTP)" as UC02
-  usecase "UC-03: Memilih Mitra Profesional" as UC03
-  usecase "UC-04: Melakukan Konsultasi" as UC04
-  usecase "UC-05: Melakukan Pembayaran" as UC05
-  usecase "UC-06: Memberikan Ulasan & Rating" as UC06
+rectangle "Aplikasi Mandiri Justifiqa (Domain Hukum)" {
+  ' Client & Partner Core Flows
+  usecase "J-UC01: Registrasi Akun Klien (Verifikasi NIK Dukcapil)" as UC01
+  usecase "J-UC02: Login Akun Klien (MFA / 2FA)" as UC02
+  usecase "J-UC03: Memilih Advokat / Notaris" as UC03
+  usecase "J-UC04: Melakukan Konsultasi Hukum (E2EE Chat)" as UC04
+  usecase "J-UC05: Melakukan Pembayaran (Escrow System)" as UC05
+  usecase "J-UC06: Memberikan Ulasan & Rating Advokat" as UC06
   
-  usecase "UC-07: Melakukan Registrasi Mitra" as UC07
-  usecase "UC-08: Melakukan Login Mitra\n(dengan Verifikasi OTP)" as UC08
-  usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
-  usecase "UC-10: Melayani Konsultasi" as UC10
-  usecase "UC-11: Membuat Catatan Sesi" as UC11
-  usecase "UC-12: Mengeluarkan Output Dokumen\n(Resep/Telaah Kontrak/Tugas)" as UC12
+  usecase "J-UC07: Registrasi Advokat (Verifikasi Kredensial Peradi/SIPP)" as UC07
+  usecase "J-UC08: Login Advokat (MFA / TOTP)" as UC08
+  usecase "J-UC09: Mengatur Status Ketersediaan Praktik" as UC09
+  usecase "J-UC10: Melayani Sesi Konsultasi Hukum" as UC10
+  usecase "J-UC11: Membuat Catatan Hukum (IRAC Note)" as UC11
+  usecase "J-UC12: Menerbitkan Opini Hukum / Draf Kontrak" as UC12
   
-  usecase "UC-13: Memverifikasi Berkas Kredensial" as UC13
-  usecase "UC-14: Mengelola Data Akun Klien\n(Suspend Flow)" as UC14
-  usecase "UC-15: Mengelola Data Akun Mitra\n(Suspend Flow)" as UC15
-  usecase "UC-16: Memantau Laporan Transaksi" as UC16
-  usecase "UC-17: Mengelola Saldo dan Penarikan Dana" as UC17
+  ' Domain Specific Legal Flows
+  usecase "J-UC13: Mengunggah Berkas Perkara E2EE (Zero-Knowledge)" as UC13
+  usecase "J-UC14: Pembubuhan e-Meterai Peruri pada Draf Hukum" as UC14
+  usecase "J-UC15: Pengajuan Konsultasi Pro Bono (Verifikasi SKTM)" as UC15
+  
+  ' Independent Admin Flows
+  usecase "J-UC16: Memverifikasi Kredensial Advokat & SKTM Pro Bono" as UC16
+  usecase "J-UC17: Moderasi Akun & Due Process Suspend Flow" as UC17
+  usecase "J-UC18: Audit Log Transaksi & WORM Hash Storage" as UC18
+  usecase "J-UC19: Manajemen Pencairan Dana Escrow Advokat (PPh 21)" as UC19
   
   UC04 .> UC05 : <<include>>
   UC12 .> UC11 : <<extend>>
+  UC12 .> UC14 : <<extend>>
+  UC15 .> UC04 : <<extend>>
 }
 
 Klien -- UC01
@@ -56,8 +64,9 @@ Klien -- UC03
 Klien -- UC04
 Klien -- UC05
 Klien -- UC06
+Klien -- UC13
+Klien -- UC15
 
-' Asosiasi Aktor Pendukung (Supporting Actors)
 Mitra -- UC04
 Klien -- UC10
 
@@ -67,13 +76,15 @@ Mitra -- UC09
 Mitra -- UC10
 Mitra -- UC11
 Mitra -- UC12
-Mitra -- UC17
+Mitra -- UC13
+Mitra -- UC14
+Mitra -- UC15
+Mitra -- UC19
 
-Admin -- UC13
-Admin -- UC14
-Admin -- UC15
 Admin -- UC16
 Admin -- UC17
+Admin -- UC18
+Admin -- UC19
 
 UC05 -- PG
 @enduml
@@ -81,99 +92,45 @@ UC05 -- PG
 
 ---
 
-### 0-A. Use Case Diagram - Domain Kesehatan (Sehatifiqa)
-*Menampilkan Core UC + UC Spesifik Kesehatan (Tebus Resep, Janji Temu RS, Rekam Medis).*
+### 2. Use Case Diagram - Aplikasi Mandiri Qualifa (Domain Psikologi)
+*Representasi sistem mandiri Qualifa yang mencakup seluruh alur pengguna (Klien, Psikolog Klinis, Admin Qualifa, dan Payment Gateway) dari registrasi, konseling klinis, mood tracker, meditasi, protokol krisis 119, hingga manajemen administratif independen.*
 
 ```plantuml
 @startuml
 left to right direction
 skinparam packageStyle rectangle
 
-actor "Pasien (Klien)" as Klien
-actor "Dokter (Mitra)" as Mitra
-actor "Apotek / Kurir" as Apotek
-actor "Faskes (RS/Klinik)" as Faskes
+actor "Klien (User / Pasien)" as Klien
+actor "Psikolog Klinis (Mitra Profesional)" as Mitra
+actor "Admin Qualifa (System & Ethics Admin)" as Admin
 actor "Payment Gateway" as PG
 
-rectangle "Domain Kesehatan (Sehatifiqa)" {
-  ' Core UC
-  usecase "UC-01: Melakukan Registrasi" as UC01
-  usecase "UC-02: Melakukan Login" as UC02
-  usecase "UC-03: Memilih Dokter" as UC03
-  usecase "UC-04: Melakukan Konsultasi Medis" as UC04
-  usecase "UC-05: Melakukan Pembayaran" as UC05
-  usecase "UC-06: Memberikan Ulasan & Rating" as UC06
-  usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
-  usecase "UC-10: Melayani Konsultasi" as UC10
-  usecase "UC-11: Membuat Catatan Sesi" as UC11
-  usecase "UC-12: Mengeluarkan Output Dokumen\n(Resep Elektronik & Anjuran)" as UC12
+rectangle "Aplikasi Mandiri Qualifa (Domain Psikologi)" {
+  ' Client & Partner Core Flows
+  usecase "Q-UC01: Registrasi Akun Klien" as UC01
+  usecase "Q-UC02: Login Akun Klien (MFA / 2FA)" as UC02
+  usecase "Q-UC03: Memilih Psikolog Klinis" as UC03
+  usecase "Q-UC04: Melakukan Sesi Konseling Klinis (E2EE Chat/Audio/Video)" as UC04
+  usecase "Q-UC05: Melakukan Pembayaran Sesi Konseling" as UC05
+  usecase "Q-UC06: Memberikan Ulasan & Rating Psikolog" as UC06
   
-  ' Spesifik Kesehatan
-  usecase "Kes-UC01: Menebus Resep & Membeli Obat" as KUC01
-  usecase "Kes-UC02: Membuat Janji Temu RS Offline" as KUC02
-  usecase "Kes-UC03: Melihat Rekam Medis & Family Care" as KUC03
+  usecase "Q-UC07: Registrasi Psikolog (Verifikasi Kredensial HIMPSI/STR)" as UC07
+  usecase "Q-UC08: Login Psikolog (MFA / TOTP)" as UC08
+  usecase "Q-UC09: Mengatur Status Ketersediaan & Buffer 30 Mnt" as UC09
+  usecase "Q-UC10: Melayani Sesi Konseling Klinis" as UC10
+  usecase "Q-UC11: Membuat Catatan Sesi Terapi (DAP Note)" as UC11
+  usecase "Q-UC12: Menerbitkan Lembar Tugas (Worksheet CCBT)" as UC12
   
-  UC04 .> UC05 : <<include>>
-  UC12 .> UC11 : <<extend>>
-  KUC01 .> UC12 : <<include>>
-}
-
-Klien -- UC01
-Klien -- UC02
-Klien -- UC03
-Klien -- UC04
-Klien -- UC05
-Klien -- UC06
-Klien -- KUC01
-Klien -- KUC02
-Klien -- KUC03
-
-Mitra -- UC04
-Klien -- UC10
-
-Mitra -- UC09
-Mitra -- UC10
-Mitra -- UC11
-Mitra -- UC12
-Mitra -- KUC01
-
-Apotek -- KUC01
-Faskes -- KUC02
-UC05 -- PG
-@enduml
-```
-
----
-
-### 0-B. Use Case Diagram - Domain Psikologi (Qualifa)
-*Menampilkan Core UC + UC Spesifik Psikologi (Jurnal Mood, Meditasi, Asesmen).*
-
-```plantuml
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Klien (User)" as Klien
-actor "Psikolog (Mitra)" as Mitra
-actor "Payment Gateway" as PG
-
-rectangle "Domain Psikologi (Qualifa)" {
-  ' Core UC
-  usecase "UC-01: Melakukan Registrasi" as UC01
-  usecase "UC-02: Melakukan Login" as UC02
-  usecase "UC-03: Memilih Psikolog" as UC03
-  usecase "UC-04: Melakukan Konseling" as UC04
-  usecase "UC-05: Melakukan Pembayaran" as UC05
-  usecase "UC-06: Memberikan Ulasan & Rating" as UC06
-  usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
-  usecase "UC-10: Melayani Konseling" as UC10
-  usecase "UC-11: Membuat Catatan Sesi Terapi" as UC11
-  usecase "UC-12: Mengeluarkan Output Dokumen\n(Lembar Tugas & Worksheet CCBT)" as UC12
+  ' Domain Specific Psychology Flows
+  usecase "Q-UC13: Mengisi Jurnal Mood Harian (Proactive Alert)" as UC13
+  usecase "Q-UC14: Mengakses Streaming Audio Meditasi & Relaksasi" as UC14
+  usecase "Q-UC15: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119" as UC15
   
-  ' Spesifik Psikologi
-  usecase "Psi-UC01: Mengisi Jurnal Mood Harian" as PUC01
-  usecase "Psi-UC02: Mengakses Audio Meditasi" as PUC02
-  usecase "Psi-UC03: Mengisi Tes Asesmen Psikologi" as PUC03
+  ' Independent Admin Flows
+  usecase "Q-UC16: Memverifikasi STR/SIPP Psikolog Klinis (HIMPSI Sync)" as UC16
+  usecase "Q-UC17: Moderasi Akun & Audit Komite Etik Psikologi" as UC17
+  usecase "Q-UC18: Audit Log Transaksi & WORM Hash Storage" as UC18
+  usecase "Q-UC19: Manajemen Pencairan Dana Honor Psikolog" as UC19
   
   UC04 .> UC05 : <<include>>
   UC12 .> UC11 : <<extend>>
@@ -186,82 +143,28 @@ Klien -- UC04
 Klien -- UC05
 Klien -- UC06
 Klien -- UC12
-Klien -- PUC01
-Klien -- PUC02
-Klien -- PUC03
+Klien -- UC13
+Klien -- UC14
+Klien -- UC15
 
 Mitra -- UC04
 Klien -- UC10
 
+Mitra -- UC07
+Mitra -- UC08
 Mitra -- UC09
 Mitra -- UC10
 Mitra -- UC11
 Mitra -- UC12
-Mitra -- PUC01
-Mitra -- PUC03
+Mitra -- UC13
+Mitra -- UC15
+Mitra -- UC19
+
+Admin -- UC16
+Admin -- UC17
+Admin -- UC18
+Admin -- UC19
 
 UC05 -- PG
 @enduml
 ```
-
----
-
-### 0-C. Use Case Diagram - Domain Hukum (Justifiqa)
-*Menampilkan Core UC + UC Spesifik Hukum (Unggah Berkas, Draf Hukum, Pro Bono).*
-
-```plantuml
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-
-actor "Klien (Pencari Keadilan)" as Klien
-actor "Advokat (Mitra)" as Mitra
-actor "Payment Gateway" as PG
-
-rectangle "Domain Hukum (Justifiqa)" {
-  ' Core UC
-  usecase "UC-01: Melakukan Registrasi" as UC01
-  usecase "UC-02: Melakukan Login" as UC02
-  usecase "UC-03: Memilih Advokat" as UC03
-  usecase "UC-04: Melakukan Konsultasi Hukum" as UC04
-  usecase "UC-05: Melakukan Pembayaran" as UC05
-  usecase "UC-06: Memberikan Ulasan & Rating" as UC06
-  usecase "UC-09: Mengonfirmasi Status Ketersediaan" as UC09
-  usecase "UC-10: Melayani Konsultasi" as UC10
-  usecase "UC-11: Membuat Catatan Sesi" as UC11
-  
-  ' Spesifik Hukum
-  usecase "Huk-UC01: Mengunggah Berkas Perkara" as HUC01
-  usecase "Huk-UC02: Membuat Draf Dokumen Hukum" as HUC02
-  usecase "Huk-UC03: Melakukan Konsultasi Pro Bono" as HUC03
-  
-  UC04 .> UC05 : <<include>>
-  HUC03 .> UC04 : <<extend>>
-}
-
-Klien -- UC01
-Klien -- UC02
-Klien -- UC03
-Klien -- UC04
-Klien -- UC05
-Klien -- UC06
-Klien -- HUC01
-Klien -- HUC03
-Klien -- HUC02
-
-Mitra -- UC04
-Klien -- UC10
-
-Mitra -- UC09
-Mitra -- UC10
-Mitra -- UC11
-Mitra -- HUC01
-Mitra -- HUC02
-Mitra -- HUC03
-
-UC05 -- PG
-@enduml
-```
-
----
-

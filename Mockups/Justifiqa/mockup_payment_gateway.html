@@ -2,7 +2,7 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <title>Qualifa / Justifiqa - Payment Gateway</title>
+    <title>Justifiqa - Legal Payment Gateway</title>
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <!-- Icons -->
@@ -236,14 +236,14 @@
         </div>
     </div>
 
-    <!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans UC-04 & UC-05) -->
+    <!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans J-UC04 & J-UC05) -->
     <div id="paymentProcessingState" style="display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
-        <div style="background: #0f172a; border: 1px solid #a855f7; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(168,85,247,0.3);">
-            <div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(168,85,247,0.2); border-top-color: #a855f7; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
+        <div style="background: #0f172a; border: 1px solid #f59e0b; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(245,158,11,0.3);">
+            <div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
             <div id="processingIconSuccess" style="display: none; width: 70px; height: 70px; background: #10b981; border-radius: 50%; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; color: #fff;">✓</div>
             
             <h2 id="processingTitle" style="color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">⏳ Pembayaran Sedang Diproses...</h2>
-            <p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway & memverifikasi transaksi E-Wallet/VA Anda.</p>
+            <p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway & memverifikasi transaksi Retainer/Konsultasi Hukum Anda.</p>
             
             <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace;">
                 Status: <span id="webhookStatus" style="color: #facc15;">AWAITING_WEBHOOK_RESPONSE</span>
@@ -265,13 +265,13 @@
             const procModal = document.getElementById('paymentProcessingState');
             procModal.style.display = 'flex';
             
-            // Simpan status pesanan di localStorage untuk ditangkap dasbor klien
+            // Simpan status pesanan di localStorage untuk ditangkap dasbor hukum klien
             const urlParams = new URLSearchParams(window.location.search);
-            const psikologName = urlParams.get('psikolog') || "Nadia Safitri, M.Psi., Psikolog";
-            const tarif = urlParams.get('tarif') || "180000";
+            const advokatName = urlParams.get('advokat') || "Rizky Ramadhan, S.H., M.H.";
+            const tarif = urlParams.get('tarif') || "250000";
             
             localStorage.setItem('demo_new_booking_active', 'true');
-            localStorage.setItem('demo_booking_doctor', psikologName);
+            localStorage.setItem('demo_booking_doctor', advokatName);
             localStorage.setItem('demo_booking_tarif', tarif);
             
             // Step 1: Simulasi Webhook Midtrans merespons dalam 1.8 detik
@@ -282,7 +282,7 @@
                 
                 document.getElementById('processingTitle').style.color = '#34d399';
                 document.getElementById('processingTitle').innerText = '✅ Pembayaran Terkonfirmasi!';
-                document.getElementById('processingDesc').innerText = 'Webhook Midtrans menerima settlement sukses. Menyiapkan ruang konsultasi E2EE dan mengalihkan kembali ke Dasbor...';
+                document.getElementById('processingDesc').innerText = 'Webhook Midtrans menerima settlement sukses. Menyiapkan ruang konsultasi Privileged E2EE dan mengalihkan ke Dasbor...';
                 
                 const statusEl = document.getElementById('webhookStatus');
                 statusEl.style.color = '#34d399';
@@ -291,7 +291,7 @@
 
             // Step 2: Auto redirect ke dasbor klien setelah 3.5 detik total
             setTimeout(() => {
-                window.location.href = 'Qualifa/mockup_dashboard_psikologi_klien.html?demo_confirm=1';
+                window.location.href = 'mockup_dashboard_hukum_klien.html?demo_confirm=1';
             }, 3500);
         }
     </script>

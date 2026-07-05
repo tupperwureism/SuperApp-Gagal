@@ -1,141 +1,139 @@
-# Sprint Planning & Breakdown Task Teknis (BE / FE / QA)
+# Sprint Technical Breakdown — Arsitektur 100% Siloed (Justifiqa & Qualifa)
 
-Dokumen ini merupakan panduan eksekusi teknis tingkat mendalam (*Technical Execution Breakdown*) bagi tim pengembangan perangkat lunak (Backend Engineer, Frontend Engineer, dan Quality Assurance / Compliance Auditor) dalam mewujudkan seluruh **27 User Story (ST-001 hingga ST-027)** dalam Product Backlog JUSTIFICA 3-in-1.
+**Versi**: 2.0 (Refactored untuk Opsi B - Standalone Apps Tanpa Medis)  
+**Tanggal**: 03 Juli 2026  
+**Cakupan**: 34 User Stories (17 Story Justifiqa + 17 Story Qualifa)
 
----
-
-## 1. ARSITEKTUR TEKNIS UMUM & TOOLS REQUIREMENT
-* **Backend Stack**: Node.js / TypeScript (NestJS atau Express) atau Python (FastAPI), PostgreSQL dengan ekstensi `pgcrypto` untuk enkripsi *field-level*, Redis untuk caching & session lock, serta WORM (*Write-Once-Read-Many*) Object Storage (AWS S3 Object Lock / MinIO WORM).
-* **Frontend Stack**: Web App SPA modern berbasis React/Vite atau Vanilla JS berkinerja tinggi, berarsitektur CSS responsif (*Rich Aesthetics, Glassmorphism, HSL Tokens*), dan *WebSockets Client* untuk obrolan E2EE real-time.
-* **QA & Security Stack**: Jest/PyTest untuk Unit Testing, Cypress/Playwright untuk End-to-End (E2E) UI Automation Testing, OWASP ZAP untuk *Vulnerability & Penetration Testing*, dan SonarQube untuk *Static Code Analysis*.
+Dokumen ini memecah seluruh *User Story* menjadi tugas teknis (*Engineering Tasks*) untuk tim **Backend (BE)**, **Frontend (FE)**, dan **Quality Assurance (QA)** pada dua aplikasi mandiri yang terisolasi total. Seluruh tugas rekayasa medis (seperti *Drug-Drug Interaction Checker*, e-Resep, integrasi Apotek SIA, dan SOAP Note) telah dibersihkan.
 
 ---
 
-## 2. BREAKDOWN TASK PER SPRINT & STORY
+## BAGIAN I: SPRINT TECHNICAL BREAKDOWN — APLIKASI MANDIRI JUSTIFIQA (DOMAIN HUKUM)
 
-### SPRINT 1: Core System & Authentication (ST-001 s/d ST-006)
-*Fokus: Fondasi identitas tunggal, enkripsi sesi, dan filter katalog profesional.*
-
-| Story ID | Domain Ref | Task Type | Deskripsi Task Teknis | Estimasi (Jam) | Output / Deliverable |
+### Sprint J-1: Core System & Authentication Justifiqa (ST-J-01 s/d ST-J-06)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **ST-001** | UC-01 | **BE** | Buat endpoint POST `/api/v1/auth/client/register`. Implementasi middleware validasi NIK ke API Dukcapil. Buat tabel `client_consents` ber-hash SHA-256 untuk merekam *granular consent* per domain (Medis/Hukum/Psikologi). Validasi regex email `.ac.id` untuk pendaftar magang psikologi. | 16 | API Endpoints & DB Schema |
-| | | **FE** | Buat UI komponen Registrasi Klien dengan 3 kotak centang consent terpisah (*Granular Consent UI*). Implementasi *form validation* dan logika pengecekan format email magang. | 12 | Form Component & Validation |
-| | | **QA** | Buat skrip E2E Cypress menguji: (1) NIK duplikat ditolak; (2) Email non-ac.id pada magang ditolak; (3) Consent tersimpan di DB dengan hash SHA-256 yang valid. | 8 | Automated Test Suite |
-| **ST-002** | UC-02 | **BE** | Buat endpoint POST `/api/v1/auth/login` dengan verifikasi OTP SMS/Email. Generate token JWT berenkripsi menggunakan *HttpOnly, Secure, SameSite Cookie*. Implementasi filter pengecekan status `SUSPENDED` (block login & return 403 dengan payload hak banding 14 hari). | 14 | Auth Service & JWT Engine |
-| | | **FE** | Buat layar Login & tantangan OTP. Buat UI pemantau *error handling* 403 Suspended yang merender pop-up *"Akun Ditangguhkan - Hak Banding 14 Hari"* beserta tombol *redirect* ke form banding. | 10 | Login UI & Suspended Modal |
-| | | **QA** | Uji *penetration testing* cookie JWT (pastikan anti-XSS & anti-CSRF). Uji batas coba OTP salah 5x memicu penguncian akun 15 menit. | 8 | Security Test Report |
-| **ST-003** | UC-07 | **BE** | Buat endpoint POST `/api/v1/auth/mitra/register`. Setup integrasi *AWS S3 Object Lock (WORM)* untuk penyimpanan file STR/SIP/SIPP/KTA. Enkripsi metadata file dengan AES-256. Validasi anti-duplikasi nomor lisensi. | 18 | WORM Storage Upload API |
-| | | **FE** | Buat UI Formulir Registrasi Mitra Profesional dinamis sesuai domain (Medis/Hukum/Psikologi) dengan *drag-and-drop* file upload beresolusi tinggi dan *progress bar*. | 14 | Dynamic Mitra Form UI |
-| | | **QA** | Verify bahwa file STR/KTA yang diunggah ke S3 WORM tidak dapat di-overwrite atau di-delete via SDK/API AWS (*Immutability assertion*). | 8 | WORM Security Assertion |
-| **ST-004** | UC-08 | **BE** | Buat endpoint POST `/api/v1/auth/mitra/login-mfa`. Integrasikan library `speakeasy` untuk verifikasi TOTP Google Authenticator / SMS OTP. Catat setiap *attempt* login ke tabel audit WORM `login_audit_logs`. | 14 | MFA Service & WORM Audit |
-| | | **FE** | Buat antarmuka *MFA Challenge Screen* dengan input 6 digit OTP/TOTP yang mendukung *auto-focus* dan *paste clipboard*. | 8 | MFA Challenge UI |
-| | | **QA** | Test bahwa login tanpa MFA di-reject 100%. Uji coba gagal MFA 3x memicu status *temporary account lockout* selama 30 menit. | 6 | MFA Security Test Script |
-| **ST-005** | UC-03 | **BE** | Buat endpoint GET `/api/v1/mitra/catalog` dengan *query builder* filter spesialisasi, rating, *geolocation radius* (Haversine formula < 10 km), dan *background check* lisensi aktif (where `license_exp_date > NOW()`). | 16 | Catalog Query & Filter API |
-| | | **FE** | Buat UI Direktori Mitra Profesional dengan kartu profil kaca (*Glassmorphism*), indikator status online hijau, dan *filter bar* jarak (<10 km). | 14 | Catalog UI & Geolocation |
-| | | **QA** | Inject data uji mitra dengan STR expired hari ini di DB, pastikan API `/catalog` tidak mengembalikan mitra tersebut (*Zero expired license assertion*). | 6 | Catalog Filter Test Suite |
-| **ST-006** | UC-09 | **BE** | Buat endpoint PATCH `/api/v1/mitra/availability`. Implementasi *SIRS RS API Sync* dan *SIPP Pengadilan API Sync* (tolak online jika ada jadwal fisik bentrok). Implementasi aturan *Psychology Buffer Rule*: tolak online jika `last_heavy_counseling_end_time < 30 minutes ago`. | 16 | External Calendar Sync API |
-| | | **FE** | Buat tombol *Toggle Online/Offline* di Dasbor Mitra. Buat pop-up peringatan jika toggle gagal karena jadwal RS/Sidang bentrok atau masa *buffer* psikologi 30 menit belum habis. | 10 | Dashboard Toggle UI |
-| | | **QA** | Mock API SIRS RS mengembalikan status 'Sedang Operasi', verify toggle online di-reject dengan pesan yang sesuai. Mock buffer psikolog 15 menit pasca-sesi, verify hitung mundur 15 menit muncul. | 8 | External Sync Mock Tests |
+| **ST-J-01** | J-UC01 | **BE** | Buat endpoint POST `/api/v1/auth/client/register` pada layanan Justifiqa. Integrasikan middleware validasi NIK real-time ke API Dukcapil. Implementasikan enkripsi field-level AES-256 untuk NIK dan simpan hash persetujuan (*informed consent*) di tabel `client_consents`. | 16 | Endpoint Registrasi & Integrasi Dukcapil |
+| | | **FE** | Buat antarmuka formulir registrasi Klien Hukum dengan validasi regex NIK 16 digit dan kotak centang persetujuan UU PDP. | 12 | UI Registrasi Klien Justifiqa |
+| | | **QA** | Buat skrip automated test API menggunakan NIK valid, NIK duplikat, dan NIK tidak terdaftar (mock Dukcapil). | 8 | Automated Specs Registrasi Klien |
+| **ST-J-02** | J-UC02 | **BE** | Buat endpoint POST `/api/v1/auth/login` dengan penerbitan token JWT ber-Cookie HttpOnly & TLS 1.3. Implementasikan pengecekan tabel `suspended_users`; jika berstatus suspend *Due Process*, tolak login dengan kode HTTP 403. | 14 | Auth Engine & Due Process Lock |
+| | | **FE** | Buat halaman Login Justifiqa dengan input OTP 6 digit dan modal pop-up pemberitahuan hak banding 14 hari bagi akun yang di-suspend. | 10 | UI Login & Modal Banding |
+| **ST-J-03** | J-UC07 | **BE** | Buat endpoint POST `/api/v1/auth/advokat/register`. Implementasikan modul upload dokumen kredensial (Kartu Peradi, SIPP) ke WORM storage berenkripsi AES-256. Buat validasi anti-duplikasi nomor SIPP/Peradi. | 16 | Endpoint Registrasi Advokat & WORM Upload |
+| | | **FE** | Buat antarmuka pendaftaran Advokat/Notaris dengan *drag-and-drop* berkas SIPP/Peradi beresolusi tinggi dan *progress bar*. | 14 | UI Registrasi Advokat |
+| **ST-J-04** | J-UC08 | **BE** | Implementasikan modul MFA wajib menggunakan TOTP (Google Authenticator / RFC 6238) atau SMS OTP pada login Advokat. Buat *redis rate-limiter* mengunci akun 30 menit jika gagal MFA 3x. | 16 | MFA TOTP Engine & Lockout Timer |
+| | | **FE** | Buat layar verifikasi MFA 2-Langkah untuk dasbor Advokat dengan indikator hitung mundur waktu kunci. | 10 | UI MFA Verifier Advokat |
+| **ST-J-05** | J-UC03 | **BE** | Buat endpoint GET `/api/v1/advokat/catalog` dengan fitur filter spesialisasi (Pidana, Perdata, Bisnis), tarif, dan status online. Sembunyikan otomatis advokat yang masa berlaku SIPP-nya habis atau berstatus suspend. | 14 | Katalog Advokat & Filter Engine |
+| | | **FE** | Buat halaman direktori advokat dengan kartu profil profesional, *badge* verifikasi Peradi, dan filter dinamis. | 14 | UI Katalog & Filter Advokat |
+| **ST-J-06** | J-UC09 | **BE** | Buat endpoint PATCH `/api/v1/advokat/availability` untuk *toggle* status online/offline. Validasi jadwal agar tidak bentrok dengan sesi hukum yang sedang berlangsung. | 10 | Availability Engine Justifiqa |
+| | | **FE** | Buat *switch toggle* status ketersediaan di navbar dasbor Advokat yang memperbarui status secara real-time via WebSockets. | 8 | UI Toggle Status Advokat |
 
 ---
 
-### SPRINT 2: Communication & Payment Engine (ST-007 s/d ST-010)
-*Fokus: Real-time chat room E2EE, arsitektur Zero-Knowledge, dan Payment Gateway Escrow.*
-
-| Story ID | Domain Ref | Task Type | Deskripsi Task Teknis | Estimasi (Jam) | Output / Deliverable |
+### Sprint J-2: Communication & Escrow Payment Engine (ST-J-07 s/d ST-J-10)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **ST-007** | UC-05 | **BE** | Integrasikan API Midtrans/Xendit untuk pembentukan Snap Token / Virtual Account dengan timer 15 menit. Buat endpoint POST `/api/v1/payment/webhook` ber-validasi *checksum signature SHA-256*. Buat mekanisme *Escrow Ledger* untuk tagihan draf hukum dan subsidi Pro Bono. | 20 | Payment Engine & Escrow DB |
-| | | **FE** | Buat UI Checkout Page dengan pilihan metode bayar, timer hitung mundur 15 menit yang persisten di localStorage, dan *polling status* otomatis pasca-bayar. | 14 | Checkout UI & Polling |
-| | | **QA** | Simulate webhook callback FAILED/EXPIRED dan SUCCESS dari Payment Gateway menggunakan Postman/Cypress, verify perubahan status di DB dan pembukaan chat room. | 8 | Webhook Automation Suite |
-| **ST-008** | UC-04 | **BE** | Bangun *WebSockets Server (Socket.io/WS)* untuk obrolan real-time. Implementasi *timer engine* sesi (default 45 menit). Buat cron job / event listener: saat timer 00:00, otomatis ubah status chat menjadi `COMPLETED` dan kunci tabel pesan menjadi *Read-Only WORM storage*. | 24 | WebSockets Server & Timer |
-| | | **FE** | Buat UI Chat Room interaktif. Untuk domain Hukum, pasang **Gold Banner "PRIVILEGED AND CONFIDENTIAL"** di header chat. Implementasi *auto-disable* kolom input teks dan tombol kirim begitu status berubah `COMPLETED` atau timer menyentuh 00:00. | 18 | Chat Room UI & E2EE Client |
-| | | **QA** | Uji konkurensi 1.000 koneksi WebSocket bersamaan. Uji timer habis 00:00: pastikan FE mematikan input teks dan BE menolak *payload* pesan baru dengan error `403 Session Closed`. | 10 | Load Test & Session Lock QA |
-| **ST-009** | UC-10 | **BE** | Buat sistem *push notification* & SLA watchdog. Jika tiket berstatus `PAID` tidak direspons mitra dalam 5 menit, trigger *auto-refund API* ke dompet klien atau re-queue ke mitra online lain. Buat fitur *reconnect window* 5 menit di Redis jika mitra terputus. | 16 | Watchdog SLA & Reconnect |
-| | | **FE** | Buat ring audio dan pop-up permintaan masuk pada layar Dasbor Mitra dengan timer mundur 5 menit untuk menekan tombol *"Terima Permintaan"*. | 12 | Notification Ring & Pop-up |
-| | | **QA** | Simulate mitra tidak merespons selama 5 menit 01 detik, verify sistem otomatis mengeksekusi refund dan mencatat penalti SLA pada akun mitra. | 8 | SLA Watchdog Test Suite |
-| **ST-010** | Huk-UC01 | **BE** | Buat endpoint POST `/api/v1/chat/upload-evidence` dengan batas max 25 MB. Implementasi arsitektur *Zero-Knowledge*: BE hanya menerima file terenkripsi E2EE dari client tanpa menyimpan *decryption key*. Berikan label database `"PRIVILEGED LEGAL EVIDENCE"`. | 16 | ZK Upload API & Storage |
-| | | **FE** | Implementasi library kriptografi *client-side* (Web Crypto API) untuk mengenkripsi file sebelum diupload. Buat UI *Secure PDF Viewer* di dalam aplikasi yang merender bukti tanpa menyimpan *temp file* di disk lokal. | 16 | Client E2EE & PDF Viewer |
-| | | **QA** | Lakukan *Penetration Testing*: coba akses file bukti hukum menggunakan *token access* milik Admin Sistem atau DB root, verify isi file tetap terenkripsi (*Zero-Knowledge proof*). | 10 | Zero-Knowledge PenTest |
+| **ST-J-07** | J-UC05 | **BE** | Buat modul integrasi *Payment Gateway* (Midtrans/Xendit) dengan metode Virtual Account & E-Wallet untuk rekening **Escrow Justifiqa**. Buat timer kedaluwarsa 15 menit dan verifikasi webhook callback SHA-256. | 20 | Escrow Payment Gateway Engine |
+| | | **FE** | Buat halaman *checkout* pembayaran konsultasi hukum dengan rincian biaya, nomor VA, dan hitung mundur timer 15 menit. | 12 | UI Checkout Pembayaran Hukum |
+| **ST-J-08** | J-UC04 | **BE** | Bangun infrastruktur *Chat Room WebSocket* terenkripsi E2EE (*Zero-Knowledge*). Buat *daemon background task* yang memonitor durasi sesi; saat timer menyentuh 00:00, putuskan koneksi input pesan dan ubah status sesi menjadi `COMPLETED` di database WORM. | 24 | E2EE WebSocket Chat & Timer Lock |
+| | | **FE** | Buat antarmuka ruang obrolan hukum dengan *watermark* permanen *"PRIVILEGED AND CONFIDENTIAL"*, timer hitung mundur sesi, dan visualisasi penguncian input saat sesi berakhir. | 18 | UI Chat Hukum & Watermark Privilege |
+| **ST-J-09** | J-UC10 | **BE** | Implementasikan *SLA Monitoring Daemon*. Jika advokat tidak memasuki ruang chat dalam 5 menit pasca-pembayaran, piku protokol *Auto-Refund* 100% ke rekening klien atau alihkan antrean ke advokat lain. | 16 | SLA Monitor & Auto-Refund Engine |
+| | | **QA** | Uji simulasi advokat tidak respons selama 301 detik, verifikasi sistem memicu *Auto-Refund* dan notifikasi SMS ke klien. | 10 | Automated Specs SLA Refund |
+| **ST-J-10** | J-UC13 | **BE** | Buat endpoint upload berkas perkara `/api/v1/chat/evidence/upload`. Implementasikan enkripsi *client-side* E2EE sebelum dikirim ke server. Sematkan metadata stempel *"PRIVILEGED LEGAL EVIDENCE"*. | 18 | E2EE Evidence Upload & Metadata Stamp |
+| | | **FE** | Buat komponen *file uploader* di dalam chat hukum dengan pemindaian tipe berkas (PDF/JPG, max 15 MB) dan indikator enkripsi *Zero-Knowledge*. | 12 | UI Evidence Uploader |
 
 ---
 
-### SPRINT 3: Domain-Specific Medical & General Post-Session (ST-011 s/d ST-015)
-*Fokus: e-Resep DDI Checker, SOAP Note ICD-10, Controlled Drugs 3-Rangkap, dan Family Care.*
-
-| Story ID | Domain Ref | Task Type | Deskripsi Task Teknis | Estimasi (Jam) | Output / Deliverable |
+### Sprint J-3: Domain-Specific Legal & Pro Bono Module (ST-J-11 s/d ST-J-13)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **ST-011** | UC-11 | **BE** | Buat endpoint POST `/api/v1/clinical/notes` berenkripsi *field-level (`pgcrypto` AES-256)*. Implementasi pencarian *full-text search* kamus penyakit **ICD-10** di PostgreSQL. Wajibkan parameter ICD-10 untuk catatan medis sebelum penyimpanan berhasil. | 16 | Field-level Enc DB & ICD-10 |
-| | | **FE** | Buat Formulir Catatan Sesi Dinamis (SOAP untuk Medis, DAP untuk Psikologi, Case Memo untuk Hukum). Buat komponen *autocomplete dropdown* untuk kolom Diagnosis ICD-10. | 14 | SOAP/DAP Form & Autocomplete |
-| | | **QA** | Test simpan SOAP Note tanpa memilih kode ICD-10, pastikan BE menolak dengan status 400. Verify di DB PostgreSQL bahwa kolom `assessment_text` tersimpan dalam bentuk *ciphertext*. | 8 | ICD-10 & Encryption QA |
-| **ST-012** | UC-12 | **BE** | [Medis] Buat modul **Drug-Drug Interaction (DDI) Checker Engine** berbasis *rule database*. Jika kombinasi obat memicu *Major DDI*, tolak terbit resep kecuali dokter menyertakan *payload `override_reason`* yang akan di-log ke WORM. Jika obat adalah *Controlled Drug (Narkotika)*, generate PDF 3-rangkap ber-watermark khusus.<br>[Psikologi] Buat endpoint *generator Worksheet CCBT* yang mengaitkan ID tugas dengan grafik *Mood Tracker* klien.<br>[Hukum] Integrasikan API e-Meterai Peruri Rp 10.000 dan auto-stamp *"PRIVILEGED AND CONFIDENTIAL"* dengan masa retensi 10 tahun pada dokumen Legal Opinion metode IRAC. | 32 | DDI Engine, CCBT Worksheet & e-Meterai |
-| | | **FE** | [Medis] Buat antarmuka e-Resep dengan daftar obat dinamis & *Alert Modal Merah/Kuning* saat DDI Checker memicu bahaya interaksi obat.<br>[Psikologi] Buat antarmuka pemilihan *template Worksheet CCBT* (journaling, mindfulness) yang terhubung ke Dasbor Klien.<br>[Hukum] Buat antarmuka editor Legal Opinion metode IRAC dengan tombol *preview & stamp e-Meterai*. | 24 | Output Docs UI & DDI Alert Modal |
-| | | **QA** | [Medis] Inject kombinasi obat Amoxicillin + Allopurinol (simulasi DDI), verify alert merah muncul.<br>[Psikologi] Test penugasan Worksheet, verify tugas muncul di grafik *Mood Tracker* klien.<br>[Hukum] Verify pembubuhan e-Meterai Peruri dan pengecekan hash SHA-256 pada dokumen Legal Opinion. | 14 | Output Docs Multidomain Automated Specs |
-| **ST-013** | Kes-UC01 | **BE** | Buat endpoint POST `/api/v1/pharmacy/redeem`. Implementasi *geolocation query* mencari Apotek Mitra terintegrasi SIA dalam radius < 10 km. Kirim *payload e-Resep* ke server SIA Apotek. Khusus obat Narkotika, wajibkan parameter unggah foto KTP fisik penerima. | 18 | SIA Pharmacy Sync API |
-| | | **FE** | Buat UI Modul Apotek & Peta Pelacakan Kurir (*Live Tracking*). Buat pop-up *upload KTP fisik* saat checkout obat yang bertanda *Controlled Drug*. | 14 | Pharmacy UI & Courier Map |
-| | | **QA** | Mock server SIA Apotek offline, verify sistem melakukan auto-switch ke Apotek Mitra lain dalam radius 20 km tanpa penambahan ongkos kirim. | 8 | Pharmacy Failover QA |
-| **ST-014** | Kes-UC02 | **BE** | Buat endpoint POST `/api/v1/hospital/offline-booking`. Integrasikan panggilan ke API SIRS Rumah Sakit untuk mengunci kuota poli spesialis. Integrasikan API BPJS Kesehatan untuk memvalidasi nomor rujukan Faskes Tingkat 1. | 16 | SIRS & BPJS Sync API |
-| | | **FE** | Buat UI Pemesanan Janji Temu RS Offline dengan kalender jadwal dokter dan input nomor kartu BPJS/Rujukan yang memberikan *instant validation badge*. | 12 | Offline Booking UI |
-| | | **QA** | Simulate webhook dari SIRS RS yang membatalkan jadwal dokter H-1, verify sistem otomatis mengirim SMS/WA ke klien dan membuka opsi *reschedule/tele-consult* gratis. | 8 | Hospital Webhook QA |
-| **ST-015** | Kes-UC03 | **BE** | Buat endpoint GET `/api/v1/medical-records` dengan *Read-Only authorization*. Implementasi verifikasi PIN Rahasia 6 digit (gagal 3x blokir 1 jam di Redis). Implementasi pengecekan `digital_guardianship_consent` untuk profil dewasa di *Family Care*. | 16 | Read-Only EME API & PIN Lock |
-| | | **FE** | Buat UI Rekam Medis & Family Care dengan layar input PIN 6 digit atau biometrik WebAuthn. Buat tampilan kronologis kartu medis SOAP & resep yang bersih. | 12 | EME Timeline & PIN Screen |
-| | | **QA** | Test coba buka profil Family Care anggota keluarga dewasa yang `consent_status = false`, verify BE merespons 403 Forbidden dengan pesan regulasi UU PDP No. 27/2022. | 6 | Family Care PDP Spec Suite |
+| **ST-J-11** | J-UC11 | **BE** | Buat endpoint POST `/api/v1/advokat/notes/irac`. Implementasikan penyimpanan terenkripsi AES-256 untuk struktur catatan IRAC (Issue, Rule, Application, Conclusion) ke dalam WORM storage dengan retensi 10 tahun. | 16 | IRAC Note Engine & WORM Storage |
+| | | **FE** | Buat formulir catatan hukum interaktif dengan 4 tab terstruktur (Issue, Rule, Application, Conclusion) dan opsi *share to client*. | 14 | UI Formulir IRAC Note |
+| **ST-J-12** | J-UC12,<br>J-UC14 | **BE** | Bangun *Legal Template Drafting Engine* untuk merender dokumen *Legal Opinion* / Draf Kontrak. Integrasikan API Perum Peruri untuk pembubuhan e-Meterai Rp10.000 bersertifikat SHA-256. Implementasikan *Download Gate* (klien baru bisa unduh setelah pembubuhan meterai sukses). | 28 | e-Meterai Peruri Engine & Download Gate |
+| | | **FE** | Buat editor draf hukum dengan fitur *preview PDF*, tombol *request e-Meterai*, dan indikator pembubuhan meterai elektronik. | 18 | UI Editor Legal Opinion & e-Meterai |
+| | | **QA** | Uji end-to-end pembuatan Legal Opinion, pembubuhan e-Meterai di sandbox Peruri, dan verifikasi hash SHA-256 pada dokumen final. | 12 | Automated Specs e-Meterai Peruri |
+| **ST-J-13** | J-UC15 | **BE** | Buat endpoint POST `/api/v1/probono/apply` dengan upload foto SKTM. Integrasikan pengecekan NIK dan nomor SKTM ke API Dinsos/DTKS Kemensos. Buat logika penghitungan kuota advokat pro bono (maksimal 3 kasus/bulan) dan penerbitan tiket Rp0. | 20 | Pro Bono Verification & Quota Engine |
+| | | **FE** | Buat halaman pengajuan Pro Bono bagi masyarakat tidak mampu dengan panduan foto SKTM dan indikator sisa kuota advokat. | 12 | UI Pengajuan Pro Bono SKTM |
 
 ---
 
-### SPRINT 4: Domain-Specific Psychology & Law (ST-016 s/d ST-020)
-*Fokus: DASS-21 Mandatory Crisis Protocol, Mood Tracker, dan Legal Drafting IRAC ber-e-Meterai Peruri.*
-
-| Story ID | Domain Ref | Task Type | Deskripsi Task Teknis | Estimasi (Jam) | Output / Deliverable |
+### Sprint J-4: Legal Admin & Governance Module (ST-J-14 s/d ST-J-17)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **ST-016** | Psi-UC01 | **BE** | Buat endpoint POST `/api/v1/psychology/mood-tracker` berenkripsi *field-level*. Buat agregator *cron job*: jika klien mencatat mood = 'Sedih/Panik' dengan intensitas > 8 selama 7 hari berturut-turut, set flag `trigger_wellness_banner = true` pada profil klien. | 14 | Mood DB & Trend Agregator |
-| | | **FE** | Buat UI Roda Emosi Mood Tracker dan catatan jurnal harian. Buat komponen **Proactive Wellness Banner** berwarna zamrud yang muncul saat flag aktif, menawarkan kupon subsidi konseling 50%. | 12 | Mood Tracker & Banner UI |
-| | | **QA** | Inject 7 data mood sedih intensitas 9 secara kronologis di DB, verify saat login berikutnya banner psikoedukasi muncul di Dasbor Klien. | 6 | Trend Analytics QA Script |
-| **ST-017** | Psi-UC02 | **BE** | Buat endpoint GET `/api/v1/psychology/meditation-audio` dengan *Adaptive Bitrate Streaming* (HLS/DASH). Catat statistik waktu relaksasi ke tabel `client_mindfulness_stats`. | 12 | Audio Streaming API |
-| | | **FE** | Buat UI Audio Player Relaksasi dengan latar belakang animasi suara alam (*Glassmorphism Audio Player*). Implementasi pemantau kecepatan jaringan yang menurunkan bitrate otomatis jika sinyal lemah. | 12 | Audio Player UI & HLS Client |
-| | | **QA** | Throttling bandwidth network di browser ke Slow 3G, verify pemutar audio tidak macet dan beralih ke stream bitrate rendah (64kbps). | 6 | Network Throttling QA |
-| **ST-018** | Psi-UC03 | **BE** | Buat endpoint POST `/api/v1/psychology/dass21-submit`. Implementasi *scoring engine* DASS-21 (Depression, Anxiety, Stress 	imes 2). **MANDATORY CRISIS PROTOCOL**: Jika skor masuk kategori *Severe* atau *Extremely Severe*, otomatis pancarkan event WebSocket *Emergency Alert* ke Dasbor Supervisor Klinis dan set prioritas antrean klien ke Psikolog Klinis Spesialis Trauma. | 20 | DASS-21 Engine & Crisis Alert |
-| | | **FE** | Buat UI Kuisioner DASS-21 (21 pertanyaan). **MANDATORY CRISIS PROTOCOL UI**: Jika respons API mengembalikan status *Severe/Extreme*, wajib render **Pop-Up Darurat Hotline Krisis 119 Ext 8** berlatar merah pekat yang menutupi layar secara *blocking*, dengan tombol tutup (*Close button*) dinonaktifkan secara mutlak selama hitung mundur 10 detik. | 16 | DASS-21 UI & 10s Blocking Lock |
-| | | **QA** | Submit payload DASS-21 dengan skor Depression = 30 (Severe). Verify: (1) Pop-up merah 119 ext 8 muncul di FE; (2) Tombol close tidak bisa diklik selama 10 detik (*strict assertion*); (3) WebSocket alert diterima di socket Supervisor. | 10 | Mandatory Crisis E2E Specs |
-| **ST-019** | Huk-UC02 | **BE** | Buat modul *Template Engine* hukum metode IRAC. Implementasi *Version Control System (v1, v2, vFinal)* di DB dengan WORM retention 10 tahun. Integrasikan **API Perum Peruri** untuk pembubuhan e-Meterai Rp 10.000 pada koordinat tanda tangan dokumen PDF final. Implementasi *Download Gate*: tolak request unduh PDF jika tiket tagihan draf belum `PAID`. | 24 | IRAC Engine, Peruri API, Gate |
-| | | **FE** | Buat UI *Legal Drafting Workspace* dengan editor variabel template IRAC dan panel riwayat *Version Control*. Buat tombol aksi *"Bubuhkan e-Meterai Rp 10.000 & Stempel Privilege"*. Buat tampilan *Download Gate* di chat klien dengan tombol bayar tagihan draf. | 18 | Drafting Workspace & Gate UI |
-| | | **QA** | Mock API Peruri e-Meterai mengembalikan sukses, verify PDF akhir memiliki *stempel hash digital*. Uji Download Gate: coba hit endpoint download PDF draf saat transaksi `PENDING`, pastikan BE menolak dengan 402 Payment Required. | 10 | e-Meterai & Download Gate QA |
-| **ST-020** | Huk-UC03 | **BE** | Buat endpoint POST `/api/v1/probono/apply` (upload SKTM). Integrasikan logika replikasi verifikasi Admin (UC-13) dengan cross-check API Dukcapil & DTKS Kemensos. Saat `SKTM_APPROVED`, terbit tiket konsultasi Rp 0, kurangi kuota bulanan advokat pro bono (*max 3/month*), dan kunci dana subsidi di *Escrow Ledger*. | 18 | Pro Bono API & Escrow Engine |
-| | | **FE** | Buat UI Pengajuan Pro Bono & Upload SKTM. Buat antarmuka pemilihan Advokat Pro Bono yang menampilkan sisa kuota pengabdian bulanan advokat secara transparan. | 12 | Pro Bono UI & Quota Display |
-| | | **QA** | Test pilih advokat pro bono yang kuota bulanannya sudah mencapai 3 kasus, verify BE menolak booking dan FE merekomendasikan daftar advokat pro bono lain yang tersedia. | 8 | Pro Bono Quota E2E Suite |
+| **ST-J-14** | J-UC06 | **BE** | Buat endpoint POST `/api/v1/advokat/reviews`. Implementasikan fungsi *auto-anonymize* yang secara mutlak menyamarkan nama klien hukum (misal: `Klien Huk-9912`) pada *query* tampilan ulasan publik. | 12 | Review API & Auto-Anonymization |
+| | | **FE** | Buat modal pop-up Rating & Review (1-5 Bintang + Ulasan) yang muncul secara *blocking* saat sesi chat ditutup. | 10 | UI Blocking Modal Rating Hukum |
+| **ST-J-15** | J-UC16 | **BE** | Buat modul Admin Verification `/api/v1/admin/verify/advokat` dan `/sktm`. Integrasikan tombol *cross-check API* ke database Mahkamah Agung (SIPP) dan Peradi. Simpan setiap log keputusan (Approve/Reject) ke WORM storage. | 18 | Admin Verifier Engine & API Cross-Check |
+| | | **FE** | Buat dasbor Admin Legal dengan tab verifikasi antrean Advokat dan tab SKTM Klien dilengkapi *document viewer* bersisian. | 16 | UI Dasbor Verifikasi Admin Legal |
+| **ST-J-16** | J-UC17 | **BE** | Bangun modul *Due Process of Law* untuk moderasi etik. Buat sistem peringatan bertingkat (Warning 1, 2, 3) dan fungsi pemotongan akses akun (*suspend*) yang menerbitkan surat resmi ber-hash SHA-256 dengan *timer appeal window* 14 hari kerja. | 20 | Due Process Suspend & Appeal Engine |
+| | | **FE** | Buat panel manajemen sanggah/banding di Dasbor Admin dan halaman form banding pengajuan bukti bagi akun yang di-suspend. | 14 | UI Panel Moderasi & Banding Hukum |
+| **ST-J-17** | J-UC18,<br>J-UC19 | **BE** | Bangun *Financial Escrow & Tax Engine* Justifiqa. Kalkulasi otomatis bagi hasil (25% Platform / 75% Advokat). Implementasikan rumus pemotongan pajak PPh 21 otomatis atas jasa profesi advokat sesuai aturan Dirjen Pajak. Buat validasi pencocokan nama rekening bank dengan nama di Kartu Peradi/SIPP (anti pencucian uang). Implementasikan *two-person approval* untuk pencairan ≥ Rp 10.000.000. | 28 | Escrow PPh 21 Tax Engine & AML Verifier |
+| | | **FE** | Buat halaman Manajemen Keuangan Advokat dengan rincian saldo escrow, bukti potong PPh 21 digital, dan tombol penarikan dana. | 16 | UI Manajemen Finansial & Pajak Advokat |
 
 ---
 
-### SPRINT 5: Admin & Feedback Module (ST-021 s/d ST-027)
-*Fokus: Blocking review modal, Due Process 3 Warning, Ethics Committee Flow, PPh 21, dan Audit WORM.*
+## BAGIAN II: SPRINT TECHNICAL BREAKDOWN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
-| Story ID | Domain Ref | Task Type | Deskripsi Task Teknis | Estimasi (Jam) | Output / Deliverable |
+### Sprint Q-1: Core System & Authentication Qualifa (ST-Q-01 s/d ST-Q-06)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
 | :--- | :--- | :---: | :--- | :---: | :--- |
-| **ST-021** | UC-06 | **BE** | Buat endpoint POST `/api/v1/reviews`. Jika review untuk domain Medis berating <= 2 bintang, otomatis buat tiket investigasi `UNDER_INVESTIGATION` di tabel `adverse_events` dan kirim alert ke Tim Etik. Implementasi *auto-anonymize function* untuk mengubah nama klien hukum menjadi format anonim (misal: `Klien Huk-8891`). | 14 | Review API, Adverse & Anon |
-| | | **FE** | Buat **Blocking Review Modal** yang otomatis muncul dan menutupi Dasbor Klien saat sesi chat berubah menjadi `COMPLETED`. Jika klien memilih bintang <= 2 pada dokter, perluas modal secara dinamis dengan *Formulir Pelaporan Adverse Event Klinis*. | 14 | Blocking Modal & Adverse UI |
-| | | **QA** | Verify bahwa saat sesi COMPLETED, klien tidak bisa mengklik menu navigasi lain sebelum mengisi atau mengklik 'Lewati/Nanti Saja'. Submit rating 1 bintang pada dokter, verify tiket adverse event terbentuk di DB. | 8 | Blocking Modal & Adverse QA |
-| **ST-022** | UC-13 | **BE** | Buat endpoint GET & POST untuk modul Admin Verifikasi Kredensial & SKTM. Bangun layanan *Cross-Check Aggregator* yang memanggil API KKI/KTKI, HIMPSI, Peradi, Dukcapil, dan DTKS Kemensos. Implementasi *WORM Audit Logger* untuk merekam setiap persetujuan atau penolakan beserta alasan teknisnya. | 20 | Admin Verification API & Aggregator |
-| | | **FE** | Buat UI Halaman Admin Verifikasi (Tab Lisensi Mitra vs Tab SKTM Klien) dengan *WORM PDF Viewer* di kiri dan panel *Cross-Check API Match* di kanan. | 16 | Admin Verification Workspace |
-| | | **QA** | Mock API KKI mengembalikan 'STR Tidak Terdaftar', verify panel Admin menampilkan badge merah mismatch. Verify keputusan reject mengirim email notifikasi yang tepat ke pengguna. | 8 | Verification Aggregator QA |
-| **ST-023** | UC-14 | **BE** | Buat endpoint POST `/api/v1/admin/clients/warn` dan `/suspend`. **DUE PROCESS ENGINE**: Wajibkan pengecekan `warning_count`. Jika `warning_count < 2`, tolak eksekusi suspend langsung (kecuali flag pelanggaran berat). Saat suspend dieksekusi, generate **Surat Resmi Suspend PDF ber-hash SHA-256**, kunci token sesi JWT di Redis (*force logout*), dan set `appeal_deadline = NOW() + 14 DAYS`. | 18 | Due Process Engine & Suspend API |
-| | | **FE** | Buat UI Tabel Manajemen Akun Klien dengan indikator warna *Warning Count*. Buat Modal Suspend yang menampilkan hitung mundur masa banding 14 hari kerja dan tombol pengajuan klarifikasi. | 12 | Account Management Table & Modal |
-| | | **QA** | Test klik tombol Suspend pada akun dengan Warning Count = 0 (tanpa flag pelanggaran berat), pastikan BE menolak dengan error `"Due Process Violation: Wajib berikan Warning 1 & 2 terlebih dahulu"`. | 8 | Due Process Guardrail Specs |
-| **ST-024** | UC-15 | **BE** | Buat modul **Ethics Committee Flow**. Buat endpoint untuk membentuk Tim Etik Multidisiplin (1 Dokter Senior, 1 Psikolog Senior, 1 Advokat Senior, 1 Admin Compliance). Set status mitra menjadi `OFFLINE` (*Pre-hearing Suspension*). Saat Ketua Tim Etik memverifikasi putusan bersalah, eksekusi suspend permanen, dan trigger *automated API reporting* mengirim laporan resmi ke Badan Profesi Nasional (KKI/HIMPSI/Peradi). | 24 | Ethics Flow & National Reporting API |
-| | | **FE** | Buat UI Panel Sidang Etik Multidisiplin di Dasbor Admin, menampilkan daftar 4 panel ahli, status jadwal hearing virtual, dan form keputusan akhir (*Guilty / Not Guilty*). | 16 | Ethics Committee Panel UI |
-| | | **QA** | Simulate putusan 'Terbukti Melanggar Etik Berat' oleh Tim Etik, verify: (1) Akun mitra berubah `SUSPENDED`; (2) Laporan terkirim ke mock API KKI; (3) Putusan terkunci permanen di WORM DB. | 10 | Ethics Committee E2E Suite |
-| **ST-025** | UC-16 | **BE** | Buat endpoint GET `/api/v1/finance/analytics` dan `/export`. Bangun *SAK Accounting Engine* yang mengalkulasi otomatis bagi hasil proporsional per transaksi: Medis (15%/85%), Psikologi (20%/80%), Hukum (25%/75%). Saat ekspor laporan (XLSX/PDF), hitung *checksum hash SHA-256* dari seluruh baris data dan sematkan di footer file serta tabel WORM log. | 20 | Finance Analytics & Hashed Export API |
-| | | **FE** | Buat UI Dashboard Intelijen Finansial & Bagi Hasil (Kartu GMV, Grafik Proporsi Domain, Filter Bar). Buat tombol ekspor laporan ber-badge *WORM SHA-256 Signed*. | 14 | Financial Analytics Dashboard |
-| | | **QA** | Unduh file ekspor XLSX, hitung ulang hash SHA-256 secara independen menggunakan script Python/Node, verify string hash cocok 100% dengan hash di footer laporan (*Cryptographic hash verification*). | 8 | SHA-256 Export Integrity QA |
-| **ST-026** | UC-17 | **BE** | Buat endpoint POST `/api/v1/mitra/withdraw`. Bangun modul pemotongan pajak otomatis PPh 21 sesuai aturan Dirjen Pajak. Implementasi verifikasi nomor NPWP aktif dan *AML Account Verification* (nama rekening bank harus 100% cocok dengan KTP/STR/SIPP/Peradi). **THRESHOLD CONTROL**: Jika nominal < Rp 5 Juta, panggil API Bank Payout otomatis (*auto-disburse*); jika >= Rp 5 Juta, masukkan ke tabel `manual_approval_queue` Admin Finansial. | 22 | PPh 21 Engine, AML & Threshold API |
-| | | **FE** | Buat UI Saldo & Pencairan Dana di Dasbor Mitra dengan rincian pemotongan PPh 21 dan bagi hasil platform. Buat UI Tabel Antrean Pencairan Manual (>= Rp 5 Juta) di Dasbor Admin Finansial. | 14 | Mitra Wallet UI & Admin Queue |
-| | | **QA** | Submit penarikan Rp 4.900.000, verify sistem mengeksekusi auto-disburse. Submit penarikan Rp 5.100.000, verify sistem menahan saldo di status `DIBEKUKAN` (*frozen balance*) dan meminta klik *Approve* dari Admin Finansial. | 10 | Threshold & PPh 21 Automation |
-| **ST-027** | *(Optional)*<br>Audit | **BE** | Buat endpoint GET `/api/v1/audit/worm-integrity-scan`. Bangun *Cryptographic Watchdog* yang memindai seluruh tabel WORM (`login_audit_logs`, `client_consents`, `chat_evidence`, `adverse_events`, `ethics_hearings`) dan memvalidasi keutuhan *hash chain*. Buat fitur *Digital Evidence Bundle Generator* (zip file bersertifikat digital untuk pembuktian pengadilan/BPSK). | 24 | WORM Integrity Engine & Bundle API |
-| | | **FE** | Buat UI Dashboard Auditor WORM khusus yang menampilkan status *Integrity Hash Chain* (Hijau = Tamper-Free) dan tombol unduh *Digital Evidence Bundle*. | 14 | Auditor WORM Dashboard UI |
-| | | **QA** | Lakukan *Database Tampering Simulation*: ubah 1 karakter pada tabel `chat_evidence` langsung di DB PostgreSQL, jalankan `/worm-integrity-scan`, verify sistem mendeteksi *Tampered Hash Alert* secara real-time. | 12 | Tampered DB Forensic Test Suite |
+| **ST-Q-01** | Q-UC01 | **BE** | Buat endpoint POST `/api/v1/auth/client/register` pada layanan Qualifa. Implementasikan kewajiban pengisian profil kontak darurat (*emergency contact wali*) dan enkripsi field-level AES-256 untuk data medis. Simpan hash *informed consent* di tabel `qualifa_consents`. | 16 | Endpoint Registrasi Klien & Emergency Contact |
+| | | **FE** | Buat antarmuka formulir registrasi Klien Psikologi dengan form kontak darurat wali dan kotak centang persetujuan kerahasiaan klinis. | 12 | UI Registrasi Klien Qualifa |
+| **ST-Q-02** | Q-UC02 | **BE** | Buat endpoint POST `/api/v1/auth/login` dengan penerbitan token JWT ber-Cookie HttpOnly & TLS 1.3. Implementasikan pengecekan tabel `suspended_users`; jika berstatus suspend oleh Komite Etik Qualifa, tolak login dengan kode HTTP 403. | 14 | Auth Engine & Ethics Lock |
+| | | **FE** | Buat halaman Login Qualifa dengan input OTP 6 digit dan modal pop-up informasi sekretariat etik bagi akun yang di-suspend. | 10 | UI Login & Modal Etik Qualifa |
+| **ST-Q-03** | Q-UC07 | **BE** | Buat endpoint POST `/api/v1/auth/psikolog/register`. Implementasikan modul upload dokumen kredensial (STR Klinis, Kartu HIMPSI) ke WORM storage berenkripsi AES-256. Buat validasi anti-duplikasi nomor STR/HIMPSI. | 16 | Endpoint Registrasi Psikolog & WORM Upload |
+| | | **FE** | Buat antarmuka pendaftaran Psikolog Klinis dengan *drag-and-drop* berkas STR/HIMPSI beresolusi tinggi dan *progress bar*. | 14 | UI Registrasi Psikolog |
+| **ST-Q-04** | Q-UC08 | **BE** | Implementasikan modul MFA wajib menggunakan TOTP (Google Authenticator / RFC 6238) atau SMS OTP pada login Psikolog Klinis. Buat *redis rate-limiter* mengunci akun 30 menit jika gagal MFA 3x. | 16 | MFA TOTP Engine & Lockout Timer |
+| | | **FE** | Buat layar verifikasi MFA 2-Langkah untuk dasbor Psikolog dengan indikator hitung mundur waktu kunci. | 10 | UI MFA Verifier Psikolog |
+| **ST-Q-05** | Q-UC03 | **BE** | Buat endpoint GET `/api/v1/psikolog/catalog` dengan fitur filter keahlian (Kecemasan, Depresi, Trauma, Relasi) dan tarif. Sembunyikan otomatis psikolog yang masa berlaku STR Klinis-nya habis atau dalam masa investigasi etik. | 14 | Katalog Psikolog & Filter Engine |
+| | | **FE** | Buat halaman direktori psikolog klinis dengan kartu profil profesional, *badge* verifikasi HIMPSI, dan filter spesialisasi emosi. | 14 | UI Katalog & Filter Psikolog |
+| **ST-Q-06** | Q-UC09 | **BE** | Bangun **Buffer Rule 30 Menit Engine** pada modul jadwal praktisi Qualifa. Saat psikolog mengonfirmasi atau menyelesaikan sesi konseling klinis, sistem secara mutlak mengunci slot waktu 30 menit berikutnya sebagai *mandatory resting buffer* dan menolak reservasi baru pada jeda waktu tersebut. | 18 | Mandatory Buffer Rule 30 Mnt Engine |
+| | | **FE** | Buat tampilan manajemen jadwal di dasbor Psikolog dengan blok warna khusus (*grayed-out buffer zone*) selama 30 menit pasca-sesi konseling. | 12 | UI Jadwal & Buffer Zone Psikolog |
+| | | **QA** | Uji coba pemesanan sesi berurutan pada psikolog yang sama, verifikasi bahwa sistem menolak slot dalam jeda < 30 menit dari sesi sebelumnya. | 10 | Automated Specs Buffer Rule 30 Mnt |
 
 ---
 
-## 3. SUMMARY ESTIMASI TEKNIS TOTAL
-* **Total Backend Engineering (BE)**: **488 Jam** (~61 Hari Kerja / 3 Engineer)
-* **Total Frontend Engineering (FE)**: **378 Jam** (~47 Hari Kerja / 3 Engineer)
-* **Total Quality Assurance & Compliance (QA)**: **216 Jam** (~27 Hari Kerja / 2 Engineer)
-* **Total Keseluruhan Waktu Eksekusi**: **1.082 Jam Kerja Teknis** (Siap dieksekusi dalam 5 Sprint Agile berdurasi 2 minggu per sprint).
+### Sprint Q-2: Counseling & Payment Engine (ST-Q-07 s/d ST-Q-09)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
+| :--- | :--- | :---: | :--- | :---: | :--- |
+| **ST-Q-07** | Q-UC05 | **BE** | Buat modul integrasi *Payment Gateway* (Midtrans/Xendit) dengan metode QRIS & Virtual Account untuk rekening **Penampungan Qualifa**. Buat timer kedaluwarsa 15 menit dan verifikasi webhook callback SHA-256. | 20 | Counseling Payment Gateway Engine |
+| | | **FE** | Buat halaman *checkout* pembayaran konseling psikologi dengan rincian tarif, QRIS dinamis, dan hitung mundur timer 15 menit. | 12 | UI Checkout Pembayaran Qualifa |
+| **ST-Q-08** | Q-UC04 | **BE** | Bangun infrastruktur *Virtual Therapy Room* (Chat & Audio/Video WebRTC signaling) terenkripsi E2EE. Buat *daemon background task* yang memonitor durasi terapi; saat timer menyentuh 00:00, otomatis akhiri panggilan, tutup ruang chat, dan ubah status sesi menjadi `COMPLETED` di database WORM. | 26 | E2EE Therapy Room & Timer Auto-Close |
+| | | **FE** | Buat antarmuka ruang terapi virtual dengan *watermark* kerahasiaan klinis, timer hitung mundur sesi, dan kontrol panggilan WebRTC. | 18 | UI Ruang Terapi Virtual E2EE |
+| **ST-Q-09** | Q-UC10 | **BE** | Implementasikan *SLA Monitoring Daemon* Qualifa. Jika psikolog klinis tidak memasuki ruang terapi virtual dalam 5 menit pasca-jadwal dimulai, piku protokol *Auto-Refund* 100% ke rekening klien atau tawarkan penjadwalan ulang gratis. | 16 | SLA Monitor & Auto-Refund Qualifa |
+| | | **QA** | Uji simulasi psikolog terlambat > 300 detik, verifikasi sistem memicu *Auto-Refund* dan pengiriman pengingat darurat. | 10 | Automated Specs SLA Refund Qualifa |
+
+---
+
+### Sprint Q-3: Psychology Wellness & Clinical Assessment (ST-Q-10 s/d ST-Q-13)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
+| :--- | :--- | :---: | :--- | :---: | :--- |
+| **ST-Q-10** | Q-UC13 | **BE** | Buat endpoint POST `/api/v1/wellness/mood-tracker`. Implementasikan enkripsi *Zero-Knowledge* untuk catatan jurnal emosi. Bangun **Proactive Wellness Engine**: analisa tren log 5 hari terakhir; jika terdeteksi skor emosi sedih/cemas ekstrem selama 5 hari beruntun, trigger status alert `PROACTIVE_ALERT` di database klien. | 22 | Mood Tracker ZK & Proactive Alert Engine |
+| | | **FE** | Buat antarmuka Jurnal Mood Tracker interaktif dengan pilihan emotikon emosi harian dan komponen *Proactive Wellness Banner* yang menawarkan psikoedukasi/diskon konseling saat alert aktif. | 16 | UI Mood Tracker & Proactive Banner |
+| **ST-Q-11** | Q-UC14 | **BE** | Buat modul Audio Relaksasi `/api/v1/wellness/audio/stream`. Integrasikan *Adaptive Bitrate Streaming CDN* yang otomatis menurunkan kualitas stream dari 320 kbps ke 128 kbps saat koneksi internet klien lambat. Catat waktu relaksasi di profil klien. | 18 | Adaptive Audio Streaming & CDN Engine |
+| | | **FE** | Buat pemutar musik audio meditasi interaktif (*mindfulness player*) dengan kontrol pemutaran, latar belakang menenangkan, dan daftar putar kurasi HIMPSI. | 14 | UI Mindfulness Audio Player |
+| **ST-Q-12** | Q-UC15 | **BE** | Bangun modul Asesmen Psikometri Klinis `/api/v1/assessment/dass21`. Implementasikan algoritma kalkulasi skor Depression, Anxiety, dan Stress. **MANDATORY CRISIS PROTOCOL ENGINE**: jika skor akhir masuk kategori **SEVERE / EXTREME (Risk of Self-Harm)**, sistem secara mutlak menembakkan alarm krisis real-time via WebSocket ke dasbor Supervisor, mengirim SMS darurat ke kontak wali klien, dan menandai akun klien dengan *flag `CRISIS_119_ACTIVE`*. | 28 | DASS-21 Scoring & Mandatory Crisis 119 Engine |
+| | | **FE** | Buat kuesioner DASS-21 interaktif. **BLOCKING CRISIS POP-UP UI**: jika menerima respons *flag `CRISIS_119_ACTIVE`*, layar **wajib memunculkan modal pop-up merah Hotline Krisis 119 yang menutupi seluruh layar (*blocking*), menonaktifkan tombol close selama 10 detik hitung mundur**, dan menyediakan tombol panggilan darurat langsung. | 20 | UI DASS-21 & Blocking Crisis 119 Modal |
+| | | **QA** | Inject payload jawaban DASS-21 dengan skor depresi ekstrem (> 28), verifikasi bahwa modal merah 119 mengunci layar FE selama 10 detik dan SMS darurat terkirim ke kontak wali. | 14 | Automated Specs Mandatory Crisis 119 |
+| **ST-Q-13** | Q-UC11,<br>Q-UC12 | **BE** | Buat endpoint POST `/api/v1/psikolog/notes/dap` untuk penyimpanan DAP Note (Data, Assessment, Plan) berenkripsi AES-256 di WORM storage dengan retensi 20 tahun (sesuai Kode Etik). Buat endpoint generator *Worksheet CCBT* `/api/v1/psikolog/worksheet/assign` yang menugaskan lembar kerja terapi interaktif ke dasbor klien dan mengaitkannya dengan grafik *Mood Tracker*. | 24 | DAP Note Engine & CCBT Worksheet Assign |
+| | | **FE** | Buat formulir klinis DAP Note 3 kolom di dasbor Psikolog dan antarmuka pengerjaan *Worksheet CCBT* interaktif di aplikasi Klien yang menampilkan pemantauan tren emosi bersisian. | 18 | UI DAP Note & CCBT Interactive Worksheet |
+
+---
+
+### Sprint Q-4: Ethics Admin & Financial Module (ST-Q-14 s/d ST-Q-17)
+| Story ID | Use Case Ref | Role | Deskripsi Tugas Teknis (Engineering Task) | Estimasi Jam | Deliverable Kunci |
+| :--- | :--- | :---: | :--- | :---: | :--- |
+| **ST-Q-14** | Q-UC06 | **BE** | Buat endpoint POST `/api/v1/psikolog/reviews`. Jika review untuk psikolog klinis berating ≤ 2 bintang, sistem otomatis memicu tiket investigasi `CLINICAL_EVALUATION` di tabel `ethics_alerts` untuk diperiksa oleh Komite Etik Qualifa. | 14 | Review API & Clinical Ethics Trigger |
+| | | **FE** | Buat modal pop-up Rating & Review (1-5 Bintang + Ulasan Klinis) yang muncul secara *blocking* saat sesi konseling ditutup. | 10 | UI Blocking Modal Rating Psikologi |
+| **ST-Q-15** | Q-UC16 | **BE** | Buat modul Admin Verification `/api/v1/admin/verify/psikolog`. Integrasikan pencocokan nomor STR Klinis ke database HIMPSI / Kemenkes secara automated/semi-automated. Simpan log persetujuan ke WORM storage. | 18 | Admin Verifier Engine HIMPSI & WORM Log |
+| | | **FE** | Buat dasbor Admin Etik Qualifa dengan antarmuka verifikasi antrean berkas STR Klinis dan Kartu HIMPSI psikolog baru. | 14 | UI Dasbor Verifikasi Admin Etik |
+| **ST-Q-16** | Q-UC17 | **BE** | Bangun modul **Komite Etik Psikologi**. Buat alur penanganan pelanggaran kode etik HIMPSI yang memfasilitasi penjadwalan *Hearing Etik Virtual*, pembekuan akun (*suspend*), dan penerbitan laporan investigasi ber-hash SHA-256 ke sekretariat HIMPSI Pusat. | 22 | Ethics Committee Flow & Suspend Engine |
+| | | **FE** | Buat panel manajemen Komite Etik di Dasbor Admin dan antarmuka undangan sidang etik virtual bagi psikolog terlapor. | 16 | UI Panel Komite Etik & Sidang Virtual |
+| **ST-Q-17** | Q-UC18,<br>Q-UC19 | **BE** | Bangun *Financial & Tax Engine* Qualifa. Kalkulasi otomatis bagi hasil (20% Platform / 80% Psikolog). Implementasikan rumus pemotongan pajak PPh 21 otomatis atas honorarium psikolog klinis sesuai aturan Dirjen Pajak serta penerbitan bukti potong pajak. Buat validasi pencocokan nama rekening bank dengan nama di STR HIMPSI (anti pencucian uang). Simpan log pencairan abadi di WORM storage. | 26 | Honorarium PPh 21 Tax Engine & AML Verifier |
+| | | **FE** | Buat halaman Manajemen Honor Psikolog dengan rincian saldo konseling, bukti potong PPh 21 digital, dan formulir pencairan honor ke bank. | 16 | UI Manajemen Honor & Pajak Psikolog |
+
+---
+
+## RINGKASAN TOTAL ALOKASI JAM REKAYASA (ENGINEERING HOURS)
+* **Total Jam Backend (BE)**: ~384 Jam (Justifiqa: 194 Jam | Qualifa: 190 Jam)
+* **Total Jam Frontend (FE)**: ~278 Jam (Justifiqa: 140 Jam | Qualifa: 138 Jam)
+* **Total Jam Automated QA / Security**: ~78 Jam (Justifiqa: 40 Jam | Qualifa: 38 Jam)
+* **Total Keseluruhan Engineering Effort**: **740 Jam Kerja** (Terbagi seimbang dan terisolasi untuk 2 Tim Pengembang Mandiri Justifiqa dan Qualifa).

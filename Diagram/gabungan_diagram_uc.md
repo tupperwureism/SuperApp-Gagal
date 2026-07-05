@@ -1,6 +1,6 @@
 # Dokumen Gabungan: Diagram & Spesifikasi Skenario Use Case
 
-Dokumen ini merupakan gabungan dari seluruh diagram arsitektur sistem dan detail skenario Use Case untuk platform **LifeQ SuperApp (Tele-Consultation)**.
+Dokumen ini merupakan gabungan dari seluruh diagram arsitektur sistem dan detail skenario Use Case untuk platform **LifeQ Ecosystem (Tele-Consultation)**.
 
 ---
 
@@ -16,9 +16,9 @@ Berikut adalah tautan ke seluruh file diagram yang telah dihasilkan pada fase pe
 
 ---
 
-## 2. Spesifikasi Skenario Use Case - LifeQ SuperApp (Tele-Consultation Platform)
+## 2. Spesifikasi Skenario Use Case - LifeQ Ecosystem (Justifiqa & Qualifa Standalone Apps)
 
-Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh 26 Use Case terpadu pada sistem **LifeQ SuperApp (Tele-Consultation Platform)** (17 Core Use Case + 9 Domain Use Case untuk Hukum, Psikologi, dan Kesehatan Fisik). Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
+Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk seluruh 26 Use Case terpadu pada sistem **LifeQ Ecosystem (Justifiqa & Qualifa Standalone Apps)** (17 Core Use Case + 9 Domain Use Case untuk Hukum, Psikologi, dan Kesehatan Fisik). Setiap skenario merinci deskripsi, aktor, kondisi prasyarat (*pre-condition*), kondisi akhir (*post-condition*), alur sukses utama (*basic flow*), dan alur alternatif/gagal (*alternative flow*).
 
 > **Catatan UML**: Aktor hanya diisi oleh entitas di luar sistem (*external entities*). Sistem itu sendiri bertindak sebagai batasan sistem (*system boundary*) sehingga tidak dimasukkan sebagai aktor pendukung.
 
@@ -425,42 +425,6 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 ---
 
 ### D. Skenario Spesifik Domain (Kesehatan, Psikologi, Hukum)
-
-#### Kes-UC01: Menebus Resep & Membeli Obat (Domain Kesehatan)
-* **Aktor Utama**: Klien
-* **Aktor Pendukung**: Dokter, Apotek / Kurir
-* **Deskripsi Singkat**: Klien menebus resep elektronik yang diberikan oleh dokter setelah sesi konsultasi medis selesai.
-* **Pre-condition**: Klien telah menerima resep digital dari dokter (Ekstensi dari UC-12).
-* **Post-condition**: Pesanan obat berhasil dikonfirmasi dan sedang dikirim oleh kurir apotek.
-* **Alur Utama (Basic Flow)**:
-  1. Klien membuka halaman "Resep Digital" dari riwayat sesi konsultasi.
-  2. Sistem menampilkan daftar obat yang diresepkan beserta dosisnya.
-  3. Klien mengklik tombol "Tebus Resep".
-  4. Sistem mencari Apotek mitra terdekat yang memiliki stok obat tersebut.
-  5. Sistem menampilkan ringkasan harga obat dan biaya pengiriman kurir.
-  6. Klien melakukan pembayaran pesanan obat.
-  7. Apotek memproses pesanan dan menyerahkan obat ke Kurir.
-  8. Sistem menampilkan status pelacakan pengiriman obat ke Klien.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **4a. Stok Obat Tidak Tersedia**:
-    1. Sistem mendeteksi tidak ada apotek dalam radius pengiriman yang memiliki stok obat lengkap.
-    2. Sistem menampilkan notifikasi *"Stok obat sedang kosong di area Anda"*.
-    3. Sistem menyarankan alternatif untuk menebus di kemudian hari atau mencari apotek lain.
-
-#### Kes-UC02: Membuat Janji Temu RS Offline (Domain Kesehatan)
-* **Aktor Utama**: Klien
-* **Aktor Pendukung**: Faskes (RS/Klinik)
-* **Deskripsi Singkat**: Klien memesan jadwal pertemuan fisik dengan dokter di fasilitas kesehatan mitra.
-* **Pre-condition**: Klien telah login dan berada di halaman buat janji.
-* **Post-condition**: Janji temu terkonfirmasi oleh Faskes dan masuk ke jadwal klien.
-* **Alur Utama (Basic Flow)**:
-  1. Klien memilih poli spesialisasi dan lokasi rumah sakit/klinik mitra.
-  2. Sistem menampilkan daftar dokter dan ketersediaan jadwal praktik mereka.
-  3. Klien **memilih** salah satu dokter dari daftar tersebut.
-  4. Klien memilih tanggal dan jam kunjungan yang tersedia.
-  5. Sistem mengirimkan permintaan reservasi ke sistem Faskes (RS/Klinik).
-  6. Faskes mengonfirmasi ketersediaan jadwal.
-  7. Sistem memberikan tiket/kode booking kepada Klien.
 
 #### Psi-UC01: Mengisi Jurnal Mood Harian (Domain Psikologi)
 * **Aktor Utama**: Klien

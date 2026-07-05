@@ -30,9 +30,6 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   * [UC-15: Mengelola Data Akun Mitra Profesional](#uc-15-mengelola-data-akun-mitra-profesional)
   * [UC-16: Memantau Laporan Transaksi](#uc-16-memantau-laporan-transaksi)
 * [D. Skenario Spesifik Domain (Kesehatan, Psikologi, Hukum)](#d-skenario-spesifik-domain-kesehatan-psikologi-hukum)
-  * [Kes-UC01: Menebus Resep & Membeli Obat (Domain Kesehatan)](#kes-uc01-menebus-resep--membeli-obat-domain-kesehatan)
-  * [Kes-UC02: Membuat Janji Temu RS Offline (Domain Kesehatan)](#kes-uc02-membuat-janji-temu-rs-offline-domain-kesehatan)
-  * [Kes-UC03: Melihat Rekam Medis & Family Care (Domain Kesehatan)](#kes-uc03-melihat-rekam-medis--family-care-domain-kesehatan)
   * [Psi-UC01: Mengisi Jurnal Mood Harian (Domain Psikologi)](#psi-uc01-mengisi-jurnal-mood-harian-domain-psikologi)
   * [Psi-UC02: Mengakses Audio Meditasi (Domain Psikologi)](#psi-uc02-mengakses-audio-meditasi-domain-psikologi)
   * [Psi-UC03: Mengisi Tes Asesmen Psikologi DASS-21 (Domain Psikologi)](#psi-uc03-mengisi-tes-asesmen-psikologi-dass-21-domain-psikologi)
@@ -117,11 +114,11 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 ### UC-03: Memilih Mitra Profesional
 * **Aktor Utama**: Klien
 * **Aktor Pendukung**: Tidak ada
-* **Deskripsi Singkat**: Klien mencari, menyaring, dan memilih mitra profesional (Dokter, Advokat, atau Psikolog) yang memiliki lisensi aktif dan bersedia melayani konsultasi.
+* **Deskripsi Singkat**: Klien mencari, menyaring, dan memilih mitra profesional (Mitra Profesional, Advokat, atau Psikolog) yang memiliki lisensi aktif dan bersedia melayani konsultasi.
 * **Pre-condition**: Klien sudah login dan berada di dasbor utama layanan.
 * **Post-condition**: Klien memilih satu profil mitra profesional dan mengunci slot konsultasi sementara (*temporary slot lock*).
 * **Compliance Checklist & Regulasi Domain**:
-  * **UU No. 17 Tahun 2023 (Kesehatan)**: Filter sistem **wajib** menyembunyikan atau menolak profil Dokter yang STR (Surat Tanda Registrasi) atau SIP (Surat Izin Praktik)-nya telah habis masa berlakunya dari katalog aktif.
+  * **UU No. 17 Tahun 2023 (Kesehatan)**: Filter sistem **wajib** menyembunyikan atau menolak profil Mitra Profesional yang STR (Surat Tanda Registrasi) atau SIP (Surat Izin Praktik)-nya telah habis masa berlakunya dari katalog aktif.
   * **Kode Etik HIMPSI**: Filter **wajib** memastikan Psikolog Klinis memiliki SIPP yang valid dari HIMPSI.
   * **UU No. 18 Tahun 2003 (Advokat)**: Verifikasi status aktif KTA Peradi dan Berita Acara Sumpah Pengadilan Tinggi sebelum advokat dapat dipilih oleh klien.
   * **Geolocation Compliance**: Fitur filter radius jarak (< 10 km) untuk kedaruratan medis atau kebutuhan pertemuan fisik tatap muka di Faskes/Kantor Hukum terdekat.
@@ -150,7 +147,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ### UC-04: Melakukan Konsultasi
 * **Aktor Utama**: Klien
-* **Aktor Pendukung**: Mitra Profesional (Dokter / Advokat / Psikolog)
+* **Aktor Pendukung**: Mitra Profesional (Mitra Profesional / Advokat / Psikolog)
 * **Deskripsi Singkat**: Klien melakukan konsultasi interaktif via ruang obrolan (*chat room*) terenkripsi (*End-to-End Encryption*) secara real-time dengan mitra profesional setelah pembayaran diverifikasi.
 * **Pre-condition**: Klien telah memilih mitra profesional (UC-03) dan tiket transaksi telah berstatus `PAID` (UC-05).
 * **Post-condition**: Sesi konsultasi selesai, ruang obrolan dikunci permanen (*WORM read-only*), dan klien diwajibkan mengisi modal ulasan (UC-06).
@@ -162,7 +159,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   1. Setelah pembayaran diverifikasi (UC-05), sistem membuat ruang obrolan (*chat room*) khusus bertanda tanda keamanan E2EE dan mengaktifkan timer sesi (default 45 menit).
   2. Sistem mengirimkan notifikasi prioritas tinggi ke Dasbor Mitra Profesional (UC-10) bahwa sesi baru telah siap.
   3. Mitra Profesional menerima sesi dan memasuki ruang obrolan. Sistem otomatis mengirimkan pesan sambutan dan *Informed Consent* regulasi domain ke dalam chat.
-  4. Klien dan Mitra Profesional melakukan interaksi konsultasi melalui teks, pesan suara, atau pengunggahan berkas dokumen bukti (merujuk ke Huk-UC01 / Kes-UC03).
+  4. Klien dan Mitra Profesional melakukan interaksi konsultasi melalui teks, pesan suara, atau pengunggahan berkas dokumen bukti (merujuk ke Huk-UC01 / Psi-UC01).
   5. Lima menit sebelum waktu sesi habis, sistem menampilkan peringatan otomatis kepada kedua belah pihak di dalam ruang obrolan.
   6. Setelah masalah klien tuntas atau durasi berakhir, Mitra Profesional menyusun Catatan Sesi (UC-11) dan menekan tombol "Selesaikan Konsultasi".
   7. Sistem menutup dan mengunci ruang obrolan secara permanen menjadi status `COMPLETED` (*Read-Only WORM storage*, tidak bisa dihapus atau diubah).
@@ -242,9 +239,9 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   8. Modal pop-up tertutup, dan klien dapat kembali menggunakan seluruh fitur dasbor normal.
 * **Alur Alternatif/Gagal (Alternative Flow)**:
   * **2a. Klien Memberikan Rating Rendah (Bintang <= 2) pada Domain Kesehatan**:
-    1. Klien memilih skor 1 atau 2 bintang pada sesi konsultasi Dokter.
+    1. Klien memilih skor 1 atau 2 bintang pada sesi konsultasi Mitra Profesional.
     2. Sistem mendeteksi parameter rating rendah pada domain medis dan secara otomatis memperluas modal pop-up dengan **Formulir Pelaporan Adverse Event / Ketidakpuasan Klinis**.
-    3. Klien diminta memilih kategori masalah (misal: *Diagnosis keliru*, *Dokter tidak sopan*, *Resep obat menimbulkan alergi berat*, atau *Sesi diakhiri prematur*).
+    3. Klien diminta memilih kategori masalah (misal: *Diagnosis keliru*, *Mitra Profesional tidak sopan*, *Resep obat menimbulkan alergi berat*, atau *Sesi diakhiri prematur*).
     4. Setelah dikirim, ulasan tersebut tidak langsung dipublikasikan, melainkan ditandai `UNDER_INVESTIGATION` dan dikirimkan sebagai tiket prioritas ke panel **Tim Etik Multidisiplin Admin** (merujuk ke UC-15) untuk dievaluasi.
   * **2b. Klien Melewati Ulasan (Tombol Skip / Nanti Saja)**:
     1. Klien memilih tombol "Lewati / Nanti Saja" pada modal pop-up.
@@ -256,13 +253,13 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 ## B. Aktor: Mitra Profesional (Professional Partner)
 
 ### UC-07: Melakukan Registrasi Mitra Profesional
-* **Aktor Utama**: Mitra Profesional (Dokter / Advokat / Psikolog)
+* **Aktor Utama**: Mitra Profesional (Mitra Profesional / Advokat / Psikolog)
 * **Aktor Pendukung**: Tidak ada
 * **Deskripsi Singkat**: Calon mitra profesional mendaftarkan akun baru dan mengunggah dokumen kredensial spesifik domain (STR/SIP/KTA/SIPP) agar dapat diverifikasi oleh Admin Sistem.
 * **Pre-condition**: Mitra profesional belum terdaftar di platform JUSTIFICA.
 * **Post-condition**: Akun mitra profesional dibuat dengan status `PENDING_VERIFICATION`, dan dokumen terenkripsi tersimpan di storage WORM menunggu tinjauan Admin.
 * **Compliance Checklist & Regulasi Domain**:
-  * **UU No. 17 Tahun 2023 (Kesehatan)**: Kewajiban pengunggahan STR (Surat Tanda Registrasi) yang diterbitkan oleh Konsil Kedokteran Indonesia (KKI) / Konsil Tenaga Kesehatan Indonesia (KTKI), Surat Izin Praktik (SIP) aktif di Faskes, dan bukti kerja sama BPJS Provider (jika melayani rujukan BPJS).
+  * **UU No. 17 Tahun 2023 (Kesehatan)**: Kewajiban pengunggahan STR (Surat Tanda Registrasi) yang diterbitkan oleh Konsil Kemitra profesionalan Indonesia (KKI) / Konsil Tenaga Kesehatan Indonesia (KTKI), Surat Izin Praktik (SIP) aktif di Faskes, dan bukti kerja sama BPJS Provider (jika melayani rujukan BPJS).
   * **Kode Etik HIMPSI (Psikologi)**: Kewajiban pengunggahan Surat Izin Praktik Psikologi (SIPP) aktif yang dikeluarkan oleh HIMPSI serta bukti keanggotaan wilayah.
   * **UU No. 18 Tahun 2003 (Advokat)**: Kewajiban pengunggahan Kartu Tanda Anggota (KTA) Peradi aktif dan SK Pengacara / Berita Acara Sumpah dari Pengadilan Tinggi negeri.
   * **WORM Storage Security**: Seluruh dokumen kredensial disimpan pada *Write-Once-Read-Many (WORM) Storage* berenkripsi AES-256 untuk mencegah manipulasi pasca-unggah.
@@ -271,7 +268,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   2. Calon mitra memilih domain profesinya (Kesehatan Medis, Hukum, atau Psikologi).
   3. Sistem me-render formulir registrasi spesifik sesuai domain yang dipilih.
   4. Mitra mengisi data identitas pribadi (Nama Lengkap, NIK, NPWP, Email, Nomor Telepon, Alamat Praktik/Kantor, dan Kata Sandi).
-  5. Mitra mengunggah berkas kredensial berformat PDF atau JPG beresolusi tinggi (STR+SIP untuk Dokter; SIPP+KTA HIMPSI untuk Psikolog; KTA Peradi+Berita Acara Sumpah untuk Advokat).
+  5. Mitra mengunggah berkas kredensial berformat PDF atau JPG beresolusi tinggi (STR+SIP untuk Mitra Profesional; SIPP+KTA HIMPSI untuk Psikolog; KTA Peradi+Berita Acara Sumpah untuk Advokat).
   6. Mitra menyetujui Pakta Integritas Layanan Tele-Konsultasi dan Aturan Kode Etik Multidisiplin.
   7. Mitra mengklik tombol "Kirim Pendaftaran".
   8. Sistem memvalidasi kelengkapan berkas, mengunggah file ke storage WORM berenkripsi, dan menyimpan record di database dengan status `PENDING_VERIFICATION`.
@@ -330,7 +327,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Pre-condition**: Mitra profesional sudah login dan berada di Dasbor Mitra.
 * **Post-condition**: Status ketersediaan mitra di database diperbarui secara real-time, mempengaruhi visibilitas di katalog pencarian klien (UC-03).
 * **Compliance Checklist & Regulasi Domain**:
-  * **Domain Kesehatan (API RS/Faskes Sync)**: Sistem terintegrasi dengan Sistem Informasi Rumah Sakit (SIRS) Faskes tempat dokter praktik. Dokter tidak dapat mengaktifkan status *Online* tele-konsultasi jika kalender SIRS menunjukkan dokter sedang melakukan tindakan operasi atau praktik offline jam tersebut.
+  * **Domain Kesehatan (API RS/Faskes Sync)**: Sistem terintegrasi dengan Sistem Informasi Rumah Sakit (SIRS) Faskes tempat mitra profesional praktik. Mitra Profesional tidak dapat mengaktifkan status *Online* tele-konsultasi jika kalender SIRS menunjukkan mitra profesional sedang melakukan tindakan operasi atau praktik offline jam tersebut.
   * **Domain Hukum (API Pengadilan Sync)**: Sistem memeriksa jadwal sidang di SIPP Pengadilan (Sistem Informasi Penelusuran Perkara). Advokat dilarang *Online* jika sedang terdaftar dalam sidang aktif pada jam yang sama demi mencegah terbengkalainya klien tele-konsultasi.
   * **Kode Etik HIMPSI (Psikologi Buffer Rule)**: Sistem **wajib** memberlakukan jeda waktu (*mandatory buffer*) 30 menit setelah sesi konseling klinis intensif sebelum psikolog dapat menerima sesi konsultasi baru, guna mencegah kelelahan mental (*compassion fatigue / burnout*).
 * **Alur Utama (Basic Flow)**:
@@ -371,7 +368,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   1. Sistem memunculkan dering alarm dan kartu pop-up permintaan konsultasi masuk pada Dasbor Mitra Profesional (menampilkan nama/anonim klien, domain, dan keluhan awal).
   2. Mitra Profesional mengklik tombol "Terima Permintaan" dalam jendela waktu respons (maksimal 5 menit).
   3. Sistem menghubungkan mitra ke ruang obrolan (*chat room*) E2EE yang telah terbuka bersama klien (UC-04).
-  4. Mitra menyapa klien, meninjau riwayat medis/hukum/psikologi yang diizinkan (merujuk ke Kes-UC03 / Huk-UC01), dan memberikan konsultasi interaktif.
+  4. Mitra menyapa klien, meninjau riwayat hukum/psikologi yang diizinkan (merujuk ke Huk-UC01 / Psi-UC01), dan memberikan konsultasi interaktif.
   5. Selama sesi atau menjelang sesi berakhir, Mitra membuka panel "Catatan Sesi" (UC-11) untuk menyusun diagnosis, opini hukum, atau asesmen psikologi.
   6. Jika klien membutuhkan terapi obat medis, draf kontrak hukum, atau tugas mandiri psikologi, Mitra menerbitkan berkas terkait dari menu "Output Dokumen" (*Extend* ke UC-12).
   7. Setelah konsultasi tuntas dan disepakati klien, Mitra mengklik tombol "Selesaikan Konsultasi".
@@ -395,7 +392,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Pre-condition**: Mitra profesional sedang berada dalam sesi konsultasi aktif atau baru saja mengklik "Selesaikan Konsultasi" (UC-10).
 * **Post-condition**: Catatan sesi terenkripsi secara *field-level* dan tersimpan permanen di storage WORM dengan masa retensi sesuai undang-undang.
 * **Compliance Checklist & Regulasi Domain**:
-  * **Permenkes 24/2022 & Standar SOAP Note (Medis)**: Dokter **wajib** mengisi format rekam medis SOAP (*Subjective, Objective, Assessment, Plan*) dan mencantumkan kode klasifikasi penyakit internasional **ICD-10** pada kolom diagnosis.
+  * **Permenkes 24/2022 & Standar SOAP Note (Medis)**: Mitra Profesional **wajib** mengisi format rekam medis SOAP (*Subjective, Objective, Assessment, Plan*) dan mencantumkan kode klasifikasi penyakit internasional **ICD-10** pada kolom diagnosis.
   * **Kode Etik HIMPSI & Standar DAP Note (Psikologi)**: Psikolog mengisi format DAP (*Data, Assessment, Plan*). Jika dalam asesmen ditemukan indikasi risiko tinggi melukai diri atau bunuh diri (*suicidal/self-harm*), sistem **wajib** memicu **Crisis Flag Protocol**.
   * **UU No. 18 Tahun 2003 & Standar IRAC (Hukum)**: Advokat mengisi format *Case Memo* atau metode IRAC (*Issue, Rule, Application, Conclusion*). Catatan hukum **wajib** dibubuhi stempel sistem *"PRIVILEGED AND CONFIDENTIAL"* dan diberlakukan masa retensi minimum 10 tahun (*Legal Hold*).
 * **Alur Utama (Basic Flow)**:
@@ -405,13 +402,13 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
      * *[Psikologi]* Formulir DAP Note + indikator level risiko klinis (Low/Medium/High/Critical).
      * *[Hukum]* Formulir Case Memo / IRAC + opsi penandaan kerahasiaan (*Privilege Marking*).
   3. Mitra mengisi kolom analisis klinis atau opini hukum berdasarkan fakta yang dikumpulkan selama chat.
-  4. *[Medis]* Dokter mengetikkan nama penyakit pada kolom diagnosis, sistem menampilkan *auto-complete* kode ICD-10, dan dokter memilih kode yang tepat.
+  4. *[Medis]* Mitra Profesional mengetikkan nama penyakit pada kolom diagnosis, sistem menampilkan *auto-complete* kode ICD-10, dan mitra profesional memilih kode yang tepat.
   5. *[Psikologi]* Psikolog memilih level risiko klinis. Jika memilih *Low* atau *Medium*, alur berjalan normal.
   6. Mitra mengklik tombol "Simpan & Kunci Catatan".
   7. Sistem melakukan enkripsi *field-level* menggunakan kunci kriptografis spesifik domain, menyimpan catatan ke database WORM, dan menempelkan *timestamp* tidak terubah.
 * **Alur Alternatif/Gagal (Alternative Flow)**:
   * **3a. Kolom Wajib (Diagnosis ICD-10 / Assessment) Dikosongkan**:
-    1. Dokter mencoba menyimpan SOAP Note tanpa memilih kode ICD-10 yang valid.
+    1. Mitra Profesional mencoba menyimpan SOAP Note tanpa memilih kode ICD-10 yang valid.
     2. Sistem menolak penyimpanan catatan dan menampilkan peringatan: *"Sesuai standar Permenkes 24/2022, kode diagnosis ICD-10 wajib diisi sebelum mengakhiri rekam medis"*.
   * **5a. Psikolog Menandai Level Risiko *High* / *Critical* (Crisis Protocol TriggerED)**:
     1. Dalam formulir DAP Note, Psikolog menandai indikator bahwa klien memiliki ide bunuh diri aktif (*active suicidal ideation*).
@@ -432,7 +429,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Pre-condition**: Mitra profesional sedang mengisi atau telah menyimpan catatan sesi (UC-11) dan kasus membutuhkan dokumen resmi terverifikasi.
 * **Post-condition**: Dokumen output resmi ber-tanda tangan digital terbit, tersimpan di storage WORM, dan dikirimkan ke klien atau apotek mitra.
 * **Compliance Checklist & Regulasi Domain**:
-  * **Permenkes 73/2016 (Standar e-Resep Medis)**: e-Resep **wajib** melalui pengecekan interaksi obat (*Drug-Drug Interaction / DDI Check*) secara otomatis oleh sistem. Jika resep mengandung obat golongan Narkotika atau Psikotropika (*Controlled Drugs*), sistem **wajib** memeriksa SIP Narkotika dokter dan mencetak resep dalam format 3 rangkap digital (Apotek, Pasien, Arsip BPOM/BNN).
+  * **Permenkes 73/2016 (Standar e-Resep Medis)**: e-Resep **wajib** melalui pengecekan interaksi obat (*Drug-Drug Interaction / DDI Check*) secara otomatis oleh sistem. Jika resep mengandung obat golongan Narkotika atau Psikotropika (*Controlled Drugs*), sistem **wajib** memeriksa SIP Narkotika mitra profesional dan mencetak resep dalam format 3 rangkap digital (Apotek, Pasien, Arsip BPOM/BNN).
   * **Kode Etik HIMPSI (Lembar Tugas Psikologi)**: Pemberian tugas mandiri (*homework* seperti journaling atau mindfulness) harus dapat dihubungkan dengan grafik pemantauan *Mood Tracker* klien (Psi-UC01).
   * **UU No. 10 Tahun 2020 & UU 18/2003 (Legal Opinion & e-Meterai)**: Dokumen pendapat hukum tertulis (*Legal Opinion*) metode IRAC bernilai pembuktian tinggi **wajib** dibubuhi e-Meterai resmi Rp 10.000 via API Peruri serta cap *"PRIVILEGED AND CONFIDENTIAL"*.
 * **Alur Utama (Basic Flow)**:
@@ -442,19 +439,18 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
      * *[Psikologi]* Formulir Lembar Tugas / *Homework Sheet* (Instruksi latihan relaksasi, journaling, atau cognitive reframing).
      * *[Hukum]* Formulir Legal Opinion / Draf Kontrak Hukum metode IRAC.
   3. Mitra mengisi rincian dokumen yang dibutuhkan.
-  4. *[Medis]* Dokter menambahkan daftar obat ke dalam resep. Sistem secara otomatis menjalankan modul **Drug-Drug Interaction (DDI) Checker** di latar belakang untuk menganalisis potensi bentrok antar obat. Jika aman (tidak ada interaksi *Major*), alur berlanjut.
+  4. *[Medis]* Mitra Profesional menambahkan daftar obat ke dalam resep. Sistem secara otomatis menjalankan modul **Drug-Drug Interaction (DDI) Checker** di latar belakang untuk menganalisis potensi bentrok antar obat. Jika aman (tidak ada interaksi *Major*), alur berlanjut.
   5. *[Hukum]* Advokat mengklik tombol "Finalisasi & Bubuhkan e-Meterai". Sistem memanggil API Peruri untuk menempelkan e-Meterai Rp 10.000 pada dokumen PDF Legal Opinion.
   6. Mitra melakukan penandatanganan digital menggunakan sertifikat elektronik / PIN rahasia mitra.
   7. Sistem men-generate dokumen PDF ber-hash SHA-256, menyimpannya di storage WORM, dan melampirkannya ke ruang obrolan klien serta riwayat catatan sesi.
-  8. *[Medis]* Khusus e-Resep, sistem secara paralel mengirimkan salinan resep digital tersertifikasi ke Sistem Informasi Apotek (SIA) mitra terdekat (Kes-UC01).
 * **Alur Alternatif/Gagal (Alternative Flow)**:
   * **4a. Terdeteksi Interaksi Obat Berbahaya (*Major DDI Detected*)**:
-    1. Modul DDI Checker mendeteksi bahwa kombinasi obat yang dimasukkan dokter memiliki interaksi fatal atau kontraindikasi berat.
-    2. Sistem memunculkan alarm merah pop-up di layar dokter: *"PERINGATAN BAHAYA: Kombinasi [Obat A] dan [Obat B] berpotensi menyebabkan [Efek Samping Fatal]. Apakah Anda ingin merevisi resep?"*.
-    3. Dokter **wajib** merevisi resep dengan mengganti obat/dosis, ATAU melakukan *Override* dengan wajib mengetikkan alasan medis spesifik dalam kolom pertanggungjawaban klinis yang akan dicatat permanen dalam audit trail WORM.
+    1. Modul DDI Checker mendeteksi bahwa kombinasi obat yang dimasukkan mitra profesional memiliki interaksi fatal atau kontraindikasi berat.
+    2. Sistem memunculkan alarm merah pop-up di layar mitra profesional: *"PERINGATAN BAHAYA: Kombinasi [Obat A] dan [Obat B] berpotensi menyebabkan [Efek Samping Fatal]. Apakah Anda ingin merevisi resep?"*.
+    3. Mitra Profesional **wajib** merevisi resep dengan mengganti obat/dosis, ATAU melakukan *Override* dengan wajib mengetikkan alasan medis spesifik dalam kolom pertanggungjawaban klinis yang akan dicatat permanen dalam audit trail WORM.
   * **4b. Peresepan Obat Narkotika / Psikotropika (*Controlled Drugs*)**:
-    1. Dokter memasukkan obat golongan Narkotika (misal: Fentanyl / Morfin) atau Psikotropika keras ke dalam e-Resep.
-    2. Sistem memverifikasi apakah dokter memiliki izin/SIP khusus peresepan obat terlarang yang masih berlaku.
+    1. Mitra Profesional memasukkan obat golongan Narkotika (misal: Fentanyl / Morfin) atau Psikotropika keras ke dalam e-Resep.
+    2. Sistem memverifikasi apakah mitra profesional memiliki izin/SIP khusus peresepan obat terlarang yang masih berlaku.
     3. Jika valid, sistem mengubah alur resep menjadi **Controlled Drug Workflow**: generate e-Resep 3 rangkap digital tersandi khusus, menandai resep agar apotek wajib meminta verifikasi KTP/NIK fisik penerima obat, dan mencatat log transaksi ke database pelaporan BNN/BPOM.
   * **5a. Gangguan Integrasi API e-Meterai Peruri (Timeout/Error)**:
     1. Server Peruri gagal membubuhkan e-Meterai pada dokumen Legal Opinion advokat.
@@ -470,7 +466,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Pre-condition**: Mitra profesional sudah login, memiliki saldo pendapatan yang dapat dicairkan (*available balance* > Rp 50.000), serta rekening bank profesi dan NPWP telah diverifikasi.
 * **Post-condition**: Permintaan penarikan dana diproses, saldo berpindah ke status `DIBEKUKAN` (*frozen balance*), dan dana ditransfer ke rekening bank mitra melalui *auto-disbursement* atau persetujuan manual Admin Finansial.
 * **Compliance Checklist & Regulasi Domain**:
-  * **Peraturan Dirjen Pajak (PPh 21 Compliance)**: Sistem secara otomatis mengalkulasi dan memotong Pajak Penghasilan (PPh 21) atas jasa tenaga ahli (Dokter/Advokat/Psikolog) berdasarkan persentase aturan perpajakan yang berlaku sebelum saldo bersih masuk ke dompet mitra.
+  * **Peraturan Dirjen Pajak (PPh 21 Compliance)**: Sistem secara otomatis mengalkulasi dan memotong Pajak Penghasilan (PPh 21) atas jasa tenaga ahli (Advokat/Psikolog) berdasarkan persentase aturan perpajakan yang berlaku sebelum saldo bersih masuk ke dompet mitra.
   * **Standar Verifikasi Rekening Bank Faskes/BPJS Provider**: Khusus bagi mitra kesehatan yang terikat kontrak faskes, penarikan dana hanya diizinkan ke rekening bank resmi Faskes atau rekening pribadi yang nama pemiliknya 100% cocok dengan nama pada KTP/STR terdaftar (anti pencucian uang / AML).
   * **Threshold Control (Gerbang Batas Nominal)**: Penarikan dana di bawah Rp 5.000.000 diproses secara *Auto-Disburse* via API Bank Gateway. Penarikan bernominal >= Rp 5.000.000 **wajib** melalui verifikasi dan persetujuan manual (*Manual Approval*) oleh Admin Finansial demi pencegahan *fraud*.
 * **Alur Utama (Basic Flow)**:
@@ -507,12 +503,12 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ### UC-13: Memverifikasi Berkas Kredensial Mitra & SKTM Pro Bono
 * **Aktor Utama**: Admin Sistem (Tim Compliance & Legal)
-* **Aktor Pendukung**: Sistem Integrasi Eksternal (API Konsil Kedokteran KKI/KTKI, API HIMPSI, API Peradi, API Dukcapil & DTKS Kemensos)
+* **Aktor Pendukung**: Sistem Integrasi Eksternal (API Konsil Kemitra profesionalan KKI/KTKI, API HIMPSI, API Peradi, API Dukcapil & DTKS Kemensos)
 * **Deskripsi Singkat**: Admin Sistem melakukan verifikasi silang (*cross-check*) terhadap keabsahan dokumen lisensi profesi calon mitra profesional baru (STR/SIP/KTA/SIPP) serta dokumen Surat Keterangan Tidak Mampu (SKTM) dari klien pengaju bantuan hukum gratis (*Pro Bono*).
 * **Pre-condition**: Terdapat antrean verifikasi berkas lisensi mitra (`PENDING_VERIFICATION`, UC-07) atau antrean pengajuan SKTM Pro Bono dari klien (`PENDING_SKTM`, Huk-UC03).
 * **Post-condition**: Status verifikasi berubah menjadi aktif/disetujui (`ACTIVE` / `SKTM_APPROVED`) atau ditolak (`REJECTED` / `SKTM_REJECTED`) di database, dan log keputusan tercatat dalam audit trail WORM.
 * **Compliance Checklist & Regulasi Domain**:
-  * **UU No. 17 Tahun 2023 (Kesehatan)**: Verifikasi keaslian STR dokter **wajib** dilakukan dengan mencocokkan nomor STR dan NIK secara langsung ke database Konsil Kedokteran Indonesia (KKI) / KTKI melalui gerbang API nasional.
+  * **UU No. 17 Tahun 2023 (Kesehatan)**: Verifikasi keaslian STR mitra profesional **wajib** dilakukan dengan mencocokkan nomor STR dan NIK secara langsung ke database Konsil Kemitra profesionalan Indonesia (KKI) / KTKI melalui gerbang API nasional.
   * **Kode Etik HIMPSI (Psikologi)**: Verifikasi SIPP psikolog **wajib** dicocokkan dengan direktori keanggotaan HIMPSI Pusat dan Wilayah untuk memastikan tidak ada pembekuan izin praktik klinis.
   * **UU No. 18 Tahun 2003 (Advokat & Pro Bono)**: Keabsahan KTA Advokat diverifikasi ke Pangkalan Data Peradi. Sementara untuk klien Pro Bono, verifikasi SKTM **wajib** dikomparasi dengan Data Terpadu Kesejahteraan Sosial (DTKS) Kemensos dan Dukcapil demi mencegah salah sasaran subsidi bantuan hukum cuma-cuma.
 * **Alur Utama (Basic Flow)**:
@@ -585,12 +581,12 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ### UC-15: Mengelola Data Akun Mitra Profesional
 * **Aktor Utama**: Admin Sistem (Admin Compliance & Tim Etik Multidisiplin)
-* **Aktor Pendukung**: Tim Etik Multidisiplin (Dokter Senior, Psikolog Senior, Advokat Senior), Badan Profesi Nasional (Konsil Kedokteran KKI, HIMPSI, Peradi)
+* **Aktor Pendukung**: Tim Etik Multidisiplin (Mitra Profesional Senior, Psikolog Senior, Advokat Senior), Badan Profesi Nasional (Konsil Kemitra profesionalan KKI, HIMPSI, Peradi)
 * **Deskripsi Singkat**: Admin Sistem menangani laporan malpraktik, pelanggaran kode etik, atau kelalaian berat yang dilakukan oleh Mitra Profesional melalui **Ethics Committee Flow** (Sidang Etik Multidisiplin), memverifikasi sanksi penangguhan (`SUSPENDED`), dan melaporkan pelanggaran etik ke organisasi profesi nasional.
 * **Pre-condition**: Terdapat laporan pelanggaran etik berat dari klien (merujuk ke UC-06 *Adverse Event* atau laporan langsung), atau terdeteksi kelalaian medis/hukum fatal.
 * **Post-condition**: Akun mitra profesional ditangguhkan permanen (`SUSPENDED`), di-blacklist dari platform, dan laporan resmi dikirimkan ke Badan Profesi (KKI/HIMPSI/Peradi) untuk tindakan pencabutan lisensi praktik nasional.
 * **Compliance Checklist & Regulasi Domain**:
-  * **Ethics Committee Flow (Sidang Etik Multidisiplin)**: Platform JUSTIFICA dilarang memecat atau men-suspend permanen seorang tenaga ahli (Dokter/Advokat/Psikolog) hanya atas putusan sepihak Admin awam. Sistem **wajib** memfasilitasi pembentukan **Tim Etik Multidisiplin** yang terdiri dari: 1 orang Dokter Senior (untuk kasus medis), 1 orang Psikolog Senior (untuk kasus psikologi), 1 orang Advokat Senior (untuk kasus hukum), dan 1 orang Admin Compliance Platform.
+  * **Ethics Committee Flow (Sidang Etik Multidisiplin)**: Platform JUSTIFICA dilarang memecat atau men-suspend permanen seorang tenaga ahli (Advokat/Psikolog) hanya atas putusan sepihak Admin awam. Sistem **wajib** memfasilitasi pembentukan **Tim Etik Multidisiplin** yang terdiri dari: 1 orang Mitra Profesional Senior (untuk kasus medis), 1 orang Psikolog Senior (untuk kasus psikologi), 1 orang Advokat Senior (untuk kasus hukum), dan 1 orang Admin Compliance Platform.
   * **Mandatory Hearing & Due Process**: Mitra profesional yang tertuduh **wajib** diberikan hak untuk membela diri dalam sidang etik formal (*Ethics Hearing*) sebelum putusan penangguhan dijatuhkan.
   * **Mandatory Professional Body Reporting**: Sesuai UU No. 17/2023 (Kesehatan), Kode Etik HIMPSI, dan UU No. 18/2003 (Advokat), jika putusan sidang etik menemukan bukti sah malpraktik klinis atau pelanggaran berat hukum, platform **wajib secara hukum** menerbitkan laporan resmi beserta bukti WORM ke Badan Profesi terkait (KKI/KTKI, HIMPSI, atau Peradi) agar izin praktik nasional mitra dapat ditinjau atau dicabut.
   * **WORM Audit Preservation**: Seluruh berkas pembuktian, transkrip sidang hearing, dan putusan etik disimpan permanen dalam WORM storage yang tidak dapat dihapus atau diubah sampai kapan pun.
@@ -599,18 +595,18 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   2. Admin membuka modul "Manajemen Akun Mitra & Kasus Etik" dan memeriksa bukti pendukung awal.
   3. Jika laporan terbukti memiliki dasar klinis/hukum yang serius, Admin mengklik tombol **"Inisiasi Ethics Committee Flow"**.
   4. Sistem menonaktifkan sementara status ketersediaan mitra menjadi `OFFLINE` (*Pre-hearing Suspension*) agar mitra tidak menerima klien baru selama investigasi berlangsung.
-  5. Sistem membentuk panel **Tim Etik Multidisiplin** di database dengan mengundang anggota komite yang sebidang dengan domain mitra tertuduh (misal: Dokter Spesialis Senior untuk mengadili Dokter).
+  5. Sistem membentuk panel **Tim Etik Multidisiplin** di database dengan mengundang anggota komite yang sebidang dengan domain mitra tertuduh (misal: Mitra Profesional Spesialis Senior untuk mengadili Mitra Profesional).
   6. Sistem men-generate surat panggilan sidang etik (*Ethics Hearing Invitation*) dan menjadwalkan pertemuan virtual dalam waktu maksimal 7 hari kerja, lalu mengirimkan undangan ke email mitra profesional.
   7. **Pelaksanaan Hearing Etik**: Tim Etik Multidisiplin dan Mitra Profesional melangsungkan sidang pembelaan. Tim Etik memeriksa bukti rekam medis/hukum terenkripsi di WORM storage.
   8. Setelah hearing selesai, Ketua Tim Etik menginput **Putusan Etik Resmi** ke dalam sistem:
      * **Jika Putusan = Terbukti Melanggar Berat (Malpraktik / Pelanggaran Kode Etik Fatal)**:
        * Admin Compliance mengonfirmasi putusan di dasbor.
        * Sistem mengubah status akun mitra menjadi `SUSPENDED` (Permanen), mencabut seluruh hak akses dasbor profesional, dan membatalkan jadwal konsultasi mendatang dengan pengembalian dana 100% ke klien.
-       * Sistem secara otomatis men-generate **Laporan Resmi Pelanggaran Etik Profesi** ber-tanda tangan digital dan mengirimkan berkas laporan beserta lampiran bukti WORM melalui API / Email Resmi ke **Badan Profesi Nasional** (Konsil Kedokteran KKI / HIMPSI / Peradi).
+       * Sistem secara otomatis men-generate **Laporan Resmi Pelanggaran Etik Profesi** ber-tanda tangan digital dan mengirimkan berkas laporan beserta lampiran bukti WORM melalui API / Email Resmi ke **Badan Profesi Nasional** (Konsil Kemitra profesionalan KKI / HIMPSI / Peradi).
        * Sistem mencatat putusan akhir ke dalam WORM storage permanen dan memblokir identitas NIK/STR mitra dari platform JUSTIFICA selamanya.
 * **Alur Alternatif/Gagal (Alternative Flow)**:
   * **8a. Putusan Tim Etik = Tidak Terbukti Melanggar / Dibebaskan (*Not Guilty*)**:
-    1. Tim Etik Multidisiplin menyimpulkan bahwa keluhan klien tidak beralasan (misal: efek samping obat normal yang sudah dijelaskan dalam *Informed Consent*, bukan kelalaian dokter).
+    1. Tim Etik Multidisiplin menyimpulkan bahwa keluhan klien tidak beralasan (misal: efek samping obat normal yang sudah dijelaskan dalam *Informed Consent*, bukan kelalaian mitra profesional).
     2. Ketua Tim Etik mengklik tombol "Bebaskan & Pulihkan Nama Baik".
     3. Sistem mencabut *Pre-hearing Suspension*, memulihkan status akun mitra menjadi `ACTIVE`, mereset indikator laporan di profil mitra, dan mengirimkan surat keterangan bersih/rehabilitasi nama baik kepada mitra profesional.
   * **6a. Mitra Profesional Menolak Hadir atau Mangkir dari Sidang Hearing (> 7 Hari)**:
@@ -629,7 +625,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Compliance Checklist & Regulasi Domain**:
   * **Standar Akuntansi Keuangan (SAK) & Audit Trail**: Seluruh catatan transaksi tidak boleh mengalami *hard-delete*. Setiap modifikasi atau pembatalan transaksi harus dicatat melalui jurnal pembalik (*reversing entry*).
   * **Kebijakan Revenue Sharing Proporsional Domain**: Sistem **wajib** membagi pendapatan konsultasi antara Platform JUSTIFICA dan Mitra Profesional dengan persentase bagi hasil baku yang berbeda per domain profesi:
-    * **Domain Kesehatan Medis**: **15% Platform / 85% Mitra Dokter** (Mengimbangi biaya operasional tinggi dan risiko klinis medis).
+    * **Domain Kesehatan Medis**: **15% Platform / 85% Mitra Mitra Profesional** (Mengimbangi biaya operasional tinggi dan risiko klinis medis).
     * **Domain Psikologi**: **20% Platform / 80% Mitra Psikolog** (Standar layanan kesehatan mental digital).
     * **Domain Hukum**: **25% Platform / 75% Mitra Advokat** (Standar komersial layanan konsultasi legal & draf hukum).
   * **WORM Export Security**: Setiap berkas laporan keuangan yang diekspor dari sistem **wajib** dibubuhi tanda tangan digital dan *checksum hash* SHA-256 di halaman akhir atau *metadata* file untuk menjamin keaslian bukti keuangan saat diaudit oleh akuntan publik atau kantor pajak.
@@ -654,96 +650,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ---
 
-## D. Skenario Spesifik Domain (Kesehatan, Psikologi, Hukum)
-
-### Kes-UC01: Menebus Resep & Membeli Obat (Domain Kesehatan)
-* **Aktor Utama**: Klien
-* **Aktor Pendukung**: Apotek Mitra / Kurir Pengiriman
-* **Deskripsi Singkat**: Klien menebus e-Resep medis tersertifikasi yang diterbitkan oleh dokter (UC-12) ke Sistem Informasi Apotek (SIA) mitra terdekat, lengkap dengan verifikasi obat keras dan pelacakan pengiriman.
-* **Pre-condition**: Klien telah menyelesaikan konsultasi medis dan memiliki e-Resep aktif yang terlampir di riwayat rekam medis (Kes-UC03).
-* **Post-condition**: Pesanan obat diverifikasi oleh apoteker SIA, dibayar, dan dalam proses pengiriman kurir menuju alamat klien.
-* **Compliance Checklist & Regulasi Domain**:
-  * **Permenkes 73/2016 (Standar Pelayanan Farmasi di Apotek)**: Penyerahan obat wajib dilakukan oleh Apoteker bersertifikat. Apoteker di SIA mitra **wajib** melakukan telaah resep (kepatuhan dosis dan interaksi obat DDI).
-  * **Controlled Drugs Workflow (Narkotika/Psikotropika)**: Jika e-Resep mengandung obat golongan Narkotika atau Psikotropika keras, sistem memicu protokol pengawasan ketat: e-Resep 3 rangkap digital diverifikasi, apotek wajib merekam nomor KTP penerima saat pengiriman, dan log transaksi otomatis diteruskan ke gerbang pelaporan BPOM/BNN.
-* **Alur Utama (Basic Flow)**:
-  1. Klien membuka menu "Resep & Apotek" dari Dasbor Klien atau riwayat sesi medis.
-  2. Sistem menampilkan daftar obat yang diresepkan oleh dokter beserta keterangan dosis dan cara pakainya.
-  3. Klien mengklik tombol "Tebus Resep Sekarang".
-  4. Sistem melakukan pemetaan geolocation, mencari Apotek Mitra terintegrasi SIA dalam radius terdekat (< 10 km) yang memiliki stok obat lengkap.
-  5. Sistem me-render rincian pesanan: Nama Apotek, Harga Obat, Biaya Pengiriman Kurir Medis Khusus, dan perkiraan waktu tiba.
-  6. Klien mengkonfirmasi alamat pengiriman dan memilih metode pembayaran (UC-05).
-  7. Setelah pembayaran `PAID`, sistem mentransmisikan e-Resep tersertifikasi ke sistem SIA Apotek Mitra.
-  8. Apoteker di SIA menerima resep, melakukan telaah akhir, dan menyiapkan kemasan obat yang disegel anti-rusak (*tamper-evident seal*).
-  9. Apotek menyerahkan obat kepada Kurir Medis terverifikasi.
-  10. Sistem menampilkan peta pelacakan kurir (*Live Tracking*) di layar dasbor klien hingga obat diterima.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **4a. Stok Obat Tidak Tersedia di Apotek Terdekat**:
-    1. Sistem mendeteksi bahwa apotek terdekat mengalami kekosongan stok untuk salah satu obat dalam resep.
-    2. Sistem memperluas pencarian ke radius 20 km atau memecah pesanan dari 2 Apotek Mitra berbeda tanpa membebankan biaya kurir tambahan kepada klien.
-    3. Jika stok di seluruh kota kosong, sistem menampilkan opsi: *"Pesan pre-order (dikirim besok pagi)"* atau *"Ajukan permintaan alternatif obat sejenis ke Dokter peresep"*.
-  * **7a. e-Resep Mengandung Obat Controlled Drug (Narkotika)**:
-    1. Sistem mendeteksi flag *Controlled Drug* pada e-Resep.
-    2. Sistem mengharuskan klien mengunggah foto KTP fisik penerima obat pada saat checkout.
-    3. Kurir Medis yang mengantar diwajibkan meminta tanda tangan digital dan memverifikasi kecocokan wajah/KTP penerima di lokasi pengantaran sebelum obat diserahkan.
-
----
-
-### Kes-UC02: Membuat Janji Temu RS Offline (Domain Kesehatan)
-* **Aktor Utama**: Klien
-* **Aktor Pendukung**: Faskes (Rumah Sakit / Klinik Mitra)
-* **Deskripsi Singkat**: Klien melakukan reservasi jadwal konsultasi fisik tatap muka (*offline appointment*) dengan dokter spesialis di rumah sakit atau klinik mitra terintegrasi.
-* **Pre-condition**: Klien sudah login ke platform JUSTIFICA.
-* **Post-condition**: Janji temu terkonfirmasi di kalender SIRS Rumah Sakit, kode booking diterbitkan, dan jadwal masuk ke pengingat klien.
-* **Compliance Checklist & Regulasi Domain**:
-  * **API SIRS Integration**: Sinkronisasi jadwal secara *real-time* dengan Sistem Informasi Rumah Sakit (SIRS) untuk menghindari over-booking kuota dokter spesialis.
-  * **BPJS Kesehatan Rujukan Sync**: Bagi pasien peserta BPJS, sistem memverifikasi nomor rujukan dari Faskes Tingkat 1 sebelum mengizinkan pemesanan jadwal poli spesialis RS secara gratis.
-* **Alur Utama (Basic Flow)**:
-  1. Klien memilih menu "Janji Temu RS Offline" di halaman layanan kesehatan.
-  2. Klien memilih kota/lokasi, jenis Faskes (RS Umum / Klinik Spesialis), dan poli yang dituju.
-  3. Sistem menampilkan daftar Rumah Sakit Mitra beserta jadwal praktik dokter spesialis yang tersedia.
-  4. Klien mengklik dokter pilihan dan memilih tanggal serta jam sesi konsultasi offline.
-  5. Jika klien menggunakan asuransi/BPJS, klien memasukkan nomor kartu BPJS atau surat rujukan. Sistem memverifikasi keabsahan rujukan via API BPJS.
-  6. Klien mengkonfirmasi pemesanan janji temu.
-  7. Sistem mengirimkan *payload booking* ke API SIRS Rumah Sakit. SIRS RS mengunci kuota antrean dan membalas dengan **Kode Booking / Tiket Antrean Poli**.
-  8. Sistem menerbitkan e-Tiket Janji Temu ber-barcode di dasbor klien dan mengatur pengingat otomatis H-1 dan H-2 jam sebelum jadwal.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **7a. Kuota Dokter di RS Sudah Penuh pada Jam Terpilih**:
-    1. API SIRS RS menolak *payload* karena kuota antrean poli baru saja penuh.
-    2. Sistem menampilkan pesan: *"Maaf, kuota antrean untuk jam tersebut baru saja penuh"*.
-    3. Sistem merekomendasikan jam berikutnya di hari yang sama atau dokter spesialis lain di RS tersebut.
-  * **7b. Dokter Mendadak Batal Praktik (Jadwal Operasi / Halangan RS)**:
-    1. H-1 sebelum jadwal, SIRS RS mengirim *webhook* pemberitahuan pembatalan jadwal dokter ke sistem JUSTIFICA.
-    2. Sistem segera mengirimkan SMS/WhatsApp darurat ke klien dan memberikan opsi: *"Jadwal ulang ke hari berikutnya secara gratis"* ATAU *"Alihkan ke konsultasi online (tele-konsultasi) sekarang dengan diskon kompensasi"*.
-
----
-
-### Kes-UC03: Melihat Rekam Medis & Family Care (Domain Kesehatan)
-* **Aktor Utama**: Klien
-* **Aktor Pendukung**: Tidak ada
-* **Deskripsi Singkat**: Klien mengakses riwayat Rekam Medis Elektronik (EME) miliknya atau mengelola riwayat medis anggota keluarga terdaftar (*Family Care*) secara aman dan *Read-Only*.
-* **Pre-condition**: Klien telah login dan berhasil melewati verifikasi keamanan sekunder (PIN/MFA Klien).
-* **Post-condition**: Klien melihat riwayat diagnosis ICD-10, SOAP Note, resep obat, dan riwayat alergi yang tersimpan di storage WORM.
-* **Compliance Checklist & Regulasi Domain**:
-  * **Permenkes 24/2022 (Hak Pasien & Keamanan EME)**: Pasien berhak atas akses penuh terhadap isi rekam medisnya. Akses **wajib** dilindungi enkripsi TLS dan pembatas otorisasi ketat agar tidak bocor ke pihak yang tidak berhak.
-  * **UU PDP No. 27/2022 (Family Care Consent)**: Klien dapat menambahkan anggota keluarga (anak di bawah umur atau orang tua usia lanjut) di fitur *Family Care*. Untuk anggota keluarga dewasa (suami/istri/anak dewasa), sistem **wajib** meminta persetujuan perwalian digital (*Digital Guardianship Consent*) sebelum rekam medis mereka dapat dilihat oleh klien pengelola akun.
-* **Alur Utama (Basic Flow)**:
-  1. Klien mengklik menu "Rekam Medis & Family Care" di Dasbor Klien.
-  2. Sistem memunculkan layar verifikasi PIN Rahasia Rekam Medis atau biometrik (Fingerprint/FaceID).
-  3. Klien memasukkan PIN yang benar.
-  4. Sistem me-render daftar profil pasien: **Profil Diri Sendiri** dan daftar profil **Family Care** yang terikat.
-  5. Klien memilih salah satu profil (misal: Profil Anak).
-  6. Sistem mengambil riwayat rekam medis dari database WORM secara *Read-Only* dan menampilkannya dalam urutan kronologis terbalik: Tanggal Sesi, Nama Dokter, Faskes, Diagnosis ICD-10, SOAP Note ringkas, Daftar Obat, dan Catatan Alergi.
-  7. Klien dapat mengklik tombol "Unduh Ringkasan Medis (PDF)" untuk dicetak atau dibawa ke rumah sakit fisik.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **3a. Salah Masukkan PIN Rekam Medis 3 Kali Berturut-turut**:
-    1. Klien memasukkan PIN yang salah sebanyak 3 kali.
-    2. Sistem mengunci menu Rekam Medis selama 1 jam demi pengamanan data privasi medis.
-    3. Sistem mengirimkan email peringatan keamanan: *"Terdeteksi percobaan akses PIN Rekam Medis yang gagal pada akun Anda"*.
-  * **5a. Mengakses Profil Family Care Dewasa Tanpa Consent Perwalian**:
-    1. Klien mencoba mengklik profil anggota keluarga dewasa yang belum memberikan persetujuan perwalian di akun mereka.
-    2. Sistem menolak pembukaan data medis dan memunculkan pop-up: *"Akses Ditolak. Sesuai UU PDP No. 27/2022, anggota keluarga dewasa harus menyetujui permintaan tautan perwalian di akun JUSTIFICA mereka sebelum rekam medis dapat dibagikan"*.
-
----
+## D. Skenario Spesifik Domain (Psikologi & Hukum)
 
 ### Psi-UC01: Mengisi Jurnal Mood Harian (Domain Psikologi)
 * **Aktor Utama**: Klien

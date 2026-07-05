@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Justifiqa — Katalog & Pemilihan Advokat Litigasi (J-UC03)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: #080c14; color: #f8fafc; min-height: 100vh; display: block; padding: 2.5rem 3.5rem; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .logo { font-size: 1.6rem; font-weight: 800; color: #fff; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .logo span { color: #facc15; font-size: 0.75rem; background: rgba(234,179,8,0.15); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(234,179,8,0.4); }
+        .filter-section { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; margin-bottom: 2.5rem; }
+        .pills { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+        .pill { padding: 0.6rem 1.2rem; border-radius: 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #cbd5e1; font-weight: 600; font-size: 0.85rem; cursor: pointer; transition: all 0.2s; }
+        .pill:hover, .pill.active { background: rgba(234,179,8,0.2); border-color: #d97706; color: #facc15; }
+        .controls { display: flex; gap: 1rem; flex-wrap: wrap; }
+        .search-input { flex: 1; min-width: 280px; padding: 0.8rem 1.4rem; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.95rem; outline: none; }
+        .select-filter { padding: 0.8rem 1.2rem; border-radius: 12px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.9rem; outline: none; }
+        .grid-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+        @media (max-width: 1100px) { .grid-cards { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 700px) { .grid-cards { grid-template-columns: 1fr; } }
+        .doc-card { background: rgba(17,24,39,0.8); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s; }
+        .doc-card:hover { transform: translateY(-4px); border-color: #d97706; box-shadow: 0 15px 30px rgba(217,119,6,0.15); }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-gold { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .btn { padding: 0.8rem 1.4rem; border-radius: 10px; font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; border: none; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; }
+        .btn-gold { background: linear-gradient(135deg, #d97706, #b45309); color: #fff; box-shadow: 0 4px 12px rgba(217,119,6,0.3); }
+    </style>
+</head>
+<body>
+    <div class="topbar">
+        <a href="mockup_dashboard_hukum_klien.html" class="logo">Justifiqa <span>LEGAL</span></a>
+        <div style="font-size: 1.15rem; font-weight: 700; color: #e2e8f0;">⚖️ Katalog & Pemilihan Advokat Litigasi Peradi (J-UC03)</div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <a href="mockup_dashboard_hukum_klien.html" style="color: #cbd5e1; text-decoration: none; font-size: 0.9rem; font-weight: 600; background: rgba(255,255,255,0.05); padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1);">⬅ Kembali ke Dasbor</a>
+        </div>
+    </div>
+
+    <div class="filter-section">
+        <div class="pills">
+            <div class="pill active">⚖️ Semua Spesialisasi Hukum</div>
+            <div class="pill">🏛️ Hukum Pidana & Litigasi</div>
+            <div class="pill">📜 Hukum Perdata & Keluarga</div>
+            <div class="pill">🏢 Hukum Bisnis & Kontrak</div>
+            <div class="pill">👷 Ketenagakerjaan & HI</div>
+            <div class="pill">💻 Hukum Siber & UU PDP</div>
+        </div>
+        <div class="controls">
+            <input type="text" class="search-input" placeholder="🔍 Cari nama advokat atau nomor NIA Peradi...">
+            <select class="select-filter">
+                <option value="">💰 Semua Rentang Tarif Honorarium</option>
+                <option value="probono">🎉 Bantuan Hukum Pro Bono SKTM (Rp 0)</option>
+                <option value="low">< Rp 250.000 / sesi</option>
+                <option value="mid">Rp 250.000 - Rp 500.000 / sesi</option>
+            </select>
+            <select class="select-filter">
+                <option value="">⭐️ Semua Rating</option>
+                <option value="4.8">⭐️ 4.8+ Terbaik</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="grid-cards">
+        <div class="doc-card">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(234,179,8,0.2); border: 1px solid #d97706; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">⚖️</div>
+                    <span class="badge badge-success">✔ NIA Peradi Valid</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Budi Santoso, S.H., M.H.</h3>
+                <div style="color: #facc15; font-size: 0.85rem; font-weight: 600; margin: 4px 0 10px;">Advokat & Konsultan Hukum Bisnis</div>
+                <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.2rem;">Berpengalaman 12 tahun dalam litigasi komersial, penyusunan kontrak usaha, serta penyelesaian sengketa hak kekayaan intelektual.</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #cbd5e1;">Honorarium Sesi (45m):</span>
+                    <strong style="color: #34d399; font-size: 1rem;">Rp 350.000</strong>
+                </div>
+            </div>
+            <a href="mockup_payment_gateway.html?advokat=Rizky+Ramadhan&tarif=350000" class="btn btn-gold">💳 Pilih & Lanjutkan Pembayaran</a>
+        </div>
+
+        <div class="doc-card">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(234,179,8,0.2); border: 1px solid #d97706; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">🏛️</div>
+                    <span class="badge badge-success">✔ NIA Peradi Valid</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Ahmad Zaky, S.H., M.H.</h3>
+                <div style="color: #facc15; font-size: 0.85rem; font-weight: 600; margin: 4px 0 10px;">Spesialis Litigasi Pidana & Pro Bono</div>
+                <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.2rem;">Fokus pembelaan hak tersangka/terdakwa di pengadilan negeri, investigasi hukum pidana, serta pendampingan bantuan hukum cuma-cuma SKTM.</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #cbd5e1;">Honorarium Sesi (45m):</span>
+                    <strong style="color: #facc15; font-size: 1rem;">🎉 Pro Bono Rp 0 (SKTM)</strong>
+                </div>
+            </div>
+            <a href="mockup_payment_gateway.html?advokat=Ahmad+Zaky&tarif=0" class="btn btn-gold">💳 Pilih & Klaim Bantuan Hukum (Rp 0)</a>
+        </div>
+
+        <div class="doc-card">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                    <div style="width: 64px; height: 64px; border-radius: 16px; background: rgba(234,179,8,0.2); border: 1px solid #d97706; display: flex; align-items: center; justify-content: center; font-size: 2.2rem;">📜</div>
+                    <span class="badge badge-success">✔ NIA Peradi Valid</span>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 700; color: #fff;">Dewi Lestari, S.H., M.Kn.</h3>
+                <div style="color: #facc15; font-size: 0.85rem; font-weight: 600; margin: 4px 0 10px;">Spesialis Hukum Perdata & Waris</div>
+                <p style="color: #94a3b8; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.2rem;">Ahli sengketa kewarisan, pembagian harta gono-gini, legalitas tanah/properti, serta penyusunan akta perdamaian hukum perdata.</p>
+                <div style="background: rgba(0,0,0,0.3); padding: 10px 14px; border-radius: 10px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.8rem; color: #cbd5e1;">Honorarium Sesi (45m):</span>
+                    <strong style="color: #34d399; font-size: 1rem;">Rp 300.000</strong>
+                </div>
+            </div>
+            <a href="mockup_payment_gateway.html?advokat=Dewi+Lestari&tarif=300000" class="btn btn-gold">💳 Pilih & Lanjutkan Pembayaran</a>
+        </div>
+    </div>
+</body>
+</html>

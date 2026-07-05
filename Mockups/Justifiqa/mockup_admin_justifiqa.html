@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Justifiqa — Portal Admin Legal & Advokasi Litigasi</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+        .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+        .brand { font-size: 1.35rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand span { color: #facc15; font-size: 0.65rem; background: rgba(234,179,8,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(234,179,8,0.4); }
+        .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+        .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+        .nav-item a:hover, .nav-item a.active { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+        .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2.5rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+        .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; margin-bottom: 2rem; }
+        .badge { padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+        .badge-gold { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+        .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <a href="mockup_admin_justifiqa.html" class="brand">Justifiqa <span>ADMIN LEGAL</span></a>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="mockup_admin_justifiqa.html" class="active">⚖️ Dasbor Kepatuhan Peradi</a></li>
+            <li class="nav-item"><a href="#" onclick="alert('Antrean Verifikasi NIA & STR Peradi')">⚡ Verifikasi Advokat Litigasi</a></li>
+            <li class="nav-item"><a href="#" onclick="alert('Audit Pembubuhan e-Meterai Perum Peruri Rp10.000')">📑 Audit e-Meterai Peruri</a></li>
+            <li class="nav-item"><a href="#" onclick="alert('Sidang Etik Dewan Kehormatan Peradi')">🏛️ Sidang Etik Advokat</a></li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 700; color: #fff;">Portal Admin Legal & Kepatuhan UU Advokat</h1>
+                <p style="color: #64748b; font-size: 0.95rem; margin-top: 4px;">Pengawasan keanggotaan Peradi/KAI, otentikasi e-Meterai Peruri, dan verifikasi Pro Bono SKTM</p>
+            </div>
+            <div style="background: rgba(234,179,8,0.1); border: 1px solid #d97706; padding: 8px 16px; border-radius: 20px; color: #facc15; font-weight: 700; font-size: 0.85rem;">⚖️ SILOED STANDALONE APP (OPSI B)</div>
+        </div>
+
+        <div class="grid-3">
+            <div class="card" style="margin:0; border-color: rgba(234,179,8,0.3); background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(15,23,42,0.9));">
+                <div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">TOTAL ADVOKAT LITIGASI TERVERIFIKASI</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">940 <span style="font-size: 1rem; font-weight: normal; color: #facc15;">Advokat</span></div>
+                <div style="color: #34d399; font-size: 0.75rem; margin-top: 8px;">✔ 100% NIA Peradi / KAI Valid</div>
+            </div>
+            <div class="card" style="margin:0; border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(15,23,42,0.9));">
+                <div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">KLIEN & PENCARI BANTUAN HUKUM</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">10.250 <span style="font-size: 1rem; font-weight: normal; color: #34d399;">Klien</span></div>
+                <div style="color: #cbd5e1; font-size: 0.75rem; margin-top: 8px;">+140 Penerima Pro Bono SKTM Valid</div>
+            </div>
+            <div class="card" style="margin:0; border-color: rgba(59,130,246,0.3); background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(15,23,42,0.9));">
+                <div style="color: #60a5fa; font-size: 0.8rem; font-weight: 600;">STEMPEL E-METERAI PERURI (RP 10.000)</div>
+                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">3.420 <span style="font-size: 1rem; font-weight: normal; color: #93c5fd;">Dokumen</span></div>
+                <div style="color: #60a5fa; font-size: 0.75rem; margin-top: 8px;">📑 Legal Opinion & Surat Kuasa Sah Hukum</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1.2rem; color: #fff; margin-bottom: 1.2rem;">⚡ Status Integrasi API Eksternal & Kriptografi Justifiqa (Murni Hukum)</h3>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERADI & KAI REGISTRY</div>
+                        <strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIA Advokat & Berita Acara Sumpah</strong>
+                    </div>
+                    <span class="badge badge-success">✔ ONLINE (15ms)</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERUM PERURI (E-METERAI)</div>
+                        <strong style="color: #fff; margin-top: 4px; display: block;">Pembubuhan Stempel Digital Rp 10.000</strong>
+                    </div>
+                    <span class="badge badge-success">✔ ONLINE (22ms)</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">DUKCAPIL KEMENDAGRI</div>
+                        <strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIK Klien & Validasi SKTM Pro Bono</strong>
+                    </div>
+                    <span class="badge badge-success">✔ ONLINE (14ms)</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+                    <div>
+                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PRIVILEGED ZERO-KNOWLEDGE VAULT</div>
+                        <strong style="color: #fff; margin-top: 4px; display: block;">Enkripsi E2EE Dokumen & IRAC Workstation</strong>
+                    </div>
+                    <span class="badge badge-success">✔ ONLINE (6ms)</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
