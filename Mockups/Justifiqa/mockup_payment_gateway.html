@@ -159,33 +159,38 @@
         <div class="content">
             <!-- Left: Order Summary -->
             <div class="glass-card">
-                <h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan</h2>
+                <div style="background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4;">
+                    <strong>💡 Panduan Uji Coba SD-J-03 (Pembayaran Escrow Justifiqa):</strong><br>
+                    • <strong>Tes Pembayaran Escrow (Langkah 133):</strong> Klik "Bayar Sekarang" ➔ Webhook Midtrans PAID ➔ Dana ditahan di Rekening Escrow Sementara Justifiqa.<br>
+                    • <strong>Tes Expired/Ditolak (UC-05 5a/5b):</strong> Klik tombol "Simulasi Waktu Habis / Ditolak" di bawah tombol bayar.
+                </div>
+                <h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan (SD-J-03)</h2>
                 
                 <div class="order-item">
-                    <img src="https://ui-avatars.com/api/?name=Sarah&background=9333ea&color=fff" class="avatar" alt="Doctor">
+                    <img src="https://ui-avatars.com/api/?name=Rizky+Ramadhan&background=0ea5e9&color=fff" class="avatar" alt="Advokat">
                     <div class="item-info">
-                        <h3>Psi. Sarah, S.Psi., M.Psi.</h3>
-                        <p>Psikolog Klinis Dewasa</p>
-                        <div class="badge">Sesi Chat (60 Menit)</div>
+                        <h3>Rizky Ramadhan, S.H., M.H.</h3>
+                        <p>Advokat Litigasi & Konsultan Hukum</p>
+                        <div class="badge" style="background:rgba(14,165,233,0.2); color:#38bdf8;">Sesi Privileged E2EE (60 Menit)</div>
                     </div>
                 </div>
 
                 <div class="divider"></div>
 
                 <div class="price-row">
-                    <span>Biaya Konsultasi</span>
-                    <span style="color: var(--text-main)">Rp 150.000</span>
+                    <span>Biaya Konsultasi Hukum</span>
+                    <span style="color: var(--text-main)">Rp 250.000</span>
                 </div>
                 <div class="price-row">
-                    <span>Biaya Layanan Platform</span>
-                    <span style="color: var(--text-main)">Rp 5.000</span>
+                    <span>Biaya Escrow & Layanan Platform</span>
+                    <span style="color: var(--text-main)">Rp 10.000</span>
                 </div>
 
                 <div class="divider"></div>
 
                 <div class="total-row">
-                    <span>Total Tagihan</span>
-                    <span>Rp 155.000</span>
+                    <span>Total Tagihan (Escrow)</span>
+                    <span style="color: #38bdf8;">Rp 260.000</span>
                 </div>
             </div>
 
@@ -229,8 +234,11 @@
                 </div>
 
                 <button class="btn-pay" onclick="processPayment(); return false;">
-                    <span>Bayar Sekarang</span>
-                    <span>Rp 155.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
+                    <span>Bayar Sekarang (Escrow)</span>
+                    <span>Rp 260.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
+                </button>
+                <button class="btn-cancel" onclick="simulateFailedPayment(); return false;" style="background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="ph ph-clock-countdown" style="font-size:1.1rem;"></i> Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)
                 </button>
             </div>
         </div>
@@ -280,19 +288,28 @@
                 const successIcon = document.getElementById('processingIconSuccess');
                 successIcon.style.display = 'flex';
                 
-                document.getElementById('processingTitle').style.color = '#34d399';
-                document.getElementById('processingTitle').innerText = '✅ Pembayaran Terkonfirmasi!';
-                document.getElementById('processingDesc').innerText = 'Webhook Midtrans menerima settlement sukses. Menyiapkan ruang konsultasi Privileged E2EE dan mengalihkan ke Dasbor...';
+                document.getElementById('processingTitle').style.color = '#38bdf8';
+                document.getElementById('processingTitle').innerText = '✅ Dana Ditahan di Escrow Justifiqa!';
+                document.getElementById('processingDesc').innerHTML = 'Webhook Midtrans menerima settlement sukses (PAID).<br><strong style="color:#facc15;">Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa (SD-J-03 Langkah 133)</strong> hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...';
                 
                 const statusEl = document.getElementById('webhookStatus');
-                statusEl.style.color = '#34d399';
-                statusEl.innerText = 'SETTLEMENT_CONFIRMED (200 OK)';
+                statusEl.style.color = '#38bdf8';
+                statusEl.innerText = 'ESCROW_HOLD_CONFIRMED (200 OK)';
             }, 1800);
 
             // Step 2: Auto redirect ke dasbor klien setelah 3.5 detik total
             setTimeout(() => {
                 window.location.href = 'mockup_dashboard_hukum_klien.html?demo_confirm=1';
             }, 3500);
+        }
+
+        function simulateFailedPayment() {
+            document.getElementById('paymentFailedState').style.display = 'flex';
+            const statusEl = document.getElementById('webhookStatus');
+            if (statusEl) {
+                statusEl.style.color = '#ff4757';
+                statusEl.innerText = 'PAYMENT_EXPIRED / REJECTED (400 Bad Request - UC-05)';
+            }
         }
     </script>
 

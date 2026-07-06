@@ -232,7 +232,18 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   - *Search & Filter Bar:* Filter spesialisasi (Hukum Pidana, Perdata, Ketenagakerjaan, HAKI, Perceraian), filter lokasi domisili pengadilan, dan filter tarif konsultasi.
   - *Advocate Profile Cards:* Foto advokat, Nomor NIA Peradi, Pengalaman beracara (tahun), Rating klien, Tarif konsultasi per jam, dan Badge Pro Bono Available.
 * **Interactive State Machine:**
-  1. Klik `"Konsultasi Sekarang"` ➔ Redirect ke `mockup_payment_gateway.html` dengan parameter ID Advokat dan Tarif Hukum.
+  1. Klik `"Pilih & Lanjutkan Pembayaran"` ➔ Redirect ke `mockup_payment_gateway.html` dengan parameter ID Advokat dan Tarif Hukum.
+
+#### `SCR-JST-04b` : Payment Gateway Escrow Justifiqa
+* **File HTML:** `mockup_payment_gateway.html` | **Traceability:** SD-J-03, UC-04, UC-05
+* **Access Control:** Klien Hukum.
+* **Component Inventory Wajib:**
+  - *Escrow Holding Notice:* Penanda bahwa dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa hingga sesi selesai.
+  - *Payment Method Selector:* Kartu Kredit, E-Wallet, dan Virtual Account Bank Transfer.
+  - *Timeout & Failure Simulator Button:* Tombol simulasi transaksi expired/ditolak (UC-05 alternatif 5a/5b).
+* **Interactive State Machine:**
+  1. Klik `"Bayar Sekarang (Escrow)"` ➔ Simulasi webhook Midtrans PAID ➔ Status dana ditahan di Escrow (SD-J-03 Langkah 133) ➔ Redirect ke Dasbor Klien.
+  2. Klik `"Simulasi Waktu Habis / Ditolak"` ➔ Menampilkan layer error transaksi expired/gagal ➔ Opsi coba metode pembayaran lain.
 
 #### `SCR-JST-05` : Workstation Kontrak & Litigasi
 * **File HTML:** `mockup_modul_hukum.html` | **Traceability:** UC-09, UC-10
@@ -245,14 +256,16 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   1. Klik `"Bubuhkan e-Meterai & Sahkan Kontrak"` ➔ Sistem melakukan pengecekan saldo meterai ➔ Menerapkan stempel digital ➔ Mengunci dokumen menjadi PDF bermeterai sah.
 
 #### `SCR-JST-06` : Ruang Konsultasi Hukum E2EE & NDA
-* **File HTML:** `mockup_chat_justifiqa.html` | **Traceability:** UC-05, UC-11
+* **File HTML:** `mockup_chat_justifiqa.html` | **Traceability:** SD-J-03, UC-05, UC-06, UC-11
 * **Access Control:** Klien & Advokat yang bertaut dalam perkara.
 * **Component Inventory Wajib:**
   - *NDA Shield Banner:* Penanda visual bahwa seluruh komunikasi dilindungi oleh hak imunitas advokat dan perjanjian kerahasiaan (*Non-Disclosure Agreement*).
   - *Secure Document Vault Table:* Area berbagi bukti berkas perkara (foto bukti, somasi, surat gugatan) dengan watermark digital.
   - *Encrypted Messaging & Audio Call:* Panel komunikasi real-time anti-serapan.
+  - *Escrow Release & Rating Modal (SD-J-03 / J-UC06):* Modal penilaian 5 bintang interaktif dan ulasan yang otomatis muncul saat mengakhiri sesi, memicu pelepasan dana escrow ke rekening advokat setelah dipotong fee 25% & PPh 21.
 * **Interactive State Machine:**
   1. Klik `"Unggah Bukti Perkara"` ➔ File diberi watermark otomatis dengan nomor perkara dan identitas pengunggah.
+  2. Klik `"Akhiri Sesi Litigasi"` ➔ Konfirmasi ➔ Untuk Klien: memunculkan Modal Rating J-UC06 (bisa isi ulasan atau skip) dan melepas dana escrow ➔ Redirect ke Dasbor Klien. Untuk Mitra Advokat: mencairkan dana escrow ke saldo ➔ Redirect ke Workstation IRAC Note.
 
 #### `SCR-JST-07` : Dasbor Admin Peradi
 * **File HTML:** `mockup_admin_justifiqa.html` | **Traceability:** UC-06, UC-12

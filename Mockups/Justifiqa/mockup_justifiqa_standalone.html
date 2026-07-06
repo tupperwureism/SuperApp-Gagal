@@ -1253,7 +1253,7 @@
                     &lt;strong style=&quot;color: #34d399; font-size: 1rem;&quot;&gt;Rp 350.000&lt;/strong&gt;
                 &lt;/div&gt;
             &lt;/div&gt;
-            &lt;a href=&quot;mockup_payment_gateway.html?advokat=Rizky+Ramadhan&amp;tarif=350000&quot; class=&quot;btn btn-gold&quot;&gt;💳 Pilih &amp; Lanjutkan Pembayaran&lt;/a&gt;
+            &lt;a href=&quot;mockup_payment_gateway.html?advokat=Budi+Santoso,+S.H.,+M.H.&amp;tarif=350000&quot; class=&quot;btn btn-gold&quot;&gt;💳 Pilih &amp; Lanjutkan Pembayaran&lt;/a&gt;
         &lt;/div&gt;
 
         &lt;div class=&quot;doc-card&quot;&gt;
@@ -1577,6 +1577,11 @@
                 &lt;/div&gt;
             &lt;/div&gt;
             &lt;div class=&quot;chat-history&quot;&gt;
+                &lt;div style=&quot;background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4; align-self: stretch;&quot;&gt;
+                    &lt;strong&gt;💡 Panduan Uji Coba SD-J-03 (Akhir Sesi &amp; Pencairan Escrow):&lt;/strong&gt;&lt;br&gt;
+                    • &lt;strong&gt;Sebagai Klien (UC-06):&lt;/strong&gt; Klik &quot;Akhiri Sesi Litigasi&quot; ➔ Ya, Akhiri Sesi ➔ Muncul Modal Rating &amp; Ulasan (J-UC06) ➔ Dana Escrow dilepaskan ke advokat.&lt;br&gt;
+                    • &lt;strong&gt;Sebagai Mitra Advokat (Langkah 147):&lt;/strong&gt; Klik &quot;Akhiri Sesi Litigasi&quot; ➔ Ya, Akhiri Sesi &amp; Buat IRAC Note ➔ Sistem mencairkan dana Escrow Rp250.000 ke saldo (potong fee 25% &amp; PPh 21) ➔ Redirect ke Workstation IRAC Note.
+                &lt;/div&gt;
                 &lt;div class=&quot;msg-wrapper partner&quot;&gt;
                     &lt;div class=&quot;msg-bubble&quot;&gt;Selamat siang. Saya Advokat Budi Santoso. Sesuai UU No. 18/2003, seluruh komunikasi dalam ruang ini dilindungi hak imunitas advokat dan enkripsi Zero-Knowledge. Silakan lampirkan draft kontrak sewa ruko Anda.&lt;/div&gt;
                     &lt;div class=&quot;msg-time&quot;&gt;14:00&lt;/div&gt;
@@ -1613,13 +1618,65 @@
             &lt;h3 style=&quot;color: #fff; font-size: 1.3rem; margin-bottom: 8px;&quot;&gt;Akhiri Sesi Litigasi?&lt;/h3&gt;
             &lt;p style=&quot;color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;&quot;&gt;Jika Anda mengakhiri sesi, advokat akan menyusun &lt;strong&gt;IRAC Note &amp; Legal Opinion (J-UC10)&lt;/strong&gt;. Sesi yang telah ditutup tidak dapat dibuka kembali atau di-refund.&lt;/p&gt;
             &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
-                &lt;a href=&quot;mockup_dashboard_hukum_klien.html&quot; id=&quot;endSessionBtn&quot; style=&quot;flex: 1; background: #ef4444; border: none; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700;&quot;&gt;Ya, Akhiri Sesi&lt;/a&gt;
+                &lt;a href=&quot;#&quot; onclick=&quot;handleEndSession(); return false;&quot; id=&quot;endSessionBtn&quot; style=&quot;flex: 1; background: #ef4444; border: none; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700;&quot;&gt;Ya, Akhiri Sesi&lt;/a&gt;
                 &lt;button style=&quot;flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;&quot; onclick=&quot;document.getElementById(&#x27;exitConfirmModal&#x27;).style.display=&#x27;none&#x27;&quot;&gt;Batal&lt;/button&gt;
             &lt;/div&gt;
         &lt;/div&gt;
     &lt;/div&gt;
 
+    &lt;!-- Modal Rating &amp; Ulasan (SD-J-03 Langkah 146 &amp; J-UC06) --&gt;
+    &lt;div id=&quot;ratingModal&quot; class=&quot;modal-overlay&quot; style=&quot;display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;&quot;&gt;
+        &lt;div class=&quot;modal-box&quot; style=&quot;background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #facc15; width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);&quot;&gt;
+            &lt;div style=&quot;font-size: 3rem; margin-bottom: 10px;&quot;&gt;⭐&lt;/div&gt;
+            &lt;h3 style=&quot;color: #fff; font-size: 1.3rem; margin-bottom: 8px;&quot;&gt;Ulasan &amp; Rating Advokat (J-UC06)&lt;/h3&gt;
+            &lt;p style=&quot;color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;&quot;&gt;Sesi Anda telah selesai. &lt;strong style=&quot;color:#38bdf8;&quot;&gt;Dana Escrow dilepaskan ke Advokat (SD-J-03 Langkah 147)&lt;/strong&gt;. Berikan penilaian untuk Budi Santoso, S.H., M.H.:&lt;/p&gt;
+            
+            &lt;div style=&quot;font-size: 2rem; color: #facc15; margin-bottom: 1rem; cursor: pointer; letter-spacing: 5px;&quot;&gt;
+                &lt;span onclick=&quot;setStar(1)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(2)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(3)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(4)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(5)&quot;&gt;★&lt;/span&gt;
+            &lt;/div&gt;
+            &lt;textarea placeholder=&quot;Tulis ulasan Anda mengenai analisis hukum advokat...&quot; style=&quot;width: 100%; height: 80px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); border-radius: 8px; color: #fff; padding: 10px; font-size: 0.85rem; margin-bottom: 1.5rem; outline: none;&quot;&gt;&lt;/textarea&gt;
+
+            &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
+                &lt;button onclick=&quot;submitRating(false)&quot; style=&quot;flex: 2; background: #facc15; border: none; color: #000; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;&quot;&gt;Kirim Ulasan &amp; Cairkan Escrow&lt;/button&gt;
+                &lt;button onclick=&quot;submitRating(true)&quot; style=&quot;flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;&quot;&gt;Nanti (Skip)&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
     &lt;script&gt;
+        function setStar(n) {
+            const stars = document.querySelectorAll(&#x27;#ratingModal span&#x27;);
+            stars.forEach((s, idx) =&gt; {
+                s.style.color = idx &lt; n ? &#x27;#facc15&#x27; : &#x27;#4b5563&#x27;;
+            });
+        }
+
+        function handleEndSession() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const role = urlParams.get(&#x27;role&#x27;) || localStorage.getItem(&#x27;user_role_justifiqa&#x27;) || &#x27;klien&#x27;;
+            
+            document.getElementById(&#x27;exitConfirmModal&#x27;).style.display = &#x27;none&#x27;;
+            
+            if (role === &#x27;mitra&#x27;) {
+                // SD-J-03 Langkah 147: Cairkan Dana Escrow &amp; Buat IRAC Note
+                alert(&#x27;💰 SISTEM ESCROW JUSTIFIQA (SD-J-03 Langkah 147):\n\nSesi konsultasi resmi berakhir. Dana dari rekening escrow sebesar Rp250.000 telah dicairkan ke Saldo Advokat Anda (setelah dipotong Fee Platform 25% &amp; PPh 21).\n\nMengarahkan ke Workstation Hukum untuk penyusunan IRAC Note...&#x27;);
+                window.location.href = &#x27;mockup_modul_hukum.html&#x27;;
+            } else {
+                // SD-J-03 Langkah 146 &amp; J-UC06: Trigger Rating &amp; Ulasan Modal
+                document.getElementById(&#x27;ratingModal&#x27;).style.display = &#x27;flex&#x27;;
+            }
+        }
+
+        function submitRating(skip = false) {
+            document.getElementById(&#x27;ratingModal&#x27;).style.display = &#x27;none&#x27;;
+            if (skip) {
+                alert(&#x27;⏩ Anda melewatkan ulasan (UC-06 2a). Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).&#x27;);
+            } else {
+                alert(&#x27;⭐ Ulasan berhasil dikirim (UC-06 Langkah 5)! Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).&#x27;);
+            }
+            window.location.href = &#x27;mockup_dashboard_hukum_klien.html&#x27;;
+        }
+
         // Role-Aware Routing Engine (Mengatasi Bug Lompatan Klien vs Mitra Advokat)
         window.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
             const urlParams = new URLSearchParams(window.location.search);
@@ -1634,7 +1691,6 @@
                     navBack.innerHTML = &#x27;⬅ Kembali ke Dasbor Advokat&#x27;;
                 }
                 if (endBtn) {
-                    endBtn.href = &#x27;mockup_modul_hukum.html&#x27;;
                     endBtn.innerText = &#x27;Ya, Akhiri Sesi &amp; Buat IRAC Note&#x27;;
                 }
             } else {
@@ -1643,7 +1699,6 @@
                     navBack.innerHTML = &#x27;⬅ Kembali ke Dasbor Justifiqa&#x27;;
                 }
                 if (endBtn) {
-                    endBtn.href = &#x27;mockup_dashboard_hukum_klien.html&#x27;;
                     endBtn.innerText = &#x27;Ya, Akhiri Sesi&#x27;;
                 }
             }
@@ -1818,33 +1873,38 @@
         &lt;div class=&quot;content&quot;&gt;
             &lt;!-- Left: Order Summary --&gt;
             &lt;div class=&quot;glass-card&quot;&gt;
-                &lt;h2 class=&quot;section-title&quot;&gt;&lt;i class=&quot;ph-fill ph-receipt&quot;&gt;&lt;/i&gt; Ringkasan Pesanan&lt;/h2&gt;
+                &lt;div style=&quot;background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4;&quot;&gt;
+                    &lt;strong&gt;💡 Panduan Uji Coba SD-J-03 (Pembayaran Escrow Justifiqa):&lt;/strong&gt;&lt;br&gt;
+                    • &lt;strong&gt;Tes Pembayaran Escrow (Langkah 133):&lt;/strong&gt; Klik &quot;Bayar Sekarang&quot; ➔ Webhook Midtrans PAID ➔ Dana ditahan di Rekening Escrow Sementara Justifiqa.&lt;br&gt;
+                    • &lt;strong&gt;Tes Expired/Ditolak (UC-05 5a/5b):&lt;/strong&gt; Klik tombol &quot;Simulasi Waktu Habis / Ditolak&quot; di bawah tombol bayar.
+                &lt;/div&gt;
+                &lt;h2 class=&quot;section-title&quot;&gt;&lt;i class=&quot;ph-fill ph-receipt&quot;&gt;&lt;/i&gt; Ringkasan Pesanan (SD-J-03)&lt;/h2&gt;
                 
                 &lt;div class=&quot;order-item&quot;&gt;
-                    &lt;img src=&quot;https://ui-avatars.com/api/?name=Sarah&amp;background=9333ea&amp;color=fff&quot; class=&quot;avatar&quot; alt=&quot;Doctor&quot;&gt;
+                    &lt;img src=&quot;https://ui-avatars.com/api/?name=Rizky+Ramadhan&amp;background=0ea5e9&amp;color=fff&quot; class=&quot;avatar&quot; alt=&quot;Advokat&quot;&gt;
                     &lt;div class=&quot;item-info&quot;&gt;
-                        &lt;h3&gt;Psi. Sarah, S.Psi., M.Psi.&lt;/h3&gt;
-                        &lt;p&gt;Psikolog Klinis Dewasa&lt;/p&gt;
-                        &lt;div class=&quot;badge&quot;&gt;Sesi Chat (60 Menit)&lt;/div&gt;
+                        &lt;h3&gt;Rizky Ramadhan, S.H., M.H.&lt;/h3&gt;
+                        &lt;p&gt;Advokat Litigasi &amp; Konsultan Hukum&lt;/p&gt;
+                        &lt;div class=&quot;badge&quot; style=&quot;background:rgba(14,165,233,0.2); color:#38bdf8;&quot;&gt;Sesi Privileged E2EE (60 Menit)&lt;/div&gt;
                     &lt;/div&gt;
                 &lt;/div&gt;
 
                 &lt;div class=&quot;divider&quot;&gt;&lt;/div&gt;
 
                 &lt;div class=&quot;price-row&quot;&gt;
-                    &lt;span&gt;Biaya Konsultasi&lt;/span&gt;
-                    &lt;span style=&quot;color: var(--text-main)&quot;&gt;Rp 150.000&lt;/span&gt;
+                    &lt;span&gt;Biaya Konsultasi Hukum&lt;/span&gt;
+                    &lt;span style=&quot;color: var(--text-main)&quot;&gt;Rp 250.000&lt;/span&gt;
                 &lt;/div&gt;
                 &lt;div class=&quot;price-row&quot;&gt;
-                    &lt;span&gt;Biaya Layanan Platform&lt;/span&gt;
-                    &lt;span style=&quot;color: var(--text-main)&quot;&gt;Rp 5.000&lt;/span&gt;
+                    &lt;span&gt;Biaya Escrow &amp; Layanan Platform&lt;/span&gt;
+                    &lt;span style=&quot;color: var(--text-main)&quot;&gt;Rp 10.000&lt;/span&gt;
                 &lt;/div&gt;
 
                 &lt;div class=&quot;divider&quot;&gt;&lt;/div&gt;
 
                 &lt;div class=&quot;total-row&quot;&gt;
-                    &lt;span&gt;Total Tagihan&lt;/span&gt;
-                    &lt;span&gt;Rp 155.000&lt;/span&gt;
+                    &lt;span&gt;Total Tagihan (Escrow)&lt;/span&gt;
+                    &lt;span style=&quot;color: #38bdf8;&quot;&gt;Rp 260.000&lt;/span&gt;
                 &lt;/div&gt;
             &lt;/div&gt;
 
@@ -1888,8 +1948,11 @@
                 &lt;/div&gt;
 
                 &lt;button class=&quot;btn-pay&quot; onclick=&quot;processPayment(); return false;&quot;&gt;
-                    &lt;span&gt;Bayar Sekarang&lt;/span&gt;
-                    &lt;span&gt;Rp 155.000 &lt;i class=&quot;ph ph-arrow-right&quot; style=&quot;margin-left: 10px; vertical-align: middle;&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                    &lt;span&gt;Bayar Sekarang (Escrow)&lt;/span&gt;
+                    &lt;span&gt;Rp 260.000 &lt;i class=&quot;ph ph-arrow-right&quot; style=&quot;margin-left: 10px; vertical-align: middle;&quot;&gt;&lt;/i&gt;&lt;/span&gt;
+                &lt;/button&gt;
+                &lt;button class=&quot;btn-cancel&quot; onclick=&quot;simulateFailedPayment(); return false;&quot; style=&quot;background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;&quot;&gt;
+                    &lt;i class=&quot;ph ph-clock-countdown&quot; style=&quot;font-size:1.1rem;&quot;&gt;&lt;/i&gt; Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)
                 &lt;/button&gt;
             &lt;/div&gt;
         &lt;/div&gt;
@@ -1939,19 +2002,28 @@
                 const successIcon = document.getElementById(&#x27;processingIconSuccess&#x27;);
                 successIcon.style.display = &#x27;flex&#x27;;
                 
-                document.getElementById(&#x27;processingTitle&#x27;).style.color = &#x27;#34d399&#x27;;
-                document.getElementById(&#x27;processingTitle&#x27;).innerText = &#x27;✅ Pembayaran Terkonfirmasi!&#x27;;
-                document.getElementById(&#x27;processingDesc&#x27;).innerText = &#x27;Webhook Midtrans menerima settlement sukses. Menyiapkan ruang konsultasi Privileged E2EE dan mengalihkan ke Dasbor...&#x27;;
+                document.getElementById(&#x27;processingTitle&#x27;).style.color = &#x27;#38bdf8&#x27;;
+                document.getElementById(&#x27;processingTitle&#x27;).innerText = &#x27;✅ Dana Ditahan di Escrow Justifiqa!&#x27;;
+                document.getElementById(&#x27;processingDesc&#x27;).innerHTML = &#x27;Webhook Midtrans menerima settlement sukses (PAID).&lt;br&gt;&lt;strong style=&quot;color:#facc15;&quot;&gt;Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa (SD-J-03 Langkah 133)&lt;/strong&gt; hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...&#x27;;
                 
                 const statusEl = document.getElementById(&#x27;webhookStatus&#x27;);
-                statusEl.style.color = &#x27;#34d399&#x27;;
-                statusEl.innerText = &#x27;SETTLEMENT_CONFIRMED (200 OK)&#x27;;
+                statusEl.style.color = &#x27;#38bdf8&#x27;;
+                statusEl.innerText = &#x27;ESCROW_HOLD_CONFIRMED (200 OK)&#x27;;
             }, 1800);
 
             // Step 2: Auto redirect ke dasbor klien setelah 3.5 detik total
             setTimeout(() =&gt; {
                 window.location.href = &#x27;mockup_dashboard_hukum_klien.html?demo_confirm=1&#x27;;
             }, 3500);
+        }
+
+        function simulateFailedPayment() {
+            document.getElementById(&#x27;paymentFailedState&#x27;).style.display = &#x27;flex&#x27;;
+            const statusEl = document.getElementById(&#x27;webhookStatus&#x27;);
+            if (statusEl) {
+                statusEl.style.color = &#x27;#ff4757&#x27;;
+                statusEl.innerText = &#x27;PAYMENT_EXPIRED / REJECTED (400 Bad Request - UC-05)&#x27;;
+            }
         }
     &lt;/script&gt;
 
