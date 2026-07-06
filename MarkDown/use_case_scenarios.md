@@ -312,27 +312,34 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ---
 
-## C. Aktor: Admin (Administrator)
+### J-UC13: Mengunggah Berkas Perkara E2EE Zero-Knowledge
+* **Aktor Utama**: Klien Hukum
+* **Aktor Pendukung**: Advokat Mitra Peradi, WORM Hash Storage, Backend Justifiqa
+* **Deskripsi Singkat**: Klien atau advokat mengunggah bukti perkara hukum (PDF/JPG, maks 15 MB) ke dalam ruang obrolan dengan perlindungan enkripsi *client-side Zero-Knowledge* dan penyimpanan terintegrasi di WORM storage.
+* **Pre-condition**: Sesi konsultasi hukum aktif di dalam ruang obrolan E2EE (`SCR-JST-06`).
+* **Post-condition**: Berkas terenkripsi tersimpan di WORM Hash Storage dengan stempel metadata *"PRIVILEGED LEGAL EVIDENCE"*, dan dapat diunduh/didekripsi oleh lawan bicara.
+* **Alur Utama (Basic Flow - SD-J-05 Langkah 197-209)**:
+  1. Klien mengklik tombol unggah bukti perkara dan memilih file bukti hukum (format PDF/JPG, maksimal 15 MB).
+  2. Sistem lokal klien (`LocK`) melakukan pemindaian virus/malware di *client-side* secara otomatis.
+  3. Sistem lokal klien (`LocK`) melakukan enkripsi file dengan *Session Key* (metode *Zero-Knowledge*, kunci tidak pernah dikirim atau disimpan di server).
+  4. Sistem lokal mengirimkan *encrypted blob* dan hash SHA-256 ke *Backend* (`BE`), yang diteruskan untuk disimpan ke *WORM Hash Storage*.
+  5. *WORM Storage* mengonfirmasi penyimpanan dan sistem menyematkan stempel metadata *"PRIVILEGED LEGAL EVIDENCE - ATTORNEY-CLIENT PRIVILEGE"*.
+  6. *Backend* mengirimkan notifikasi *webhook* ke workstation Advokat dan menampilkan gelembung dokumen baru di ruang obrolan.
+  7. Advokat mengklik tombol unduh/dekripsi bukti perkara pada gelembung obrolan.
+  8. Sistem lokal advokat (`LocM`) mengambil *encrypted blob* dari WORM dan melakukan dekripsi lokal menggunakan *Session Key*.
+  9. Dokumen utuh dan sah ditampilkan di *workstation* advokat untuk ditelaah dalam penyusunan IRAC Note.
+* **Alur Alternatif/Gagal (Alternative Flow - SD-J-05)**:
+  * **3a. Kegagalan Pemindaian Malware (Malware Detected - Error 400)**:
+    1. Mesin pemindai *client-side* mendeteksi adanya virus atau kode berbahaya pada berkas yang dipilih.
+    2. Sistem membatalkan proses enkripsi dan menolak pengunggahan berkas sebelum meninggalkan perangkat klien.
+    3. Sistem memunculkan peringatan error: *"⚠️ Upload Ditolak (400 Bad Request - J-UC13 3a): Sistem mendeteksi potensi ancaman keamanan/malware pada berkas."*
+  * **3b. Ukuran Berkas Melebihi Batas 15 MB / Format Tidak Valid (Error 413 / 415)**:
+    1. Klien memilih berkas dengan ukuran > 15 MB atau format di luar PDF/JPG.
+    2. Sistem menolak pemrosesan dan memunculkan peringatan validasi: *"⚠️ Upload Gagal (413 Payload Too Large / 415 Unsupported Media Type - J-UC13 3b): Ukuran file melebihi batas maksimal 15 MB atau format tidak sesuai (Wajib PDF/JPG)."*
 
-### UC-13: Memverifikasi Berkas Mitra Profesional
-* **Aktor Utama**: Admin
-* **Aktor Pendukung**: Tidak ada
-* **Deskripsi Singkat**: Admin meninjau dokumen STR dan ijazah mitra profesional baru untuk menyetujui atau menolak pendaftaran mereka.
-* **Pre-condition**: Ada pendaftaran mitra profesional baru dengan status `PENDING_VERIFICATION` (UC-07).
-* **Post-condition**: Status verifikasi mitra profesional berubah menjadi aktif (`ACTIVE`) atau ditolak (`REJECTED`) di database.
-* **Alur Utama (Basic Flow)**:
-  1. Admin membuka menu "Verifikasi Mitra Profesional" di panel dashboard admin.
-  2. Sistem menampilkan daftar mitra profesional baru beserta berkas STR yang telah diunggah.
-  3. Admin membuka detail berkas dan melakukan pengecekan keabsahan STR mitra profesional ke database eksternal KKI (Konsil Kemitra profesionalan Indonesia) secara manual.
-  4. Berkas dinyatakan sah dan valid. Admin mengklik tombol "Setujui / Approve".
-  5. Sistem mengubah status akun mitra profesional menjadi `ACTIVE` dan mengirimkan email pemberitahuan sukses pendaftaran.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **4a. Berkas Tidak Valid / STR Palsu**:
-    1. Admin mendeteksi berkas STR tidak valid, kedaluwarsa, atau tidak cocok dengan data KKI.
-    2. Admin mengklik tombol "Tolak / Reject".
-    3. Sistem menampilkan kolom pengisian alasan penolakan berkas.
-    4. Admin mengisi alasan penolakan (misal: *"File STR tidak terbaca / buram"*).
-    5. Sistem mengubah status verifikasi mitra profesional menjadi `REJECTED` dan mengirimkan email penolakan berkas beserta alasan detailnya.
+---
+
+## C. Aktor: Admin (Administrator)
 
 ---
 

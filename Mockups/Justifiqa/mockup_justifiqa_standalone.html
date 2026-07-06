@@ -1598,9 +1598,10 @@
             &lt;/div&gt;
             &lt;div class=&quot;chat-history&quot;&gt;
                 &lt;div style=&quot;background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem 1rem; border-radius: 8px; margin-bottom: 0.5rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4; align-self: stretch;&quot;&gt;
-                    &lt;strong&gt;💡 Panduan Uji Coba SD-J-03 (Akhir Sesi &amp; Pencairan Escrow):&lt;/strong&gt;&lt;br&gt;
-                    • &lt;strong&gt;Sebagai Klien (UC-06):&lt;/strong&gt; Klik &quot;Akhiri Sesi Litigasi&quot; ➔ Ya, Akhiri Sesi ➔ Muncul Modal Rating &amp; Ulasan (J-UC06) ➔ Dana Escrow dilepaskan ke advokat.&lt;br&gt;
-                    • &lt;strong&gt;Sebagai Mitra Advokat (Langkah 147):&lt;/strong&gt; Klik &quot;Akhiri Sesi Litigasi&quot; ➔ Ya, Akhiri Sesi &amp; Buat IRAC Note ➔ Sistem mencairkan dana Escrow Rp250.000 ke saldo (potong fee 25% &amp; PPh 21) ➔ Redirect ke Workstation IRAC Note.
+                    &lt;strong&gt;💡 Panduan Uji Coba SD-J-03 &amp; SD-J-05 (Escrow, Rating, &amp; E2EE Upload):&lt;/strong&gt;&lt;br&gt;
+                    • &lt;strong&gt;Unggah Bukti Perkara (SD-J-05 / J-UC13):&lt;/strong&gt; Klik ikon klip (📎) di bawah ➔ Pilih simulasi aman (200 OK), virus/malware (400 Bad Request - 3a), atau ukuran &gt;15MB (413/415 Error - 3b) ➔ Sistem lokal (LocK) melakukan scan &amp; enkripsi Zero-Knowledge ke WORM Storage.&lt;br&gt;
+                    • &lt;strong&gt;Unduh &amp; Dekripsi Bukti (SD-J-05 Langkah 204-208):&lt;/strong&gt; Klik pada gelembung dokumen (PDF/JPG) di ruang obrolan ➔ Sistem mengambil blob dari WORM &amp; melakukan dekripsi lokal dengan Session Key.&lt;br&gt;
+                    • &lt;strong&gt;Akhir Sesi &amp; Escrow (SD-J-03 / UC-06):&lt;/strong&gt; Klik &quot;Akhiri Sesi Litigasi&quot; ➔ Ya, Akhiri Sesi ➔ Untuk Klien: memunculkan Modal Rating J-UC06 dan melepas Escrow. Untuk Advokat: mencairkan Escrow ke saldo &amp; menuju Workstation IRAC Note.
                 &lt;/div&gt;
                 &lt;div class=&quot;msg-wrapper partner&quot;&gt;
                     &lt;div class=&quot;msg-bubble&quot;&gt;Selamat siang. Saya Advokat Budi Santoso. Sesuai UU No. 18/2003, seluruh komunikasi dalam ruang ini dilindungi hak imunitas advokat dan enkripsi Zero-Knowledge. Silakan lampirkan draft kontrak sewa ruko Anda.&lt;/div&gt;
@@ -1611,11 +1612,11 @@
                     &lt;div class=&quot;msg-time&quot;&gt;14:02&lt;/div&gt;
                 &lt;/div&gt;
                 &lt;div class=&quot;msg-wrapper user&quot;&gt;
-                    &lt;div class=&quot;msg-bubble doc-bubble&quot;&gt;
+                    &lt;div class=&quot;msg-bubble doc-bubble&quot; onclick=&quot;simulateDownloadEvidence(&#x27;Draft_Perjanjian_Sewa_Ruko_Final.pdf&#x27;, &#x27;1.2 MB&#x27;, &#x27;SHA256: 8f9d2a1c...e4b&#x27;); return false;&quot; style=&quot;cursor:pointer;&quot; title=&quot;Unduh Bukti Perkara &amp; Dekripsi Lokal (SD-J-05 Langkah 204-208)&quot;&gt;
                         &lt;div class=&quot;doc-icon&quot;&gt;&lt;i class=&quot;ph-fill ph-file-pdf&quot;&gt;&lt;/i&gt;&lt;/div&gt;
                         &lt;div class=&quot;doc-info&quot;&gt;
                             &lt;span class=&quot;doc-name&quot;&gt;Draft_Perjanjian_Sewa_Ruko_Final.pdf&lt;/span&gt;
-                            &lt;span class=&quot;doc-size&quot;&gt;1.2 MB • Enkripsi Privileged Aktif&lt;/span&gt;
+                            &lt;span class=&quot;doc-size&quot;&gt;1.2 MB • Enkripsi Privileged Aktif • 🛡️ WORM Verified&lt;/span&gt;
                         &lt;/div&gt;
                     &lt;/div&gt;
                     &lt;div class=&quot;msg-time&quot;&gt;14:03&lt;/div&gt;
@@ -1626,7 +1627,7 @@
                 &lt;/div&gt;
             &lt;/div&gt;
             &lt;div class=&quot;input-area&quot;&gt;
-                &lt;button class=&quot;btn-action&quot; title=&quot;Unggah Berkas Bukti (J-UC09)&quot; onclick=&quot;alert(&#x27;Unggah bukti hukum / kontrak terenkripsi...&#x27;)&quot;&gt;&lt;i class=&quot;ph ph-paperclip&quot;&gt;&lt;/i&gt;&lt;/button&gt;
+                &lt;button class=&quot;btn-action&quot; title=&quot;Unggah Berkas Bukti (J-UC13 / SD-J-05)&quot; onclick=&quot;document.getElementById(&#x27;uploadEvidenceModal&#x27;).style.display=&#x27;flex&#x27;; return false;&quot;&gt;&lt;i class=&quot;ph ph-paperclip&quot;&gt;&lt;/i&gt;&lt;/button&gt;
                 &lt;input type=&quot;text&quot; class=&quot;chat-input&quot; placeholder=&quot;Ketik pesan konsultasi hukum Anda di sini (Privileged E2EE)...&quot;&gt;
                 &lt;button class=&quot;btn-send&quot; onclick=&quot;alert(&#x27;Pesan konsultasi hukum dikirim secara aman!&#x27;)&quot;&gt;&lt;i class=&quot;ph-fill ph-paper-plane-right&quot;&gt;&lt;/i&gt;&lt;/button&gt;
             &lt;/div&gt;
@@ -1663,7 +1664,81 @@
         &lt;/div&gt;
     &lt;/div&gt;
 
+    &lt;div id=&quot;uploadEvidenceModal&quot; class=&quot;modal-overlay&quot; style=&quot;display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;&quot;&gt;
+        &lt;div class=&quot;modal-box&quot; style=&quot;background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #0ea5e9; width: 460px; text-align: left; box-shadow: 0 10px 30px rgba(14, 165, 233, 0.3);&quot;&gt;
+            &lt;div style=&quot;font-size: 2.5rem; text-align: center; margin-bottom: 10px;&quot;&gt;🛡️&lt;/div&gt;
+            &lt;h3 style=&quot;color: #fff; font-size: 1.25rem; text-align: center; margin-bottom: 8px;&quot;&gt;Unggah Bukti Perkara E2EE (SD-J-05 / J-UC13)&lt;/h3&gt;
+            &lt;p style=&quot;color: #cbd5e1; font-size: 0.8rem; line-height: 1.5; margin-bottom: 1.25rem; text-align: center;&quot;&gt;
+                Sistem Lokal (&lt;strong style=&quot;color:#38bdf8;&quot;&gt;LocK&lt;/strong&gt;) memindai malware &amp; mengenkripsi file secara &lt;strong style=&quot;color:#38bdf8;&quot;&gt;Zero-Knowledge&lt;/strong&gt; (AES-256 Session Key) sebelum disimpan ke &lt;strong style=&quot;color:#38bdf8;&quot;&gt;WORM Hash Storage&lt;/strong&gt;.
+            &lt;/p&gt;
+            
+            &lt;div style=&quot;background: rgba(255,255,255,0.05); padding: 12px; border-radius: 8px; border: 1px dashed #38bdf8; margin-bottom: 1.25rem;&quot;&gt;
+                &lt;label style=&quot;display: block; color: #38bdf8; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px;&quot;&gt;Pilih Berkas Bukti Hukum (PDF / JPG, Maks 15 MB):&lt;/label&gt;
+                &lt;input id=&quot;simulatedFileName&quot; type=&quot;text&quot; value=&quot;Bukti_Foto_Kerusakan_Ruko.jpg&quot; style=&quot;width: 100%; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 8px 10px; color: #fff; font-size: 0.85rem; outline: none; margin-bottom: 8px;&quot;&gt;
+                &lt;span style=&quot;font-size: 0.75rem; color: #94a3b8;&quot;&gt;* File akan disematkan stempel &quot;PRIVILEGED LEGAL EVIDENCE&quot;.&lt;/span&gt;
+            &lt;/div&gt;
+
+            &lt;div style=&quot;margin-bottom: 1.5rem;&quot;&gt;
+                &lt;label style=&quot;display: block; color: #cbd5e1; font-size: 0.8rem; font-weight: 600; margin-bottom: 8px;&quot;&gt;Pilih Skenario Uji Coba SD-J-05:&lt;/label&gt;
+                &lt;div style=&quot;display: flex; flex-direction: column; gap: 8px; font-size: 0.8rem; color: #e2e8f0;&quot;&gt;
+                    &lt;label style=&quot;display: flex; align-items: center; gap: 8px; cursor: pointer;&quot;&gt;
+                        &lt;input type=&quot;radio&quot; name=&quot;e2eeScenario&quot; value=&quot;normal&quot; checked style=&quot;accent-color: #0ea5e9;&quot;&gt;
+                        &lt;span&gt;&lt;strong&gt;200 OK (Normal):&lt;/strong&gt; File Bersih, Enkripsi Zero-Knowledge ke WORM&lt;/span&gt;
+                    &lt;/label&gt;
+                    &lt;label style=&quot;display: flex; align-items: center; gap: 8px; cursor: pointer; color: #f87171;&quot;&gt;
+                        &lt;input type=&quot;radio&quot; name=&quot;e2eeScenario&quot; value=&quot;malware&quot; style=&quot;accent-color: #ef4444;&quot;&gt;
+                        &lt;span&gt;&lt;strong&gt;400 Bad Request (3a):&lt;/strong&gt; Client-Side Malware Scan Mendeteksi Virus!&lt;/span&gt;
+                    &lt;/label&gt;
+                    &lt;label style=&quot;display: flex; align-items: center; gap: 8px; cursor: pointer; color: #fbbf24;&quot;&gt;
+                        &lt;input type=&quot;radio&quot; name=&quot;e2eeScenario&quot; value=&quot;limit&quot; style=&quot;accent-color: #f59e0b;&quot;&gt;
+                        &lt;span&gt;&lt;strong&gt;413 / 415 Error (3b):&lt;/strong&gt; Ukuran Melebihi Batas 15 MB / Format Salah&lt;/span&gt;
+                    &lt;/label&gt;
+                &lt;/div&gt;
+            &lt;/div&gt;
+
+            &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
+                &lt;button onclick=&quot;processEvidenceUpload()&quot; style=&quot;flex: 2; background: #0ea5e9; border: none; color: #fff; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px;&quot;&gt;
+                    &lt;i class=&quot;ph-bold ph-lock-key&quot;&gt;&lt;/i&gt; Enkripsi &amp; Unggah ke WORM
+                &lt;/button&gt;
+                &lt;button onclick=&quot;document.getElementById(&#x27;uploadEvidenceModal&#x27;).style.display=&#x27;none&#x27;&quot; style=&quot;flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;&quot;&gt;Batal&lt;/button&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    &lt;/div&gt;
+
     &lt;script&gt;
+        function processEvidenceUpload() {
+            const scenario = document.querySelector(&#x27;input[name=&quot;e2eeScenario&quot;]:checked&#x27;).value;
+            const fileName = document.getElementById(&#x27;simulatedFileName&#x27;).value || &#x27;Bukti_Perkara_Hukum.pdf&#x27;;
+            document.getElementById(&#x27;uploadEvidenceModal&#x27;).style.display = &#x27;none&#x27;;
+
+            if (scenario === &#x27;malware&#x27;) {
+                alert(&#x27;⚠️ ERROR 400 BAD REQUEST - MALWARE DETECTED (SD-J-05 / J-UC13 Alternatif 3a):\n\nClient-Side Malware Scanner (LocK Langkah 198) mendeteksi tanda tangan virus pada berkas yang dipilih!\n\nProses enkripsi Zero-Knowledge dibatalkan dan file ditolak sebelum meninggalkan perangkat Klien untuk menjaga integritas sistem Justifiqa.&#x27;);
+            } else if (scenario === &#x27;limit&#x27;) {
+                alert(&#x27;⚠️ ERROR 413 PAYLOAD TOO LARGE / 415 UNSUPPORTED MEDIA TYPE (J-UC13 Alternatif 3b):\n\nUkuran file melebihi batas maksimal 15 MB (terdeteksi 24.8 MB) atau format tidak didukung.\n\nHanya file PDF dan JPG maksimal 15 MB yang diizinkan untuk dienkripsi ke WORM Storage.&#x27;);
+            } else {
+                alert(&#x27;✅ SUCCESS 200 OK - CLIENT-SIDE ZERO-KNOWLEDGE E2EE (SD-J-05 Langkah 198-202):\n\n1. 🛡️ Malware Scan (LocK): BERSIH (0 Threat detected).\n2. 🔐 Enkripsi Lokal: File dienkripsi dengan AES-256 Session Key (Zero-Knowledge).\n3. ☁️ WORM Storage: Encrypted Blob &amp; Hash SHA-256 berhasil disimpan.\n4. 🏷️ Metadata Stamp: &quot;PRIVILEGED LEGAL EVIDENCE - ATTORNEY-CLIENT PRIVILEGE&quot; disematkan.\n\nMenampilkan berkas terenkripsi di ruang obrolan...&#x27;);
+                
+                const chatHistory = document.querySelector(&#x27;.chat-history&#x27;);
+                const newDocHtml = `
+                &lt;div class=&quot;msg-wrapper user&quot; style=&quot;animation: fadeIn 0.3s ease;&quot;&gt;
+                    &lt;div class=&quot;msg-bubble doc-bubble&quot; onclick=&quot;simulateDownloadEvidence(&#x27;${fileName}&#x27;, &#x27;4.5 MB&#x27;, &#x27;SHA256: 7a8f9c2d1e...b4a&#x27;); return false;&quot; style=&quot;cursor:pointer;&quot; title=&quot;Unduh Bukti Perkara &amp; Dekripsi Lokal (SD-J-05 Langkah 204-208)&quot;&gt;
+                        &lt;div class=&quot;doc-icon&quot;&gt;&lt;i class=&quot;ph-fill ph-file-image&quot; style=&quot;color:#10b981;&quot;&gt;&lt;/i&gt;&lt;/div&gt;
+                        &lt;div class=&quot;doc-info&quot;&gt;
+                            &lt;span class=&quot;doc-name&quot;&gt;${fileName}&lt;/span&gt;
+                            &lt;span class=&quot;doc-size&quot;&gt;4.5 MB • Enkripsi WORM Zero-Knowledge • 🛡️ PRIVILEGED EVIDENCE&lt;/span&gt;
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                    &lt;div class=&quot;msg-time&quot;&gt;Baru saja&lt;/div&gt;
+                &lt;/div&gt;`;
+                chatHistory.insertAdjacentHTML(&#x27;beforeend&#x27;, newDocHtml);
+                chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+        }
+
+        function simulateDownloadEvidence(filename, size, hash) {
+            alert(&#x27;📥 SD-J-05 Langkah 204-208: UNDUH &amp; DEKRIPSI LOKAL\n\n1. GET /api/v1/chat/download-secure dari WORM Hash Storage...\n2. Mengambil Encrypted Blob (File ID: EV-88901)...\n3. Dekripsi Lokal (LocM): Menggunakan Session Key AES-256...\n4. Integritas SHA-256 Valid (&#x27; + hash + &#x27;).\n\n✅ Dokumen utuh &quot;&#x27; + filename + &#x27;&quot; (&#x27; + size + &#x27;) berhasil dibuka dan diverifikasi dengan stempel hukum &quot;PRIVILEGED LEGAL EVIDENCE&quot;. Siap ditelaah di Workstation IRAC Note.&#x27;);
+        }
+
         function setStar(n) {
             const stars = document.querySelectorAll(&#x27;#ratingModal span&#x27;);
             stars.forEach((s, idx) =&gt; {

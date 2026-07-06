@@ -258,16 +258,18 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   1. Klik `"Bubuhkan e-Meterai & Sahkan Kontrak"` ➔ Sistem melakukan pengecekan saldo meterai ➔ Menerapkan stempel digital ➔ Mengunci dokumen menjadi PDF bermeterai sah.
 
 #### `SCR-JST-06` : Ruang Konsultasi Hukum E2EE & NDA
-* **File HTML:** `mockup_chat_justifiqa.html` | **Traceability:** SD-J-03, UC-05, UC-06, UC-11
+* **File HTML:** `mockup_chat_justifiqa.html` | **Traceability:** SD-J-03, SD-J-05, UC-05, UC-06, UC-11, J-UC13
 * **Access Control:** Klien & Advokat yang bertaut dalam perkara.
 * **Component Inventory Wajib:**
   - *NDA Shield Banner:* Penanda visual bahwa seluruh komunikasi dilindungi oleh hak imunitas advokat dan perjanjian kerahasiaan (*Non-Disclosure Agreement*).
   - *Secure Document Vault Table:* Area berbagi bukti berkas perkara (foto bukti, somasi, surat gugatan) dengan watermark digital.
   - *Encrypted Messaging & Audio Call:* Panel komunikasi real-time anti-serapan.
+  - *Zero-Knowledge E2EE Upload Modal (SD-J-05 / J-UC13):* Modal interaktif untuk simulasi upload bukti perkara yang memvalidasi ukuran file (maks 15 MB), format (PDF/JPG), pemindaian virus/malware *client-side*, enkripsi lokal dengan *Session Key*, dan penyimpanan WORM ber-hash SHA-256.
   - *Escrow Release & Rating Modal (SD-J-03 / J-UC06):* Modal penilaian 5 bintang interaktif dan ulasan yang otomatis muncul saat mengakhiri sesi, memicu pelepasan dana escrow ke rekening advokat setelah dipotong fee 25% & PPh 21.
 * **Interactive State Machine:**
-  1. Klik `"Unggah Bukti Perkara"` ➔ File diberi watermark otomatis dengan nomor perkara dan identitas pengunggah.
-  2. Klik `"Akhiri Sesi Litigasi"` ➔ Konfirmasi ➔ Untuk Klien: memunculkan Modal Rating J-UC06 (bisa isi ulasan atau skip) dan melepas dana escrow ➔ Redirect ke Dasbor Klien. Untuk Mitra Advokat: mencairkan dana escrow ke saldo ➔ Redirect ke Workstation IRAC Note.
+  1. Klik `"Unggah Bukti (J-UC13)"` ➔ Muncul Modal E2EE Upload ➔ Pilih file & jalankan simulasi pemindaian virus serta enkripsi Zero-Knowledge ➔ Jika aman dan sesuai aturan, file terenkripsi diunggah ke WORM Storage dan muncul di ruang obrolan dengan stempel *"PRIVILEGED LEGAL EVIDENCE"*. Jika ada virus (3a) atau ukuran > 15 MB (3b), sistem memunculkan error penolakan 400/413.
+  2. Klik dokumen pada obrolan / tombol `"Unduh Bukti (SD-J-05)"` ➔ Sistem mengambil *encrypted blob* dari WORM dan melakukan dekripsi lokal dengan *Session Key* ➔ Menampilkan detail hash SHA-256 dan isi berkas utuh di workstation advokat.
+  3. Klik `"Akhiri Sesi Litigasi"` ➔ Konfirmasi ➔ Untuk Klien: memunculkan Modal Rating J-UC06 (bisa isi ulasan atau skip) dan melepas dana escrow ➔ Redirect ke Dasbor Klien. Untuk Mitra Advokat: mencairkan dana escrow ke saldo ➔ Redirect ke Workstation IRAC Note.
 
 #### `SCR-JST-07` : Dasbor Admin Peradi
 * **File HTML:** `mockup_admin_justifiqa.html` | **Traceability:** UC-06, UC-12
