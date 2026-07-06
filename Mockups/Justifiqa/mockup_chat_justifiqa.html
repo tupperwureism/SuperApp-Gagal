@@ -133,8 +133,8 @@
     <div id="ratingModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;">
         <div class="modal-box" style="background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #facc15; width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);">
             <div style="font-size: 3rem; margin-bottom: 10px;">⭐</div>
-            <h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 8px;">Ulasan & Rating Advokat (J-UC06)</h3>
-            <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">Sesi Anda telah selesai. <strong style="color:#38bdf8;">Dana Escrow dilepaskan ke Advokat (SD-J-03 Langkah 147)</strong>. Berikan penilaian untuk Budi Santoso, S.H., M.H.:</p>
+            <h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 8px;">Ulasan & Rating Advokat</h3>
+            <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;">Sesi Anda telah selesai. <strong style="color:#38bdf8;">Dana Escrow resmi dilepaskan ke Advokat</strong>. Berikan penilaian untuk Budi Santoso, S.H., M.H.:</p>
             
             <div style="font-size: 2rem; color: #facc15; margin-bottom: 1rem; cursor: pointer; letter-spacing: 5px;">
                 <span onclick="setStar(1)">★</span><span onclick="setStar(2)">★</span><span onclick="setStar(3)">★</span><span onclick="setStar(4)">★</span><span onclick="setStar(5)">★</span>
@@ -143,7 +143,7 @@
 
             <div style="display: flex; gap: 12px;">
                 <button onclick="submitRating(false)" style="flex: 2; background: #facc15; border: none; color: #000; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;">Kirim Ulasan & Cairkan Escrow</button>
-                <button onclick="submitRating(true)" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;">Nanti (Skip)</button>
+                <button onclick="submitRating(true)" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;">Lewati</button>
             </div>
         </div>
     </div>
@@ -164,7 +164,7 @@
             
             if (role === 'mitra') {
                 // SD-J-03 Langkah 147: Cairkan Dana Escrow & Buat IRAC Note
-                alert('💰 SISTEM ESCROW JUSTIFIQA (SD-J-03 Langkah 147):\n\nSesi konsultasi resmi berakhir. Dana dari rekening escrow sebesar Rp250.000 telah dicairkan ke Saldo Advokat Anda (setelah dipotong Fee Platform 25% & PPh 21).\n\nMengarahkan ke Workstation Hukum untuk penyusunan IRAC Note...');
+                alert('💰 Pencairan Escrow: Sesi konsultasi resmi berakhir. Dana dari rekening escrow sebesar Rp250.000 telah dicairkan ke Saldo Advokat Anda (setelah dipotong Fee Platform 25% & PPh 21).\n\nMengarahkan ke Workstation Hukum untuk penyusunan IRAC Note...');
                 window.location.href = 'mockup_modul_hukum.html';
             } else {
                 // SD-J-03 Langkah 146 & J-UC06: Trigger Rating & Ulasan Modal
@@ -175,9 +175,9 @@
         function submitRating(skip = false) {
             document.getElementById('ratingModal').style.display = 'none';
             if (skip) {
-                alert('⏩ Anda melewatkan ulasan (UC-06 2a). Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).');
+                alert('⏩ Anda melewatkan ulasan. Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat.');
             } else {
-                alert('⭐ Ulasan berhasil dikirim (UC-06 Langkah 5)! Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).');
+                alert('⭐ Ulasan berhasil dikirim! Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat.');
             }
             window.location.href = 'mockup_dashboard_hukum_klien.html';
         }

@@ -115,3 +115,10 @@
     2. **Fungsionalisasi Cabang 200 OK (Slot Jadwal Aman):** Jika tidak ada konflik, klik pada toggle status akan memperbarui status secara instan antara `🟢 ONLINE (Menerima Konsultasi)` dan `🔴 SIDANG / OFFLINE (Jadwal Tidak Tersedia)` disertai notifikasi sukses 200 OK.
     3. **Sinkronisasi Dokumen Rujukan:** Menambahkan alur alternatif `2b. Kegagalan Perubahan Status karena Konflik Jadwal / Sesi Aktif (Error 409 Conflict)` pada `UC-09` di `use_case_scenarios.md`, serta memperbarui inventaris komponen dan mesin status `SCR-JST-03` di `ui_specification_guide.md`.
   - Ditambahkan kotak panduan pengujian (*helper guide*) di dasbor advokat serta meregenerasi master bundel statis `mockup_justifiqa_standalone.html`.
+- **Standarisasi Kualitas UI/UX - Excessive Revision Gate (06 Juli 2026):**
+  - Mengadopsi pedoman baru `excessive_revision.md` sebagai gerbang kendali mutu paska-eksekusi (*Post-Batch Polish Gate*) untuk memisahkan *functional tracing* dengan kualitas presentasi UI/UX akhir.
+  - Melakukan pembersihan menyeluruh terhadap hasil eksekusi **Batch 1 hingga Batch 4**:
+    1. **Penyederhanaan Status Badge:** Mengubah status ganda seperti `🟢 ONLINE / AVAILABLE` menjadi `🟢 Online`, dan `🔴 SIDANG / OFFLINE` menjadi `🔴 Offline` pada `mockup_dashboard_mitra_hukum.html`.
+    2. **Penghapusan Kebocoran Referensi Teknis (No Technical Leakage):** Menghapus kode referensi dari label antarmuka publik, seperti mengubah tombol `"Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)"` menjadi `"Simulasi Waktu Habis / Ditolak"`, judul modal `"Ulasan & Rating Advokat (J-UC06)"` menjadi `"Ulasan & Rating Advokat"`, serta tombol skip `"Nanti (Skip - UC-06 2a)"` menjadi `"Lewati"`.
+    3. **Efisiensi Teks Alert:** Menyederhanakan seluruh pesan *alert* sistem di `mockup_auth_justifiqa.html`, `mockup_payment_gateway.html`, `mockup_chat_justifiqa.html`, dan `mockup_dashboard_mitra_hukum.html` menjadi bahasa informatif yang mudah dipahami, tanpa memaparkan kronologi teknis internal kepada pengguna akhir.
+  - Meregenerasi master bundel statis `mockup_justifiqa_standalone.html` agar seluruh hasil pembersihan tersinkronisasi 100%.

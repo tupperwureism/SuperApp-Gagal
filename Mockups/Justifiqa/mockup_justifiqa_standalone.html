@@ -583,15 +583,15 @@
                 
                 if (identitas.toLowerCase().includes(&#x27;exist&#x27;) || identitas.toLowerCase().includes(&#x27;sudah&#x27;) || identitas.includes(&#x27;998201&#x27;) || email.toLowerCase().includes(&#x27;exist&#x27;)) {
                     // Cabang 1: SD-J-01 Langkah 37-39 (400 Bad Request - Kredensial Sudah Terdaftar)
-                    alert(&quot;⚠️ PEMBERITAHUAN SISTEM JUSTIFIQA (400 Bad Request):\n\nAkun dengan Nomor Identitas / Email tersebut (&quot; + identitas + &quot;) SUDAH TERDAFTAR di dalam database sistem hukum Justifiqa!\n\nSilakan gunakan NIK/NIA lain untuk mendaftar akun baru, atau klik &#x27;OK&#x27; lalu pilih opsi &#x27;Masuk ke akun yang ada&#x27; untuk login.&quot;);
+                    alert(&quot;⚠️ Pendaftaran Gagal: Akun dengan Nomor Identitas / Email tersebut (&quot; + identitas + &quot;) sudah terdaftar di sistem Justifiqa.\n\nSilakan gunakan NIK/NIA lain atau klik opsi &#x27;Masuk ke akun yang ada&#x27; untuk login.&quot;);
                     toggleRegisterMode();
                 } else if (!isMitra) {
                     // Cabang 2: SD-J-01 Langkah 41-47 (Registrasi Klien - Verifikasi NIK Dukcapil - 201 Created AKTIF)
-                    alert(&quot;✅ VERIFIKASI NIK DUKCAPIL BERHASIL (Status: 201 Created - AKTIF)\n\nSelamat! Data NIK (&quot; + identitas + &quot;) cocok dengan database Dukcapil. Akun Klien Hukum Justifiqa Anda telah aktif.\n\nSilakan klik &#x27;OK&#x27; untuk beralih ke halaman login dan masuk ke dasbor Anda.&quot;);
+                    alert(&quot;✅ Verifikasi Berhasil: Data NIK (&quot; + identitas + &quot;) cocok dengan database Dukcapil. Akun Klien Justifiqa Anda telah aktif.\n\nSilakan klik &#x27;OK&#x27; untuk beralih ke halaman login.&quot;);
                     toggleRegisterMode();
                 } else {
                     // Cabang 3: SD-J-01 Langkah 48-53 (Registrasi Advokat - Verifikasi SIPP Peradi - 201 Created PENDING_VERIFICATION)
-                    alert(&quot;📋 PENDAFTARAN ADVOKAT DITERIMA (Status: 201 Created - PENDING_VERIFICATION)\n\nDokumen Kartu Tanda Advokat (KTA Peradi) dan Berita Acara Sumpah (BAS) Anda telah masuk ke Antrean Audit Admin Justifiqa.\n\nSesuai Pasal 3 &amp; 4 Kode Etik Peradi serta UU Advokat No. 18/2003, akun Anda akan diverifikasi dalam 1x24 jam. Anda akan menerima notifikasi email setelah verifikasi SIPP/Peradi selesai.\n\nSilakan klik &#x27;OK&#x27; untuk beralih ke halaman utama.&quot;);
+                    alert(&quot;📋 Pendaftaran Diterima: Dokumen KTA Peradi dan Berita Acara Sumpah (BAS) Anda telah masuk ke antrean verifikasi.\n\nAkun Anda akan diverifikasi dalam 1x24 jam dan Anda akan menerima notifikasi email setelah verifikasi selesai.&quot;);
                     toggleRegisterMode();
                 }
             } else {
@@ -601,10 +601,10 @@
                 
                 if (email.includes(&#x27;salah&#x27;) || pass.includes(&#x27;salah&#x27;) || email === &quot;&quot;) {
                     // Cabang 1: SD-J-02 Langkah 79-81 (401 Unauthorized - Kredensial Salah)
-                    alert(&quot;⚠️ ERROR SYSTEM JUSTIFIQA (401 Unauthorized):\n\nEmail atau Kata Sandi yang Anda masukkan tidak cocok dengan database!\n\nSisa percobaan login keamanan Anda: 4 kali lagi sebelum penguncian sementara.&quot;);
+                    alert(&quot;⚠️ Login Gagal: Email atau Kata Sandi yang Anda masukkan tidak cocok.\n\nSisa percobaan login keamanan Anda: 4 kali lagi sebelum penguncian sementara.&quot;);
                 } else if (email.includes(&#x27;block&#x27;) || email.includes(&#x27;suspend&#x27;) || email.includes(&#x27;tangguh&#x27;)) {
                     // Cabang 2: SD-J-02 Langkah 83-85 (403 Forbidden - Akun Suspended)
-                    alert(&quot;🚫 ERROR SYSTEM JUSTIFIQA (403 Forbidden - Akun Ditangguhkan):\n\nAkun Anda sedang dalam status SUSPENDED karena investigasi dugaan pelanggaran Kode Etik / Aturan Kepatuhan Hukum Justifiqa.\n\nSilakan hubungi Dewan Kehormatan atau Customer Service Justifiqa.&quot;);
+                    alert(&quot;🚫 Akun Ditangguhkan: Akun Anda sedang dalam masa penangguhan sementara karena investigasi kepatuhan hukum Justifiqa.\n\nSilakan hubungi Layanan Pelanggan Justifiqa untuk bantuan lebih lanjut.&quot;);
                 } else {
                     // Cabang 3: SD-J-02 Langkah 86-91 (200 OK - Generate &amp; Kirim OTP 6-Digit)
                     document.getElementById(&#x27;otpTargetEmail&#x27;).innerText = document.getElementById(&#x27;inputEmail&#x27;).value || &quot;klien@justifiqa.id&quot;;
@@ -622,11 +622,11 @@
             const digits = Array.from(document.querySelectorAll(&#x27;#otpInputsBox input&#x27;)).map(i =&gt; i.value).join(&#x27;&#x27;);
             if (digits === &quot;000000&quot; || digits.includes(&#x27;000&#x27;) || digits.length &lt; 6) {
                 // Cabang 4: SD-J-02 Langkah 101-103 (400 Bad Request - OTP Salah / Kadaluarsa)
-                alert(&quot;⚠️ VERIFIKASI GAGAL (400 Bad Request):\n\nKode verifikasi OTP 6-digit (&quot; + digits + &quot;) TIDAK VALID atau SUDAH KADALUARSA (melebihi batas waktu 5 menit)!\n\nSilakan periksa kembali kode Anda atau klik opsi &#x27;Kirim Ulang Kode&#x27;.&quot;);
+                alert(&quot;⚠️ Verifikasi Gagal: Kode OTP 6-digit (&quot; + digits + &quot;) tidak valid atau sudah kadaluarsa (melebihi 5 menit).\n\nSilakan periksa kembali kode Anda atau klik opsi &#x27;Kirim Ulang Kode&#x27;.&quot;);
                 return;
             }
             
-            alert(&quot;🎉 VERIFIKASI MFA BERHASIL (200 OK):\n\nKode OTP 6-Digit valid. Sistem membuat JWT Session Token Justifiqa dan memperbarui Last Login Timestamp.\n\nMengarahkan ke Dasbor Utama...&quot;);
+            alert(&quot;🎉 Verifikasi Berhasil: Kode OTP valid. Mengarahkan ke Dasbor Utama...&quot;);
             // Logika Redirection: apabila di kolom mitra masuk ke dasbor mitra hukum, kalau klien ke dasbor hukum klien!
             if (isMitra) {
                 window.location.href = &#x27;mockup_dashboard_mitra_hukum.html&#x27;;
@@ -1010,7 +1010,7 @@
         &lt;div class=&quot;toggle-switch-container&quot;&gt;
             &lt;div style=&quot;display: flex; justify-content: space-between; align-items: center;&quot;&gt;
                 &lt;span style=&quot;font-size: 0.85rem; font-weight: 600; color: #cbd5e1;&quot;&gt;Status Praktik:&lt;/span&gt;
-                &lt;span id=&quot;status-badge&quot; class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem;&quot;&gt;🟢 ONLINE&lt;/span&gt;
+                &lt;span id=&quot;status-badge&quot; class=&quot;badge badge-success&quot; style=&quot;font-size: 0.7rem;&quot;&gt;🟢 Online&lt;/span&gt;
             &lt;/div&gt;
             &lt;label class=&quot;toggle-switch&quot; onclick=&quot;toggleSidebarStatus()&quot;&gt;
                 &lt;div id=&quot;sidebar-slider&quot; class=&quot;toggle-slider&quot;&gt;
@@ -1150,7 +1150,7 @@
             const conflictCb = document.getElementById(&#x27;conflict-sim-cb&#x27;);
             if (conflictCb &amp;&amp; conflictCb.checked) {
                 // SD-J-04 Langkah 171-172: 409 Conflict Branch
-                alert(&#x27;⚠️ ERROR 409 CONFLICT (SD-J-04 / J-UC09 Alternatif 2b):\n\nGagal mengubah status ketersediaan praktik! Sistem mendeteksi adanya Sesi Konsultasi yang Sedang Berjalan (ID: SES-99201) atau Jadwal Sidang yang bentrok.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu sebelum mengubah status ketersediaan.&#x27;);
+                alert(&#x27;⚠️ Gagal Mengubah Status: Terdapat sesi konsultasi yang sedang berlangsung atau konflik jadwal sidang.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu.&#x27;);
                 return;
             }
 
@@ -1166,19 +1166,19 @@
                 slider.style.boxShadow = &#x27;0 0 12px rgba(16,185,129,0.4)&#x27;;
                 knob.style.left = &#x27;27px&#x27;;
                 badge.className = &#x27;badge badge-success&#x27;;
-                badge.innerHTML = &#x27;🟢 ONLINE&#x27;;
+                badge.innerHTML = &#x27;🟢 Online&#x27;;
                 text.style.color = &#x27;#a7f3d0&#x27;;
                 text.innerHTML = &#x27;Menerima Konsultasi&#x27;;
-                alert(&#x27;✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi ONLINE / AVAILABLE. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.&#x27;);
+                alert(&#x27;✅ Status Praktik Diperbarui: Anda sekarang Online dan siap menerima konsultasi dari klien di Katalog Justifiqa.&#x27;);
             } else {
                 slider.style.background = &#x27;#ef4444&#x27;;
                 slider.style.boxShadow = &#x27;0 0 12px rgba(239,68,68,0.4)&#x27;;
                 knob.style.left = &#x27;3px&#x27;;
                 badge.className = &#x27;badge badge-danger&#x27;;
-                badge.innerHTML = &#x27;🔴 SIDANG / OFFLINE&#x27;;
+                badge.innerHTML = &#x27;🔴 Offline&#x27;;
                 text.style.color = &#x27;#f87171&#x27;;
                 text.innerHTML = &#x27;Jadwal Tidak Tersedia&#x27;;
-                alert(&#x27;✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi OFFLINE / SIDANG. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.&#x27;);
+                alert(&#x27;✅ Status Praktik Diperbarui: Anda sekarang Offline. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.&#x27;);
             }
         }
         window.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {
@@ -1648,8 +1648,8 @@
     &lt;div id=&quot;ratingModal&quot; class=&quot;modal-overlay&quot; style=&quot;display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;&quot;&gt;
         &lt;div class=&quot;modal-box&quot; style=&quot;background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #facc15; width: 420px; text-align: center; box-shadow: 0 10px 30px rgba(250, 204, 21, 0.3);&quot;&gt;
             &lt;div style=&quot;font-size: 3rem; margin-bottom: 10px;&quot;&gt;⭐&lt;/div&gt;
-            &lt;h3 style=&quot;color: #fff; font-size: 1.3rem; margin-bottom: 8px;&quot;&gt;Ulasan &amp; Rating Advokat (J-UC06)&lt;/h3&gt;
-            &lt;p style=&quot;color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;&quot;&gt;Sesi Anda telah selesai. &lt;strong style=&quot;color:#38bdf8;&quot;&gt;Dana Escrow dilepaskan ke Advokat (SD-J-03 Langkah 147)&lt;/strong&gt;. Berikan penilaian untuk Budi Santoso, S.H., M.H.:&lt;/p&gt;
+            &lt;h3 style=&quot;color: #fff; font-size: 1.3rem; margin-bottom: 8px;&quot;&gt;Ulasan &amp; Rating Advokat&lt;/h3&gt;
+            &lt;p style=&quot;color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem;&quot;&gt;Sesi Anda telah selesai. &lt;strong style=&quot;color:#38bdf8;&quot;&gt;Dana Escrow resmi dilepaskan ke Advokat&lt;/strong&gt;. Berikan penilaian untuk Budi Santoso, S.H., M.H.:&lt;/p&gt;
             
             &lt;div style=&quot;font-size: 2rem; color: #facc15; margin-bottom: 1rem; cursor: pointer; letter-spacing: 5px;&quot;&gt;
                 &lt;span onclick=&quot;setStar(1)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(2)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(3)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(4)&quot;&gt;★&lt;/span&gt;&lt;span onclick=&quot;setStar(5)&quot;&gt;★&lt;/span&gt;
@@ -1658,7 +1658,7 @@
 
             &lt;div style=&quot;display: flex; gap: 12px;&quot;&gt;
                 &lt;button onclick=&quot;submitRating(false)&quot; style=&quot;flex: 2; background: #facc15; border: none; color: #000; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer;&quot;&gt;Kirim Ulasan &amp; Cairkan Escrow&lt;/button&gt;
-                &lt;button onclick=&quot;submitRating(true)&quot; style=&quot;flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;&quot;&gt;Nanti (Skip)&lt;/button&gt;
+                &lt;button onclick=&quot;submitRating(true)&quot; style=&quot;flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;&quot;&gt;Lewati&lt;/button&gt;
             &lt;/div&gt;
         &lt;/div&gt;
     &lt;/div&gt;
@@ -1679,7 +1679,7 @@
             
             if (role === &#x27;mitra&#x27;) {
                 // SD-J-03 Langkah 147: Cairkan Dana Escrow &amp; Buat IRAC Note
-                alert(&#x27;💰 SISTEM ESCROW JUSTIFIQA (SD-J-03 Langkah 147):\n\nSesi konsultasi resmi berakhir. Dana dari rekening escrow sebesar Rp250.000 telah dicairkan ke Saldo Advokat Anda (setelah dipotong Fee Platform 25% &amp; PPh 21).\n\nMengarahkan ke Workstation Hukum untuk penyusunan IRAC Note...&#x27;);
+                alert(&#x27;💰 Pencairan Escrow: Sesi konsultasi resmi berakhir. Dana dari rekening escrow sebesar Rp250.000 telah dicairkan ke Saldo Advokat Anda (setelah dipotong Fee Platform 25% &amp; PPh 21).\n\nMengarahkan ke Workstation Hukum untuk penyusunan IRAC Note...&#x27;);
                 window.location.href = &#x27;mockup_modul_hukum.html&#x27;;
             } else {
                 // SD-J-03 Langkah 146 &amp; J-UC06: Trigger Rating &amp; Ulasan Modal
@@ -1690,9 +1690,9 @@
         function submitRating(skip = false) {
             document.getElementById(&#x27;ratingModal&#x27;).style.display = &#x27;none&#x27;;
             if (skip) {
-                alert(&#x27;⏩ Anda melewatkan ulasan (UC-06 2a). Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).&#x27;);
+                alert(&#x27;⏩ Anda melewatkan ulasan. Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat.&#x27;);
             } else {
-                alert(&#x27;⭐ Ulasan berhasil dikirim (UC-06 Langkah 5)! Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat (SD-J-03 Langkah 147).&#x27;);
+                alert(&#x27;⭐ Ulasan berhasil dikirim! Dana Escrow sebesar Rp250.000 telah resmi dilepaskan ke advokat.&#x27;);
             }
             window.location.href = &#x27;mockup_dashboard_hukum_klien.html&#x27;;
         }
@@ -1972,7 +1972,7 @@
                     &lt;span&gt;Rp 260.000 &lt;i class=&quot;ph ph-arrow-right&quot; style=&quot;margin-left: 10px; vertical-align: middle;&quot;&gt;&lt;/i&gt;&lt;/span&gt;
                 &lt;/button&gt;
                 &lt;button class=&quot;btn-cancel&quot; onclick=&quot;simulateFailedPayment(); return false;&quot; style=&quot;background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;&quot;&gt;
-                    &lt;i class=&quot;ph ph-clock-countdown&quot; style=&quot;font-size:1.1rem;&quot;&gt;&lt;/i&gt; Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)
+                    &lt;i class=&quot;ph ph-clock-countdown&quot; style=&quot;font-size:1.1rem;&quot;&gt;&lt;/i&gt; Simulasi Waktu Habis / Ditolak
                 &lt;/button&gt;
             &lt;/div&gt;
         &lt;/div&gt;
@@ -2024,7 +2024,7 @@
                 
                 document.getElementById(&#x27;processingTitle&#x27;).style.color = &#x27;#38bdf8&#x27;;
                 document.getElementById(&#x27;processingTitle&#x27;).innerText = &#x27;✅ Dana Ditahan di Escrow Justifiqa!&#x27;;
-                document.getElementById(&#x27;processingDesc&#x27;).innerHTML = &#x27;Webhook Midtrans menerima settlement sukses (PAID).&lt;br&gt;&lt;strong style=&quot;color:#facc15;&quot;&gt;Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa (SD-J-03 Langkah 133)&lt;/strong&gt; hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...&#x27;;
+                document.getElementById(&#x27;processingDesc&#x27;).innerHTML = &#x27;Webhook Midtrans menerima settlement sukses (PAID).&lt;br&gt;&lt;strong style=&quot;color:#facc15;&quot;&gt;Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa&lt;/strong&gt; hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...&#x27;;
                 
                 const statusEl = document.getElementById(&#x27;webhookStatus&#x27;);
                 statusEl.style.color = &#x27;#38bdf8&#x27;;
@@ -2042,7 +2042,7 @@
             const statusEl = document.getElementById(&#x27;webhookStatus&#x27;);
             if (statusEl) {
                 statusEl.style.color = &#x27;#ff4757&#x27;;
-                statusEl.innerText = &#x27;PAYMENT_EXPIRED / REJECTED (400 Bad Request - UC-05)&#x27;;
+                statusEl.innerText = &#x27;PAYMENT_EXPIRED / REJECTED (400 Bad Request)&#x27;;
             }
         }
     &lt;/script&gt;

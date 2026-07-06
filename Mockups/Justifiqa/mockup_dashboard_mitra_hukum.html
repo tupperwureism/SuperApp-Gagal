@@ -137,7 +137,7 @@
         <div class="toggle-switch-container">
             <div style="display: flex; justify-content: space-between; align-items: center;">
                 <span style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status Praktik:</span>
-                <span id="status-badge" class="badge badge-success" style="font-size: 0.7rem;">🟢 ONLINE</span>
+                <span id="status-badge" class="badge badge-success" style="font-size: 0.7rem;">🟢 Online</span>
             </div>
             <label class="toggle-switch" onclick="toggleSidebarStatus()">
                 <div id="sidebar-slider" class="toggle-slider">
@@ -277,7 +277,7 @@
             const conflictCb = document.getElementById('conflict-sim-cb');
             if (conflictCb && conflictCb.checked) {
                 // SD-J-04 Langkah 171-172: 409 Conflict Branch
-                alert('⚠️ ERROR 409 CONFLICT (SD-J-04 / J-UC09 Alternatif 2b):\n\nGagal mengubah status ketersediaan praktik! Sistem mendeteksi adanya Sesi Konsultasi yang Sedang Berjalan (ID: SES-99201) atau Jadwal Sidang yang bentrok.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu sebelum mengubah status ketersediaan.');
+                alert('⚠️ Gagal Mengubah Status: Terdapat sesi konsultasi yang sedang berlangsung atau konflik jadwal sidang.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu.');
                 return;
             }
 
@@ -293,19 +293,19 @@
                 slider.style.boxShadow = '0 0 12px rgba(16,185,129,0.4)';
                 knob.style.left = '27px';
                 badge.className = 'badge badge-success';
-                badge.innerHTML = '🟢 ONLINE';
+                badge.innerHTML = '🟢 Online';
                 text.style.color = '#a7f3d0';
                 text.innerHTML = 'Menerima Konsultasi';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi ONLINE / AVAILABLE. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.');
+                alert('✅ Status Praktik Diperbarui: Anda sekarang Online dan siap menerima konsultasi dari klien di Katalog Justifiqa.');
             } else {
                 slider.style.background = '#ef4444';
                 slider.style.boxShadow = '0 0 12px rgba(239,68,68,0.4)';
                 knob.style.left = '3px';
                 badge.className = 'badge badge-danger';
-                badge.innerHTML = '🔴 SIDANG / OFFLINE';
+                badge.innerHTML = '🔴 Offline';
                 text.style.color = '#f87171';
                 text.innerHTML = 'Jadwal Tidak Tersedia';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi OFFLINE / SIDANG. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.');
+                alert('✅ Status Praktik Diperbarui: Anda sekarang Offline. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.');
             }
         }
         window.addEventListener('DOMContentLoaded', () => {
