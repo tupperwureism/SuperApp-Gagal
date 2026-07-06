@@ -51,9 +51,9 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
 | **SCR-JST-02** | Dasbor Klien Hukum | `mockup_dashboard_hukum_klien.html` | Klien Hukum | UC-03, UC-09 |
 | **SCR-JST-03** | Dasbor Advokat Mitra Peradi | `mockup_dashboard_mitra_hukum.html` | Advokat Peradi | UC-08, UC-10 |
 | **SCR-JST-04** | Katalog & Cari Advokat | `mockup_katalog_justifiqa.html` | Klien Hukum | UC-03, UC-05 |
-| **SCR-JST-05** | Workstation Kontrak & Litigasi | `mockup_modul_hukum.html` | Advokat & Klien | UC-09, UC-10 |
-| **SCR-JST-06** | Ruang Konsultasi Hukum & NDA | `mockup_chat_justifiqa.html` | Klien & Advokat | UC-05, UC-11 |
-| **SCR-JST-07** | Dasbor Admin Peradi | `mockup_admin_justifiqa.html` | Admin Peradi | UC-06, UC-12 |
+| **SCR-JST-05** | Workstation Kontrak & Litigasi | `mockup_modul_hukum.html` | Advokat & Klien | SD-J-06, J-UC11, J-UC12, J-UC14 |
+| **SCR-JST-06** | Ruang Konsultasi Hukum E2EE & NDA | `mockup_chat_justifiqa.html` | Klien & Advokat | SD-J-03, SD-J-05, J-UC05, J-UC06, J-UC10, J-UC13 |
+| **SCR-JST-07** | Dasbor Admin Peradi | `mockup_admin_justifiqa.html` | Admin Peradi | J-UC16, J-UC17, J-UC18 |
 
 ### C. Shared Infrastructure Gateway (Terisolasi Secara Logika per Portal)
 | Screen ID | Nama Layar | Nama File HTML | Target Role | Use Case Ref |
@@ -248,14 +248,17 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   2. Klik `"Simulasi Waktu Habis / Ditolak"` ➔ Menampilkan layer error transaksi expired/gagal ➔ Opsi coba metode pembayaran lain.
 
 #### `SCR-JST-05` : Workstation Kontrak & Litigasi
-* **File HTML:** `mockup_modul_hukum.html` | **Traceability:** UC-09, UC-10
+* **File HTML:** `mockup_modul_hukum.html` | **Traceability:** SD-J-06, J-UC11, J-UC12, J-UC14
 * **Access Control:** Advokat & Klien (Hak edit dipisah sesuai role).
 * **Component Inventory Wajib:**
-  - *Bilingual Contract Editor:* Side-by-side editor untuk penyusunan klausul kontrak Bahasa Indonesia dan Bahasa Inggris secara simultan.
-  - *e-Meterai PERURI Integration:* Modul pembubuhan meterai elektronik sah ber-SKK Kominfo pada dokumen hukum.
-  - *Digital Signature Pad:* Area penandatanganan kriptografis untuk para pihak yang berkontrak.
+  - *IRAC Note & Legal Analysis Tab (J-UC11):* Formulir analisis hukum terstruktur (Issue, Rule, Application, Conclusion) dengan opsi enkripsi WORM.
+  - *Bilingual Contract & Legal Opinion Generator (SD-J-06 / J-UC12):* Editor interaktif untuk rancangan dokumen hukum (Legal Opinion, Somasi, Perjanjian Sewa) yang terhubung dengan template baku.
+  - *e-Meterai PERURI Integration Modal (SD-J-06 / J-UC14):* Modul pembubuhan meterai elektronik sah Peruri Rp10.000 dengan pengecekan kuota (200 OK vs 402/502 Error) dan verifikasi SHA-256.
+  - *Download Gate Controller (J-UC12 / J-UC14):* Proteksi akses unduhan dokumen akhir; klien hanya diizinkan mengunduh setelah pembubuhan e-Meterai diverifikasi sah (Error 403 Forbidden jika belum bermeterai).
 * **Interactive State Machine:**
-  1. Klik `"Bubuhkan e-Meterai & Sahkan Kontrak"` ➔ Sistem melakukan pengecekan saldo meterai ➔ Menerapkan stempel digital ➔ Mengunci dokumen menjadi PDF bermeterai sah.
+  1. Klik `"Simpan & Enkripsi IRAC Note (J-UC11)"` ➔ Sistem memvalidasi kelengkapan field IRAC (Error 400 jika kosong) ➔ Mengenkripsi AES-256 & menyimpan ke WORM Storage.
+  2. Klik `"Terbitkan Dokumen & Bubuhkan e-Meterai (SD-J-06)"` ➔ Muncul Modal e-Meterai Peruri ➔ Pilih simulasi sukses (201 Created / 200 OK - Kuota Tersedia) atau gagal (402 Payment Required / 502 Bad Gateway - Kuota Habis/Gangguan API) ➔ Jika sukses, dokumen diberi stempel e-Meterai sah bersertifikat SHA-256 dan membuka *Download Gate* untuk klien.
+  3. Klik `"Unduh Dokumen Hukum Resmi (Download Gate)"` ➔ Jika dokumen sudah bermeterai sah, sistem memulai unduhan PDF bersertifikat (200 OK). Jika masih berstatus Draf Tanpa Meterai, sistem memunculkan peringatan penolakan unduhan (*Download Gate Error 403 Forbidden*).
 
 #### `SCR-JST-06` : Ruang Konsultasi Hukum E2EE & NDA
 * **File HTML:** `mockup_chat_justifiqa.html` | **Traceability:** SD-J-03, SD-J-05, UC-05, UC-06, UC-11, J-UC13

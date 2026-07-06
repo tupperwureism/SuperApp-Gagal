@@ -81,6 +81,90 @@
 
         <!-- Privileged Gold Banner -->
         <div style="background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(161,98,7,0.3)); border: 2px solid #eab308; border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(234,179,8,0.15);">
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modul Hukum — IRAC Legal Drafting & e-Meterai Peruri</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+    body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
+    
+    .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
+    .brand { font-size: 1.4rem; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 10px; }
+    .brand span { color: #0ea5e9; }
+    .nav-menu { display: flex; flex-direction: column; gap: 0.4rem; list-style: none; }
+    .nav-item a { display: flex; align-items: center; gap: 12px; padding: 0.85rem 1rem; color: #94a3b8; text-decoration: none; border-radius: 10px; font-weight: 500; font-size: 0.95rem; transition: all 0.2s; }
+    .nav-item a:hover, .nav-item a.active { background: rgba(14,165,233,0.12); color: #38bdf8; border: 1px solid rgba(14,165,233,0.25); }
+    
+    .main { flex: 1; padding: 2.5rem 3rem; overflow-y: auto; max-height: 100vh; }
+    .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .topbar h1 { font-size: 1.8rem; font-weight: 700; color: #fff; }
+    .topbar p { color: #64748b; font-size: 0.95rem; margin-top: 4px; }
+    
+    .card { background: rgba(17,24,39,0.7); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 1.8rem; backdrop-filter: blur(12px); margin-bottom: 2rem; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+    .card-title { font-size: 1.25rem; font-weight: 600; color: #fff; margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: space-between; }
+    
+    .table-responsive { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; text-align: left; }
+    th { padding: 1rem; font-size: 0.85rem; color: #64748b; text-transform: uppercase; border-bottom: 1px solid rgba(255,255,255,0.08); font-weight: 600; }
+    td { padding: 1.2rem 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); font-size: 0.95rem; vertical-align: middle; }
+    
+    .badge { padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; display: inline-flex; align-items: center; gap: 6px; }
+    .badge-success { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-warning { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-danger { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-info { background: rgba(14,165,233,0.15); color: #38bdf8; border: 1px solid rgba(14,165,233,0.3); }
+    .badge-purple { background: rgba(168,85,247,0.15); color: #c084fc; border: 1px solid rgba(168,85,247,0.3); }
+    .badge-gold { background: rgba(234,179,8,0.15); color: #facc15; border: 1px solid rgba(234,179,8,0.3); }
+    
+    .btn { padding: 0.7rem 1.4rem; border-radius: 10px; font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; border: none; display: inline-flex; align-items: center; gap: 8px; }
+    .btn-primary { background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; box-shadow: 0 4px 12px rgba(14,165,233,0.3); }
+    .btn-success { background: linear-gradient(135deg, #10b981, #059669); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, #ef4444, #dc2626); color: #fff; }
+    .btn-gold { background: linear-gradient(135deg, #eab308, #ca8a04); color: #000; font-weight: 700; }
+    .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
+    
+    .input-group { margin-bottom: 1.2rem; }
+    .input-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 6px; font-weight: 500; }
+    .input-control { width: 100%; background: #080c14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; padding: 12px; font-size: 0.9rem; transition: border 0.2s; }
+    .input-control:focus { outline: none; border-color: #38bdf8; }
+    
+    .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.88); backdrop-filter: blur(10px); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-content { background: #111827; border: 1px solid rgba(255,255,255,0.15); border-radius: 20px; width: 680px; max-width: 90%; padding: 2.5rem; box-shadow: 0 25px 50px rgba(0,0,0,0.5); position: relative; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+
+</head>
+<body>
+    <div class="sidebar">
+        <div class="brand">JUSTIFIQA <span style="color: #facc15; font-size: 0.75rem; background: rgba(234,179,8,0.15); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(234,179,8,0.4);">STANDALONE</span></div>
+        <ul class="nav-menu">
+            <li class="nav-item"><a href="mockup_dashboard_mitra_hukum.html">📊 Dashboard Advokat</a></li>
+            <li class="nav-item"><a href="mockup_modul_hukum.html" class="active">⚖️ IRAC Drafting & e-Meterai</a></li>
+            <li class="nav-item"><a href="mockup_chat_justifiqa.html?role=mitra">💬 Chat Privileged (E2EE)</a></li>
+        </ul>
+    </div>
+    <div class="main">
+        <div class="topbar">
+            <div>
+                <h1>Stasiun Kerja Legal Drafting & Akta Hukum</h1>
+                <p>Arsitektur Zero-Knowledge, Metode IRAC, Version Control 10-Tahun, & e-Meterai Peruri Rp 10.000</p>
+            </div>
+            <div style="display: flex; align-items: center; gap: 12px; background: rgba(234,179,8,0.15); padding: 8px 16px; border-radius: 30px; border: 1px solid rgba(234,179,8,0.4);">
+                <div style="width: 32px; height: 32px; border-radius: 50%; background: #eab308; color: #000; display: flex; align-items: center; justify-content: center; font-weight: 700;">SH</div>
+                <div>
+                    <div style="font-weight: 600; font-size: 0.9rem; color: #facc15;">Budi Santoso, S.H., M.H.</div>
+                    <div style="font-size: 0.75rem; color: #cbd5e1;">Peradi ID: 99102 / Active</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Privileged Gold Banner -->
+        <div style="background: linear-gradient(135deg, rgba(234,179,8,0.2), rgba(161,98,7,0.3)); border: 2px solid #eab308; border-radius: 12px; padding: 1.2rem; margin-bottom: 2rem; display: flex; align-items: center; gap: 15px; box-shadow: 0 10px 25px rgba(234,179,8,0.15);">
             <div style="font-size: 2.5rem;">🛡️</div>
             <div>
                 <div style="font-weight: 700; font-size: 1.1rem; color: #facc15; letter-spacing: 0.5px;">PRIVILEGED AND CONFIDENTIAL — ADVOCATE-CLIENT PRIVILEGE</div>
@@ -90,15 +174,27 @@
             </div>
         </div>
 
+        <!-- Helper Guide Box Batch 6 -->
+        <div style="background: rgba(14,165,233,0.1); border: 1px solid #0ea5e9; border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 1.8rem;">💡</span>
+                <div>
+                    <div style="font-weight: 700; color: #38bdf8; font-size: 0.95rem;">Panduan Pengujian Batch 6 (SD-J-06 & J-UC11/J-UC12)</div>
+                    <div style="color: #cbd5e1; font-size: 0.85rem;">1. Tes simpan IRAC Note (200 OK vs Error 400). 2. Tes klik 'Unduh PDF Akta' sebelum stamping (akan ditolak oleh Download Gate Error 403). 3. Tes klik 'Terbitkan & Bubuhkan e-Meterai', pilih simulasi 200 OK. 4. Tes klik kembali tombol unduh (Download Gate terbuka).</div>
+                </div>
+            </div>
+            <span class="badge badge-info" style="white-space: nowrap;">Batch 6 Active</span>
+        </div>
+
         <div style="display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 2rem;">
             <!-- IRAC Drafting Panel -->
             <div class="card">
                 <div class="card-title">
-                    <span>📜 Mesin Penyusunan Draf Hukum (Metode IRAC)</span>
+                    <span>📜 Mesin Penyusunan Draf Hukum (Metode IRAC / J-UC11)</span>
                     <span class="badge badge-gold">Template Engine Ready</span>
                 </div>
                 <div class="input-group">
-                    <label>Pilih Template Dokumen Hukum Baku:</label>
+                    <label>Pilih Template Dokumen Hukum Baku (SD-J-06 / J-UC12):</label>
                     <select class="input-control" style="border-color: #eab308; background: #0c1424; font-weight: 600;">
                         <option>🏛️ Surat Kuasa Khusus Litigasi Perdata (e-Meterai Peruri Stamp Ready)</option>
                         <option>📄 Somasi Terbuka Wanprestasi Kontrak</option>
@@ -123,6 +219,14 @@
                     <label>Conclusion (Tuntutan & Kesimpulan Hukum):</label>
                     <textarea class="input-control" style="height: 65px;">Meminta Pihak Kedua segera melunasi pokok hutang beserta bunga moratoir 6% per tahun selambat-lambatnya 7 hari sejak akta ini diterbitkan.</textarea>
                 </div>
+                <div style="display: flex; gap: 10px; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" style="flex: 1; justify-content: center;" onclick="saveIracNote(false)">
+                        💾 Simpan & Enkripsi IRAC ke WORM (J-UC11 200 OK)
+                    </button>
+                    <button class="btn btn-outline" style="background: rgba(239,68,68,0.1); border-color: rgba(239,68,68,0.4); color: #f87171; font-size: 0.8rem;" onclick="saveIracNote(true)">
+                        ⚠️ Simulasi Error 400
+                    </button>
+                </div>
             </div>
 
             <!-- Version Control & e-Meterai Peruri -->
@@ -132,7 +236,7 @@
                         <span>🗂️ Version Control System</span>
                         <span class="badge badge-info">WORM 10-Yr Legal Hold</span>
                     </div>
-                    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
+                    <div id="versionList" style="display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem;">
                         <div style="background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
                             <div><strong>v1.0</strong> — Draft Awal Internal</div>
                             <span style="font-size: 0.75rem; color: #64748b;">01 Juli 10:00 WIB</span>
@@ -155,7 +259,7 @@
                         <span class="badge badge-gold">Rp 10.000</span>
                     </div>
                     <p style="color: #94a3b8; font-size: 0.85rem; margin-bottom: 1.2rem;">
-                        Integrasi langsung dengan API Perum Peruri. Stempel meterai digital ber-hash kriptografi akan dilampirkan pada koordinat blok tanda tangan.
+                        Integrasi langsung dengan API Perum Peruri. Stempel meterai digital ber-hash kriptografi akan dilampirkan pada koordinat blok tanda tangan (SD-J-06 / J-UC14).
                     </p>
                     <div style="background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center;">
                         <div>
@@ -164,21 +268,118 @@
                         </div>
                         <span style="font-size: 2rem;">🇮🇩</span>
                     </div>
-                    <button class="btn btn-gold" style="width: 100%; justify-content: center; padding: 1rem; font-size: 0.95rem;" onclick="stampMeterai()">
-                        ⚡ Bubuhkan e-Meterai Rp 10.000 & Cap Privilege
+                    <button class="btn btn-gold" style="width: 100%; justify-content: center; padding: 1rem; font-size: 0.95rem;" onclick="openStampingModal()">
+                        ⚡ Terbitkan & Bubuhkan e-Meterai Rp 10.000 (SD-J-06 / J-UC14)
                     </button>
                     
-                    <!-- Download Gate Alert -->
-                    <div style="margin-top: 1.2rem; background: rgba(14,165,233,0.1); border: 1px dashed #0ea5e9; padding: 10px; border-radius: 8px; font-size: 0.78rem; color: #38bdf8; text-align: center;">
-                        🔒 <strong>Download Gate Active:</strong> Klien baru dapat mengunduh PDF akta ini setelah tagihan draf berstatus <code>PAID</code> di escrow.
+                    <!-- Download Gate Alert & Button -->
+                    <div id="downloadGateBox" style="margin-top: 1.2rem; background: rgba(239,68,68,0.1); border: 1px dashed #ef4444; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #f87171; text-align: center;">
+                        🔒 <strong>Download Gate Active (J-UC12 Status: LOCKED):</strong> Dokumen belum dibubuhi e-Meterai sah. Klien tidak diizinkan mengunduh sebelum proses stamping Peruri berhasil diverifikasi.
                     </div>
+                    <button id="btnDownloadDoc" class="btn btn-outline" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.9rem; margin-top: 0.8rem; border-color: #38bdf8; color: #38bdf8;" onclick="downloadLegalDoc()">
+                        📥 Unduh PDF Akta Hukum Resmi (Download Gate J-UC12)
+                    </button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Modal Stamping e-Meterai Peruri (SD-J-06 / J-UC14) -->
+    <div class="modal" id="stampingModal" style="display: none;">
+        <div class="modal-content" style="max-width: 580px; text-align: center;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏛️🇮🇩</div>
+            <h3 style="color: #fff; font-size: 1.4rem; margin-bottom: 0.5rem;">Gerbang Pembubuhan e-Meterai Peruri (SD-J-06)</h3>
+            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                Integrasi API Perum Peruri (POST /api/v3/stamp). Pembubuhan e-Meterai bersertifikat SHA-256 senilai Rp 10.000 akan mengunci draf hukum menjadi ketetapan sah dan membuka <strong>Download Gate</strong> untuk Klien (J-UC12).
+            </p>
+            <div style="background: rgba(0,0,0,0.4); padding: 1rem; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; text-align: left; font-size: 0.85rem;">
+                <div style="color: #facc15; font-weight: 700; margin-bottom: 4px;">Pilih Skenario Simulasi Stamping (SD-J-06):</div>
+                <div style="color: #cbd5e1;">• <strong>201 Created / 200 OK:</strong> Saldo kuota diverifikasi (18 Meterai), serial number diterbitkan, hash disimpan di WORM Storage, dan Download Gate terbuka.</div>
+                <div style="color: #f87171; margin-top: 4px;">• <strong>Error 402 / 502:</strong> Saldo kuota habis atau gangguan koneksi API Peruri. Stamping ditolak.</div>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-gold" style="width: 100%; justify-content: center; padding: 0.9rem;" onclick="simulateStamping(true)">
+                    ✅ Simulasi Stamping Sukses (200 OK - Kuota Tersedia / Buka Download Gate)
+                </button>
+                <button class="btn btn-danger" style="width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.85rem;" onclick="simulateStamping(false)">
+                    ⚠️ Simulasi Error Stamping (402 Kuota Habis / 502 Bad Gateway)
+                </button>
+                <button class="btn btn-outline" style="width: 100%; justify-content: center; margin-top: 0.5rem;" onclick="closeStampingModal()">
+                    ❌ Batal / Tutup Modal
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script>
-        function stampMeterai() {
-            alert('✔ e-METERAI PERUM PERURI Rp 10.000 BERHASIL DIBUBUHKAN!\n\nDokumen akta hukum telah ditandatangani secara digital dengan cryptographic seal SHA-256: 7a8b9c...e12f.\nRetensi WORM 10 tahun aktif.');
+        let isDocumentStamped = false;
+        let peruriQuota = 18;
+
+        function saveIracNote(simulateError) {
+            if (simulateError) {
+                alert('⚠️ Error 400 Bad Request (J-UC11 Validation):\n\nGagal menyimpan catatan hukum! Seluruh field IRAC (Issue, Rule, Application, Conclusion) wajib diisi untuk standar rekam hukum Justifiqa.');
+                return;
+            }
+            const versionList = document.getElementById('versionList');
+            const now = new Date();
+            const timeStr = now.toLocaleDateString('id-ID', {day:'2-digit', month:'short'}) + ' ' + now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'}) + ' WIB';
+            const newVer = document.createElement('div');
+            newVer.style.cssText = 'background: rgba(16,185,129,0.15); padding: 12px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(16,185,129,0.4); animation: fadeIn 0.3s;';
+            newVer.innerHTML = `<div><strong style="color: #34d399;">vFinal (v3.1)</strong> — IRAC Note Stamped & Encrypted</div><span class="badge badge-success" style="font-size: 0.7rem;">WORM AES-256</span>`;
+            if (versionList) versionList.prepend(newVer);
+            alert('✅ 200 OK (J-UC11 IRAC Saved):\n\nCatatan sesi hukum IRAC berhasil dienkripsi dengan AES-256 dan disimpan ke WORM Hash Storage (Retensi 10 Tahun).\nStatus arsip: LOCKED & PERMANENT.');
+        }
+
+        function openStampingModal() {
+            document.getElementById('stampingModal').style.display = 'flex';
+        }
+
+        function closeStampingModal() {
+            document.getElementById('stampingModal').style.display = 'none';
+        }
+
+        function simulateStamping(isSuccess) {
+            closeStampingModal();
+            if (!isSuccess) {
+                alert('⚠️ Stamping Gagal (Error 402 Payment Required / 502 Bad Gateway - SD-J-06):\n\nKuota e-Meterai Peruri tidak mencukupi atau layanan API Stamping sedang sibuk/timeout.\n\nSilakan isi ulang token kuota e-Meterai advokat Anda atau simpan dokumen sebagai Draf Tanpa Meterai terlebih dahulu.');
+                return;
+            }
+            isDocumentStamped = true;
+            peruriQuota = Math.max(0, peruriQuota - 1);
+            // Update UI quota
+            const quotaEl = document.querySelector('.card-title + p + div > div > div:nth-child(2)');
+            if (quotaEl) quotaEl.textContent = `${peruriQuota} Meterai Ready`;
+            
+            // Update Download Gate UI
+            const gateBox = document.getElementById('downloadGateBox');
+            if (gateBox) {
+                gateBox.style.cssText = 'margin-top: 1.2rem; background: rgba(16,185,129,0.15); border: 1px solid #10b981; padding: 12px; border-radius: 8px; font-size: 0.8rem; color: #34d399; text-align: center;';
+                gateBox.innerHTML = '🔓 <strong>Download Gate Open (J-UC12 Status: UNLOCKED):</strong> Dokumen sah dibubuhi e-Meterai Peruri Rp 10.000 (Serial: 10000-PRR-2026-X9Y8Z). Klien diizinkan mengunduh akta bersertifikat.';
+            }
+            
+            const btnDown = document.getElementById('btnDownloadDoc');
+            if (btnDown) {
+                btnDown.className = 'btn btn-success';
+                btnDown.style.cssText = 'width: 100%; justify-content: center; padding: 0.8rem; font-size: 0.9rem; margin-top: 0.8rem;';
+                btnDown.innerHTML = '📥 Unduh PDF Akta Hukum Bermeterai Sah (200 OK)';
+            }
+
+            // Update version list
+            const versionList = document.getElementById('versionList');
+            const newVer = document.createElement('div');
+            newVer.style.cssText = 'background: rgba(234,179,8,0.25); padding: 12px 14px; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eab308; animation: fadeIn 0.3s;';
+            newVer.innerHTML = `<div><strong style="color: #facc15;">vFinal (v4.0 - e-Meterai Sah)</strong> — Peruri Stamped SHA-256</div><span class="badge badge-gold" style="font-size: 0.7rem;">LEGAL SEAL</span>`;
+            if (versionList) versionList.prepend(newVer);
+
+            alert('✅ 201 Created / 200 OK (SD-J-06 e-Meterai Stamped):\n\n✔ e-METERAI PERUM PERURI Rp 10.000 BERHASIL DIBUBUHKAN!\n\nDokumen akta hukum telah ditandatangani secara digital dan diverifikasi dengan serial number: 10000-PRR-2026-X9Y8Z.\nCryptographic seal SHA-256: 7a8b9c...e12f.\n\n🔓 DOWNLOAD GATE TERBUKA: Klien kini berhak mengunduh dokumen akhir bersertifikat!');
+        }
+
+        function downloadLegalDoc() {
+            if (!isDocumentStamped) {
+                alert('⚠️ Access Denied (Error 403 Forbidden - J-UC12 Download Gate):\n\nDokumen hukum ini belum dibubuhi e-Meterai resmi Peruri atau masih berstatus Draf internal.\n\nSesuai protokol perlindungan hukum Justifiqa (ST-J-12), Klien hanya diizinkan mengunduh akta akhir setelah pembubuhan e-Meterai Rp 10.000 berhasil diverifikasi dan berketetapan hukum tetap!');
+            } else {
+                alert('✅ 200 OK (Download Gate Passed / J-UC12):\n\nMemulai unduhan akta hukum resmi bersertifikat e-Meterai Peruri (Format: PDF/A-2b, SHA-256 Verified).\n\nDokumen ini memiliki kekuatan hukum pembuktian sempurna di pengadilan.');
+            }
         }
         window.addEventListener('DOMContentLoaded', () => {
             localStorage.setItem('user_role_justifiqa', 'mitra');

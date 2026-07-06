@@ -250,65 +250,67 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ---
 
-### UC-10: Melayani Konsultasi
-* **Aktor Utama**: Mitra Profesional
-* **Aktor Pendukung**: Klien
-* **Deskripsi Singkat**: Mitra Profesional menerima tiket konsultasi klien dan memberikan respons dalam ruang obrolan chat real-time.
-* **Pre-condition**: Mitra Profesional dalam status online (UC-09) dan ada klien yang mengajukan sesi konsultasi aktif (UC-04).
-* **Post-condition**: Mitra Profesional menyelesaikan sesi obrolan chat dan membuat catatan medis.
+### J-UC10: Melayani Konsultasi Hukum & Litigasi E2EE
+* **Aktor Utama**: Advokat Mitra Peradi
+* **Aktor Pendukung**: Klien Hukum
+* **Deskripsi Singkat**: Advokat menerima permintaan konsultasi klien dan memberikan layanan konsultasi hukum, review kontrak, atau analisis litigasi di dalam ruang konsultasi terenkripsi Zero-Knowledge.
+* **Pre-condition**: Advokat dalam status Online (J-UC09) dan ada klien yang memulai sesi konsultasi dari escrow pembayarannya (J-UC05).
+* **Post-condition**: Sesi konsultasi ditutup dan advokat beralih ke Workstation Hukum untuk menyusun IRAC Note (J-UC11) dan Legal Opinion / Draf Kontrak e-Meterai (J-UC12).
 * **Alur Utama (Basic Flow)**:
-  1. Sistem memunculkan pop-up permintaan konsultasi masuk ke dasbor Mitra Profesional.
-  2. Mitra Profesional mengklik tombol "Terima Permintaan".
-  3. Sistem menghubungkan Mitra Profesional ke ruang obrolan (chat room) yang aktif dengan Klien.
-  4. Mitra Profesional membaca keluhan klien dan merespons dengan memberikan diagnosis serta arahan medis via chat.
-  5. Setelah diagnosis selesai, Mitra Profesional menulis catatan medis dan dokumen anjuran/telaah obat (UC-11).
-  6. Mitra Profesional mengklik tombol "Selesaikan Konsultasi".
-  7. Sistem menutup dan mengunci ruang obrolan chat.
+  1. Sistem memunculkan pop-up permintaan konsultasi masuk ke dasbor Advokat Mitra Peradi.
+  2. Advokat mengklik tombol "Terima Sesi Litigasi".
+  3. Sistem menghubungkan Advokat ke ruang obrolan (chat room E2EE `SCR-JST-06`) yang aktif dengan Klien.
+  4. Advokat meninjau keluhan hukum klien serta bukti perkara yang diunggah (J-UC13) dan memberikan nasihat hukum profesional via chat.
+  5. Setelah konsultasi selesai, Advokat atau Klien mengklik tombol "Akhiri Sesi Litigasi" (SD-J-03).
+  6. Sistem menutup ruang obrolan, mencairkan dana escrow ke advokat, dan mengarahkan advokat ke Workstation Hukum (`SCR-JST-05`).
 * **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **2a. Mitra Profesional Menolak Permintaan Konsultasi**:
-    1. Mitra Profesional memilih tombol "Tolak / Sibuk".
-    2. Sistem mengembalikan tiket klien ke antrean pencarian mitra profesional online lainnya.
-    3. Sesi konsultasi pada mitra profesional bersangkutan dibatalkan.
+  * **2a. Advokat Menolak / Sesi Timeout (Error 408 / SD-J-03 Alternatif)**:
+    1. Advokat mengklik tombol penolakan atau tidak merespons dalam batas waktu yang ditentukan.
+    2. Sistem mengembalikan dana escrow secara penuh ke saldo klien dan menawarkan pencarian advokat alternatif lain.
 
 ---
 
-### UC-11: Membuat Catatan Medis
-* **Aktor Utama**: Mitra Profesional
-* **Aktor Pendukung**: Tidak ada
-* **Deskripsi Singkat**: Mitra Profesional menuliskan diagnosis singkat dan kesimpulan medis klien di rekam medis elektronik setelah sesi chat selesai.
-* **Pre-condition**: Mitra Profesional berada dalam sesi konsultasi aktif (UC-10).
-* **Post-condition**: Data rekam medis disimpan secara permanen di database dan dapat diakses kembali oleh Klien.
+### J-UC11: Membuat Catatan Sesi Hukum Terstruktur (IRAC Note)
+* **Aktor Utama**: Advokat Mitra Peradi
+* **Aktor Pendukung**: WORM Hash Storage
+* **Deskripsi Singkat**: Advokat menyusun catatan analisis hukum terstruktur menggunakan metode IRAC (Issue, Rule, Application, Conclusion) setelah sesi konsultasi selesai, yang disimpan secara permanen di WORM Storage dengan enkripsi AES-256.
+* **Pre-condition**: Advokat telah mengakhiri sesi konsultasi hukum (J-UC10 / SD-J-03).
+* **Post-condition**: Catatan IRAC tersimpan di WORM Storage dengan retensi 10 tahun dan dapat dipilih untuk dibagikan ke klien atau sebagai arsip internal.
 * **Alur Utama (Basic Flow)**:
-  1. Mitra Profesional mengklik opsi "Buat Catatan Medis" di panel konsultasi.
-  2. Sistem menampilkan formulir Rekam Medis (Gejala, Diagnosis, Rekomendasi Tindak Lanjut, dan Instruksi Dokumen Anjuran/Telaah).
-  3. Mitra Profesional mengisi detail diagnosis medis dan instruksi pengobatan klien.
-  4. Mitra Profesional memilih untuk menambahkan dokumen anjuran/telaah obat (*Extend* ke UC-12).
-  5. Mitra Profesional menyimpan catatan medis tersebut.
-  6. Sistem menyimpan data rekam medis klien di database dengan status terkunci.
+  1. Advokat membuka Workstation Kontrak & Litigasi (`SCR-JST-05`).
+  2. Sistem menampilkan formulir IRAC Note dengan field wajib: Rumusan Masalah (Issue), Dasar UU (Rule), Analisis Hukum (Application), dan Kesimpulan (Conclusion).
+  3. Advokat mengisi rumusan masalah hukum, pasal/undang-undang yang relevan, analisis penerapan, dan kesimpulan strategis.
+  4. Advokat memilih visibilitas catatan (Bagikan ke Klien atau Internal Law Firm).
+  5. Advokat mengklik tombol "Simpan & Enkripsi IRAC Note ke WORM".
+  6. Sistem mengenkripsi catatan dengan AES-256 dan menyimpannya di WORM Hash Storage.
 * **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **3a. Pengisian Formulir Tidak Lengkap**:
-    1. Mitra Profesional mengklik simpan namun kolom wajib seperti "Diagnosis" belum terisi.
-    2. Sistem membatalkan proses penyimpanan dan memunculkan notifikasi: *"Kolom Diagnosis wajib diisi sebelum menyimpan catatan medis"*.
+  * **3a. Form IRAC Tidak Lengkap (Error 400 Validation)**:
+    1. Advokat mengklik simpan namun field wajib (seperti Rumusan Masalah atau Dasar UU) masih kosong.
+    2. Sistem membatalkan penyimpanan dan memunculkan peringatan error: *"⚠️ Error 400 Bad Request: Seluruh field IRAC (Issue, Rule, Application, Conclusion) wajib diisi untuk standar rekam hukum Justifiqa."*
 
 ---
 
-### UC-12: Membuat Dokumen Anjuran/Telaah Digital
-* **Aktor Utama**: Mitra Profesional
-* **Aktor Pendukung**: Tidak ada
-* **Deskripsi Singkat**: Mitra Profesional meracik dokumen anjuran/telaah obat digital dengan memilih obat dari katalog obat resmi yang disediakan sistem (*Extend dari* UC-11).
-* **Pre-condition**: Mitra Profesional sedang mengisi formulir catatan medis (UC-11) dan mendiagnosis penyakit yang memerlukan terapi obat.
-* **Post-condition**: Dokumen Anjuran/Telaah digital terbit dan terlampir pada riwayat rekam medis klien.
-* **Alur Utama (Basic Flow)**:
-  1. Mitra Profesional mengklik tombol "Tambah Obat" pada formulir catatan medis.
-  2. Sistem menampilkan kolom pencarian obat yang terhubung dengan katalog obat sistem.
-  3. Mitra Profesional mengetik nama obat, memilih obat dari katalog, menentukan dosis (misal: 3x1 sehari), dan jumlah obat (misal: 10 tablet).
-  4. Mitra Profesional mengklik "Simpan Dokumen Anjuran/Telaah".
-  5. Sistem melampirkan data dokumen anjuran/telaah obat ke catatan medis klien yang bersangkutan.
-* **Alur Alternatif/Gagal (Alternative Flow)**:
-  * **3a. Stok Obat Kosong / Tidak Tersedia**:
-    1. Mitra Profesional mencari obat namun sistem mendeteksi obat tersebut tidak ada dalam katalog obat aktif.
-    2. Sistem menampilkan pesan: *"Obat tidak ditemukan dalam katalog"*.
-    3. Mitra Profesional memilih opsi obat alternatif dari katalog lain atau menuliskan dokumen anjuran/telaah manual secara teks bebas.
+### J-UC12 / J-UC14: Menerbitkan Legal Opinion & Draf Kontrak e-Meterai Peruri
+* **Aktor Utama**: Advokat Mitra Peradi
+* **Aktor Pendukung**: Klien Hukum, API Perum Peruri Stamping, WORM Storage
+* **Deskripsi Singkat**: Advokat merancang dan menerbitkan dokumen hukum sah (Legal Opinion, Somasi, atau Draf Perjanjian) berdasarkan template baku dan membubuhkannya dengan e-Meterai resmi Peruri Rp10.000 yang berketetapan hukum tetap (*Download Gate*).
+* **Pre-condition**: Advokat sedang mengelola perkara klien di Workstation Hukum (`SCR-JST-05`).
+* **Post-condition**: Dokumen hukum bersertifikat e-Meterai diterbitkan, tersimpan di database/WORM, dan siap diunduh oleh klien setelah verifikasi kuota & stamping berhasil.
+* **Alur Utama (Basic Flow - SD-J-06 Langkah 227-243)**:
+  1. Advokat membuka tab "Generator Draf Hukum / Legal Opinion" pada Workstation (`SCR-JST-05`).
+  2. Advokat memilih template dokumen hukum baku yang dapat diedit (misal: *Legal Opinion*, *Surat Somasi*, atau *Perjanjian Sewa / NDA*).
+  3. Advokat mengisi klausul hukum dan mencentang opsi pembubuhan **"e-Meterai Peruri Rp10.000 bersertifikat SHA-256"**.
+  4. Advokat mengklik tombol "Terbitkan Dokumen & Bubuhkan e-Meterai (SD-J-06)".
+  5. Sistem melakukan panggilan API ke Perum Peruri (`POST /api/v3/stamp`), memverifikasi kuota, dan membubuhkan serial number e-Meterai sah pada dokumen PDF.
+  6. Sistem menyimpan dokumen bersertifikat di WORM Storage dan mengirimkan notifikasi kepada klien.
+  7. *Download Gate*: Klien diverifikasi oleh sistem dan diizinkan mengunduh dokumen akhir yang telah sah bermeterai.
+* **Alur Alternatif/Gagal (Alternative Flow - SD-J-06)**:
+  * **3a. Kuota e-Meterai Habis / Kegagalan API Peruri (Error 502 / 402 - J-UC14 Alternatif)**:
+    1. Sistem mendeteksi kuota e-Meterai advokat/platform habis atau API Peruri mengalami gangguan/timeout.
+    2. Sistem membatalkan penerbitan sertifikat e-Meterai dan memunculkan error: *"⚠️ Stamping Gagal (Error 402 Payment Required / 502 Bad Gateway - SD-J-06): Kuota e-Meterai Peruri tidak mencukupi atau layanan stamping sedang sibuk. Silakan isi ulang kuota atau terbitkan sebagai Draf Tanpa Meterai terlebih dahulu."*
+  * **3b. Validasi Download Gate (Dokumen Belum Bermeterai / Pending Stamping)**:
+    1. Klien mencoba mengunduh dokumen hukum saat proses stamping Peruri belum selesai diverifikasi.
+    2. Sistem menolak akses unduhan dan memunculkan peringatan *Download Gate*: *"⚠️ Access Denied (Error 403 Forbidden - J-UC12 Download Gate): Dokumen hukum sedang dalam proses pembubuhan e-Meterai Peruri dan verifikasi SHA-256. Unduhan baru dibuka setelah status dokumen SAH & BERMETERAI."*
 
 ---
 
