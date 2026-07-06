@@ -117,8 +117,6 @@
   - Ditambahkan kotak panduan pengujian (*helper guide*) di dasbor advokat serta meregenerasi master bundel statis `mockup_justifiqa_standalone.html`.
 - **Standarisasi Kualitas UI/UX - Excessive Revision Gate (06 Juli 2026):**
   - Mengadopsi pedoman baru `excessive_revision.md` sebagai gerbang kendali mutu paska-eksekusi (*Post-Batch Polish Gate*) untuk memisahkan *functional tracing* dengan kualitas presentasi UI/UX akhir.
-  - Melakukan pembersihan menyeluruh terhadap hasil eksekusi **Batch 1 hingga Batch 4**:
-    1. **Penyederhanaan Status Badge:** Mengubah status ganda seperti `🟢 ONLINE / AVAILABLE` menjadi `🟢 Online`, dan `🔴 SIDANG / OFFLINE` menjadi `🔴 Offline` pada `mockup_dashboard_mitra_hukum.html`.
-    2. **Penghapusan Kebocoran Referensi Teknis (No Technical Leakage):** Menghapus kode referensi dari label antarmuka publik, seperti mengubah tombol `"Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)"` menjadi `"Simulasi Waktu Habis / Ditolak"`, judul modal `"Ulasan & Rating Advokat (J-UC06)"` menjadi `"Ulasan & Rating Advokat"`, serta tombol skip `"Nanti (Skip - UC-06 2a)"` menjadi `"Lewati"`.
-    3. **Efisiensi Teks Alert:** Menyederhanakan seluruh pesan *alert* sistem di `mockup_auth_justifiqa.html`, `mockup_payment_gateway.html`, `mockup_chat_justifiqa.html`, dan `mockup_dashboard_mitra_hukum.html` menjadi bahasa informatif yang mudah dipahami, tanpa memaparkan kronologi teknis internal kepada pengguna akhir.
-  - Meregenerasi master bundel statis `mockup_justifiqa_standalone.html` agar seluruh hasil pembersihan tersinkronisasi 100%.
+  - **Koreksi Strategi Eksekusi (Two Standalones Pattern):** Ditetapkan bahwa pengaplikasian aturan pada `excessive_revision.md` **diberlakukan setelah seluruh batch dalam domain (Batch 1 - 10) selesai dieksekusi dalam kondisi mentah (*raw SD-driven*)**.
+  - Seluruh perubahan pembersihan teks pada file UI/Mockups (Batch 1 - 4) telah **direvert kembali ke kondisi mentah (*raw*)** agar ketercejakan spesifikasi (`UC-05`, `SD-J-04`, `J-UC06`, dsb.) tetap dipertahankan selama masa eksekusi alur SD.
+  - Nantinya akan dihasilkan dua artefak master terpisah: **Mockup Standalone Mentah** (kaya akan referensi teknis & SD-tracing) dan **Mockup Standalone Matang** (telah dipoles bersih dengan panduan `excessive_revision.md`).

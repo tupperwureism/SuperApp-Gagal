@@ -238,7 +238,7 @@
                     <span>Rp 260.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
                 </button>
                 <button class="btn-cancel" onclick="simulateFailedPayment(); return false;" style="background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class="ph ph-clock-countdown" style="font-size:1.1rem;"></i> Simulasi Waktu Habis / Ditolak
+                    <i class="ph ph-clock-countdown" style="font-size:1.1rem;"></i> Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)
                 </button>
             </div>
         </div>
@@ -290,7 +290,7 @@
                 
                 document.getElementById('processingTitle').style.color = '#38bdf8';
                 document.getElementById('processingTitle').innerText = '✅ Dana Ditahan di Escrow Justifiqa!';
-                document.getElementById('processingDesc').innerHTML = 'Webhook Midtrans menerima settlement sukses (PAID).<br><strong style="color:#facc15;">Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa</strong> hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...';
+                document.getElementById('processingDesc').innerHTML = 'Webhook Midtrans menerima settlement sukses (PAID).<br><strong style="color:#facc15;">Dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa (SD-J-03 Langkah 133)</strong> hingga sesi konsultasi selesai. Menyiapkan ruang E2EE...';
                 
                 const statusEl = document.getElementById('webhookStatus');
                 statusEl.style.color = '#38bdf8';
@@ -308,7 +308,7 @@
             const statusEl = document.getElementById('webhookStatus');
             if (statusEl) {
                 statusEl.style.color = '#ff4757';
-                statusEl.innerText = 'PAYMENT_EXPIRED / REJECTED (400 Bad Request)';
+                statusEl.innerText = 'PAYMENT_EXPIRED / REJECTED (400 Bad Request - UC-05)';
             }
         }
     </script>
