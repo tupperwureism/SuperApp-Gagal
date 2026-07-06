@@ -352,6 +352,12 @@
             <form id="authForm" onsubmit="return false;">
                 <!-- Dynamic Registration Fields (Only shown when Register Mode is Active) -->
                 <div class="register-fields" id="regFields">
+                    <div style="background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4;">
+                        <strong>💡 Panduan Uji Coba SD-J-01 (Registrasi Justifiqa):</strong><br>
+                        • <strong>Tes Error 400 (Sudah Terdaftar):</strong> Biarkan NIK/NIA <em>default</em> (<code>NIA-998201</code>) atau ketik kata <code>exist</code> pada form.<br>
+                        • <strong>Tes Klien Baru (201 Aktif):</strong> Pastikan tab Klien aktif, ubah NIK menjadi angka baru (tanpa kata exist).<br>
+                        • <strong>Tes Advokat Baru (201 Pending):</strong> Pilih tab Advokat Mitra, ubah NIA menjadi nomor baru (tanpa kata exist).
+                    </div>
                     <div class="input-group">
                         <label id="lblNama">Nama Lengkap & Gelar (Sesuai KTP / BAS)</label>
                         <div class="input-wrapper">
@@ -517,10 +523,23 @@
 
         function handleAuthSubmit() {
             if (isRegister) {
-                // Aturan Revisi: Saat pencet Daftar sekarang berikan notif sudah terdaftar!
+                // Eksekusi Batch 1 (SD-J-01): Memfasilitasi 3 cabang alur (Error Sudah Terdaftar, Klien Sukses Aktif, Advokat Pending Verification)
                 const identitas = document.getElementById('inputIdentitas').value || "NIA-998201";
-                alert("⚠️ PEMBERITAHUAN SISTEM JUSTIFIQA:\n\nAkun dengan Nomor Identitas / Email tersebut (" + identitas + ") SUDAH TERDAFTAR di dalam database sistem hukum Justifiqa!\n\nSilakan klik tombol 'OK', lalu pilih opsi 'Masuk ke akun yang ada' untuk login menggunakan kredensial Anda.");
-                toggleRegisterMode();
+                const email = document.getElementById('inputEmail').value || "";
+                
+                if (identitas.toLowerCase().includes('exist') || identitas.toLowerCase().includes('sudah') || identitas.includes('998201') || email.toLowerCase().includes('exist')) {
+                    // Cabang 1: SD-J-01 Langkah 37-39 (400 Bad Request - Kredensial Sudah Terdaftar)
+                    alert("⚠️ PEMBERITAHUAN SISTEM JUSTIFIQA (400 Bad Request):\n\nAkun dengan Nomor Identitas / Email tersebut (" + identitas + ") SUDAH TERDAFTAR di dalam database sistem hukum Justifiqa!\n\nSilakan gunakan NIK/NIA lain untuk mendaftar akun baru, atau klik 'OK' lalu pilih opsi 'Masuk ke akun yang ada' untuk login.");
+                    toggleRegisterMode();
+                } else if (!isMitra) {
+                    // Cabang 2: SD-J-01 Langkah 41-47 (Registrasi Klien - Verifikasi NIK Dukcapil - 201 Created AKTIF)
+                    alert("✅ VERIFIKASI NIK DUKCAPIL BERHASIL (Status: 201 Created - AKTIF)\n\nSelamat! Data NIK (" + identitas + ") cocok dengan database Dukcapil. Akun Klien Hukum Justifiqa Anda telah aktif.\n\nSilakan klik 'OK' untuk beralih ke halaman login dan masuk ke dasbor Anda.");
+                    toggleRegisterMode();
+                } else {
+                    // Cabang 3: SD-J-01 Langkah 48-53 (Registrasi Advokat - Verifikasi SIPP Peradi - 201 Created PENDING_VERIFICATION)
+                    alert("📋 PENDAFTARAN ADVOKAT DITERIMA (Status: 201 Created - PENDING_VERIFICATION)\n\nDokumen Kartu Tanda Advokat (KTA Peradi) dan Berita Acara Sumpah (BAS) Anda telah masuk ke Antrean Audit Admin Justifiqa.\n\nSesuai Pasal 3 & 4 Kode Etik Peradi serta UU Advokat No. 18/2003, akun Anda akan diverifikasi dalam 1x24 jam. Anda akan menerima notifikasi email setelah verifikasi SIPP/Peradi selesai.\n\nSilakan klik 'OK' untuk beralih ke halaman utama.");
+                    toggleRegisterMode();
+                }
             } else {
                 // Aturan Revisi: Saat login, tampilkan modal verifikasi OTP agar tidak terputus dari alur!
                 const email = document.getElementById('inputEmail').value || "klien@justifiqa.id";

@@ -84,4 +84,11 @@
     1. **Qualifa Ruang Terapi WebRTC (`mockup_chat_qualifa.html`):** Skrip dinamis mendeteksi parameter URL `?role=mitra` (atau *localStorage* `user_role_qualifa`) dan secara otomatis mengalihkan tombol kembali ke `mockup_dashboard_mitra_psikologi.html` serta tombol akhiri sesi ke `mockup_modul_psikologi_mitra.html` (Workstation DAP Note).
     2. **Justifiqa Ruang Litigasi (`mockup_chat_justifiqa.html`):** Skrip dinamis mendeteksi parameter `?role=mitra` (atau *localStorage* `user_role_justifiqa`) dan secara otomatis mengarahkan advokat kembali ke `mockup_dashboard_mitra_hukum.html` serta tombol akhiri sesi ke `mockup_modul_hukum.html` (Workstation IRAC).
   - Memperbarui seluruh tautan masuk ruang chat di seluruh dasbor, workstation, dan modal (Klien vs Mitra) agar menyertakan parameter `?role=klien` atau `?role=mitra` secara eksplisit, serta meregenerasi kedua master standalone bundles.
-
+- **Eksekusi Paradigma SD-Driven UI/UX - Batch 1: SD-J-01 (06 Juli 2026):**
+  - Menerapkan paradigma baru di mana eksekusi dan verifikasi mockup dilakukan per Batch berbasis Sequence Diagram (SD) sebagai panglima alur.
+  - **Batch 1 (`SD-J-01`: Registrasi Akun Klien & Advokat):** Membedah `mockup_auth_justifiqa.html` dan menemukan bahwa fungsi submit registrasi sebelumnya hanya mengarah pada skenario negatif (*Akun sudah terdaftar* / 400 Bad Request).
+  - Melakukan *Loop-Back Fix* dengan memperkaya `mockup_auth_justifiqa.html` dan `ui_specification_guide.md` untuk memfasilitasi 3 cabang alur interaktif penuh sesuai SD-J-01:
+    1. **Cabang Error 400 (Sudah Terdaftar):** Dipicu saat NIK/NIA bernilai default `NIA-998201` atau mengandung kata `exist`.
+    2. **Cabang Sukses Klien (201 AKTIF):** Dipicu saat pendaftaran baru di tab Klien; melakukan simulasi verifikasi NIK ke API Dukcapil dan mengarahkan pengguna ke halaman login.
+    3. **Cabang Sukses Advokat (201 PENDING_VERIFICATION):** Dipicu saat pendaftaran baru di tab Advokat Mitra; menyimpan dokumen KTA Peradi & BAS Pengadilan Tinggi ke antrean audit admin sesuai UU Advokat No. 18/2003 & Kode Etik Peradi.
+  - Ditambahkan panel panduan interaktif (*helper guide*) langsung di atas formulir registrasi untuk memudahkan pengujian, serta meregenerasi master bundel `mockup_justifiqa_standalone.html`.

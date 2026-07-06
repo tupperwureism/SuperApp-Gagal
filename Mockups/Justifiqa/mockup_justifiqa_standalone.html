@@ -397,6 +397,12 @@
             &lt;form id=&quot;authForm&quot; onsubmit=&quot;return false;&quot;&gt;
                 &lt;!-- Dynamic Registration Fields (Only shown when Register Mode is Active) --&gt;
                 &lt;div class=&quot;register-fields&quot; id=&quot;regFields&quot;&gt;
+                    &lt;div style=&quot;background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4;&quot;&gt;
+                        &lt;strong&gt;💡 Panduan Uji Coba SD-J-01 (Registrasi Justifiqa):&lt;/strong&gt;&lt;br&gt;
+                        • &lt;strong&gt;Tes Error 400 (Sudah Terdaftar):&lt;/strong&gt; Biarkan NIK/NIA &lt;em&gt;default&lt;/em&gt; (&lt;code&gt;NIA-998201&lt;/code&gt;) atau ketik kata &lt;code&gt;exist&lt;/code&gt; pada form.&lt;br&gt;
+                        • &lt;strong&gt;Tes Klien Baru (201 Aktif):&lt;/strong&gt; Pastikan tab Klien aktif, ubah NIK menjadi angka baru (tanpa kata exist).&lt;br&gt;
+                        • &lt;strong&gt;Tes Advokat Baru (201 Pending):&lt;/strong&gt; Pilih tab Advokat Mitra, ubah NIA menjadi nomor baru (tanpa kata exist).
+                    &lt;/div&gt;
                     &lt;div class=&quot;input-group&quot;&gt;
                         &lt;label id=&quot;lblNama&quot;&gt;Nama Lengkap &amp; Gelar (Sesuai KTP / BAS)&lt;/label&gt;
                         &lt;div class=&quot;input-wrapper&quot;&gt;
@@ -562,10 +568,23 @@
 
         function handleAuthSubmit() {
             if (isRegister) {
-                // Aturan Revisi: Saat pencet Daftar sekarang berikan notif sudah terdaftar!
+                // Eksekusi Batch 1 (SD-J-01): Memfasilitasi 3 cabang alur (Error Sudah Terdaftar, Klien Sukses Aktif, Advokat Pending Verification)
                 const identitas = document.getElementById(&#x27;inputIdentitas&#x27;).value || &quot;NIA-998201&quot;;
-                alert(&quot;⚠️ PEMBERITAHUAN SISTEM JUSTIFIQA:\n\nAkun dengan Nomor Identitas / Email tersebut (&quot; + identitas + &quot;) SUDAH TERDAFTAR di dalam database sistem hukum Justifiqa!\n\nSilakan klik tombol &#x27;OK&#x27;, lalu pilih opsi &#x27;Masuk ke akun yang ada&#x27; untuk login menggunakan kredensial Anda.&quot;);
-                toggleRegisterMode();
+                const email = document.getElementById(&#x27;inputEmail&#x27;).value || &quot;&quot;;
+                
+                if (identitas.toLowerCase().includes(&#x27;exist&#x27;) || identitas.toLowerCase().includes(&#x27;sudah&#x27;) || identitas.includes(&#x27;998201&#x27;) || email.toLowerCase().includes(&#x27;exist&#x27;)) {
+                    // Cabang 1: SD-J-01 Langkah 37-39 (400 Bad Request - Kredensial Sudah Terdaftar)
+                    alert(&quot;⚠️ PEMBERITAHUAN SISTEM JUSTIFIQA (400 Bad Request):\n\nAkun dengan Nomor Identitas / Email tersebut (&quot; + identitas + &quot;) SUDAH TERDAFTAR di dalam database sistem hukum Justifiqa!\n\nSilakan gunakan NIK/NIA lain untuk mendaftar akun baru, atau klik &#x27;OK&#x27; lalu pilih opsi &#x27;Masuk ke akun yang ada&#x27; untuk login.&quot;);
+                    toggleRegisterMode();
+                } else if (!isMitra) {
+                    // Cabang 2: SD-J-01 Langkah 41-47 (Registrasi Klien - Verifikasi NIK Dukcapil - 201 Created AKTIF)
+                    alert(&quot;✅ VERIFIKASI NIK DUKCAPIL BERHASIL (Status: 201 Created - AKTIF)\n\nSelamat! Data NIK (&quot; + identitas + &quot;) cocok dengan database Dukcapil. Akun Klien Hukum Justifiqa Anda telah aktif.\n\nSilakan klik &#x27;OK&#x27; untuk beralih ke halaman login dan masuk ke dasbor Anda.&quot;);
+                    toggleRegisterMode();
+                } else {
+                    // Cabang 3: SD-J-01 Langkah 48-53 (Registrasi Advokat - Verifikasi SIPP Peradi - 201 Created PENDING_VERIFICATION)
+                    alert(&quot;📋 PENDAFTARAN ADVOKAT DITERIMA (Status: 201 Created - PENDING_VERIFICATION)\n\nDokumen Kartu Tanda Advokat (KTA Peradi) dan Berita Acara Sumpah (BAS) Anda telah masuk ke Antrean Audit Admin Justifiqa.\n\nSesuai Pasal 3 &amp; 4 Kode Etik Peradi serta UU Advokat No. 18/2003, akun Anda akan diverifikasi dalam 1x24 jam. Anda akan menerima notifikasi email setelah verifikasi SIPP/Peradi selesai.\n\nSilakan klik &#x27;OK&#x27; untuk beralih ke halaman utama.&quot;);
+                    toggleRegisterMode();
+                }
             } else {
                 // Aturan Revisi: Saat login, tampilkan modal verifikasi OTP agar tidak terputus dari alur!
                 const email = document.getElementById(&#x27;inputEmail&#x27;).value || &quot;klien@justifiqa.id&quot;;

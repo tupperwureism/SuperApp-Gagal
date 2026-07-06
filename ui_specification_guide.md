@@ -197,7 +197,7 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   - *Modal:* **OTP Verification Modal (`#otpModal`)** dengan 4 digit kotak verifikasi.
 * **Interactive State Machine:**
   1. *Toggle Mode:* Klik `"Daftar Sekarang"` ➔ Ubah teks tombol utama menjadi `"Daftar Akun Sekarang"` ➔ Tampilkan `#regFields` dan `#mitraUpload` (jika tab Mitra aktif).
-  2. *Submit Register:* Klik Daftar ➔ Validasi kelengkapan form ➔ Tampilkan System Alert: *"Akun dengan NIK/Email tersebut sudah terdaftar di database Justifiqa!"* ➔ Switch kembali ke Mode Login.
+  2. *Submit Register (SD-J-01 3-Branch Execution):* Klik Daftar ➔ Validasi kelengkapan form ➔ (a) Jika NIK/Email default/exist ➔ Tampilkan System Alert 400: *"Akun sudah terdaftar!"*; (b) Jika tab Klien baru ➔ Verifikasi NIK Dukcapil 201 ➔ Alert *"Akun Klien Aktif"*; (c) Jika tab Advokat baru ➔ Verifikasi SIPP Peradi 201 ➔ Alert *"Pending Verification Audit Admin 1x24 Jam"*.
   3. *Submit Login:* Klik Masuk ➔ **Wajib memicu `#otpModal`** (Dilarang direct redirect).
   4. *Verify OTP:* Klik `"Verifikasi & Masuk Sekarang"` pada modal ➔ Cek role aktif: jika Mitra redirect ke `mockup_dashboard_mitra_hukum.html`, jika Klien ke `mockup_dashboard_hukum_klien.html`.
 * **Domain Compliance:** UU Advokat No. 18 Tahun 2003, Keabsahan BAS Pengadilan Tinggi, e-Meterai PERURI.
