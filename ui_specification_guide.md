@@ -194,12 +194,12 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   - *Dynamic Register Fields (Aktif saat Register):* Input Nama Lengkap & Gelar (Sesuai BAS), Input NIK / No. NIA Peradi, Input No. WhatsApp.
   - *Auth Fields:* Input Email / Username, Input Password.
   - *Mitra Upload Dropzone (Aktif saat Register + Tab Mitra):* Upload Kartu Tanda Advokat (KTA Peradi) & Upload Berita Acara Sumpah (BAS) Pengadilan Tinggi.
-  - *Modal:* **OTP Verification Modal (`#otpModal`)** dengan 4 digit kotak verifikasi.
+  - *Modal:* **OTP Verification Modal (`#otpModal`)** dengan 6 digit kotak verifikasi interaktif (SD-J-02 MFA).
 * **Interactive State Machine:**
   1. *Toggle Mode:* Klik `"Daftar Sekarang"` ➔ Ubah teks tombol utama menjadi `"Daftar Akun Sekarang"` ➔ Tampilkan `#regFields` dan `#mitraUpload` (jika tab Mitra aktif).
   2. *Submit Register (SD-J-01 3-Branch Execution):* Klik Daftar ➔ Validasi kelengkapan form ➔ (a) Jika NIK/Email default/exist ➔ Tampilkan System Alert 400: *"Akun sudah terdaftar!"*; (b) Jika tab Klien baru ➔ Verifikasi NIK Dukcapil 201 ➔ Alert *"Akun Klien Aktif"*; (c) Jika tab Advokat baru ➔ Verifikasi SIPP Peradi 201 ➔ Alert *"Pending Verification Audit Admin 1x24 Jam"*.
-  3. *Submit Login:* Klik Masuk ➔ **Wajib memicu `#otpModal`** (Dilarang direct redirect).
-  4. *Verify OTP:* Klik `"Verifikasi & Masuk Sekarang"` pada modal ➔ Cek role aktif: jika Mitra redirect ke `mockup_dashboard_mitra_hukum.html`, jika Klien ke `mockup_dashboard_hukum_klien.html`.
+  3. *Submit Login (SD-J-02 4-Branch Execution):* Klik Masuk ➔ (a) Jika Email/Password mengandung 'salah' ➔ Alert 401 Unauthorized; (b) Jika Email mengandung 'block'/'suspend' ➔ Alert 403 Forbidden (Akun Ditangguhkan); (c) Jika kredensial cocok ➔ Generate OTP 6-Digit & pemicu `#otpModal` (Status 200 OK).
+  4. *Verify OTP (SD-J-02 MFA):* Klik `"Verifikasi & Masuk Sekarang"` pada modal ➔ Jika input `000000` atau tidak valid ➔ Alert 400 Bad Request (OTP Salah/Kadaluarsa). Jika OTP valid ➔ Pembuatan JWT Token ➔ Cek role aktif: jika Mitra redirect ke `mockup_dashboard_mitra_hukum.html`, jika Klien ke `mockup_dashboard_hukum_klien.html`.
 * **Domain Compliance:** UU Advokat No. 18 Tahun 2003, Keabsahan BAS Pengadilan Tinggi, e-Meterai PERURI.
 
 #### `SCR-JST-02` : Dasbor Klien Hukum

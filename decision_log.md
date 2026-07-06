@@ -92,3 +92,11 @@
     2. **Cabang Sukses Klien (201 AKTIF):** Dipicu saat pendaftaran baru di tab Klien; melakukan simulasi verifikasi NIK ke API Dukcapil dan mengarahkan pengguna ke halaman login.
     3. **Cabang Sukses Advokat (201 PENDING_VERIFICATION):** Dipicu saat pendaftaran baru di tab Advokat Mitra; menyimpan dokumen KTA Peradi & BAS Pengadilan Tinggi ke antrean audit admin sesuai UU Advokat No. 18/2003 & Kode Etik Peradi.
   - Ditambahkan panel panduan interaktif (*helper guide*) langsung di atas formulir registrasi untuk memudahkan pengujian, serta meregenerasi master bundel `mockup_justifiqa_standalone.html`.
+- **Eksekusi Paradigma SD-Driven UI/UX - Batch 2: SD-J-02 (06 Juli 2026):**
+  - **Batch 2 (`SD-J-02`: Login Akun Klien & Advokat MFA 2FA):** Membedah alur login pada `mockup_auth_justifiqa.html` dan menemukan dua ketidaksesuaian kritis dengan `SD-J-02`: (1) Modal OTP sebelumnya hanya 4 digit dan bersifat *readonly*, padahal Langkah 87 & 93 SD-J-02 mewajibkan **MFA 6-Digit**; (2) Tombol login langsung memicu OTP tanpa validasi kredensial awal atau pengecekan akun *suspended*.
+  - Melakukan *Loop-Back Fix* secara tuntas pada `mockup_auth_justifiqa.html` dan `ui_specification_guide.md`:
+    1. **Cabang Error 401 (Kredensial Salah):** Dipicu saat email/password mengandung kata `salah` atau kosong; memunculkan peringatan salah kredensial & sisa percobaan login.
+    2. **Cabang Error 403 (Akun Suspended):** Dipicu saat email mengandung kata `block` atau `suspend`; memunculkan peringatan akun ditangguhkan karena investigasi pelanggaran Kode Etik Justifiqa.
+    3. **Cabang Sukses Kirim OTP 6-Digit (200 OK):** Dipicu saat email normal; sistem membuka modal MFA dengan **6 kotak input interaktif (dapat diedit)** yang masa berlakunya disimulasikan 5 menit.
+    4. **Cabang Error 400 (OTP Invalid/Expired):** Pada modal OTP, jika pengguna mengubah angka menjadi `000000`, sistem menolak masuk dan meminta pengiriman ulang kode. Jika OTP valid, sistem menerbitkan JWT Token dan mengarahkan ke dasbor sesuai peran (Mitra atau Klien).
+  - Ditambahkan kotak panduan pengujian (*helper guide*) untuk alur login di atas kolom email, serta meregenerasi master bundel `mockup_justifiqa_standalone.html`.
