@@ -242,6 +242,11 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
     1. Mitra Profesional menggeser toggle status ketersediaan menjadi tidak aktif.
     2. Sistem mengubah status mitra profesional menjadi `OFFLINE` di database.
     3. Profil mitra profesional tidak akan muncul dalam filter pencarian mitra profesional online klien.
+  * **2b. Kegagalan Perubahan Status karena Konflik Jadwal / Sesi Aktif (Error 409 Conflict - SD-J-04)**:
+    1. Mitra Profesional menggeser toggle status ketersediaan.
+    2. Sistem mendeteksi adanya sesi konsultasi yang sedang berjalan (aktif) atau jadwal sidang yang bentrok di database.
+    3. Sistem menolak perubahan status dan mengembalikan HTTP 409 Conflict.
+    4. Sistem menampilkan pesan error: *"Gagal mengubah status ketersediaan! Terdapat sesi konsultasi yang sedang berlangsung atau konflik jadwal sidang"*.
 
 ---
 

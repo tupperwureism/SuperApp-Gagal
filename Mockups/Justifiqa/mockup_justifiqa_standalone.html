@@ -1018,6 +1018,10 @@
                 &lt;/div&gt;
                 &lt;span id=&quot;status-text&quot; style=&quot;font-size: 0.8rem; color: #a7f3d0; font-weight: 600;&quot;&gt;Menerima Konsultasi&lt;/span&gt;
             &lt;/label&gt;
+            &lt;div style=&quot;margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;&quot;&gt;
+                &lt;input type=&quot;checkbox&quot; id=&quot;conflict-sim-cb&quot; style=&quot;cursor: pointer;&quot;&gt;
+                &lt;label for=&quot;conflict-sim-cb&quot; style=&quot;font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;&quot;&gt;Simulasi Konflik Jadwal / Sesi Aktif (SD-J-04: 409 Conflict)&lt;/label&gt;
+            &lt;/div&gt;
         &lt;/div&gt;
 
         &lt;ul class=&quot;nav-menu&quot;&gt;
@@ -1037,6 +1041,12 @@
             &lt;div style=&quot;display: flex; align-items: center; gap: 15px;&quot;&gt;
                 &lt;span class=&quot;badge badge-info&quot; style=&quot;padding: 8px 16px; font-size: 0.85rem;&quot;&gt;🛡️ E2EE Zero-Knowledge Ready&lt;/span&gt;
             &lt;/div&gt;
+        &lt;/div&gt;
+
+        &lt;div style=&quot;background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #38bdf8; line-height: 1.5;&quot;&gt;
+            &lt;strong style=&quot;color: #fff; font-size: 0.95rem;&quot;&gt;💡 Panduan Uji Coba SD-J-04 (Mengatur Status Ketersediaan Praktik Advokat / J-UC09):&lt;/strong&gt;&lt;br&gt;
+            • &lt;strong&gt;Cabang 200 OK (Slot Jadwal Aman):&lt;/strong&gt; Pastikan centang &lt;em&gt;&quot;Simulasi Konflik Jadwal&quot;&lt;/em&gt; di sidebar kiri tidak aktif, lalu klik toggle &lt;strong&gt;Status Praktik&lt;/strong&gt;. Sistem akan memperbarui status secara instan (Online/Offline) dan menampilkan alert respons sukses 200 OK.&lt;br&gt;
+            • &lt;strong&gt;Cabang 409 Conflict (Jadwal Bentrok / Sesi Aktif):&lt;/strong&gt; Aktifkan centang &lt;em&gt;&quot;Simulasi Konflik Jadwal (409 Conflict)&quot;&lt;/em&gt; di sidebar, lalu coba ubah toggle status. Sistem akan menolak perubahan dan menampilkan peringatan bentrok jadwal sidang/sesi konsultasi aktif.
         &lt;/div&gt;
 
         &lt;div id=&quot;antrean-section&quot; class=&quot;card&quot; style=&quot;border-color: #fbbf24;&quot;&gt;
@@ -1137,6 +1147,14 @@
     &lt;script&gt;
         let isOnline = true;
         function toggleSidebarStatus() {
+            const conflictCb = document.getElementById(&#x27;conflict-sim-cb&#x27;);
+            if (conflictCb &amp;&amp; conflictCb.checked) {
+                // SD-J-04 Langkah 171-172: 409 Conflict Branch
+                alert(&#x27;⚠️ ERROR 409 CONFLICT (SD-J-04 / J-UC09 Alternatif 2b):\n\nGagal mengubah status ketersediaan praktik! Sistem mendeteksi adanya Sesi Konsultasi yang Sedang Berjalan (ID: SES-99201) atau Jadwal Sidang yang bentrok.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu sebelum mengubah status ketersediaan.&#x27;);
+                return;
+            }
+
+            // SD-J-04 Langkah 174-177: 200 OK Branch
             isOnline = !isOnline;
             const slider = document.getElementById(&#x27;sidebar-slider&#x27;);
             const knob = document.getElementById(&#x27;sidebar-knob&#x27;);
@@ -1151,14 +1169,16 @@
                 badge.innerHTML = &#x27;🟢 ONLINE&#x27;;
                 text.style.color = &#x27;#a7f3d0&#x27;;
                 text.innerHTML = &#x27;Menerima Konsultasi&#x27;;
+                alert(&#x27;✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi ONLINE / AVAILABLE. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.&#x27;);
             } else {
                 slider.style.background = &#x27;#ef4444&#x27;;
                 slider.style.boxShadow = &#x27;0 0 12px rgba(239,68,68,0.4)&#x27;;
                 knob.style.left = &#x27;3px&#x27;;
                 badge.className = &#x27;badge badge-danger&#x27;;
-                badge.innerHTML = &#x27;🔴 SIDANG / OPERASI&#x27;;
+                badge.innerHTML = &#x27;🔴 SIDANG / OFFLINE&#x27;;
                 text.style.color = &#x27;#f87171&#x27;;
                 text.innerHTML = &#x27;Jadwal Tidak Tersedia&#x27;;
+                alert(&#x27;✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi OFFLINE / SIDANG. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.&#x27;);
             }
         }
         window.addEventListener(&#x27;DOMContentLoaded&#x27;, () =&gt; {

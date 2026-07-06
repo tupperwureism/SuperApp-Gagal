@@ -145,6 +145,10 @@
                 </div>
                 <span id="status-text" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">Menerima Konsultasi</span>
             </label>
+            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;">
+                <input type="checkbox" id="conflict-sim-cb" style="cursor: pointer;">
+                <label for="conflict-sim-cb" style="font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;">Simulasi Konflik Jadwal / Sesi Aktif (SD-J-04: 409 Conflict)</label>
+            </div>
         </div>
 
         <ul class="nav-menu">
@@ -164,6 +168,12 @@
             <div style="display: flex; align-items: center; gap: 15px;">
                 <span class="badge badge-info" style="padding: 8px 16px; font-size: 0.85rem;">🛡️ E2EE Zero-Knowledge Ready</span>
             </div>
+        </div>
+
+        <div style="background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #38bdf8; line-height: 1.5;">
+            <strong style="color: #fff; font-size: 0.95rem;">💡 Panduan Uji Coba SD-J-04 (Mengatur Status Ketersediaan Praktik Advokat / J-UC09):</strong><br>
+            • <strong>Cabang 200 OK (Slot Jadwal Aman):</strong> Pastikan centang <em>"Simulasi Konflik Jadwal"</em> di sidebar kiri tidak aktif, lalu klik toggle <strong>Status Praktik</strong>. Sistem akan memperbarui status secara instan (Online/Offline) dan menampilkan alert respons sukses 200 OK.<br>
+            • <strong>Cabang 409 Conflict (Jadwal Bentrok / Sesi Aktif):</strong> Aktifkan centang <em>"Simulasi Konflik Jadwal (409 Conflict)"</em> di sidebar, lalu coba ubah toggle status. Sistem akan menolak perubahan dan menampilkan peringatan bentrok jadwal sidang/sesi konsultasi aktif.
         </div>
 
         <div id="antrean-section" class="card" style="border-color: #fbbf24;">
@@ -264,6 +274,14 @@
     <script>
         let isOnline = true;
         function toggleSidebarStatus() {
+            const conflictCb = document.getElementById('conflict-sim-cb');
+            if (conflictCb && conflictCb.checked) {
+                // SD-J-04 Langkah 171-172: 409 Conflict Branch
+                alert('⚠️ ERROR 409 CONFLICT (SD-J-04 / J-UC09 Alternatif 2b):\n\nGagal mengubah status ketersediaan praktik! Sistem mendeteksi adanya Sesi Konsultasi yang Sedang Berjalan (ID: SES-99201) atau Jadwal Sidang yang bentrok.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu sebelum mengubah status ketersediaan.');
+                return;
+            }
+
+            // SD-J-04 Langkah 174-177: 200 OK Branch
             isOnline = !isOnline;
             const slider = document.getElementById('sidebar-slider');
             const knob = document.getElementById('sidebar-knob');
@@ -278,14 +296,16 @@
                 badge.innerHTML = '🟢 ONLINE';
                 text.style.color = '#a7f3d0';
                 text.innerHTML = 'Menerima Konsultasi';
+                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi ONLINE / AVAILABLE. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.');
             } else {
                 slider.style.background = '#ef4444';
                 slider.style.boxShadow = '0 0 12px rgba(239,68,68,0.4)';
                 knob.style.left = '3px';
                 badge.className = 'badge badge-danger';
-                badge.innerHTML = '🔴 SIDANG / OPERASI';
+                badge.innerHTML = '🔴 SIDANG / OFFLINE';
                 text.style.color = '#f87171';
                 text.innerHTML = 'Jadwal Tidak Tersedia';
+                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi OFFLINE / SIDANG. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.');
             }
         }
         window.addEventListener('DOMContentLoaded', () => {

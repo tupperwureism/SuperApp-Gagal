@@ -215,15 +215,17 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   3. Klik `"Cari Advokat Litigasi"` ➔ Redirect ke `mockup_katalog_justifiqa.html`.
 
 #### `SCR-JST-03` : Dasbor Advokat Mitra Peradi
-* **File HTML:** `mockup_dashboard_mitra_hukum.html` | **Traceability:** UC-08, UC-10
+* **File HTML:** `mockup_dashboard_mitra_hukum.html` | **Traceability:** SD-J-04, UC-08, UC-09, UC-10
 * **Access Control:** Advokat Mitra Terverifikasi Peradi.
 * **Component Inventory Wajib:**
   - *Advocate Profile Header:* Nama, Gelar SH/MH, Nomor NIA Peradi, Status BAS Verified, dan Spesialisasi (Pidana/Perdata/Korporasi).
+  - *Practice Availability Toggle & Conflict Simulator (SD-J-04 / J-UC09):* Toggle status praktik (Online/Offline) dilengkapi kotak centang simulasi konflik jadwal (Error 409 Conflict) untuk menguji penolakan perubahan status saat ada sesi konsultasi/sidang aktif.
   - *Active Litigation Workstation:* Daftar klien aktif, jadwal sidang pengadilan, dan tenggat waktu penyerahan memori banding/pledoi.
   - *Legal Review Queue:* Permintaan review kontrak dari klien bisnis beserta status pembubuhan e-Meterai.
 * **Interactive State Machine:**
   1. Klik `"Buka Workstation Kontrak"` ➔ Redirect ke `mockup_modul_hukum.html`.
-  2. Klik `"Masuk Ruang Konsultasi E2EE"` ➔ Redirect ke `mockup_chat_justifiqa.html`.
+  2. Klik `"Masuk Ruang Chat Privileged (E2EE)"` ➔ Redirect ke `mockup_chat_justifiqa.html?role=mitra`.
+  3. Klik Toggle `"Status Praktik"` ➔ Jika centang simulasi konflik aktif (SD-J-04 Langkah 171): sistem menolak perubahan dan menampilkan Error 409 Conflict (Jadwal Bentrok / Sesi Aktif). Jika aman: status diperbarui menjadi ONLINE / OFFLINE dengan respons sukses 200 OK.
 
 #### `SCR-JST-04` : Katalog & Cari Advokat Peradi
 * **File HTML:** `mockup_katalog_justifiqa.html` | **Traceability:** UC-03, UC-05
