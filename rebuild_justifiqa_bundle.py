@@ -5,14 +5,15 @@ MOCKUP_DIR = r"d:\justificadll\Mockups\Justifiqa"
 OUTPUT_FILE = os.path.join(MOCKUP_DIR, "mockup_justifiqa_standalone.html")
 
 sections = [
-    ("mockup_auth_justifiqa.html", "1", "Autentikasi Standalone Hukum (NIA Peradi & SKTM OTP)"),
-    ("mockup_dashboard_hukum_klien.html", "2", "Dasbor Klien & Manajemen Kasus Litigasi/Pro Bono"),
-    ("mockup_dashboard_mitra_hukum.html", "3", "Dasbor Utama Mitra Advokat & Konsultan Hukum"),
-    ("mockup_katalog_justifiqa.html", "4", "Katalog Advokat & Konsultan Hukum Litigasi/Perdata"),
-    ("mockup_modul_hukum.html", "5", "Workstation Hukum (Somasi IRAC & e-Meterai Peruri)"),
-    ("mockup_chat_justifiqa.html", "6", "Ruang Konsultasi Privileged E2EE (J-UC06)"),
-    ("mockup_payment_gateway.html", "7", "Payment Gateway Standalone Retainer (Midtrans)"),
-    ("mockup_admin_justifiqa.html", "8", "Dasbor Admin Kepatuhan Peradi & WORM Audit")
+    ("mockup_dasbor_hukum.html", "1", "Justifiqa Legal Hub (Landing & Portal Ekosistem)"),
+    ("mockup_auth_justifiqa.html", "2", "Autentikasi Standalone Hukum (NIA Peradi & SKTM OTP)"),
+    ("mockup_dashboard_hukum_klien.html", "3", "Dasbor Klien & Manajemen Kasus Litigasi/Pro Bono"),
+    ("mockup_dashboard_mitra_hukum.html", "4", "Dasbor Utama Mitra Advokat & Konsultan Hukum"),
+    ("mockup_katalog_justifiqa.html", "5", "Katalog Advokat & Konsultan Hukum Litigasi/Perdata"),
+    ("mockup_modul_hukum.html", "6", "Workstation Hukum (Somasi IRAC & e-Meterai Peruri)"),
+    ("mockup_chat_justifiqa.html", "7", "Ruang Konsultasi Privileged E2EE (J-UC06)"),
+    ("mockup_payment_gateway.html", "8", "Payment Gateway Standalone Retainer (Midtrans)"),
+    ("mockup_admin_justifiqa.html", "9", "Dasbor Admin Kepatuhan Peradi & WORM Audit")
 ]
 
 toc_html = []

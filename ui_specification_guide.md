@@ -49,11 +49,11 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
 | :--- | :--- | :--- | :--- | :--- |
 | **SCR-JST-01** | Portal Autentikasi Justifiqa | `mockup_auth_justifiqa.html` | Klien, Advokat Peradi | UC-01, UC-02, UC-07, UC-08 |
 | **SCR-JST-02** | Dasbor Klien Hukum | `mockup_dashboard_hukum_klien.html` | Klien Hukum | UC-03, UC-09 |
-| **SCR-JST-03** | Dasbor Advokat Mitra Peradi | `mockup_dashboard_mitra_hukum.html` | Advokat Peradi | UC-08, UC-10 |
+| **SCR-JST-03** | Dasbor Advokat Mitra Peradi | `mockup_dashboard_mitra_hukum.html` | Advokat Peradi | SD-J-04, SD-J-10, J-UC09, J-UC18, J-UC19, UC-08, UC-10 |
 | **SCR-JST-04** | Katalog & Cari Advokat | `mockup_katalog_justifiqa.html` | Klien Hukum | UC-03, UC-05 |
 | **SCR-JST-05** | Workstation Kontrak & Litigasi | `mockup_modul_hukum.html` | Advokat & Klien | SD-J-06, J-UC11, J-UC12, J-UC14 |
 | **SCR-JST-06** | Ruang Konsultasi Hukum E2EE & NDA | `mockup_chat_justifiqa.html` | Klien & Advokat | SD-J-03, SD-J-05, J-UC05, J-UC06, J-UC10, J-UC13 |
-| **SCR-JST-07** | Dasbor Admin Peradi | `mockup_admin_justifiqa.html` | Admin Peradi | J-UC16, J-UC17, J-UC18 |
+| **SCR-JST-07** | Dasbor Admin Peradi | `mockup_admin_justifiqa.html` | Admin Peradi | SD-J-09, SD-J-10, J-UC16, J-UC17, J-UC18 |
 
 ### C. Shared Infrastructure Gateway (Terisolasi Secara Logika per Portal)
 | Screen ID | Nama Layar | Nama File HTML | Target Role | Use Case Ref |
@@ -165,7 +165,15 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   - *E2EE Chat Stream:* Area pesan teks terenkripsi *End-to-End Encryption*, indikator typing, dan timestamp.
   - *Clinical Sidebar (Khusus pandangan Mitra):* Panel catatan ringkas DAP Note yang bisa diisi sembari video call berlangsung.
   - *Panic/Crisis Button:* Tombol darurat untuk memicu protokol krisis mental (menghubungi kontak darurat atau hotline 119).
-* **Interactive State Machine:**
+* **Interactive State Machine & Role-Aware Viewpoint Matrix:**
+  - *Multi-Role Viewpoint Inversion Protocol:* Pada layar obrolan kolaboratif ini, arsitektur DOM wajib menerapkan pembalikan sudut pandang (*Role-Aware Perspective Inversion*) berdasarkan parameter URL `?role=`:
+    | Elemen UI / DOM | Ketika URL: `?role=klien` (Default) | Ketika URL: `?role=mitra` (Workstation Psikolog) |
+    | :--- | :--- | :--- |
+    | **Topbar Identity** | Menampilkan Nama Psikolog Klinis & Spesialisasi | Menampilkan Nama Pasien / Klien & ID Sesi |
+    | **Foto Profil Topbar** | Avatar Psikolog Profesional | Avatar Pasien / Klien |
+    | **Gelembung Kanan (`.user`)** | Pesan Keluar Klien (Background Biru/Teal) | Pesan Keluar Psikolog (Background Ungu) |
+    | **Gelembung Kiri (`.partner`)**| Pesan Masuk Psikolog | Pesan Masuk Klien |
+    | **Input Placeholder** | `"Ketik pesan untuk Psikolog..."` | `"Ketik intervensi klinis / respons untuk Klien..."` |
   1. Klik Tombol `"End Call"` ➔ Sesi ditutup ➔ Klien diarahkan ke halaman pemberian rating/ulasan ➔ Psikolog diarahkan ke workstation `mockup_modul_psikologi_mitra.html` untuk finalisasi DAP Note.
 
 #### `SCR-QLF-08` : Dasbor Admin HIMPSI
@@ -203,7 +211,7 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
 * **Domain Compliance:** UU Advokat No. 18 Tahun 2003, Keabsahan BAS Pengadilan Tinggi, e-Meterai PERURI.
 
 #### `SCR-JST-02` : Dasbor Klien Hukum
-* **File HTML:** `mockup_dashboard_hukum_klien.html` | **Traceability:** UC-03, UC-09
+* **File HTML:** `mockup_dashboard_hukum_klien.html` | **Traceability:** SD-J-07, J-UC15, UC-03, UC-09
 * **Access Control:** Klien Hukum / Pencari Keadilan.
 * **Component Inventory Wajib:**
   - *Case Tracker Widget:* Status perkembangan perkara hukum (Penyelidikan, Mediasi, Gugatan, atau Sidang).
@@ -215,20 +223,22 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   3. Klik `"Cari Advokat Litigasi"` ➔ Redirect ke `mockup_katalog_justifiqa.html`.
 
 #### `SCR-JST-03` : Dasbor Advokat Mitra Peradi
-* **File HTML:** `mockup_dashboard_mitra_hukum.html` | **Traceability:** SD-J-04, UC-08, UC-09, UC-10
+* **File HTML:** `mockup_dashboard_mitra_hukum.html` | **Traceability:** SD-J-04, SD-J-10, J-UC09, J-UC18, J-UC19, UC-08, UC-10
 * **Access Control:** Advokat Mitra Terverifikasi Peradi.
 * **Component Inventory Wajib:**
   - *Advocate Profile Header:* Nama, Gelar SH/MH, Nomor NIA Peradi, Status BAS Verified, dan Spesialisasi (Pidana/Perdata/Korporasi).
   - *Practice Availability Toggle & Conflict Simulator (SD-J-04 / J-UC09):* Toggle status praktik (Online/Offline) dilengkapi kotak centang simulasi konflik jadwal (Error 409 Conflict) untuk menguji penolakan perubahan status saat ada sesi konsultasi/sidang aktif.
   - *Active Litigation Workstation:* Daftar klien aktif, jadwal sidang pengadilan, dan tenggat waktu penyerahan memori banding/pledoi.
-  - *Legal Review Queue:* Permintaan review kontrak dari klien bisnis beserta status pembubuhan e-Meterai.
+  - *Financial & PPh 21 Withdrawal Form (SD-J-10 / J-UC19):* Formulir pencairan dana escrow dengan kalkulasi otomatis pemotongan PPh Pasal 21 (5% tenaga ahli advokat) dan validasi Error 400 saldo tidak cukup.
+  - *WORM Audit Log Table (SD-J-10 / J-UC18):* Tabel riwayat pencairan mutlak (*Write-Once-Read-Many*) yang menampilkan kode hash SHA-256 permanen 10 tahun dan unduhan Bukti Potong PPh 21.
 * **Interactive State Machine:**
   1. Klik `"Buka Workstation Kontrak"` ➔ Redirect ke `mockup_modul_hukum.html`.
   2. Klik `"Masuk Ruang Chat Privileged (E2EE)"` ➔ Redirect ke `mockup_chat_justifiqa.html?role=mitra`.
-  3. Klik Toggle `"Status Praktik"` ➔ Jika centang simulasi konflik aktif (SD-J-04 Langkah 171): sistem menolak perubahan dan menampilkan Error 409 Conflict (Jadwal Bentrok / Sesi Aktif). Jika aman: status diperbarui menjadi ONLINE / OFFLINE dengan respons sukses 200 OK.
+  3. Klik Toggle `"Status Praktik"` ➔ Jika centang simulasi konflik aktif (SD-J-04 Langkah 171): sistem menolak perubahan dan menampilkan Error 409 Conflict. Jika aman: status diperbarui menjadi ONLINE / OFFLINE dengan respons sukses 200 OK.
+  4. Klik `"💸 Tarik Dana Sekarang (200 OK)"` pada Workstation Keuangan ➔ Validasi saldo dan nominal ➔ Jika valid: memotong saldo aktif advokat secara real-time, menghitung PPh 21 (5%), menambahkan baris transaksi baru ke tabel WORM Log dengan hash SHA-256 dinamis, dan menampilkan resi transfer. Jika nominal melebihi saldo atau <= 0: memunculkan peringatan Error 400 Bad Request / 422 Unprocessable Entity.
 
 #### `SCR-JST-04` : Katalog & Cari Advokat Peradi
-* **File HTML:** `mockup_katalog_justifiqa.html` | **Traceability:** UC-03, UC-05
+* **File HTML:** `mockup_katalog_justifiqa.html` | **Traceability:** SD-J-07, J-UC15, UC-03, UC-05
 * **Access Control:** Klien Hukum.
 * **Component Inventory Wajib:**
   - *Search & Filter Bar:* Filter spesialisasi (Hukum Pidana, Perdata, Ketenagakerjaan, HAKI, Perceraian), filter lokasi domisili pengadilan, dan filter tarif konsultasi.
@@ -237,26 +247,26 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   1. Klik `"Pilih & Lanjutkan Pembayaran"` ➔ Redirect ke `mockup_payment_gateway.html` dengan parameter ID Advokat dan Tarif Hukum.
 
 #### `SCR-JST-04b` : Payment Gateway Escrow Justifiqa
-* **File HTML:** `mockup_payment_gateway.html` | **Traceability:** SD-J-03, UC-04, UC-05
+* **File HTML:** `mockup_payment_gateway.html` | **Traceability:** SD-J-03, SD-J-07, J-UC15, UC-04, UC-05
 * **Access Control:** Klien Hukum.
 * **Component Inventory Wajib:**
   - *Escrow Holding Notice:* Penanda bahwa dana Rp250.000 ditahan secara aman di Rekening Escrow Sementara Justifiqa hingga sesi selesai.
-  - *Payment Method Selector:* Kartu Kredit, E-Wallet, dan Virtual Account Bank Transfer.
+  - *Payment Method Selector:* Kartu Kredit, E-Wallet, Virtual Account Bank Transfer, dan Voucher Subsidi Pro Bono SKTM (100% Gratis).
   - *Timeout & Failure Simulator Button:* Tombol simulasi transaksi expired/ditolak (UC-05 alternatif 5a/5b).
 * **Interactive State Machine:**
   1. Klik `"Bayar Sekarang (Escrow)"` ➔ Simulasi webhook Midtrans PAID ➔ Status dana ditahan di Escrow (SD-J-03 Langkah 133) ➔ Redirect ke Dasbor Klien.
   2. Klik `"Simulasi Waktu Habis / Ditolak"` ➔ Menampilkan layer error transaksi expired/gagal ➔ Opsi coba metode pembayaran lain.
 
 #### `SCR-JST-05` : Workstation Kontrak & Litigasi
-* **File HTML:** `mockup_modul_hukum.html` | **Traceability:** SD-J-06, J-UC11, J-UC12, J-UC14
+* **File HTML:** `mockup_modul_hukum.html` | **Traceability:** SD-J-06, SD-J-08, J-UC11, J-UC12, J-UC14
 * **Access Control:** Advokat & Klien (Hak edit dipisah sesuai role).
 * **Component Inventory Wajib:**
-  - *IRAC Note & Legal Analysis Tab (J-UC11):* Formulir analisis hukum terstruktur (Issue, Rule, Application, Conclusion) dengan opsi enkripsi WORM.
+  - *IRAC Note & Legal Analysis Tab (SD-J-08 / J-UC11):* Formulir analisis hukum terstruktur (Issue, Rule, Application, Conclusion) dengan pemilih Referensi Kasus/Sesi Klien (`Session ID`), opsi Visibilitas Catatan (Internal vs Bagikan ke Klien), dan opsi enkripsi WORM.
   - *Bilingual Contract & Legal Opinion Generator (SD-J-06 / J-UC12):* Editor interaktif untuk rancangan dokumen hukum (Legal Opinion, Somasi, Perjanjian Sewa) yang terhubung dengan template baku.
   - *e-Meterai PERURI Integration Modal (SD-J-06 / J-UC14):* Modul pembubuhan meterai elektronik sah Peruri Rp10.000 dengan pengecekan kuota (200 OK vs 402/502 Error) dan verifikasi SHA-256.
   - *Download Gate Controller (J-UC12 / J-UC14):* Proteksi akses unduhan dokumen akhir; klien hanya diizinkan mengunduh setelah pembubuhan e-Meterai diverifikasi sah (Error 403 Forbidden jika belum bermeterai).
 * **Interactive State Machine:**
-  1. Klik `"Simpan & Enkripsi IRAC Note (J-UC11)"` ➔ Sistem memvalidasi kelengkapan field IRAC (Error 400 jika kosong) ➔ Mengenkripsi AES-256 & menyimpan ke WORM Storage.
+  1. Klik `"Simpan & Enkripsi IRAC ke WORM (J-UC11 200 OK)"` ➔ Sistem memvalidasi kelengkapan field IRAC (Error 400 jika kosong via tombol `"⚠️ Simulasi Error 400"`) ➔ Mengenkripsi AES-256, mencatat Session ID serta status Visibilitas, & menyimpan ke WORM Storage.
   2. Klik `"Terbitkan Dokumen & Bubuhkan e-Meterai (SD-J-06)"` ➔ Muncul Modal e-Meterai Peruri ➔ Pilih simulasi sukses (201 Created / 200 OK - Kuota Tersedia) atau gagal (402 Payment Required / 502 Bad Gateway - Kuota Habis/Gangguan API) ➔ Jika sukses, dokumen diberi stempel e-Meterai sah bersertifikat SHA-256 dan membuka *Download Gate* untuk klien.
   3. Klik `"Unduh Dokumen Hukum Resmi (Download Gate)"` ➔ Jika dokumen sudah bermeterai sah, sistem memulai unduhan PDF bersertifikat (200 OK). Jika masih berstatus Draf Tanpa Meterai, sistem memunculkan peringatan penolakan unduhan (*Download Gate Error 403 Forbidden*).
 
@@ -269,20 +279,30 @@ Setiap halaman antarmuka wajib mematuhi 6 parameter pengujian berikut:
   - *Encrypted Messaging & Audio Call:* Panel komunikasi real-time anti-serapan.
   - *Zero-Knowledge E2EE Upload Modal (SD-J-05 / J-UC13):* Modal interaktif untuk simulasi upload bukti perkara yang memvalidasi ukuran file (maks 15 MB), format (PDF/JPG), pemindaian virus/malware *client-side*, enkripsi lokal dengan *Session Key*, dan penyimpanan WORM ber-hash SHA-256.
   - *Escrow Release & Rating Modal (SD-J-03 / J-UC06):* Modal penilaian 5 bintang interaktif dan ulasan yang otomatis muncul saat mengakhiri sesi, memicu pelepasan dana escrow ke rekening advokat setelah dipotong fee 25% & PPh 21.
-* **Interactive State Machine:**
+* **Interactive State Machine & Role-Aware Viewpoint Matrix:**
+  - *Multi-Role Viewpoint Inversion Protocol:* Pada layar obrolan kolaboratif ini, arsitektur DOM wajib menerapkan pembalikan sudut pandang (*Role-Aware Perspective Inversion*) berdasarkan parameter URL `?role=`:
+    | Elemen UI / DOM | Ketika URL: `?role=klien` (Default) | Ketika URL: `?role=mitra` (Workstation Advokat) |
+    | :--- | :--- | :--- |
+    | **Topbar Identity** | Menampilkan Nama Advokat & Spesialisasi | Menampilkan Nama Klien & ID Perkara |
+    | **Foto Profil Topbar** | Avatar Advokat Profesional | Avatar Klien |
+    | **Gelembung Kanan (`.user`)** | Pesan Keluar Klien (Background Biru/Teal) | Pesan Keluar Advokat (Background Kuning/Emas) |
+    | **Gelembung Kiri (`.partner`)**| Pesan Masuk Advokat | Pesan Masuk Klien |
+    | **Input Placeholder** | `"Ketik pesan konsultasi untuk Advokat..."` | `"Ketik nasihat hukum / respons untuk Klien..."` |
   1. Klik `"Unggah Bukti (J-UC13)"` ➔ Muncul Modal E2EE Upload ➔ Pilih file & jalankan simulasi pemindaian virus serta enkripsi Zero-Knowledge ➔ Jika aman dan sesuai aturan, file terenkripsi diunggah ke WORM Storage dan muncul di ruang obrolan dengan stempel *"PRIVILEGED LEGAL EVIDENCE"*. Jika ada virus (3a) atau ukuran > 15 MB (3b), sistem memunculkan error penolakan 400/413.
   2. Klik dokumen pada obrolan / tombol `"Unduh Bukti (SD-J-05)"` ➔ Sistem mengambil *encrypted blob* dari WORM dan melakukan dekripsi lokal dengan *Session Key* ➔ Menampilkan detail hash SHA-256 dan isi berkas utuh di workstation advokat.
   3. Klik `"Akhiri Sesi Litigasi"` ➔ Konfirmasi ➔ Untuk Klien: memunculkan Modal Rating J-UC06 (bisa isi ulasan atau skip) dan melepas dana escrow ➔ Redirect ke Dasbor Klien. Untuk Mitra Advokat: mencairkan dana escrow ke saldo ➔ Redirect ke Workstation IRAC Note.
 
 #### `SCR-JST-07` : Dasbor Admin Peradi
-* **File HTML:** `mockup_admin_justifiqa.html` | **Traceability:** UC-06, UC-12
+* **File HTML:** `mockup_admin_justifiqa.html` | **Traceability:** SD-J-09, SD-J-10, J-UC16, J-UC17, J-UC18
 * **Access Control:** Admin Verifikator & Dewan Kehormatan Peradi.
 * **Component Inventory Wajib:**
-  - *KTA & BAS Verification Table:* Antrean pemeriksaan keaslian Berita Acara Sumpah (BAS) dari Pengadilan Tinggi untuk advokat yang baru mendaftar.
-  - *Pro Bono Subsidy Auditor:* Pengawasan penyaluran dana bantuan hukum prasejahtera berbasis verifikasi DTKS.
-  - *Code of Ethics Tribunal Panel:* Panel penanganan laporan masyarakat terkait dugaan pelanggaran kode etik advokat.
+  - *KTA & BAS Verification Table (SD-J-09 / J-UC16):* Antrean pemeriksaan keaslian Nomor Induk Advokat (NIA / SIPP) dan Berita Acara Sumpah (BAS) dari Pengadilan Tinggi untuk advokat baru dengan pengecekan langsung ke Pangkalan Data MA.
+  - *Code of Ethics & Moderation Tribunal Panel (SD-J-09 / J-UC17):* Panel penanganan laporan masyarakat terkait dugaan pelanggaran kode etik advokat dengan fitur penahanan akun darurat (*Due Process Suspend*).
+  - *Pro Bono & WORM Auditor:* Pengawasan penyaluran dana bantuan hukum prasejahtera berbasis verifikasi DTKS serta pemantauan log hash WORM 10 tahun.
 * **Interactive State Machine:**
-  1. Klik `"Validasi BAS Sah"` ➔ Advokat resmi diaktifkan di katalog Justifiqa.
+  1. Klik `"✅ Setujui (Approve — 200 OK)"` pada antrean verifikasi ➔ Status advokat diubah menjadi `AKTIF / VERIFIED` di katalog Justifiqa ➔ Mengirimkan email notifikasi aktivasi siap praktik.
+  2. Klik `"❌ Tolak (Reject — 400 Bad Request)"` pada antrean verifikasi ➔ Muncul prompt input Alasan Penolakan (wajib diisi) ➔ Status advokat diubah menjadi `REJECTED` ➔ Mengirimkan email penjelasan penolakan hukum.
+  3. Klik `"🛑 Suspend Akun (Due Process — 200 OK)"` pada panel moderasi ➔ Muncul prompt input Alasan Penahanan Akun (wajib diisi) ➔ Status advokat diubah menjadi `SUSPENDED (Due Process)` ➔ Mengeluarkan surat panggilan klarifikasi internal untuk jadwal Sidang Etik Dewan Kehormatan Peradi.
 
 ---
 

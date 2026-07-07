@@ -101,9 +101,9 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Post-condition**: Sesi chat ditutup, dan data konsultasi serta dokumen anjuran/telaah disimpan di database.
 * **Alur Utama (Basic Flow)**:
   1. Klien mengklik "Mulai Konsultasi" setelah pembayaran diverifikasi sukses.
-  2. Sistem memverifikasi tiket pembayaran (UC-05) dan membuka ruang obrolan (chat room).
+  2. Sistem memverifikasi tiket pembayaran (UC-05) dan membuka ruang obrolan (chat room). **[Actor Viewpoint Routing]:** Sistem menyajikan antarmuka dengan struktur DOM dari sudut pandang Klien (`?role=klien`, pesan Klien di kanan sebagai `.user`).
   3. Sistem mengirimkan notifikasi ke dasbor Mitra Profesional (UC-10) untuk menerima obrolan.
-  4. Klien dan Mitra Profesional melangsungkan sesi tanya jawab via chat.
+  4. Klien dan Mitra Profesional melangsungkan sesi tanya jawab via chat. Saat Mitra masuk (`?role=mitra`), sistem merender presentasi DOM yang dibalik secara adaptif (pesan Mitra di kanan sebagai `.user`, Klien di kiri sebagai `.partner`).
   5. Mitra Profesional menutup sesi setelah selesai memberikan diagnosis.
   6. Sistem mengunci ruang obrolan sehingga pesan baru tidak dapat dikirim lagi.
   7. Sistem menyimpan riwayat obrolan dan mengarahkan klien ke halaman pemberian ulasan (UC-06).
@@ -259,7 +259,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Alur Utama (Basic Flow)**:
   1. Sistem memunculkan pop-up permintaan konsultasi masuk ke dasbor Advokat Mitra Peradi.
   2. Advokat mengklik tombol "Terima Sesi Litigasi".
-  3. Sistem menghubungkan Advokat ke ruang obrolan (chat room E2EE `SCR-JST-06`) yang aktif dengan Klien.
+  3. Sistem menghubungkan Advokat ke ruang obrolan (chat room E2EE `SCR-JST-06`) yang aktif dengan Klien. **[Actor Viewpoint Routing]:** Sistem mengaktifkan parameter `?role=mitra` dan membalikkan presentasi DOM secara otomatis (identitas Klien di topbar, pesan Advokat di kanan sebagai `.user`).
   4. Advokat meninjau keluhan hukum klien serta bukti perkara yang diunggah (J-UC13) dan memberikan nasihat hukum profesional via chat.
   5. Setelah konsultasi selesai, Advokat atau Klien mengklik tombol "Akhiri Sesi Litigasi" (SD-J-03).
   6. Sistem menutup ruang obrolan, mencairkan dana escrow ke advokat, dan mengarahkan advokat ke Workstation Hukum (`SCR-JST-05`).
@@ -278,8 +278,8 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Post-condition**: Catatan IRAC tersimpan di WORM Storage dengan retensi 10 tahun dan dapat dipilih untuk dibagikan ke klien atau sebagai arsip internal.
 * **Alur Utama (Basic Flow)**:
   1. Advokat membuka Workstation Kontrak & Litigasi (`SCR-JST-05`).
-  2. Sistem menampilkan formulir IRAC Note dengan field wajib: Rumusan Masalah (Issue), Dasar UU (Rule), Analisis Hukum (Application), dan Kesimpulan (Conclusion).
-  3. Advokat mengisi rumusan masalah hukum, pasal/undang-undang yang relevan, analisis penerapan, dan kesimpulan strategis.
+  2. Sistem menampilkan formulir IRAC Note dengan field wajib: Referensi Kasus/Sesi Klien (`Session ID`), Rumusan Masalah (Issue), Dasar UU (Rule), Analisis Hukum (Application), dan Kesimpulan (Conclusion).
+  3. Advokat memilih Referensi Kasus/Sesi (misal: `#CASE-2026-001`) serta mengisi rumusan masalah hukum, pasal/undang-undang yang relevan, analisis penerapan, dan kesimpulan strategis.
   4. Advokat memilih visibilitas catatan (Bagikan ke Klien atau Internal Law Firm).
   5. Advokat mengklik tombol "Simpan & Enkripsi IRAC Note ke WORM".
   6. Sistem mengenkripsi catatan dengan AES-256 dan menyimpannya di WORM Hash Storage.
@@ -341,7 +341,98 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 
 ---
 
+### J-UC15: Pengajuan Bantuan Hukum Cuma-Cuma (Pro Bono SKTM)
+* **Aktor Utama**: Klien Hukum Prasejahtera
+* **Aktor Pendukung**: API Dukcapil & Dinas Sosial (DTKS), Advokat Litigasi Pro Bono, Sistem Justifiqa
+* **Deskripsi Singkat**: Klien mengajukan permohonan pendampingan hukum dan litigasi 100% bebas biaya (Pro Bono) dengan melakukan verifikasi identitas (NIK) dan Surat Keterangan Tidak Mampu (SKTM) yang tersinkronisasi dengan Data Terpadu Kesejahteraan Sosial (DTKS).
+* **Pre-condition**: Klien telah terdaftar dan berada di Dasbor Klien Hukum (`SCR-JST-02`) atau Workstation Pembayaran (`SCR-JST-04`).
+* **Post-condition**: Permohonan Pro Bono disetujui, Invoice Subsidi Rp 0 diterbitkan, dan perkara dialokasikan kepada Advokat kuota Pro Bono aktif.
+* **Alur Utama (Basic Flow - SD-J-07 Langkah 261-274)**:
+  1. Klien memilih opsi "Ajukan Subsidi Pro Bono" atau metode pembayaran "Voucher Pro Bono SKTM" pada dasbor / payment gateway.
+  2. Klien memasukkan 16 digit Nomor Induk Kependudukan (NIK) dan Nomor SKTM resmi dari Kelurahan/Dinsos, serta mengunggah berkas bukti SKTM.
+  3. Sistem Justifiqa mengirimkan permintaan verifikasi ke API Dukcapil & Dinas Sosial untuk mencocokkan keabsahan nomor SKTM dan status terdaftar di DTKS.
+  4. API eksternal merespons dengan status Valid (200 OK).
+  5. Sistem menyetujui pengajuan subsidi dan menerbitkan Invoice Retainer sebesar Rp 0 (Gratis 100%).
+  6. Sistem menugaskan Advokat Litigasi yang memiliki kuota Pro Bono aktif untuk menangani perkara klien.
+  7. Advokat menerima penugasan dan sistem memberikan akses ruang obrolan konsultasi hukum gratis kepada klien.
+* **Alur Alternatif/Gagal (Alternative Flow - SD-J-07)**:
+  * **3a. SKTM Tidak Valid / NIK Tidak Terdaftar di DTKS (Error 400 Bad Request - Langkah 266-268)**:
+    1. API Dukcapil & Dinas Sosial mengembalikan respons penolakan karena nomor SKTM palsu/kadaluwarsa atau NIK tidak terdaftar di DTKS.
+    2. Sistem menolak permohonan bantuan hukum cuma-cuma dan memunculkan peringatan error: *"⚠️ Gagal Verifikasi SKTM (Error 400 Bad Request - J-UC15 3a): Nomor SKTM atau NIK tidak ditemukan dalam Data Terpadu Kesejahteraan Sosial (DTKS) Dinsos."*
+    3. Sistem menawarkan opsi kepada klien untuk beralih menggunakan layanan konsultasi melalui Sesi Berbayar Reguler.
+
+---
+
+### J-UC18: Memantau Log Audit Transaksi & WORM Hash Storage
+* **Aktor Utama**: Advokat Mitra / Admin Legal Justifiqa
+* **Aktor Pendukung**: WORM Hash Storage, Dirjen Pajak (DJP), Peradi
+* **Deskripsi Singkat**: Advokat atau Admin melihat dan mengunduh bukti pencatatan transaksi mutlak (*Write-Once-Read-Many*) dalam bentuk kriptografi SHA-256 Hash yang terkunci permanen selama masa retensi 10 tahun untuk kepatuhan audit (`SD-J-10`).
+* **Pre-condition**: Terdapat riwayat transaksi pencairan dana atau sesi litigasi yang telah dilog ke dalam sistem WORM Storage.
+* **Post-condition**: Bukti potong PPh 21 dan laporan audit WORM SHA-256 dapat diunduh untuk pelaporan pajak tahunan e-Filing DJP.
+* **Alur Utama (Basic Flow — SD-J-10 Langkah 364-367)**:
+  1. Advokat membuka Workstation Keuangan pada Dasbor Advokat Mitra (`SCR-JST-03`).
+  2. Sistem menampilkan tabel riwayat transaksi pencairan beserta string verifikasi WORM Hash SHA-256.
+  3. Advokat mengklik tombol **"📑 Unduh PPh 21"**.
+  4. Sistem menerbitkan resi bukti pemotongan pajak PPh Pasal 21 yang memuat NPWP, penghasilan bruto, tarif pemotongan 5%, serta kode hash WORM sebagai bukti hukum yang sah.
+
+---
+
+### J-UC19: Melakukan Pencairan Dana Escrow & Perhitungan PPh 21 (Withdrawal)
+* **Aktor Utama**: Advokat Mitra Justifiqa
+* **Aktor Pendukung**: Payment Gateway Disbursement, Backend Justifiqa, WORM Hash Storage
+* **Deskripsi Singkat**: Advokat mengajukan penarikan dana konsultasi (*withdrawal*) dari rekening bersama (*escrow*) ke rekening bank pribadi (misal: BCA). Sistem melakukan perhitungan potongan pajak PPh 21 secara otomatis, memproses transfer real-time, dan menyimpan bukti ke WORM Storage (`SD-J-10`).
+* **Pre-condition**: Advokat memiliki Saldo Aktif Siap Tarik yang mencukupi dan nomor rekening bank terverifikasi.
+* **Post-condition**: Saldo aktif advokat berkurang, dana berhasil ditransfer ke rekening bank pribadi (`200 OK`), dan log transaksi SHA-256 tersimpan permanen di WORM Storage.
+* **Alur Utama (Basic Flow — SD-J-10 Langkah 356-367)**:
+  1. Advokat memasukkan nominal pencairan pada formulir pencairan di Dasbor Advokat Mitra (`SCR-JST-03`).
+  2. Sistem secara dinamis mengkalkulasi estimasi potongan pajak PPh 21 (5% untuk tenaga ahli advokat) dan estimasi terima bersih (netto).
+  3. Advokat mengklik tombol **"💸 Tarik Dana Sekarang (200 OK)"**.
+  4. Backend memverifikasi kecukupan saldo, memproses transfer via API Payment Gateway Disbursement, dan memotong saldo aktif advokat.
+  5. Sistem mencatat log hash transaksi secara permanen ke WORM Storage dan menampilkan resi sukses penarikan dana beserta rincian pajak PPh 21.
+* **Alur Alternatif/Gagal (Alternative Flow — SD-J-10 Langkah 359)**:
+  * **3a. Saldo Tidak Cukup / Nominal Tidak Valid (Error 400 Bad Request / 422 Unprocessable Entity)**:
+    1. Advokat mengajukan penarikan dengan nominal melebihi Saldo Aktif Siap Tarik atau bernilai Rp 0.
+    2. Sistem menolak pemrosesan transaksi dan memunculkan peringatan error: *"⚠️ ERROR 400 BAD REQUEST / 422 UNPROCESSABLE ENTITY (SD-J-10): Gagal memproses pencairan dana! Nominal pencairan melebihi Saldo Aktif Siap Tarik atau tidak valid."*
+    3. Saldo advokat tetap utuh dan tidak ada transaksi yang diproses ke Payment Gateway.
+
+---
+
 ## C. Aktor: Admin (Administrator)
+
+---
+
+### J-UC16: Memverifikasi Kredensial & Lisensi Advokat (NIA & BAS)
+* **Aktor Utama**: Admin Legal Justifiqa / Dewan Kehormatan Peradi
+* **Aktor Pendukung**: Pangkalan Data Mahkamah Agung (MA), Registry Peradi/KAI, WORM Storage
+* **Deskripsi Singkat**: Admin Legal melakukan cross-check dan otentikasi atas Nomor Induk Advokat (NIA / SIPP) dan Berita Acara Sumpah (BAS) dari advokat yang mendaftar di platform Justifiqa (`SD-J-09`).
+* **Pre-condition**: Advokat baru telah menyelesaikan proses registrasi (`J-UC07`) dan mengunggah berkas lisensi hukum.
+* **Post-condition**: Akun advokat diaktifkan di katalog publik Justifiqa (`200 OK / VERIFIED`) atau ditolak dengan alasan hukum (`400 Bad Request / REJECTED`).
+* **Alur Utama (Basic Flow — SD-J-09 Langkah 317-332)**:
+  1. Admin Legal membuka antrean verifikasi advokat pada Dasbor Admin (`SCR-JST-07`).
+  2. Sistem menampilkan daftar advokat berstatus pending beserta dokumen bukti (KTP, Kartu Peradi, dan Berita Acara Sumpah PT).
+  3. Admin melakukan verifikasi nomor SIPP dan keaslian BAS secara langsung ke Pangkalan Data Mahkamah Agung / Peradi.
+  4. Admin mengklik tombol **"✅ Setujui (Approve — 200 OK)"**.
+  5. Sistem memperbarui status advokat menjadi `AKTIF / VERIFIED` di dalam database dan mengirimkan email pemberitahuan aktivasi akun siap praktik.
+* **Alur Alternatif/Gagal (Alternative Flow — SD-J-09 Langkah 322-326)**:
+  * **4a. Kredensial Palsu / Kadaluarsa (Error 400 Bad Request / 403 Forbidden)**:
+    1. Admin menemukan bahwa nomor SIPP tidak terdaftar di Pangkalan Data MA atau BAS telah dicabut/kadaluwarsa.
+    2. Admin mengklik tombol **"❌ Tolak (Reject)"** dan memasukkan alasan penolakan secara eksplisit.
+    3. Sistem memperbarui status advokat menjadi `REJECTED`, mencatat log penolakan di WORM Storage, dan mengirimkan email penjelasan hukum kepada pendaftar.
+
+---
+
+### J-UC17: Memoderasi Laporan Pelanggaran Kode Etik & Suspend Akun (Due Process)
+* **Aktor Utama**: Admin Legal Justifiqa / Dewan Kehormatan Peradi
+* **Aktor Pendukung**: Advokat Mitra Terlapor, Klien Pelapor, WORM Storage
+* **Deskripsi Singkat**: Admin memproses laporan pelanggaran kode etik atau wanprestasi layanan konsultasi hukum yang diajukan oleh klien, serta melakukan penahanan akun darurat (*Due Process Suspend*) (`SD-J-09`).
+* **Pre-condition**: Terdapat laporan pelanggaran etik yang masuk dari klien disertai bukti log percakapan E2EE atau berkas WORM.
+* **Post-condition**: Akun advokat ditahan sementara (`SUSPENDED`) dan surat panggilan klarifikasi etik internal diterbitkan.
+* **Alur Utama (Basic Flow — SD-J-09 Langkah 334-338)**:
+  1. Admin membuka tab "🏛️ Sidang Etik & Moderasi" pada Dasbor Admin (`SCR-JST-07`).
+  2. Sistem menampilkan daftar kasus dugaan pelanggaran etik beserta bukti berkas terenkripsi dari WORM Storage.
+  3. Admin memeriksa bukti pelanggaran (misal: penelantaran sesi konsultasi setelah dana escrow cair).
+  4. Admin mengklik tombol **"🛑 Suspend Akun (Due Process — 200 OK)"** dan memasukkan alasan hukum penahanan akun.
+  5. Sistem mengubah status akun menjadi `SUSPENDED (Due Process)`, menghapus sementara advokat dari katalog pencarian, dan mengirimkan Surat Panggilan Klarifikasi Internal kepada advokat terkait.
 
 ---
 

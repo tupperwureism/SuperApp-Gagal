@@ -1,12 +1,11 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
-<meta charset="utf-8"/>
-<title>Qualifa — Ruang Konseling Terapi Klinis E2EE (Q-UC06)</title>
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-<style>
+    <meta charset="UTF-8">
+    <title>Qualifa — Ruang Konseling Terapi Klinis E2EE (Q-UC06)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
         :root { --bg-base: #080c14; --glass-bg: rgba(255, 255, 255, 0.03); --glass-border: rgba(255, 255, 255, 0.08); --text-main: #f8fafc; --text-muted: #94a3b8; --psi-color: #a855f7; --psi-glow: rgba(168, 85, 247, 0.25); --danger: #ef4444; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background-color: var(--bg-base); color: var(--text-main); height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; }
@@ -56,82 +55,82 @@
     </style>
 </head>
 <body>
-<div class="mesh-bg"></div>
-<a class="nav-back" href="mockup_dashboard_psikologi_klien.html" id="navBackBtn">⬅ Kembali ke Dasbor Qualifa</a>
-<div class="container">
-<div class="sidebar">
-<div class="timer-section">
-<div class="timer-label">Sisa Waktu Terapi Klinis</div>
-<div class="timer">32:10</div>
-</div>
-<div class="partner-profile">
-<div class="avatar">🧠</div>
-<div class="name">Nadia Safitri, M.Psi., Psikolog</div>
-<div class="spec">Psikolog Klinis Dewasa &amp; Trauma</div>
-<div class="sipp">SIPP: HIMPSI-2026-9981-Valid</div>
-<div class="status"><div class="status-dot"></div> Online — Terapi E2EE</div>
-</div>
-<button class="btn-end" onclick="document.getElementById('exitConfirmModal').style.display='flex'">
-<i class="ph-bold ph-phone-slash"></i> Akhiri Sesi Terapi
+    <div class="mesh-bg"></div>
+    <a href="mockup_dashboard_psikologi_klien.html" class="nav-back" id="navBackBtn">⬅ Kembali ke Dasbor Qualifa</a>
+    <div class="container">
+        <div class="sidebar">
+            <div class="timer-section">
+                <div class="timer-label">Sisa Waktu Terapi Klinis</div>
+                <div class="timer">32:10</div>
+            </div>
+            <div class="partner-profile">
+                <div class="avatar">🧠</div>
+                <div class="name">Nadia Safitri, M.Psi., Psikolog</div>
+                <div class="spec">Psikolog Klinis Dewasa & Trauma</div>
+                <div class="sipp">SIPP: HIMPSI-2026-9981-Valid</div>
+                <div class="status"><div class="status-dot"></div> Online — Terapi E2EE</div>
+            </div>
+            <button class="btn-end" onclick="document.getElementById('exitConfirmModal').style.display='flex'">
+                <i class="ph-bold ph-phone-slash"></i> Akhiri Sesi Terapi
             </button>
-</div>
-<div class="chat-area">
-<div class="chat-header">
-<div class="chat-title"><span>🧘</span> Ruang Konseling Psikologi Klinis E2EE (Q-UC06)</div>
-<div class="encryption-badge">
-<i class="ph-fill ph-lock-key"></i> Zero-Knowledge E2EE Protected
+        </div>
+        <div class="chat-area">
+            <div class="chat-header">
+                <div class="chat-title"><span>🧘</span> Ruang Konseling Psikologi Klinis E2EE (Q-UC06)</div>
+                <div class="encryption-badge">
+                    <i class="ph-fill ph-lock-key"></i> Zero-Knowledge E2EE Protected
                 </div>
-</div>
-<div class="chat-history">
-<div class="msg-wrapper partner">
-<div class="msg-bubble">Selamat sore, saya Psikolog Nadia. Saya telah mengecek skor DASS-21 Anda yang menunjukkan tingkat kecemasan ringan (Skor: 8) dan log mood harian Anda. Apa yang sedang Anda rasakan atau pikirkan hari ini?</div>
-<div class="msg-time">15:00</div>
-</div>
-<div class="msg-wrapper user">
-<div class="msg-bubble">Sore Mbak Nadia. Hari ini saya merasa sedikit cemas dan sulit tidur karena banyak tekanan di pekerjaan. Saya sudah mencoba latihan pernapasan dari audio meditasi CDN di dasbor tadi pagi.</div>
-<div class="msg-time">15:02</div>
-</div>
-<div class="msg-wrapper partner">
-<div class="msg-bubble">Langkah yang sangat tepat untuk mendengarkan audio pernapasan CDN tersebut. Saya ingin melampirkan lembar kerja Cognitive Behavioral Therapy (CCBT) khusus manajemen stres kerja untuk kita bahas bersama di sesi ini.</div>
-<div class="msg-time">15:04</div>
-</div>
-<div class="msg-wrapper partner">
-<div class="msg-bubble doc-bubble">
-<div class="doc-icon"><i class="ph-fill ph-file-text"></i></div>
-<div class="doc-info">
-<span class="doc-name">Worksheet_CCBT_Manajemen_Stres.pdf</span>
-<span class="doc-size">840 KB • Terenkripsi E2EE (Q-UC09)</span>
-</div>
-</div>
-<div class="msg-time">15:04</div>
-</div>
-</div>
-<div class="input-area">
-<button class="btn-action" onclick="alert('Unggah lembar kerja / catatan harian terenkripsi...')" title="Unggah Jurnal / Berkas Terapi (Q-UC09)"><i class="ph ph-paperclip"></i></button>
-<input class="chat-input" placeholder="Ketik pesan atau keluhan emosi Anda di sini (Terenkripsi)..." type="text"/>
-<button class="btn-send" onclick="alert('Pesan terapi dikirim secara aman!')"><i class="ph-fill ph-paper-plane-right"></i></button>
-</div>
-</div>
-</div>
-<div class="modal-overlay" id="exitConfirmModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;">
-<div class="modal-box" style="background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #ef4444; width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);">
-<div style="font-size: 3rem; margin-bottom: 10px;">🚨</div>
-<h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 8px;">Akhiri Sesi Terapi Klinis?</h3>
-<p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">Jika Anda mengakhiri sesi, psikolog akan membuat rangkuman <strong>DAP Note (Q-UC10)</strong>. Sesi yang telah ditutup tidak dapat dibuka kembali atau di-refund.</p>
-<div style="display: flex; gap: 12px;">
-<a href="mockup_dashboard_psikologi_klien.html" id="endSessionBtn" style="flex: 1; background: #ef4444; border: none; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700;">Ya, Akhiri Sesi</a>
-<button onclick="document.getElementById('exitConfirmModal').style.display='none'" style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;">Batal</button>
-</div>
-</div>
-</div>
+            </div>
+            <div class="chat-history">
+                <div class="msg-wrapper partner">
+                    <div class="msg-bubble">Selamat sore, saya Psikolog Nadia. Saya telah mengecek skor DASS-21 Anda yang menunjukkan tingkat kecemasan ringan (Skor: 8) dan log mood harian Anda. Apa yang sedang Anda rasakan atau pikirkan hari ini?</div>
+                    <div class="msg-time">15:00</div>
+                </div>
+                <div class="msg-wrapper user">
+                    <div class="msg-bubble">Sore Mbak Nadia. Hari ini saya merasa sedikit cemas dan sulit tidur karena banyak tekanan di pekerjaan. Saya sudah mencoba latihan pernapasan dari audio meditasi CDN di dasbor tadi pagi.</div>
+                    <div class="msg-time">15:02</div>
+                </div>
+                <div class="msg-wrapper partner">
+                    <div class="msg-bubble">Langkah yang sangat tepat untuk mendengarkan audio pernapasan CDN tersebut. Saya ingin melampirkan lembar kerja Cognitive Behavioral Therapy (CCBT) khusus manajemen stres kerja untuk kita bahas bersama di sesi ini.</div>
+                    <div class="msg-time">15:04</div>
+                </div>
+                <div class="msg-wrapper partner">
+                    <div class="msg-bubble doc-bubble">
+                        <div class="doc-icon"><i class="ph-fill ph-file-text"></i></div>
+                        <div class="doc-info">
+                            <span class="doc-name">Worksheet_CCBT_Manajemen_Stres.pdf</span>
+                            <span class="doc-size">840 KB • Terenkripsi E2EE (Q-UC09)</span>
+                        </div>
+                    </div>
+                    <div class="msg-time">15:04</div>
+                </div>
+            </div>
+            <div class="input-area">
+                <button class="btn-action" title="Unggah Jurnal / Berkas Terapi (Q-UC09)" onclick="alert('Unggah lembar kerja / catatan harian terenkripsi...')"><i class="ph ph-paperclip"></i></button>
+                <input type="text" class="chat-input" placeholder="Ketik pesan atau keluhan emosi Anda di sini (Terenkripsi)...">
+                <button class="btn-send" onclick="alert('Pesan terapi dikirim secara aman!')"><i class="ph-fill ph-paper-plane-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div id="exitConfirmModal" class="modal-overlay" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: center; justify-content: center;">
+        <div class="modal-box" style="background: rgba(17,24,39,0.95); padding: 30px; border-radius: 16px; border: 1px solid #ef4444; width: 380px; text-align: center; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);">
+            <div style="font-size: 3rem; margin-bottom: 10px;">🚨</div>
+            <h3 style="color: #fff; font-size: 1.3rem; margin-bottom: 8px;">Akhiri Sesi Terapi Klinis?</h3>
+            <p style="color: #cbd5e1; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1.5rem;">Jika Anda mengakhiri sesi, psikolog akan membuat rangkuman <strong>DAP Note (Q-UC10)</strong>. Sesi yang telah ditutup tidak dapat dibuka kembali atau di-refund.</p>
+            <div style="display: flex; gap: 12px;">
+                <a href="mockup_dashboard_psikologi_klien.html" id="endSessionBtn" style="flex: 1; background: #ef4444; border: none; color: #fff; padding: 12px; border-radius: 10px; text-decoration: none; font-weight: 700;">Ya, Akhiri Sesi</a>
+                <button style="flex: 1; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: #fff; padding: 12px; border-radius: 10px; cursor: pointer; font-weight: 600;" onclick="document.getElementById('exitConfirmModal').style.display='none'">Batal</button>
+            </div>
+        </div>
+    </div>
 
         /* VISUAL STATE ARCHITECTURE: ROLE-AWARE DOM INVERSION MATRIX (SCR-QLF-07)
            - Jika ?role=mitra (Workstation Psikolog Klinis):
              1. Topbar Profile dan Avatar diubah menjadi identitas Pasien/Klien (Siti Aminah).
-             2. Seluruh gelembung pesan (.msg-wrapper) ditukar lokasinya: gelembung Psikolog (.partner -&gt; .user) digeser ke KANAN sebagai pesan sendiri, gelembung Pasien (.user -&gt; .partner) digeser ke KIRI sebagai lawan bicara.
+             2. Seluruh gelembung pesan (.msg-wrapper) ditukar lokasinya: gelembung Psikolog (.partner -> .user) digeser ke KANAN sebagai pesan sendiri, gelembung Pasien (.user -> .partner) digeser ke KIRI sebagai lawan bicara.
              3. Placeholder input dan tombol konfirmasi akhir sesi disesuaikan untuk Psikolog.
         */
-        window.addEventListener('DOMContentLoaded', () =&gt; {
+        window.addEventListener('DOMContentLoaded', () => {
             const urlParams = new URLSearchParams(window.location.search);
             const role = urlParams.get('role') || localStorage.getItem('user_role_qualifa') || 'klien';
             
@@ -152,8 +151,8 @@
                 if (sippEl) sippEl.innerText = 'ID Terapi: #SESS-2026-881 — Reguler';
                 if (statusEl) statusEl.innerHTML = '<div class="status-dot"></div> Online — Pasien Aktif';
 
-                // 2. Pembalikan Gelembung Pesan (.user &lt;-&gt; .partner)
-                document.querySelectorAll('.msg-wrapper').forEach(wrapper =&gt; {
+                // 2. Pembalikan Gelembung Pesan (.user <-> .partner)
+                document.querySelectorAll('.msg-wrapper').forEach(wrapper => {
                     const isPartner = wrapper.classList.contains('partner');
                     const isUser = wrapper.classList.contains('user');
                     if (isPartner) {
@@ -165,7 +164,7 @@
                     }
                 });
 
-                // 3. Penyesuaian Placeholder Input &amp; Tombol Navigasi
+                // 3. Penyesuaian Placeholder Input & Tombol Navigasi
                 const inputEl = document.querySelector('.chat-input');
                 if (inputEl) inputEl.placeholder = 'Ketik intervensi klinis / respons untuk Pasien...';
 
@@ -175,8 +174,8 @@
                 }
                 if (endBtn) {
                     const sessId = urlParams.get('sessId') || 'SESS-2026-881';
-                    endBtn.href = `mockup_modul_psikologi_mitra.html?sessId=${sessId}&amp;from=chat_end`;
-                    endBtn.innerText = 'Ya, Akhiri Sesi &amp; Buat DAP Note';
+                    endBtn.href = `mockup_modul_psikologi_mitra.html?sessId=${sessId}&from=chat_end`;
+                    endBtn.innerText = 'Ya, Akhiri Sesi & Buat DAP Note';
                 }
             } else {
                 if (navBack) {
@@ -189,6 +188,6 @@
                 }
             }
         });
-    
+    </script>
 </body>
 </html>

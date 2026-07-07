@@ -1,0 +1,72 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Justifiqa & Qualifa Navigation Map",
+  "description": "Single source of truth for all page routing, role-aware viewpoints, URL parameters, localStorage state flags, and transition edges across both domains.",
+  "version": "1.1.0",
+  "domains": {
+    "justifiqa": {
+      "pages": {
+        "landing": { "file": "mockup_dasbor_hukum.html", "role": "public", "description": "Justifiqa Legal Hub (Landing & Portal Ekosistem)" },
+        "auth": { "file": "mockup_auth_justifiqa.html", "role": "public", "description": "Autentikasi Standalone (Verifikasi SIPP & OTP MFA)" },
+        "dashboard_klien": { "file": "mockup_dashboard_hukum_klien.html", "role": "klien", "params": ["probono", "demo_confirm"], "description": "Dasbor Klien Hukum & Status Konsultasi Litigasi/Pro Bono" },
+        "dashboard_mitra": { "file": "mockup_dashboard_mitra_hukum.html", "role": "mitra", "description": "Dasbor Utama Advokat Mitra & Workstation Keuangan" },
+        "katalog": { "file": "mockup_katalog_justifiqa.html", "role": "klien", "description": "Katalog Advokat & Notaris Litigasi" },
+        "chat": { "file": "mockup_chat_justifiqa.html", "role": "both", "params": ["role", "caseId", "probono"], "description": "Ruang Konsultasi Privileged (E2EE Zero-Knowledge)" },
+        "payment": { "file": "mockup_payment_gateway.html", "role": "klien", "params": ["advokat", "tarif"], "description": "Payment Gateway Standalone (Escrow Bank & Voucher SKTM)" },
+        "modul_hukum": { "file": "mockup_modul_hukum.html", "role": "mitra", "params": ["caseId", "from"], "description": "Workstation Hukum Mitra (IRAC Drafting & e-Meterai Peruri)" },
+        "admin": { "file": "mockup_admin_justifiqa.html", "role": "admin", "description": "Workstation Admin Legal (Verifikasi & Moderasi Etik)" }
+      },
+      "edges": [
+        { "from": "landing", "to": "auth", "trigger": "btn:masuk_portal" },
+        { "from": "landing", "to": "admin", "trigger": "btn:masuk_admin" },
+        { "from": "auth", "to": "dashboard_klien", "condition": "role=klien", "action": "set_localStorage(user_role_justifiqa='klien')" },
+        { "from": "auth", "to": "dashboard_mitra", "condition": "role=mitra", "action": "set_localStorage(user_role_justifiqa='mitra')" },
+        { "from": "dashboard_klien", "to": "katalog", "trigger": "nav:cari_advokat" },
+        { "from": "dashboard_klien", "to": "chat", "trigger": "btn:masuk_konsultasi", "params": { "role": "klien" } },
+        { "from": "dashboard_klien", "to": "chat", "trigger": "probono_success", "params": { "role": "klien", "probono": "true" } },
+        { "from": "katalog", "to": "payment", "trigger": "btn:pilih_bayar", "params": ["advokat", "tarif"] },
+        { "from": "payment", "to": "dashboard_klien", "trigger": "success", "params": { "demo_confirm": "1" }, "action": "set_localStorage(demo_new_booking_active='true')" },
+        { "from": "payment", "to": "katalog", "trigger": "btn:kembali_katalog", "description": "Tombol pembatalan/kembali ke katalog jika ganti advokat" },
+        { "from": "chat", "to": "dashboard_klien", "trigger": "end_session:klien", "condition": "role=klien", "params": ["probono=completed?"] },
+        { "from": "chat", "to": "modul_hukum", "trigger": "end_session:mitra", "condition": "role=mitra", "params": ["caseId", "from=chat_end"] },
+        { "from": "modul_hukum", "to": "dashboard_mitra", "trigger": "nav:dashboard" },
+        { "from": "dashboard_mitra", "to": "chat", "trigger": "btn:masuk_chat", "params": { "role": "mitra" } },
+        { "from": "dashboard_mitra", "to": "modul_hukum", "trigger": "btn:buka_workstation" },
+        { "from": "dashboard_mitra", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol kembali ke portal hub utama dari dasbor mitra" },
+        { "from": "admin", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol keluar admin menuju hub utama justifiqa (RBAC Compliant)" }
+      ]
+    },
+    "qualifa": {
+      "pages": {
+        "landing": { "file": "mockup_dasbor_psikologi.html", "role": "public", "description": "Qualifa Psychology Hub (Landing & Portal Ekosistem)" },
+        "auth": { "file": "mockup_auth_qualifa.html", "role": "public", "description": "Autentikasi Standalone (Verifikasi SIPP & OTP)" },
+        "dashboard_klien": { "file": "mockup_dashboard_psikologi_klien.html", "role": "klien", "params": ["subsidi", "demo_confirm"], "description": "Dasbor Psikologi Pasien & Klien" },
+        "dashboard_mitra": { "file": "mockup_dashboard_mitra_psikologi.html", "role": "mitra", "description": "Dasbor Utama Mitra Psikolog Klinis" },
+        "katalog": { "file": "mockup_katalog_qualifa.html", "role": "klien", "description": "Katalog Psikolog & Konselor Mental Health" },
+        "chat": { "file": "mockup_chat_qualifa.html", "role": "both", "params": ["role", "sessId", "subsidi"], "description": "Ruang Konseling WebRTC E2EE Zero-Knowledge" },
+        "payment": { "file": "mockup_payment_gateway.html", "role": "klien", "params": ["psikolog", "tarif"], "description": "Payment Gateway Standalone (Midtrans & BPJS/Subsidi)" },
+        "modul_psikologi_klien": { "file": "mockup_modul_psikologi_klien.html", "role": "klien", "description": "Workstation Klien (CCBT & Mood Tracker)" },
+        "modul_psikologi_mitra": { "file": "mockup_modul_psikologi_mitra.html", "role": "mitra", "params": ["sessId", "from"], "description": "Workstation Klinis Mitra (DAP Note & EMR)" },
+        "admin": { "file": "mockup_admin_qualifa.html", "role": "admin", "description": "Admin Kepatuhan HIMPSI Registry & Audit WORM" }
+      },
+      "edges": [
+        { "from": "landing", "to": "auth", "trigger": "btn:masuk_portal" },
+        { "from": "landing", "to": "admin", "trigger": "btn:masuk_admin" },
+        { "from": "auth", "to": "dashboard_klien", "condition": "role=klien", "action": "set_localStorage(user_role_qualifa='klien')" },
+        { "from": "auth", "to": "dashboard_mitra", "condition": "role=mitra", "action": "set_localStorage(user_role_qualifa='mitra')" },
+        { "from": "dashboard_klien", "to": "katalog", "trigger": "nav:cari_psikolog" },
+        { "from": "dashboard_klien", "to": "chat", "trigger": "btn:masuk_webrtc", "params": { "role": "klien" } },
+        { "from": "katalog", "to": "payment", "trigger": "btn:pilih_bayar", "params": ["psikolog", "tarif"] },
+        { "from": "payment", "to": "dashboard_klien", "trigger": "success", "params": { "demo_confirm": "1" }, "action": "set_localStorage(demo_new_therapy_active='true')" },
+        { "from": "payment", "to": "katalog", "trigger": "btn:kembali_katalog", "description": "Tombol pembatalan/kembali ke katalog jika ganti psikolog" },
+        { "from": "chat", "to": "dashboard_klien", "trigger": "end_session:klien", "condition": "role=klien" },
+        { "from": "chat", "to": "modul_psikologi_mitra", "trigger": "end_session:mitra", "condition": "role=mitra", "params": ["sessId", "from=chat_end"] },
+        { "from": "modul_psikologi_mitra", "to": "dashboard_mitra", "trigger": "nav:dashboard" },
+        { "from": "dashboard_mitra", "to": "chat", "trigger": "btn:masuk_terapi", "params": { "role": "mitra" } },
+        { "from": "dashboard_mitra", "to": "modul_psikologi_mitra", "trigger": "btn:buka_workstation" },
+        { "from": "dashboard_mitra", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol kembali ke portal hub utama dari dasbor mitra" },
+        { "from": "admin", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol keluar admin menuju hub utama qualifa (RBAC Compliant)" }
+      ]
+    }
+  }
+}

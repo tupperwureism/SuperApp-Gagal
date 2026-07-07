@@ -156,9 +156,9 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
   * **UU No. 18 Tahun 2003 (Advocate-Client Privilege)**: Ruang obrolan domain Hukum wajib diberikan penandaan visual dan arsitektural *"PRIVILEGED AND CONFIDENTIAL"*. Isi komunikasi hukum **mutlak rahasia**, tidak dapat diakses, diintip, atau disita oleh Admin Sistem platform sekalipun (*Zero-Knowledge Architecture*).
   * **Kode Etik HIMPSI**: Pembatasan durasi waktu standar konseling (45-60 menit) dan kewajiban penyampaian *Informed Consent* batas kerahasiaan di awal obrolan.
 * **Alur Utama (Basic Flow)**:
-  1. Setelah pembayaran diverifikasi (UC-05), sistem membuat ruang obrolan (*chat room*) khusus bertanda tanda keamanan E2EE dan mengaktifkan timer sesi (default 45 menit).
+  1. Setelah pembayaran diverifikasi (UC-05), sistem membuat ruang obrolan (*chat room*) khusus bertanda tanda keamanan E2EE dan mengaktifkan timer sesi (default 45 menit). **[Actor Viewpoint Routing]:** Sistem menyajikan antarmuka dengan struktur DOM dari sudut pandang Klien (`?role=klien`, pesan Klien di kanan sebagai `.user`).
   2. Sistem mengirimkan notifikasi prioritas tinggi ke Dasbor Mitra Profesional (UC-10) bahwa sesi baru telah siap.
-  3. Mitra Profesional menerima sesi dan memasuki ruang obrolan. Sistem otomatis mengirimkan pesan sambutan dan *Informed Consent* regulasi domain ke dalam chat.
+  3. Mitra Profesional menerima sesi dan memasuki ruang obrolan. Sistem merender presentasi DOM yang dibalik secara adaptif (`?role=mitra`, pesan Mitra di kanan sebagai `.user`, Klien di kiri sebagai `.partner`). Sistem otomatis mengirimkan pesan sambutan dan *Informed Consent* regulasi domain ke dalam chat.
   4. Klien dan Mitra Profesional melakukan interaksi konsultasi melalui teks, pesan suara, atau pengunggahan berkas dokumen bukti (merujuk ke Huk-UC01 / Psi-UC01).
   5. Lima menit sebelum waktu sesi habis, sistem menampilkan peringatan otomatis kepada kedua belah pihak di dalam ruang obrolan.
   6. Setelah masalah klien tuntas atau durasi berakhir, Mitra Profesional menyusun Catatan Sesi (UC-11) dan menekan tombol "Selesaikan Konsultasi".
@@ -367,7 +367,7 @@ Dokumen ini berisi spesifikasi skenario tertulis (*Use Case Scenarios*) untuk se
 * **Alur Utama (Basic Flow)**:
   1. Sistem memunculkan dering alarm dan kartu pop-up permintaan konsultasi masuk pada Dasbor Mitra Profesional (menampilkan nama/anonim klien, domain, dan keluhan awal).
   2. Mitra Profesional mengklik tombol "Terima Permintaan" dalam jendela waktu respons (maksimal 5 menit).
-  3. Sistem menghubungkan mitra ke ruang obrolan (*chat room*) E2EE yang telah terbuka bersama klien (UC-04).
+  3. Sistem menghubungkan mitra ke ruang obrolan (*chat room*) E2EE yang telah terbuka bersama klien (UC-04). **[Actor Viewpoint Routing]:** Sistem mengaktifkan parameter `?role=mitra` dan membalikkan presentasi DOM secara otomatis (identitas Klien di topbar, pesan Mitra Profesional di kanan sebagai `.user`).
   4. Mitra menyapa klien, meninjau riwayat hukum/psikologi yang diizinkan (merujuk ke Huk-UC01 / Psi-UC01), dan memberikan konsultasi interaktif.
   5. Selama sesi atau menjelang sesi berakhir, Mitra membuka panel "Catatan Sesi" (UC-11) untuk menyusun diagnosis, opini hukum, atau asesmen psikologi.
   6. Jika klien membutuhkan terapi obat medis, draf kontrak hukum, atau tugas mandiri psikologi, Mitra menerbitkan berkas terkait dari menu "Output Dokumen" (*Extend* ke UC-12).

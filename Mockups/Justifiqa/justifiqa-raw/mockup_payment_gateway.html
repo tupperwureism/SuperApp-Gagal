@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-
 <html lang="id">
 <head>
-<meta charset="utf-8"/>
-<title>Justifiqa - Legal Payment Gateway</title>
-<!-- Fonts -->
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<!-- Icons -->
-<script src="https://unpkg.com/@phosphor-icons/web"></script>
-<style>
+    <meta charset="UTF-8">
+    <title>Justifiqa - Legal Payment Gateway</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <style>
         :root {
             --bg-base: #020617;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -149,112 +148,134 @@
     </style>
 </head>
 <body>
-<div class="mesh-bg"></div>
-<div class="container">
-<div class="header">
-<button class="back-btn"><i class="ph ph-arrow-left"></i></button>
-<h1 class="title">Selesaikan Pembayaran</h1>
-</div>
-<div class="content">
-<!-- Left: Order Summary -->
-<div class="glass-card">
+    <div class="mesh-bg"></div>
 
-<h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan</h2>
-<div class="order-item">
-<img alt="Advokat" class="avatar" src="https://ui-avatars.com/api/?name=Rizky+Ramadhan&amp;background=0ea5e9&amp;color=fff"/>
-<div class="item-info">
-<h3>Rizky Ramadhan, S.H., M.H.</h3>
-<p>Advokat Litigasi &amp; Konsultan Hukum</p>
-<div class="badge" style="background:rgba(14,165,233,0.2); color:#38bdf8;">Sesi Privileged E2EE (60 Menit)</div>
-</div>
-</div>
-<div class="divider"></div>
-<div class="price-row">
-<span>Biaya Konsultasi Hukum</span>
-<span style="color: var(--text-main)">Rp 250.000</span>
-</div>
-<div class="price-row">
-<span>Biaya Escrow &amp; Layanan Platform</span>
-<span style="color: var(--text-main)">Rp 10.000</span>
-</div>
-<div class="divider"></div>
-<div class="total-row">
-<span>Total Tagihan (Escrow)</span>
-<span style="color: #38bdf8;">Rp 260.000</span>
-</div>
-</div>
-<!-- Right: Payment Methods -->
-<div class="glass-card">
-<h2 class="section-title"><i class="ph-fill ph-wallet"></i> Metode Pembayaran</h2>
-<div class="method-category">
-<h4>Dompet Digital (E-Wallet)</h4>
-<div class="method-option selected" onclick="selectMethod(this)">
-<div class="radio"></div>
-<div class="method-logo" style="background:#00aadd; color:white;">DANA</div>
-<div style="flex-grow:1;">DANA</div>
-<div style="color: var(--text-muted); font-size: 0.9rem;">Bebas Biaya Admin</div>
-</div>
-<div class="method-option" onclick="selectMethod(this)">
-<div class="radio"></div>
-<div class="method-logo" style="background:#00b14f; color:white;">GoPay</div>
-<div style="flex-grow:1;">GoPay</div>
-</div>
-</div>
-<div class="method-category">
-<h4>Transfer Bank (Virtual Account)</h4>
-<div class="method-option" onclick="selectMethod(this)">
-<div class="radio"></div>
-<div class="method-logo" style="background:#005E6A; color:white;">BCA</div>
-<div style="flex-grow:1;">BCA Virtual Account</div>
-</div>
-</div>
-<div class="method-category">
-<h4>Kartu Kredit / Debit</h4>
-<div class="method-option" onclick="selectMethod(this); resetProBonoBtn();">
-<div class="radio"></div>
-<div class="method-logo" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:white;">VISA</div>
-<div style="flex-grow:1;">Visa / Mastercard</div>
-<div style="color: var(--text-muted); font-size: 0.9rem;">+1.5% biaya admin</div>
-</div>
-</div>
-<div class="method-category">
-<h4>Subsidi Bantuan Hukum (Pro Bono / DTKS)</h4>
-<div class="method-option" onclick="selectMethod(this); applyProBonoDiscount();">
-<div class="radio"></div>
-<div class="method-logo" style="background:linear-gradient(135deg,#10b981,#059669); color:white;">SKTM</div>
-<div style="flex-grow:1;">Voucher Pro Bono SKTM (100% Gratis)</div>
-<div style="color: #34d399; font-size: 0.85rem; font-weight: 600;">SD-J-07 / J-UC15</div>
-</div>
-</div>
-<button class="btn-pay" id="mainPayBtn" onclick="processPayment(); return false;">
-<span id="payBtnLabel">Bayar Sekarang (Escrow)</span>
-<span id="payBtnPrice">Rp 260.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
-</button>
-<button class="btn-cancel" onclick="simulateFailedPayment(); return false;" style="background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-<i class="ph ph-clock-countdown" style="font-size:1.1rem;"></i> Simulasi Waktu Habis / Ditolak
+    <div class="container">
+        <div class="header">
+            <button class="back-btn"><i class="ph ph-arrow-left"></i></button>
+            <h1 class="title">Selesaikan Pembayaran</h1>
+        </div>
+
+        <div class="content">
+            <!-- Left: Order Summary -->
+            <div class="glass-card">
+                <div style="background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 0.75rem; border-radius: 6px; margin-bottom: 1rem; font-size: 0.8rem; color: #38bdf8; line-height: 1.4;">
+                    <strong>💡 Panduan Uji Coba SD-J-03 (Pembayaran Escrow Justifiqa):</strong><br>
+                    • <strong>Tes Pembayaran Escrow (Langkah 133):</strong> Klik "Bayar Sekarang" ➔ Webhook Midtrans PAID ➔ Dana ditahan di Rekening Escrow Sementara Justifiqa.<br>
+                    • <strong>Tes Expired/Ditolak (UC-05 5a/5b):</strong> Klik tombol "Simulasi Waktu Habis / Ditolak" di bawah tombol bayar.
+                </div>
+                <h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan (SD-J-03)</h2>
+                
+                <div class="order-item">
+                    <img src="https://ui-avatars.com/api/?name=Rizky+Ramadhan&background=0ea5e9&color=fff" class="avatar" alt="Advokat">
+                    <div class="item-info">
+                        <h3>Rizky Ramadhan, S.H., M.H.</h3>
+                        <p>Advokat Litigasi & Konsultan Hukum</p>
+                        <div class="badge" style="background:rgba(14,165,233,0.2); color:#38bdf8;">Sesi Privileged E2EE (60 Menit)</div>
+                    </div>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="price-row">
+                    <span>Biaya Konsultasi Hukum</span>
+                    <span style="color: var(--text-main)">Rp 250.000</span>
+                </div>
+                <div class="price-row">
+                    <span>Biaya Escrow & Layanan Platform</span>
+                    <span style="color: var(--text-main)">Rp 10.000</span>
+                </div>
+
+                <div class="divider"></div>
+
+                <div class="total-row">
+                    <span>Total Tagihan (Escrow)</span>
+                    <span style="color: #38bdf8;">Rp 260.000</span>
+                </div>
+            </div>
+
+            <!-- Right: Payment Methods -->
+            <div class="glass-card">
+                <h2 class="section-title"><i class="ph-fill ph-wallet"></i> Metode Pembayaran</h2>
+
+                <div class="method-category">
+                    <h4>Dompet Digital (E-Wallet)</h4>
+                    <div class="method-option selected" onclick="selectMethod(this)">
+                        <div class="radio"></div>
+                        <div class="method-logo" style="background:#00aadd; color:white;">DANA</div>
+                        <div style="flex-grow:1;">DANA</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">Bebas Biaya Admin</div>
+                    </div>
+                    
+                    <div class="method-option" onclick="selectMethod(this)">
+                        <div class="radio"></div>
+                        <div class="method-logo" style="background:#00b14f; color:white;">GoPay</div>
+                        <div style="flex-grow:1;">GoPay</div>
+                    </div>
+                </div>
+
+                <div class="method-category">
+                    <h4>Transfer Bank (Virtual Account)</h4>
+                    <div class="method-option" onclick="selectMethod(this)">
+                        <div class="radio"></div>
+                        <div class="method-logo" style="background:#005E6A; color:white;">BCA</div>
+                        <div style="flex-grow:1;">BCA Virtual Account</div>
+                    </div>
+                </div>
+
+                <div class="method-category">
+                    <h4>Kartu Kredit / Debit</h4>
+                    <div class="method-option" onclick="selectMethod(this); resetProBonoBtn();">
+                        <div class="radio"></div>
+                        <div class="method-logo" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:white;">VISA</div>
+                        <div style="flex-grow:1;">Visa / Mastercard</div>
+                        <div style="color: var(--text-muted); font-size: 0.9rem;">+1.5% biaya admin</div>
+                    </div>
+                </div>
+
+                <div class="method-category">
+                    <h4>Subsidi Bantuan Hukum (Pro Bono / DTKS)</h4>
+                    <div class="method-option" onclick="selectMethod(this); applyProBonoDiscount();">
+                        <div class="radio"></div>
+                        <div class="method-logo" style="background:linear-gradient(135deg,#10b981,#059669); color:white;">SKTM</div>
+                        <div style="flex-grow:1;">Voucher Pro Bono SKTM (100% Gratis)</div>
+                        <div style="color: #34d399; font-size: 0.85rem; font-weight: 600;">SD-J-07 / J-UC15</div>
+                    </div>
+                </div>
+
+                <button id="mainPayBtn" class="btn-pay" onclick="processPayment(); return false;">
+                    <span id="payBtnLabel">Bayar Sekarang (Escrow)</span>
+                    <span id="payBtnPrice">Rp 260.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
                 </button>
-<button class="btn-cancel" onclick="window.location.href='mockup_katalog_justifiqa.html'; return false;" style="background:transparent; border:1px dashed #38bdf8; color:#38bdf8; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-<i class="ph ph-arrow-left" style="font-size:1.1rem;"></i> Kembali ke Katalog Advokat
+                <button class="btn-cancel" onclick="simulateFailedPayment(); return false;" style="background:transparent; border:1px dashed #ff4757; color:#ff4757; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="ph ph-clock-countdown" style="font-size:1.1rem;"></i> Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)
                 </button>
-</div>
-</div>
-</div>
-<!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans J-UC04 & J-UC05) -->
-<div id="paymentProcessingState" style="display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
-<div style="background: #0f172a; border: 1px solid #f59e0b; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(245,158,11,0.3);">
-<div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
-<div id="processingIconSuccess" style="display: none; width: 70px; height: 70px; background: #10b981; border-radius: 50%; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; color: #fff;">✓</div>
-<h2 id="processingTitle" style="color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">⏳ Pembayaran Sedang Diproses...</h2>
-<p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway &amp; memverifikasi transaksi Retainer/Konsultasi Hukum Anda.</p>
-<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace;">
+                <button class="btn-cancel" onclick="window.location.href='mockup_katalog_justifiqa.html'; return false;" style="background:transparent; border:1px dashed #38bdf8; color:#38bdf8; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i> Kembali ke Katalog Advokat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans J-UC04 & J-UC05) -->
+    <div id="paymentProcessingState" style="display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+        <div style="background: #0f172a; border: 1px solid #f59e0b; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(245,158,11,0.3);">
+            <div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(245,158,11,0.2); border-top-color: #f59e0b; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
+            <div id="processingIconSuccess" style="display: none; width: 70px; height: 70px; background: #10b981; border-radius: 50%; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; color: #fff;">✓</div>
+            
+            <h2 id="processingTitle" style="color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">⏳ Pembayaran Sedang Diproses...</h2>
+            <p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway & memverifikasi transaksi Retainer/Konsultasi Hukum Anda.</p>
+            
+            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace;">
                 Status: <span id="webhookStatus" style="color: #facc15;">AWAITING_WEBHOOK_RESPONSE</span>
-</div>
-</div>
-</div>
-<style>
+            </div>
+        </div>
+    </div>
+    <style>
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-<script>
+
+    <script>
         let isProBonoSelected = false;
         function resetProBonoBtn() {
             isProBonoSelected = false;
@@ -336,18 +357,20 @@
             }
         }
     </script>
+
 <!-- [TAMBAHAN: Layer Status Pembayaran Gagal/Expired] -->
 <div id="paymentFailedState" style="display: none; position: fixed; inset: 0; background: rgba(18, 18, 18, 0.95); z-index: 9999; align-items: center; justify-content: center;">
-<div class="payment-failed-state" style="background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; border-radius: 15px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(255, 71, 87, 0.2);">
-<div style="width: 80px; height: 80px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-<i class="ph ph-x" style="font-size: 40px; color: #fff;"></i>
-</div>
-<h2 style="color: #ff4757; margin-bottom: 10px;">Transaksi Expired / Ditolak</h2>
-<p style="color: #ccc; line-height: 1.5; font-size: 14px;">Waktu pembayaran Anda telah habis, atau saldo metode pembayaran tidak mencukupi.</p>
-<button onclick="document.getElementById('paymentFailedState').style.display='none'" style="background: #2f3542; color: #fff; border: 1px solid #57606f; padding: 12px 25px; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; width: 100%;">
-<i class="ph ph-arrow-counter-clockwise"></i> Coba Metode Pembayaran Lain
+    <div class="payment-failed-state" style="background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; border-radius: 15px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(255, 71, 87, 0.2);">
+        <div style="width: 80px; height: 80px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+            <i class="ph ph-x" style="font-size: 40px; color: #fff;"></i>
+        </div>
+        <h2 style="color: #ff4757; margin-bottom: 10px;">Transaksi Expired / Ditolak</h2>
+        <p style="color: #ccc; line-height: 1.5; font-size: 14px;">Waktu pembayaran Anda telah habis, atau saldo metode pembayaran tidak mencukupi.</p>
+        <button style="background: #2f3542; color: #fff; border: 1px solid #57606f; padding: 12px 25px; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; width: 100%;" onclick="document.getElementById('paymentFailedState').style.display='none'">
+            <i class="ph ph-arrow-counter-clockwise"></i> Coba Metode Pembayaran Lain
         </button>
+    </div>
 </div>
-</div>
+
 </body>
 </html>

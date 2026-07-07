@@ -135,8 +135,10 @@ BE -> BE : Update Booking Status = TERKONFIRMASI
 BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
 
 note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
-Klien -> FE : Masuk Ruang Chat E2EE Justifiqa
-Mitra -> FE : Masuk Ruang Chat E2EE Justifiqa
+Klien -> FE : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
+FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+Mitra -> FE : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
+FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien, DOM Inverted)
 Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
 Mitra -> Klien : Berikan Analisis & Nasihat Hukum
 
@@ -490,8 +492,10 @@ BE -> BE : Update Booking Status = TERKONFIRMASI
 BE -> Mitra : Kirim Push Notification Pengingat Jadwal Terapi
 
 note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
-Klien -> FE : Masuk Ruang Konseling E2EE Qualifa
-Mitra -> FE : Masuk Ruang Konseling E2EE Qualifa
+Klien -> FE : Masuk Ruang Konseling E2EE Qualifa (?role=klien)
+FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Psikolog)
+Mitra -> FE : Masuk Ruang Konseling E2EE Qualifa (?role=mitra)
+FE --> Mitra : Render Partner Viewpoint (.user=Psikolog di kanan, Topbar=Klien, DOM Inverted)
 Klien -> Mitra : Sesi Konseling Teks / Audio / Video Call (E2EE)
 Mitra -> Klien : Berikan Intervensi Klinis & Dukungan Psikologis
 
