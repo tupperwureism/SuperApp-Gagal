@@ -29,7 +29,7 @@ participant "API Dukcapil / Peradi" as Ext
 activate User
 User -> FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
 FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
-User -> FE ++ : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
+User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
 FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
 BE -> DB ++ : Check Existing Email/No HP/NIK
@@ -38,22 +38,16 @@ DB --> BE -- : Status Uniqueness Result
 alt Email / No HP / NIK Sudah Terdaftar
     BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
     FE --> User : Tampilkan Error "Kredensial Sudah Terdaftar" & Instruksi Perbaikan
-    deactivate BE
-    deactivate FE
     
     loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
-        User -> FE ++ : Perbaiki Data Input & Klik Daftar Kembali
-        FE -> BE ++ : POST /api/v1/auth/register (Corrected Payload & Files)
+        User -> FE : Perbaiki Data Input & Klik Daftar Kembali
+        FE -> BE : POST /api/v1/auth/register (Corrected Payload & Files)
         BE -> DB ++ : Check Existing Email/No HP/NIK
         DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
         BE --> FE : 200 OK (Data Valid & Unik)
         FE --> User : Lanjut Proses Verifikasi Kredensial
-        deactivate BE
-        deactivate FE
     end
 else Kredensial Baru & Valid
-    activate BE
-    activate FE
     alt Jenis Akun = Klien (Pencari Keadilan)
         BE -> Ext ++ : Verify NIK & KK to API Dukcapil
         Ext --> BE -- : Validasi NIK Cocok
@@ -100,22 +94,16 @@ DB --> BE -- : Return User Record & Password Hash
 alt Kredensial Tidak Cocok
     BE --> FE : 401 Unauthorized (Kredensial Salah)
     FE --> User : Tampilkan Error Email/No HP atau Password Salah
-    deactivate BE
-    deactivate FE
     
     loop [Mencoba Login Ulang saat Kredensial Salah]
-        User -> FE ++ : Masukkan Kembali Email/No HP & Password yang Benar
-        FE -> BE ++ : POST /api/v1/auth/login (Corrected Credentials)
+        User -> FE : Masukkan Kembali Email/No HP & Password yang Benar
+        FE -> BE : POST /api/v1/auth/login (Corrected Credentials)
         BE -> DB ++ : Query User by Email/No HP
         DB --> BE -- : Return User Record & Password Hash
         BE --> FE : 200 OK (Credentials Verified)
         FE --> User : Lanjut ke Langkah MFA / OTP
-        deactivate BE
-        deactivate FE
     end
 else Kredensial Cocok
-    activate BE
-    activate FE
     alt Status Akun = SUSPENDED (Due Process Legal)
         BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
         FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
@@ -128,8 +116,8 @@ else Kredensial Cocok
         FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
         note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
         
-        User -> FE ++ : Masukkan Kode OTP 6-Digit
-        FE -> BE ++ : POST /api/v1/auth/verify-otp (User ID, OTP)
+        User -> FE : Masukkan Kode OTP 6-Digit
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
         
         alt OTP Valid & Belum Expire
             BE -> DB ++ : UPDATE users SET last_login = NOW()
@@ -141,24 +129,18 @@ else Kredensial Cocok
         else OTP Salah / Kadaluarsa
             BE --> FE : 400 Bad Request (OTP Invalid / Expired)
             FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
-            deactivate BE
-            deactivate FE
             
             loop [Minta Kirim Ulang OTP / Resend OTP]
-                User -> FE ++ : Klik Tombol Resend OTP
-                FE -> BE ++ : POST /api/v1/auth/resend-otp (User ID, Channel)
+                User -> FE : Klik Tombol Resend OTP
+                FE -> BE : POST /api/v1/auth/resend-otp (User ID, Channel)
                 BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
                 BE --> BE -- : Return Computed Result / State
                 BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, New OTP)
                 SMS --> BE -- : 200 OK (New OTP Sent Successfully)
                 BE --> FE : 200 OK (New OTP Sent)
                 FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
-                deactivate BE
-                deactivate FE
             end
         end
-        deactivate BE
-        deactivate FE
     end
 end
 deactivate BE
@@ -270,22 +252,16 @@ DB --> BE -- : Return Booking Schedule & Active Session State
 alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
     BE --> FE : 409 Conflict (Jadwal Bentrok / Sesi Aktif)
     FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
-    deactivate BE
-    deactivate FE
     
     loop [Pilih Slot Jam Lain yang Kosong / Sesuaikan Jadwal]
-        Mitra -> FE ++ : Sesuaikan Jam Operasional & Klik Simpan Kembali
-        FE -> BE ++ : PUT /api/v1/advocate/calendar (Updated Slot Rules)
+        Mitra -> FE : Sesuaikan Jam Operasional & Klik Simpan Kembali
+        FE -> BE : PUT /api/v1/advocate/calendar (Updated Slot Rules)
         BE -> DB ++ : Check Active Booking & Konflik Jadwal
         DB --> BE -- : Return 0 Conflicts (Slot Aman)
         BE --> FE : 200 OK (Slot Valid & Tidak Bentrok)
         FE --> Mitra : Lanjut Simpan Perubahan
-        deactivate BE
-        deactivate FE
     end
 else Slot Jadwal Aman (200 OK)
-    activate BE
-    activate FE
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
     BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
@@ -439,25 +415,18 @@ Ext --> BE -- : Return SKTM Verification Status
 alt SKTM Tidak Valid / Palsu
     BE --> FE : 400 Bad Request / 422 Unprocessable Entity (SKTM Tidak Sah)
     FE --> Klien : Tampilkan Error & Instruksi Perbaikan Berkas SKTM
-    deactivate BE
-    deactivate FE
     
     loop [Revisi & Unggah Ulang Berkas SKTM / Dokumen Kemensos]
-        Klien -> FE ++ : Perbaiki Nomor SKTM & Unggah Ulang Foto Dokumen
-        FE -> BE ++ : POST /api/v1/pro-bono/apply (Updated SKTM Payload)
+        Klien -> FE : Perbaiki Nomor SKTM & Unggah Ulang Foto Dokumen
+        FE -> BE : POST /api/v1/pro-bono/apply (Updated SKTM Payload)
         BE -> Ext ++ : Verify Keabsahan Nomor SKTM & KK ke Kemensos
         Ext --> BE -- : Return Status Valid & Terdaftar
         BE --> FE : 200 OK (SKTM Valid & Terverifikasi)
         FE --> Klien : Lanjut ke Matchmaking Advokat Pro Bono
-        deactivate BE
-        deactivate FE
     end
 else SKTM Sah & Terverifikasi
-    activate BE
-    activate FE
     BE -> BE ++ : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
     BE --> BE -- : Return Computed Result / State
-activate Mitra
     BE -> Mitra ++ : Assign Kasus ke Advokat Kuota Pro Bono Aktif
     Mitra --> BE -- : Terima Penugasan Pro Bono
     BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
@@ -912,7 +881,7 @@ database "Database Qualifa" as DB
 activate User
 User -> FE ++ : Buka Halaman Registrasi Qualifa & Pilih Jenis Akun
 FE --> User : Tampilkan Formulir Registrasi Spesifik Qualifa
-User -> FE ++ : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
+User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
 FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
 BE -> DB ++ : Check Existing Email/No HP
@@ -921,22 +890,16 @@ DB --> BE -- : Status Uniqueness Result
 alt Email / No HP Sudah Terdaftar
     BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
     FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar" & Instruksi Perbaikan
-    deactivate BE
-    deactivate FE
     
     loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
-        User -> FE ++ : Perbaiki Data Input & Klik Daftar Kembali
-        FE -> BE ++ : POST /api/v1/auth/register (Corrected Payload & Files)
+        User -> FE : Perbaiki Data Input & Klik Daftar Kembali
+        FE -> BE : POST /api/v1/auth/register (Corrected Payload & Files)
         BE -> DB ++ : Check Existing Email/No HP
         DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
         BE --> FE : 200 OK (Data Valid & Unik)
         FE --> User : Lanjut Proses Verifikasi Kredensial
-        deactivate BE
-        deactivate FE
     end
 else Kredensial Baru & Valid
-    activate BE
-    activate FE
     alt Jenis Akun = Klien (Pasien/User)
         BE -> DB ++ : Insert Klien (Status: AKTIF)
         DB --> BE -- : Success DB Insert
@@ -994,8 +957,8 @@ else Kredensial Cocok
         FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
         note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
         
-        User -> FE ++ : Masukkan Kode OTP 6-Digit
-        FE -> BE ++ : POST /api/v1/auth/verify-otp (User ID, OTP)
+        User -> FE : Masukkan Kode OTP 6-Digit
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
         
         alt OTP Valid & Belum Expire
             BE -> DB ++ : UPDATE users SET last_login = NOW()
@@ -1008,8 +971,6 @@ else Kredensial Cocok
             BE --> FE : 400 Bad Request (OTP Invalid)
             FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
         end
-        deactivate BE
-        deactivate FE
     end
 end
 deactivate BE
@@ -1121,22 +1082,16 @@ DB --> BE -- : Return Last Session End Time & Active Schedule
 alt Jeda Istirahat Antar Sesi < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
     BE --> FE : 422 Unprocessable Entity (Buffer Rule Violation)
     FE --> Mitra : Tampilkan Peringatan "Wajib Jeda Istirahat 30 Menit Antar Sesi"
-    deactivate BE
-    deactivate FE
     
     loop [Sesuaikan Jam Jadwal agar Memenuhi Buffer Rule 30 Menit]
-        Mitra -> FE ++ : Sesuaikan Jam Operasional & Klik Simpan Kembali
-        FE -> BE ++ : PUT /api/v1/psychologist/calendar (Updated Slot Rules)
+        Mitra -> FE : Sesuaikan Jam Operasional & Klik Simpan Kembali
+        FE -> BE : PUT /api/v1/psychologist/calendar (Updated Slot Rules)
         BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
         DB --> BE -- : Return Last Session End Time & Active Schedule (Buffer > 30 Mnt)
         BE --> FE : 200 OK (Slot Valid Memenuhi Buffer Rule)
         FE --> Mitra : Lanjut Simpan Perubahan
-        deactivate BE
-        deactivate FE
     end
 else Jeda Waktu Memenuhi Syarat (> 30 Menit)
-    activate BE
-    activate FE
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
     BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)

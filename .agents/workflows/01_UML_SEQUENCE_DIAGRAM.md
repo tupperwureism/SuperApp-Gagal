@@ -19,9 +19,9 @@ Dokumen ini adalah acuan mutlak (*SOP & Guardrails*) bagi Agen ketika bertugas p
    * **Aturan Mutlak:** Seluruh panah visualisasi ke Aktor wajib ditulis bersih tanpa `--` (`FE --> Klien`).
    * Aktor hanya diaktifkan 1 kali saat interaksi dimulai (`activate <Actor>`) dan dinonaktifkan 1 kali di akhir diagram sebelum `@enduml` (`deactivate <Actor>`).
 3. **Return Arrow Mutlak:** Pemanggilan ke API eksternal, Database, atau internal method (`BE -> DB ++`, `BE -> BE ++`) wajib diringangi oleh panah balasan eksplisit (`DB --> BE -- : Return Result`).
-4. **Kompensasi Deaktivasi Linear pada Percabangan Kondisional (`alt` / `else`):**
-   * Dalam PlantUML, parser memproses state aktivasi secara linear dari atas ke bawah. Jika seorang participant (`BE`, `FE`, dll.) dinonaktifkan di dalam cabang pertama (`alt`) atau di dalam siklus pengulangan (`loop`), parser akan menandai participant tersebut dalam keadaan nonaktif (`active = false`).
-   * **Aturan Mutlak:** Ketika memasuki cabang berikutnya (seperti `else [Kredensial Valid]` atau `else [Slot Aman]`), agen **WAJIB** menambahkan perintah aktivasi eksplisit (`activate BE`, `activate FE`, dll.) pada baris pertama di dalam cabang `else` tersebut agar activation bar tidak putus dan tetap tergambar dengan utuh hingga akhir interaksi.
+4. **Aturan Aktivasi Kontinu pada Percabangan Kondisional (`alt` / `else` / `loop`):**
+   * Dalam PlantUML, parser memproses state aktivasi secara linear dari atas ke bawah. Jika seorang participant (`BE`, `FE`) dinonaktifkan (`deactivate BE`) di dalam cabang pertama (`alt [Error]`) atau di dalam siklus pengulangan (`loop [Retry]`), parser akan menandai participant tersebut nonaktif. Standalone `activate BE` di dalam cabang `else` berikutnya sering kali diabaikan oleh layout engine PlantUML karena tidak terikat pada panah pesan yang masuk.
+   * **Aturan Mutlak:** Untuk menjamin *activation bar* yang 100% utuh dan kontinu pada seluruh cabang eksekusi tanpa terputus, **DILARANG KERAS** menaruh perintah `deactivate BE` atau `deactivate FE` di dalam cabang `alt`, `else`, atau `loop` yang merupakan bagian dari satu sesi interaksi yang sama. Biarkan participant tetap aktif selama validasi/retry berlangsung, dan lakukan deaktivasi (`deactivate BE`, `deactivate FE`) hanya satu kali di akhir rangkaian interaksi (sebelum `@enduml` atau pada penutupan sesi).
 
 ---
 
