@@ -61,12 +61,16 @@ Dokumen ini memecah seluruh *User Story* menjadi tugas teknis (*Engineering Task
 | :--- | :--- | :---: | :--- | :---: | :--- |
 | **ST-J-14** | J-UC06 | **BE** | Buat endpoint POST `/api/v1/advokat/reviews`. Implementasikan fungsi *auto-anonymize* yang secara mutlak menyamarkan nama klien hukum (misal: `Klien Huk-9912`) pada *query* tampilan ulasan publik. | 12 | Review API & Auto-Anonymization |
 | | | **FE** | Buat modal pop-up Rating & Review (1-5 Bintang + Ulasan) yang muncul secara *blocking* saat sesi chat ditutup. | 10 | UI Blocking Modal Rating Hukum |
-| **ST-J-15** | J-UC16 | **BE** | Buat modul Admin Verification `/api/v1/admin/verify/advokat` dan `/sktm`. Integrasikan tombol *cross-check API* ke database Mahkamah Agung (SIPP) dan Peradi. Simpan setiap log keputusan (Approve/Reject) ke WORM storage. | 18 | Admin Verifier Engine & API Cross-Check |
-| | | **FE** | Buat dasbor Admin Legal dengan tab verifikasi antrean Advokat dan tab SKTM Klien dilengkapi *document viewer* bersisian. | 16 | UI Dasbor Verifikasi Admin Legal |
+| **ST-J-15** | J-UC16 | **BE** | Buat modul Admin Verification `/api/v1/admin/verify/advokat`. Integrasikan tombol *cross-check API* ke database Mahkamah Agung (SIPP) dan Peradi. Simpan setiap log keputusan (Approve/Reject) ke WORM storage. | 18 | Admin Verifier Engine & API Cross-Check |
+| | | **FE** | Buat dasbor Admin Legal dengan tab verifikasi antrean kredensial dan lisensi advokat baru dilengkapi *document viewer* bersisian. | 16 | UI Dasbor Verifikasi Admin Legal |
 | **ST-J-16** | J-UC17 | **BE** | Bangun modul *Due Process of Law* untuk moderasi etik. Buat sistem peringatan bertingkat (Warning 1, 2, 3) dan fungsi pemotongan akses akun (*suspend*) yang menerbitkan surat resmi ber-hash SHA-256 dengan *timer appeal window* 14 hari kerja. | 20 | Due Process Suspend & Appeal Engine |
 | | | **FE** | Buat panel manajemen sanggah/banding di Dasbor Admin dan halaman form banding pengajuan bukti bagi akun yang di-suspend. | 14 | UI Panel Moderasi & Banding Hukum |
 | **ST-J-17** | J-UC18,<br>J-UC19 | **BE** | Bangun *Financial Escrow & Tax Engine* Justifiqa. Kalkulasi otomatis bagi hasil (25% Platform / 75% Advokat). Implementasikan rumus pemotongan pajak PPh 21 otomatis atas jasa profesi advokat sesuai aturan Dirjen Pajak. Buat validasi pencocokan nama rekening bank dengan nama di Kartu Peradi/SIPP (anti pencucian uang). Implementasikan *two-person approval* untuk pencairan ≥ Rp 10.000.000. | 28 | Escrow PPh 21 Tax Engine & AML Verifier |
 | | | **FE** | Buat halaman Manajemen Keuangan Advokat dengan rincian saldo escrow, bukti potong PPh 21 digital, dan tombol penarikan dana. | 16 | UI Manajemen Finansial & Pajak Advokat |
+| **ST-J-18** | J-UC20 | **BE** | Implementasikan otentikasi portal admin `/api/v1/admin/auth/totp` pada subdomain terisolasi dengan IP Whitelisting dan verifikasi HMAC RFC 6238 TOTP. | 14 | Admin TOTP 2FA & IP Whitelist Engine |
+| | | **FE** | Buat halaman login terisolasi Admin Portal dengan input 6-digit TOTP Authenticator dan penanganan error anomali SOC. | 10 | UI Admin Portal Login & TOTP |
+| **ST-J-19** | J-UC21 | **BE** | Buat endpoint POST `/api/v1/client/reports/advokat`. Integrasikan penerbitan tiket investigasi ber-hash SHA-256 ke antrean `J-UC17` di WORM Storage. | 14 | Whistleblowing API & SHA-256 Evidence |
+| | | **FE** | Buat form *Whistleblowing* pelaporan pelanggaran etik di riwayat konsultasi dengan persetujuan lampiran transkrip E2EE. | 12 | UI Form Pelaporan Etik & Wanprestasi |
 
 ---
 
@@ -129,11 +133,15 @@ Dokumen ini memecah seluruh *User Story* menjadi tugas teknis (*Engineering Task
 | | | **FE** | Buat panel manajemen Komite Etik di Dasbor Admin dan antarmuka undangan sidang etik virtual bagi psikolog terlapor. | 16 | UI Panel Komite Etik & Sidang Virtual |
 | **ST-Q-17** | Q-UC18,<br>Q-UC19 | **BE** | Bangun *Financial & Tax Engine* Qualifa. Kalkulasi otomatis bagi hasil (20% Platform / 80% Psikolog). Implementasikan rumus pemotongan pajak PPh 21 otomatis atas honorarium psikolog klinis sesuai aturan Dirjen Pajak serta penerbitan bukti potong pajak. Buat validasi pencocokan nama rekening bank dengan nama di STR HIMPSI (anti pencucian uang). Simpan log pencairan abadi di WORM storage. | 26 | Honorarium PPh 21 Tax Engine & AML Verifier |
 | | | **FE** | Buat halaman Manajemen Honor Psikolog dengan rincian saldo konseling, bukti potong PPh 21 digital, dan formulir pencairan honor ke bank. | 16 | UI Manajemen Honor & Pajak Psikolog |
+| **ST-Q-18** | Q-UC20 | **BE** | Implementasikan otentikasi portal admin `/api/v1/admin/auth/totp` pada subdomain terisolasi dengan IP Whitelisting non-VPN dan verifikasi TOTP. | 14 | Admin TOTP 2FA & SOC Alert Engine |
+| | | **FE** | Buat halaman login terisolasi Admin Portal Qualifa dengan verifikasi 6-digit TOTP dan notifikasi keamanan. | 10 | UI Admin Portal Login & TOTP |
+| **ST-Q-19** | Q-UC21 | **BE** | Buat endpoint POST `/api/v1/client/reports/psikolog`. Integrasikan pengarsipan bukti transkrip darurat ke WORM Storage dan antrean Komite Etik `Q-UC17`. | 14 | Ethics Whistleblowing API & WORM Archive |
+| | | **FE** | Buat form pelaporan malpraktik klinis & pelanggaran kode etik HIMPSI dilengkapi *consent* pembukaan transkrip darurat. | 12 | UI Form Pelaporan Malpraktik & Etik |
 
 ---
 
 ## RINGKASAN TOTAL ALOKASI JAM REKAYASA (ENGINEERING HOURS)
-* **Total Jam Backend (BE)**: ~384 Jam (Justifiqa: 194 Jam | Qualifa: 190 Jam)
-* **Total Jam Frontend (FE)**: ~278 Jam (Justifiqa: 140 Jam | Qualifa: 138 Jam)
-* **Total Jam Automated QA / Security**: ~78 Jam (Justifiqa: 40 Jam | Qualifa: 38 Jam)
-* **Total Keseluruhan Engineering Effort**: **740 Jam Kerja** (Terbagi seimbang dan terisolasi untuk 2 Tim Pengembang Mandiri Justifiqa dan Qualifa).
+* **Total Jam Backend (BE)**: ~440 Jam (Justifiqa: 222 Jam | Qualifa: 218 Jam)
+* **Total Jam Frontend (FE)**: ~322 Jam (Justifiqa: 162 Jam | Qualifa: 160 Jam)
+* **Total Jam Automated QA / Security**: ~86 Jam (Justifiqa: 44 Jam | Qualifa: 42 Jam)
+* **Total Keseluruhan Engineering Effort**: **848 Jam Kerja** (Terbagi seimbang dan terisolasi untuk 2 Tim Pengembang Mandiri Justifiqa dan Qualifa).

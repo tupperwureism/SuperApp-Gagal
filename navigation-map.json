@@ -2,23 +2,26 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "title": "Justifiqa & Qualifa Navigation Map",
   "description": "Single source of truth for all page routing, role-aware viewpoints, URL parameters, localStorage state flags, and transition edges across both domains.",
-  "version": "1.1.0",
+  "version": "1.3.0",
   "domains": {
     "justifiqa": {
       "pages": {
         "landing": { "file": "mockup_dasbor_hukum.html", "role": "public", "description": "Justifiqa Legal Hub (Landing & Portal Ekosistem)" },
         "auth": { "file": "mockup_auth_justifiqa.html", "role": "public", "description": "Autentikasi Standalone (Verifikasi SIPP & OTP MFA)" },
+        "auth_admin": { "file": "mockup_login_admin_justifiqa.html", "role": "admin", "description": "Autentikasi Portal Admin Backoffice Justifiqa (J-UC20 / SCR-JST-09)" },
         "dashboard_klien": { "file": "mockup_dashboard_hukum_klien.html", "role": "klien", "params": ["probono", "demo_confirm"], "description": "Dasbor Klien Hukum & Status Konsultasi Litigasi/Pro Bono" },
-        "dashboard_mitra": { "file": "mockup_dashboard_mitra_hukum.html", "role": "mitra", "description": "Dasbor Utama Advokat Mitra & Workstation Keuangan" },
+        "dashboard_mitra": { "file": "mockup_dashboard_mitra_hukum.html", "role": "mitra", "description": "Dasbor Utama Advokat Mitra & Workstation Keuangan (Pemisahan Dompet Operasional J-UC22 & Escrow PPh 21 J-UC19)" },
+        "topup_advokat": { "file": "mockup_topup_advokat.html", "role": "mitra", "description": "Top-Up Saldo Dompet Advokat Mitra (J-UC22 / SCR-JST-08)" },
         "katalog": { "file": "mockup_katalog_justifiqa.html", "role": "klien", "description": "Katalog Advokat & Notaris Litigasi" },
-        "chat": { "file": "mockup_chat_justifiqa.html", "role": "both", "params": ["role", "caseId", "probono"], "description": "Ruang Konsultasi Privileged (E2EE Zero-Knowledge)" },
+        "chat": { "file": "mockup_chat_justifiqa.html", "role": "both", "params": ["role", "caseId", "probono"], "description": "Ruang Konsultasi Privileged E2EE (Pembubuhan e-Meterai Peruri J-UC12 & Download Gate Ganda)" },
         "payment": { "file": "mockup_payment_gateway.html", "role": "klien", "params": ["advokat", "tarif"], "description": "Payment Gateway Standalone (Escrow Bank & Voucher SKTM)" },
         "modul_hukum": { "file": "mockup_modul_hukum.html", "role": "mitra", "params": ["caseId", "from"], "description": "Workstation Hukum Mitra (IRAC Drafting & e-Meterai Peruri)" },
-        "admin": { "file": "mockup_admin_justifiqa.html", "role": "admin", "description": "Workstation Admin Legal (Verifikasi & Moderasi Etik)" }
+        "admin": { "file": "mockup_admin_justifiqa.html", "role": "admin", "description": "Workstation Admin Legal (Verifikasi, Moderasi Etik, & WORM Audit Viewer J-UC18)" }
       },
       "edges": [
         { "from": "landing", "to": "auth", "trigger": "btn:masuk_portal" },
-        { "from": "landing", "to": "admin", "trigger": "btn:masuk_admin" },
+        { "from": "landing", "to": "auth_admin", "trigger": "btn:masuk_admin" },
+        { "from": "auth_admin", "to": "admin", "trigger": "login_success", "action": "set_localStorage(jwt_admin_justifiqa='valid')" },
         { "from": "auth", "to": "dashboard_klien", "condition": "role=klien", "action": "set_localStorage(user_role_justifiqa='klien')" },
         { "from": "auth", "to": "dashboard_mitra", "condition": "role=mitra", "action": "set_localStorage(user_role_justifiqa='mitra')" },
         { "from": "dashboard_klien", "to": "katalog", "trigger": "nav:cari_advokat" },
@@ -29,9 +32,13 @@
         { "from": "payment", "to": "katalog", "trigger": "btn:kembali_katalog", "description": "Tombol pembatalan/kembali ke katalog jika ganti advokat" },
         { "from": "chat", "to": "dashboard_klien", "trigger": "end_session:klien", "condition": "role=klien", "params": ["probono=completed?"] },
         { "from": "chat", "to": "modul_hukum", "trigger": "end_session:mitra", "condition": "role=mitra", "params": ["caseId", "from=chat_end"] },
+        { "from": "chat", "to": "topup_advokat", "trigger": "alert:saldo_kurang_402", "condition": "role=mitra", "description": "Redirect saat advokat bubuhkan e-meterai namun saldo kurang" },
         { "from": "modul_hukum", "to": "dashboard_mitra", "trigger": "nav:dashboard" },
+        { "from": "modul_hukum", "to": "topup_advokat", "trigger": "alert:saldo_kurang_402", "description": "Redirect dari workstation hukum saat e-meterai gagal karena saldo kurang" },
         { "from": "dashboard_mitra", "to": "chat", "trigger": "btn:masuk_chat", "params": { "role": "mitra" } },
         { "from": "dashboard_mitra", "to": "modul_hukum", "trigger": "btn:buka_workstation" },
+        { "from": "dashboard_mitra", "to": "topup_advokat", "trigger": "btn:topup_saldo" },
+        { "from": "topup_advokat", "to": "dashboard_mitra", "trigger": "btn:kembali_dasbor" },
         { "from": "dashboard_mitra", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol kembali ke portal hub utama dari dasbor mitra" },
         { "from": "admin", "to": "landing", "trigger": "nav:hub_utama", "description": "Tombol keluar admin menuju hub utama justifiqa (RBAC Compliant)" }
       ]

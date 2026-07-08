@@ -136,20 +136,17 @@
 <div style="font-size: 0.8rem; color: #fbbf24; margin-top: 4px;">Justifiqa — Advokat Litigasi &amp; Perdata</div>
 <span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">✔ NIA PERADI Terverifikasi</span>
 </div>
-<div class="toggle-switch-container">
-<div style="display: flex; justify-content: space-between; align-items: center;">
-<span style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status Praktik:</span>
-<span class="badge badge-success" id="status-badge" style="font-size: 0.7rem;">🟢 ONLINE</span>
+<div style="margin: 15px 0; padding: 12px; background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25); border-radius: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1;">Status Sistem:</span>
+<span class="badge badge-success" style="font-size: 0.68rem; padding: 3px 8px;">🟢 SIAP (AUTO-SCHEDULED)</span>
 </div>
-<label class="toggle-switch" onclick="toggleSidebarStatus()">
-<div class="toggle-slider" id="sidebar-slider">
-<div class="toggle-knob" id="sidebar-knob"></div>
+<div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.3; margin-bottom: 8px;">
+Ketersediaan ditentukan otomatis berdasarkan kalender litigasi dan sesi aktif (J-UC04 / SD-J-04).
 </div>
-<span id="status-text" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">Menerima Konsultasi</span>
-</label>
-<div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;">
-<input id="conflict-sim-cb" style="cursor: pointer;" type="checkbox"/>
-<label for="conflict-sim-cb" style="font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;">Simulasi Konflik Jadwal / Sesi Aktif (SD-J-04: 409 Conflict)</label>
+<div style="padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;">
+<input id="conflict-sim-cb" style="cursor: pointer;" type="checkbox" onclick="checkConflictSimulation(this)"/>
+<label for="conflict-sim-cb" style="font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;">Simulasi Sesi Sibuk (HTTP 409 Conflict)</label>
 </div>
 </div>
 <ul class="nav-menu">
@@ -226,10 +223,31 @@
 </div>
 <div class="payout-card" id="dompet-section">
 <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-<span style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; color: #fff; font-weight: 700;"><span>💰</span> Workstation Keuangan Mitra &amp; Penarikan Dana PPh 21 (SD-J-10)</span>
+<span style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; color: #fff; font-weight: 700;"><span>💰</span> Workstation Keuangan Mitra &amp; Penarikan Dana (J-UC19 &amp; J-UC22)</span>
 <span class="badge badge-success">Beneficiary: Bank BCA 8810-xxxx-xxxx (Budi Santoso)</span>
 </div>
-<p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Pengelolaan penghasilan konsultasi litigasi, pencairan dana otomatis dengan pemotongan PPh 21 (J-UC19), dan pencatatan log mutlak WORM Hash SHA-256 10 tahun (J-UC18).</p>
+<p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Pemisahan mutlak antara dompet operasional (untuk e-meterai tanpa potongan PPh 21 di <code>J-UC22</code>) dengan dompet penghasilan escrow konsultasi (pencairan dengan potongan PPh 21 5% di <code>J-UC19</code>).</p>
+
+<!-- KARTU 1: DOMPET OPERASIONAL ADVOKAT (TOP-UP J-UC22) -->
+<div style="background: linear-gradient(135deg, rgba(217,119,6,0.15), rgba(14,165,233,0.1)); border: 1px solid #d97706; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(217,119,6,0.2);">
+    <div>
+        <div style="color: #fbbf24; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+            <span>💼</span> Dompet Operasional Advokat (Top-Up Balance - J-UC22)
+        </div>
+        <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 6px;">Rp 5.000</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 3px 8px; border-radius: 12px; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.4);">⚠️ Di Bawah Minimum e-Meterai Rp12.000 (HTTP 402 Alert)</span>
+            <span style="font-size: 0.75rem; color: #94a3b8;">• Bebas Potongan PPh 21</span>
+        </div>
+    </div>
+    <div>
+        <a href="mockup_topup_advokat.html" class="btn" style="background: linear-gradient(135deg, #d97706, #b45309); color: #fff; padding: 0.8rem 1.5rem; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(217,119,6,0.4); text-decoration: none;">
+            ➕ Top-Up Saldo Dompet (`J-UC22`)
+        </a>
+    </div>
+</div>
+
+<h4 style="color: #34d399; font-size: 1.05rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">🏦 Dompet Penghasilan Escrow Konsultasi (`J-UC19`)</h4>
 <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;">
 <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);">
 <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Saldo Aktif Siap Tarik</div>
@@ -317,7 +335,6 @@
 </div>
 </div>
 <script>
-        let isOnline = true;
         let availableBalance = 22400000;
 
         function formatRp(val) {
@@ -398,39 +415,11 @@
             alert(`📑 Bukti Pemotongan Pajak PPh Pasal 21:\n\nNo. Bukti Potong: PPH21-${refNum}\nNama Wajib Pajak: Budi Santoso, S.H., M.H.\nNPWP: 88.921.402.1-012.000\nPenghasilan Bruto: ${formatRp(gross)}\nTarif Pemotongan: 5% (Tenaga Ahli)\nPPh 21 Dipotong: ${formatRp(tax)}\n\nSiap digunakan untuk lampiran SPT Tahunan.`);
         }
 
-        function toggleSidebarStatus() {
-            const conflictCb = document.getElementById('conflict-sim-cb');
-            if (conflictCb && conflictCb.checked) {
-                // SD-J-04 Langkah 171-172: 409 Conflict Branch
-                alert("⚠️ Gagal Mengubah Status:\n\nTerdapat sesi konsultasi yang sedang berlangsung atau jadwal sidang yang aktif.\n\nHarap selesaikan sesi aktif terlebih dahulu sebelum mengubah status ketersediaan.");
-                return;
-            }
-
-            // SD-J-04 Langkah 174-177: 200 OK Branch
-            isOnline = !isOnline;
-            const slider = document.getElementById('sidebar-slider');
-            const knob = document.getElementById('sidebar-knob');
-            const badge = document.getElementById('status-badge');
-            const text = document.getElementById('status-text');
-            
-            if(isOnline) {
-                slider.style.background = '#10b981';
-                slider.style.boxShadow = '0 0 12px rgba(16,185,129,0.4)';
-                knob.style.left = '27px';
-                badge.className = 'badge badge-success';
-                badge.innerHTML = '🟢 ONLINE';
-                text.style.color = '#a7f3d0';
-                text.innerHTML = 'Menerima Konsultasi';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi Online. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.');
+        function checkConflictSimulation(cb) {
+            if (cb.checked) {
+                alert("⚠️ SIMULASI SD-J-04 ACTIVATED (409 Conflict):\n\nSesi aktif atau jadwal persidangan terdeteksi! Sistem otomatis menandai ketersediaan advokat sebagai 'Sibuk / Conflict'. Klien baru yang mencoba memesan pada jam yang sama akan menerima peringatan HTTP 409.");
             } else {
-                slider.style.background = '#ef4444';
-                slider.style.boxShadow = '0 0 12px rgba(239,68,68,0.4)';
-                knob.style.left = '3px';
-                badge.className = 'badge badge-danger';
-                badge.innerHTML = '🔴 Offline';
-                text.style.color = '#f87171';
-                text.innerHTML = 'Jadwal Tidak Tersedia';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi Offline. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.');
+                alert("🟢 SIMULASI SD-J-04 DEACTIVATED (200 OK):\n\nSesi selesai! Kalender advokat kembali terbuka secara otomatis untuk menerima pesanan konsultasi berikutnya.");
             }
         }
         window.addEventListener('DOMContentLoaded', () => {

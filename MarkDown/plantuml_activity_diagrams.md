@@ -43,17 +43,19 @@ if (Apakah Format & Ukuran File Valid?) then (Ya)
       :Simpan Akun di DB Justifiqa (Status: PENDING_VERIFICATION);
       :Kirim Antrean Audit ke Admin Legal Justifiqa;
       :Tampilkan Pesan "Menunggu Verifikasi Admin 1x24 Jam";
+      |Pengguna (Klien/Advokat)|
+      stop
     else (Tidak - Klien)
       :Verifikasi NIK ke API Dukcapil;
       if (NIK Valid?) then (Ya)
         :Simpan Akun Klien di DB Justifiqa (Status: AKTIF);
         :Tampilkan Pesan Sukses & Arahkan ke Login;
+        |Pengguna (Klien/Advokat)|
+        stop
       else (Tidak)
         :Tampilkan Error "NIK Tidak Valid / Tidak Cocok";
       endif
     endif
-    |Pengguna (Klien/Advokat)|
-    stop
   else (Ya)
     |Backend Independen Justifiqa|
     :Tampilkan Error "Email/No HP/NIK Sudah Terdaftar";
@@ -66,7 +68,8 @@ endif
 |Pengguna (Klien/Advokat)|
 :Perbaiki Input Data;
 if (Coba Daftar Lagi?) then (Ya)
-  (A)
+  --> (A)
+  detach
 else (Tidak)
   stop
 endif
@@ -94,6 +97,7 @@ if (Apakah Kredensial Cocok di DB Justifiqa?) then (Ya)
     :Kirim OTP via SMS/WhatsApp/Email;
     
     |Pengguna Justifiqa|
+    --> (B)
     :Terima & Masukkan Kode OTP;
     
     |Backend Independen Justifiqa|
@@ -111,6 +115,8 @@ if (Apakah Kredensial Cocok di DB Justifiqa?) then (Ya)
         :Klik Resend OTP;
         |Backend Independen Justifiqa|
         :Generate & Kirim OTP Baru;
+        --> (B)
+        detach
       else (Tidak)
         stop
       endif
@@ -123,10 +129,11 @@ if (Apakah Kredensial Cocok di DB Justifiqa?) then (Ya)
   endif
 else (Tidak)
   |Backend Independen Justifiqa|
-  :Tampilkan Error "Kredensial Salah (Sisa Percobaan: X)";
+  :Tampilkan Error "Email/No HP atau Password Salah";
   |Pengguna Justifiqa|
   if (Coba Login Lagi?) then (Ya)
-    (A)
+    --> (A)
+    detach
   else (Tidak)
     stop
   endif
@@ -145,6 +152,7 @@ endif
 start
 :Buka Katalog Advokat & Notaris;
 :Filter Spesialisasi (Pidana, Perdata, Bisnis, Pertanahan);
+--> (A)
 :Pilih Advokat & Pilih Jadwal Konsultasi;
 :Klik Konfirmasi Reservasi;
 
@@ -158,31 +166,49 @@ start
 :Lakukan Pembayaran Sesuai Nominal;
 
 |Payment Gateway|
-:Verifikasi Transaksi & Kirim Webhook PAID ke Justifiqa;
-
-|Backend Independen Justifiqa|
-:Tahan Dana di Rekening Escrow Sementara;
-:Ubah Status Reservasi Jadi TERKONFIRMASI;
-:Kirim Notifikasi Jadwal ke Advokat;
-
-|Advokat Justifiqa|
-:Terima Notifikasi & Masuk ke Ruang Konsultasi pada Waktunya;
-:Render Partner Viewpoint (DOM Inverted: .user=Advokat di kanan);
-
-|Klien Justifiqa|
-:Masuk ke Ruang Chat E2EE Justifiqa;
-:Render Client Viewpoint (.user=Klien di kanan);
-:Lakukan Konsultasi Teks / Audio / Video;
-
-|Advokat Justifiqa|
-:Berikan Advice & Analisis Hukum;
-:Klik Akhiri Sesi Konsultasi;
-
-|Backend Independen Justifiqa|
-:Tutup Ruang Chat & Arsip Log Metadata;
-:Minta Klien Memberikan Rating & Ulasan (J-UC06);
-:Cairkan Dana Escrow ke Saldo Advokat (Potong Fee & PPh 21);
-stop
+if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
+  |Backend Independen Justifiqa|
+  :Tahan Dana di Rekening Escrow Sementara;
+  :Ubah Status Reservasi Jadi TERKONFIRMASI;
+  :Kirim Pengingat Jadwal ke Advokat & Klien;
+  
+  fork
+    |Advokat Justifiqa|
+    :Masuk ke Ruang Konsultasi pada Jadwal yang Ditentukan;
+  fork again
+    |Klien Justifiqa|
+    :Masuk ke Ruang Chat E2EE pada Jadwal yang Ditentukan;
+  end fork
+  
+  |Backend Independen Justifiqa|
+  :Mulai Countdown Timer Sesi Konsultasi (Durasi 45 - 60 Menit);
+  
+  fork
+    |Advokat Justifiqa|
+    :Memberikan Advice & Analisis Hukum (Interaksi Dua Arah);
+  fork again
+    |Klien Justifiqa|
+    :Mengajukan Pertanyaan & Diskusi (Interaksi Dua Arah);
+  end fork
+  
+  |Backend Independen Justifiqa|
+  :Akhiri Sesi (Waktu Habis atau Tombol Akhiri Sesi Diklik);
+  :Tutup Ruang Chat & Arsip Log Metadata;
+  :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
+  :Cairkan Dana Escrow ke Saldo Advokat (Potong Fee & PPh 21);
+  stop
+else (Tidak - Gagal / Kadaluwarsa)
+  |Backend Independen Justifiqa|
+  :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal atau Kadaluwarsa";
+  
+  |Klien Justifiqa|
+  if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
+    --> (A)
+    detach
+  else (Tidak)
+    stop
+  endif
+endif
 @enduml
 ```
 
@@ -195,22 +221,28 @@ stop
 @startuml
 |Advokat Justifiqa|
 start
-:Buka Dasbor Advokat Menu Pengaturan Jadwal;
-:Pilih Hari & Jam Operasional Praktik;
-:Aktifkan Toggle "Online / Siap Konsultasi Sekarang";
+:Buka Dasbor Advokat Menu Pengaturan Jadwal Praktik;
+--> (A)
+:Tambah, Ubah, atau Hapus Slot Hari & Jam Operasional;
+:Klik Simpan Perubahan Jadwal;
 
 |Backend Independen Justifiqa|
-:Validasi Apakah Ada Sesi Aktif yang BENTROK?;
-if (Jadwal Bentrok?) then (Ya)
-  :Tampilkan Peringatan "Ada Sesi Konsultasi pada Jam Tersebut";
+:Validasi Apakah Ada Reservasi Klien Eksisting pada Slot Tersebut?;
+if (Apakah Ada Reservasi Klien yang Terkonfirmasi & Bentrok?) then (Ya - Ada Reservasi)
+  :Tolak Perubahan & Tampilkan Error "Jadwal Tidak Dapat Diubah karena Ada Reservasi Klien Aktif";
   |Advokat Justifiqa|
-  :Sesuaikan Kembali Slot Waktu;
-else (Tidak)
+  if (Ingin Atur Kembali Slot Jadwal Lain?) then (Ya)
+    --> (A)
+    detach
+  else (Tidak - Batal)
+    stop
+  endif
+else (Tidak - Slot Aman)
   |Backend Independen Justifiqa|
-  :Update Status Advokat di Database (ONLINE / AVAILABLE);
-  :Tampilkan Advokat di Urutan Atas Katalog Pencarian Klien;
+  :Simpan Jadwal Operasional Baru ke Database Justifiqa;
+  :Perbarui Ketersediaan Slot di Katalog Pencarian Klien;
+  stop
 endif
-stop
 @enduml
 ```
 
@@ -244,35 +276,61 @@ stop
 
 ---
 
-### AD-J-06: Membuat Draf Dokumen Hukum & e-Meterai Peruri (J-UC12, J-UC14)
-*Diagram alur pembuatan opini hukum/kontrak oleh advokat serta pembubuhan e-Meterai resmi Peruri.*
+### AD-J-06: Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai (J-UC12, J-UC14)
+*Diagram alur pembuatan opini hukum, surat somasi, atau kontrak kerja sama oleh advokat menggunakan generator klausul pintar dan finalisasi pembubuhan e-Meterai resmi Peruri yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan pemotongan saldo dompet advokat.*
 
 ```plantuml
 @startuml
+title Activity Diagram: AD-J-06 - Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai (J-UC12, J-UC14)
 |Advokat Justifiqa|
 start
 :Buka Menu "Generator Draf Hukum / Legal Opinion";
 :Pilih Template Dokumen (Surat Somasi / Perjanjian / LO);
 :Isi Klausul Hukum & Identitas Para Pihak;
-:Klik Create & Review Draf Akhir;
-if (Perlu e-Meterai Peruri?) then (Ya)
-  :Centang Opsi "Bubuhkan e-Meterai Peruri Rp10.000";
+:Simpan & Review Versi Draf (Versioning v1 / Final Review);
+if (Apakah Dokumen Memerlukan Pembubuhan e-Meterai?) then (Ya - Perlu e-Meterai)
+  :Klik Tombol "Finalisasi Dokumen & Bubuhkan e-Meterai Resmi";
+  
   |Backend Independen Justifiqa|
-  :Kirim Request Token Stamping ke API Peruri;
-  |API Peruri|
-  :Verifikasi Saldo Token & Bubuhkan Serial Number e-Meterai;
-  :Kirim Balasan Dokumen Bersertifikat Digital SHA-256;
-else (Tidak)
-  |Advokat Justifiqa|
-  :Terbitkan Dokumen Tanpa Meterai;
+  :Kunci Versi Draf (Immutable Final Version v1);
+  
+  repeat
+    :Validasi Saldo Dompet Advokat (Cek Biaya e-Meterai Rp12.000);
+    if (Apakah Saldo Dompet Advokat Cukup?) then (Ya - Saldo Cukup)
+      :Potong Saldo Dompet Advokat;
+      :Kirim Request Stamping ke API Mekari Sign;
+    else (Tidak - Saldo Dompet Kurang / Kosong)
+      |Advokat Justifiqa|
+      :Tampilkan Alert "⚠️ Saldo Dompet Kurang untuk e-Meterai";
+      :Lakukan Top-Up Dompet (Lihat AD-J-22);
+    endif
+  repeat while (Apakah Saldo Sudah Dipotong & Request Disubmit?) is (Belum - Ulangi Cek Saldo)
+  -> Sudah Disubmit ke API;
+
+  |API Mekari Sign (Distributor e-Meterai)|
+  :Validasi Request & Bubuhkan Stempel e-Meterai Peruri;
+  :Sertakan Digital Signature Kriptografi SHA-256;
+  
+  |Backend Independen Justifiqa|
+  :Simpan Dokumen Bersertifikat di WORM Storage;
+else (Tidak - Draf Internal / Tanpa Meterai)
+  |Backend Independen Justifiqa|
+  :Simpan Draf Biasa di Database;
 endif
 
-|Backend Independen Justifiqa|
-:Simpan Dokumen Hukum di Database Klien;
-:Kirim Notifikasi Dokumen Siap Diunduh ke Klien;
-
-|Klien Justifiqa|
-:Unduh Dokumen Hukum Resmi Ber-e-Meterai;
+fork
+  |Backend Independen Justifiqa|
+  :Kirim Konfirmasi Sukses & Tautan Unduh ke Advokat;
+  
+  |Advokat Justifiqa|
+  :Terima Konfirmasi & Unduh Arsip Dokumen Bermeterai;
+fork again
+  |Backend Independen Justifiqa|
+  :Kirim Notifikasi Dokumen Siap Diperiksa ke Klien;
+  
+  |Klien Justifiqa|
+  :Terima & Unduh Dokumen Hukum (Download Gate);
+end fork
 stop
 @enduml
 ```
@@ -280,7 +338,7 @@ stop
 ---
 
 ### AD-J-07: Konsultasi Pro Bono SKTM (J-UC15)
-*Diagram alur pengajuan bantuan hukum cuma-cuma (Pro Bono) melalui verifikasi Surat Keterangan Tidak Mampu (SKTM) Dukcapil.*
+*Diagram alur pengajuan bantuan hukum cuma-cuma (Pro Bono) melalui verifikasi Surat Keterangan Tidak Mampu (SKTM) Dukcapil dengan mekanisme pemilihan katalog mandiri.*
 
 ```plantuml
 @startuml
@@ -295,11 +353,30 @@ start
 :Kirim Payload SKTM ke API Verifikasi Dukcapil / Dinsos;
 if (SKTM Valid & Terverifikasi?) then (Ya)
   :Ubah Status Pengajuan Jadi APPROVED;
-  :Cari Advokat Mitra yang Menyediakan Slot Pro Bono;
-  :Buat Sesi Konsultasi Gratis (Rp0);
+  :Buka Kunci (Unlock) Katalog Khusus Advokat Pro Bono;
+  
+  |Klien Justifiqa|
+  --> (A)
+  :Pilih Advokat & Slot Waktu di Katalog Pro Bono;
+  
+  |Backend Independen Justifiqa|
+  :Kirim Request Reservasi Pro Bono Rp0 ke Advokat;
+  
   |Advokat Justifiqa|
-  :Terima Penugasan Pro Bono dari Sistem;
-  :Lakukan Sesi Konsultasi & Bantuan Hukum (J-UC04);
+  if (Menerima Reservasi Pro Bono?) then (Ya)
+    :Terima Reservasi Pro Bono;
+    :Lakukan Sesi Konsultasi & Bantuan Hukum (J-UC04);
+  else (Tidak / Berhalangan)
+    |Backend Independen Justifiqa|
+    :Kirim Notifikasi Penolakan/Slot Penuh ke Klien;
+    |Klien Justifiqa|
+    if (Ingin Pilih Ulang Advokat / Slot Lain?) then (Ya)
+      --> (A)
+      detach
+    else (Tidak)
+      stop
+    endif
+  endif
 else (Tidak)
   |Backend Independen Justifiqa|
   :Tolak Pengajuan & Tampilkan Alasan "SKTM Tidak Terverifikasi";
@@ -331,14 +408,22 @@ start
 |Backend Independen Justifiqa|
 :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
 :Simpan di Arsip Perkara Klien Justifiqa;
+if (Status Privasi == Bagikan ke Klien?) then (Ya - Bagikan)
+  :Kirim Notifikasi Catatan Sesi Baru ke Klien;
+  |Klien Justifiqa|
+  :Baca & Unduh Ringkasan Catatan IRAC di Dasbor;
+else (Tidak - Internal Advokat)
+  |Backend Independen Justifiqa|
+  :Kunci Akses Klien (Internal Work Product Privilege);
+endif
 stop
 @enduml
 ```
 
 ---
 
-### AD-J-09: Verifikasi Kredensial & Moderasi Akun Admin Justifiqa (J-UC16, J-UC17)
-*Diagram alur audit verifikasi advokat oleh Admin Legal serta proses penahanan akun (Due Process Suspend).*
+### AD-J-09: Verifikasi Kredensial Advokat Mitra Peradi (J-UC16)
+*Diagram alur audit verifikasi keabsahan lisensi profesi (NIA/BAS/SIPP) advokat baru oleh Admin Legal Justifiqa.*
 
 ```plantuml
 @startuml
@@ -356,15 +441,57 @@ else (Tidak - Palsu/Kadaluarsa)
   :Ubah Status Akun Jadi REJECTED;
   :Kirim Email Alasan Penolakan Kredensial;
 endif
+stop
+@enduml
+```
 
+---
+
+### AD-J-10: Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
+*Diagram alur penanganan laporan pelanggaran kode etik, investigasi Due Process of Law, pengajuan sanggahan, dan putusan akhir akun advokat.*
+
+```plantuml
+@startuml
 |Admin Legal Justifiqa|
+start
 :Buka Menu "Moderasi & Laporan Pelanggaran Etik";
+:Pilih Akun Advokat Terlapor;
 if (Ada Laporan Pelanggaran Berat?) then (Ya)
   :Jalankan Protokol Due Process Investigation;
+  :Klik Tombol "🛑 Suspend Akun & Kirim Panggilan Klarifikasi";
+  
+  |Backend Independen Justifiqa|
   :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
-  :Kirim Surat Panggilan Klarifikasi Internal;
+  :Generate Surat Panggilan & Stempel Hash SHA-256 ke WORM Storage;
+  :Aktifkan Timer Countdown Masa Sanggah/Banding (14 Hari Kerja);
+  :Kirim Email, SMS, & Push Notifikasi Surat Panggilan ke Advokat;
+  
+  |Advokat Terlapor|
+  :Menerima Notifikasi & Mengunduh Surat Panggilan Ber-hash SHA-256;
+  :Melihat Timer Masa Sanggah 14 Hari di Dasbor Advokat;
+  if (Mengajukan Berkas Sanggahan / Banding?) then (Ya)
+    :Unggah Berkas Pembelaan & Bukti Counter-Evidence;
+    |Backend Independen Justifiqa|
+    :Simpan Berkas Sanggahan ke WORM & Notifikasikan Admin;
+  else (Tidak / Timer Habis - Putusan Verstek)
+    |Backend Independen Justifiqa|
+    :Tandai Kasus sebagai "No Defense Submitted";
+  endif
+  
+  |Admin Legal Justifiqa|
+  :Input Putusan Akhir Sidang Etik (Dewan Kehormatan);
+  if (Terbukti Bersalah?) then (Ya - Sanksi Berat)
+    |Backend Independen Justifiqa|
+    :Ubah Status Akun Jadi REVOKED / PERMANENT_BAN;
+    :Terbitkan Surat Keputusan Pemecatan Ber-hash SHA-256;
+  else (Tidak - Rehabilitasi)
+    |Backend Independen Justifiqa|
+    :Pulihkan Status Akun Jadi VERIFIED / AKTIF (Rehabilitasi);
+    :Terbitkan Surat Rehabilitasi Nama Baik Ber-hash SHA-256;
+  endif
 else (Tidak)
-  :Arsip Laporan sebagai Clear;
+  |Admin Legal Justifiqa|
+  :Arsip Laporan sebagai Clear / Tidak Terbukti;
 endif
 stop
 @enduml
@@ -372,8 +499,8 @@ stop
 
 ---
 
-### AD-J-10: Audit Log WORM Hash & Pencairan Dana Escrow PPh 21 (J-UC18, J-UC19)
-*Diagram alur pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta perhitungan otomatis PPh 21 saat penarikan dana advokat.*
+### AD-J-11: Pencairan Dana Escrow & Perhitungan PPh 21 Advokat (J-UC19)
+*Diagram alur penarikan dana honorarium advokat dari dompet digital ke rekening bank pribadi, pemotongan pajak PPh 21 otomatis, dan auto-rollback jika transfer gagal.*
 
 ```plantuml
 @startuml
@@ -390,13 +517,242 @@ start
 
 |Payment Gateway|
 :Proses Transfer Real-time ke Bank Advokat;
-:Kirim Webhook SUCCESS ke Backend Justifiqa;
+:Kirim Webhook Status Transfer ke Backend Justifiqa;
 
 |Backend Independen Justifiqa|
-:Kurangi Saldo Advokat & Simpan Bukti Potong PPh 21;
-:Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
-:Kirim Email Bukti Transfer & Bukti Potong Pajak ke Advokat;
+if (Status Webhook PG = SUCCESS?) then (Ya)
+  :Kurangi Saldo Available Advokat & Terbitkan Bukti Potong PPh 21;
+  :Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
+  :Kirim Email Bukti Transfer & Bukti Potong Pajak ke Advokat;
+  |Advokat Justifiqa|
+  :Terima Email Bukti Transfer & Unduh Bukti Potong PPh 21;
+else (Tidak / FAILED)
+  |Backend Independen Justifiqa|
+  :Eksekusi Rollback Saldo Available Advokat (Saldo Kembali Utuh);
+  :Generate Hash Log SHA-256 Kegagalan Transfer ke WORM Storage;
+  :Kirim Notifikasi Error Transfer ke HP Advokat ("Transfer Gagal, Saldo Dikembalikan");
+  |Advokat Justifiqa|
+  :Terima Notifikasi Error & Periksa Saldo yang Kembali Utuh;
+endif
 stop
+@enduml
+```
+
+---
+
+### AD-J-12: Memantau Laporan Keuangan Escrow & Audit WORM (J-UC18)
+*Diagram alur pengawasan buku besar escrow, verifikasi bagi hasil platform (25%/75%), dan eksport bukti pajak PPh 21 ber-hash WORM SHA-256 oleh Admin Justifiqa.*
+
+```plantuml
+@startuml
+|Admin Justifiqa|
+start
+:Login ke Portal Backoffice Admin Justifiqa;
+:Buka Modul Keuangan & Buku Besar Escrow;
+:Filter Rentang Waktu & Cari Riwayat Pencairan Dana Mitra;
+
+|Backend Independen Justifiqa|
+:Ambil Data Rekonsiliasi Saldo & Log Hash WORM SHA-256;
+:Tampilkan Tabel Rekapitulasi Bagi Hasil (25% Platform / 75% Advokat) & PPh 21;
+
+|Admin Justifiqa|
+if (Tindak Lanjut Laporan?) then (Eksport Data Pajak / DJP)
+  :Klik Unduh Laporan Rekapitulasi PPh 21 & Hash WORM;
+  
+  |Backend Independen Justifiqa|
+  :Generate File Excel/PDF dengan Digital Signature WORM SHA-256;
+  :Kirim File Laporan ke Workstation Admin;
+else (Audit Rutin Selesai)
+  |Admin Justifiqa|
+  :Tutup Modul Keuangan Escrow;
+endif
+stop
+@enduml
+```
+
+---
+
+### AD-J-13: Memberikan Ulasan & Rating Advokat (J-UC06)
+*Diagram alur pemberian penilaian pasca-sesi konsultasi dengan proteksi privasi anonimisasi nama publik sesuai UU PDP dan kalkulasi agregat rating otomatis.*
+
+```plantuml
+@startuml
+|Klien Justifiqa|
+start
+:Buka Menu "Riwayat Konsultasi" atau Pop-up Penilaian Sesi;
+:Pilih Sesi Konsultasi yang Telah Selesai (DONE);
+:Pilih Skor Rating Bintang (1 - 5 Bintang);
+:Tulis Ulasan Deskriptif Kualitas Layanan Advokat;
+if (Aktifkan Anonimasi Nama Publik?) then (Ya)
+  :Centang Toggle "Anonimkan Nama Saya di Publik (UU PDP)";
+else (Tidak)
+  :Gunakan Identitas Nama Profil Asli;
+endif
+:Klik Kirim Ulasan & Rating;
+
+|Backend Independen Justifiqa|
+:Validasi Status Sesi (Must Be DONE) & Cek Duplikasi Ulasan;
+if (Sesi Valid & Belum Direview?) then (Ya)
+  if (Status Anonimasi = AKTIF?) then (Ya)
+    :Masking Identitas Klien (Misal: K****n) pada Direktori Publik;
+  else (Tidak)
+    :Tampilkan Nama Profil Klien pada Direktori Publik;
+  endif
+  :Simpan Data Ulasan & Hitung Ulang Agregat Rating Advokat;
+  if (Rating Agregat <= 2 Bintang?) then (Ya)
+    :Kirim Internal Quality Alert ke Dasbor Advokat;
+  else (Tidak - Normal)
+  endif
+  :Kirim Notifikasi Konfirmasi ke Klien;
+  
+  |Klien Justifiqa|
+  :Terima Konfirmasi "Terima Kasih atas Penilaian Anda";
+else (Tidak / Tidak Valid)
+  |Backend Independen Justifiqa|
+  :Tampilkan Error "Sesi Belum Selesai atau Sudah Diberi Ulasan";
+  
+  |Klien Justifiqa|
+  :Terima Pesan Error & Kembali ke Daftar Riwayat;
+endif
+stop
+@enduml
+```
+
+---
+
+### AD-J-14: [DILEBUR KE DALAM AD-J-06]
+*Catatan: Skenario J-UC14 (Pembubuhan e-Meterai Peruri) telah ditiadakan sebagai diagram mandiri dan dilebur seutuhnya ke dalam **AD-J-06 (J-UC12, J-UC14)** sebagai alur kerja terpadu perumusan dan finalisasi dokumen bermeterai yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan pemotongan saldo dompet advokat.*
+
+---
+
+### AD-J-22: Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
+*Diagram alur pengisian saldo dompet digital advokat melalui Payment Gateway (Snap / QRIS / VA) untuk membayar layanan berbayar platform tanpa potongan pajak PPh 21.*
+
+```plantuml
+@startuml
+title Activity Diagram: AD-J-22 - Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
+|Advokat Justifiqa|
+start
+:Buka Dasbor Dompet Advokat (`SCR-JST-03`);
+:Pilih Menu "Top-Up Saldo Dompet";
+:Pilih Nominal Pengisian (Rp 12.000 / Rp 50.000 / Rp 100.000);
+:Klik "Buat Tagihan Pembayaran";
+
+|Backend Independen Justifiqa|
+:Buat Data Transaksi Top-Up berstatus "PENDING";
+:Kirim Request Pembuatan Snap Token ke Payment Gateway;
+
+|Payment Gateway Checkout|
+:Generate Snap Token & Instruksi Pembayaran (QRIS / VA);
+:Kirim Response ke Backend Justifiqa;
+
+|Backend Independen Justifiqa|
+:Tampilkan Halaman Pembayaran (Snap Checkout) ke Advokat;
+
+|Advokat Justifiqa|
+:Selesaikan Pembayaran via M-Banking / E-Wallet Eksternal;
+
+|Payment Gateway Checkout|
+if (Apakah Pembayaran Sukses Diterima?) then (Ya - Pembayaran Sukses)
+  :Kirim Webhook Callback Status "Sukses" (HTTP POST);
+  
+  |Backend Independen Justifiqa|
+  :Verifikasi Tanda Tangan Kriptografi Webhook;
+  :Update Status Transaksi Menjadi "PAID";
+  :Tambahkan Saldo ke Dompet Aktif Advokat di Tabel `advocate_wallets`;
+  :Kirim Resi Pembayaran Top-Up & Notifikasi Sukses ke Advokat;
+  
+  |Advokat Justifiqa|
+  :Terima Notifikasi Saldo Bertambah & Siap Digunakan;
+else (Tidak - Kedaluwarsa / Dibatalkan)
+  |Payment Gateway Checkout|
+  :Kirim Webhook Callback Status "Expired / Cancelled";
+  
+  |Backend Independen Justifiqa|
+  :Batalkan Transaksi Top-Up (Status "CANCELLED");
+  :Saldo Dompet Advokat Tetap Utuh (Tidak Berubah);
+endif
+stop
+@enduml
+```
+
+---
+
+### AD-J-20: Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
+*Diagram alur autentikasi tingkat lanjut untuk Admin Justifiqa melalui portal backoffice terisolasi (`admin.justifiqa.com`) dengan IP Whitelisting, verifikasi kredensial internal, dan otentikasi ganda TOTP Authenticator.*
+
+```plantuml
+@startuml
+title Activity Diagram: AD-J-20 - Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
+|Admin Justifiqa|
+start
+:Buka URL Portal Backoffice Admin Justifiqa (`admin.justifiqa.com`) via VPN/ZTNA;
+--> (A)
+
+|Gateway Security / IAM Justifiqa|
+if (Apakah IP Address Terdaftar di Whitelist Justifiqa?) then (Ya - IP Valid)
+  |Admin Justifiqa|
+  :Tampilkan Form Login Khusus Backoffice Hukum;
+  :Masukkan Email/Username & Password Internal Justifiqa;
+  :Klik Login Backoffice;
+  
+  |Gateway Security / IAM Justifiqa|
+  if (Apakah Kredensial Valid di DB IAM Justifiqa?) then (Ya - Kredensial Valid)
+    --> (B)
+    |Admin Justifiqa|
+    :Tampilkan Permintaan Kode TOTP 2FA;
+    :Buka Aplikasi Authenticator & Masukkan 6 Digit Kode;
+    
+    |Gateway Security / IAM Justifiqa|
+    if (Apakah Kode TOTP Valid & Belum Kadaluwarsa?) then (Ya - TOTP Valid)
+      :Terbitkan Cryptographic JWT Session Token Khusus Justifiqa;
+      :Arahkan ke Dasbor Admin Utama Justifiqa (`SCR-JST-07`);
+      
+      |WORM Audit Storage Justifiqa|
+      :Catat Log Autentikasi Sukses (Timestamp, IP, Role: Legal Admin);
+      
+      |Admin Justifiqa|
+      stop
+    else (Tidak - TOTP Gagal)
+      |WORM Audit Storage Justifiqa|
+      :Catat Log Percobaan TOTP Gagal (Anomali SOC Justifiqa);
+      
+      |Gateway Security / IAM Justifiqa|
+      :Tampilkan Error "Kode TOTP Tidak Valid atau Kadaluwarsa";
+      
+      |Admin Justifiqa|
+      if (Coba Masukkan TOTP Lagi?) then (Ya - Ulangi Input TOTP)
+        --> (B)
+        detach
+      else (Tidak - Batal)
+        stop
+      endif
+    endif
+  else (Tidak - Kredensial Salah)
+    |WORM Audit Storage Justifiqa|
+    :Catat Log Kredensial Gagal (Failed Login Attempt);
+    
+    |Gateway Security / IAM Justifiqa|
+    :Tampilkan Error "Kredensial atau Kode TOTP Tidak Valid";
+    
+    |Admin Justifiqa|
+    if (Coba Login Lagi?) then (Ya - Ulangi Login)
+      --> (A)
+      detach
+    else (Tidak - Batal)
+      stop
+    endif
+  endif
+else (Tidak - IP Liar / Tidak Dikenal)
+  |WORM Audit Storage Justifiqa|
+  :Catat Peringatan SOC Keamanan Kritis (Unauthorized IP Access);
+  
+  |Gateway Security / IAM Justifiqa|
+  :Blokir Koneksi & Tampilkan Error 403 Forbidden;
+  
+  |Admin Justifiqa|
+  stop
+endif
 @enduml
 ```
 
@@ -433,12 +789,14 @@ if (Apakah Format & Ukuran File Valid?) then (Ya)
       :Simpan Akun di DB Qualifa (Status: PENDING_VERIFICATION);
       :Kirim Antrean Audit ke Admin Etik Qualifa;
       :Tampilkan Pesan "Menunggu Verifikasi HIMPSI 1x24 Jam";
+      |Pengguna (Klien/Psikolog)|
+      stop
     else (Tidak - Klien)
       :Simpan Akun Klien di DB Qualifa (Status: AKTIF);
       :Tampilkan Pesan Sukses & Arahkan ke Login;
+      |Pengguna (Klien/Psikolog)|
+      stop
     endif
-    |Pengguna (Klien/Psikolog)|
-    stop
   else (Ya)
     |Backend Independen Qualifa|
     :Tampilkan Error "Email/No HP Sudah Terdaftar";
@@ -451,7 +809,8 @@ endif
 |Pengguna (Klien/Psikolog)|
 :Perbaiki Input Data;
 if (Coba Daftar Lagi?) then (Ya)
-  (A)
+  --> (A)
+  detach
 else (Tidak)
   stop
 endif
@@ -479,6 +838,7 @@ if (Apakah Kredensial Cocok di DB Qualifa?) then (Ya)
     :Kirim OTP via SMS/WhatsApp/Email;
     
     |Pengguna Qualifa|
+    --> (B)
     :Terima & Masukkan Kode OTP;
     
     |Backend Independen Qualifa|
@@ -496,6 +856,8 @@ if (Apakah Kredensial Cocok di DB Qualifa?) then (Ya)
         :Klik Resend OTP;
         |Backend Independen Qualifa|
         :Generate & Kirim OTP Baru;
+        --> (B)
+        detach
       else (Tidak)
         stop
       endif
@@ -508,10 +870,11 @@ if (Apakah Kredensial Cocok di DB Qualifa?) then (Ya)
   endif
 else (Tidak)
   |Backend Independen Qualifa|
-  :Tampilkan Error "Kredensial Salah (Sisa Percobaan: X)";
+  :Tampilkan Error "Email/No HP atau Password Salah";
   |Pengguna Qualifa|
   if (Coba Login Lagi?) then (Ya)
-    (A)
+    --> (A)
+    detach
   else (Tidak)
     stop
   endif
@@ -530,6 +893,7 @@ endif
 start
 :Buka Katalog Psikolog Klinis;
 :Filter Keahlian (Kecemasan, Depresi, Relasi, Trauma);
+--> (A)
 :Pilih Psikolog & Pilih Jadwal Sesi Terapi (45 - 60 Menit);
 :Klik Konfirmasi Reservasi;
 
@@ -543,31 +907,49 @@ start
 :Lakukan Pembayaran Sesuai Nominal;
 
 |Payment Gateway|
-:Verifikasi Transaksi & Kirim Webhook PAID ke Qualifa;
-
-|Backend Independen Qualifa|
-:Tahan Dana di Rekening Sementara Qualifa;
-:Ubah Status Reservasi Jadi TERKONFIRMASI;
-:Kirim Pengingat Jadwal ke Psikolog & Klien;
-
-|Psikolog Qualifa|
-:Masuk ke Ruang Terapi Virtual pada Waktunya;
-:Render Partner Viewpoint (DOM Inverted: .user=Psikolog di kanan);
-
-|Klien Qualifa|
-:Masuk ke Ruang Konseling E2EE Qualifa;
-:Render Client Viewpoint (.user=Klien di kanan);
-:Lakukan Sesi Konseling Klinis (Chat / Audio / Video Call);
-
-|Psikolog Qualifa|
-:Berikan Intervensi Klinis & Dukungan Psikologis;
-:Klik Akhiri Sesi Terapi;
-
-|Backend Independen Qualifa|
-:Tutup Ruang Terapi & Arsip Log Metadata Sesi;
-:Minta Klien Memberikan Rating & Ulasan (Q-UC06);
-:Cairkan Honor Sesi ke Saldo Psikolog Klinis;
-stop
+if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
+  |Backend Independen Qualifa|
+  :Tahan Dana di Rekening Sementara Qualifa;
+  :Ubah Status Reservasi Jadi TERKONFIRMASI;
+  :Kirim Pengingat Jadwal ke Psikolog & Klien;
+  
+  fork
+    |Psikolog Qualifa|
+    :Masuk ke Ruang Terapi Virtual pada Jadwal yang Ditentukan;
+  fork again
+    |Klien Qualifa|
+    :Masuk ke Ruang Konseling E2EE pada Jadwal yang Ditentukan;
+  end fork
+  
+  |Backend Independen Qualifa|
+  :Mulai Countdown Timer Sesi Terapi (Durasi 45 - 60 Menit);
+  
+  fork
+    |Psikolog Qualifa|
+    :Memberikan Intervensi Klinis & Dukungan (Interaksi Dua Arah);
+  fork again
+    |Klien Qualifa|
+    :Konseling & Curhat Masalah Klinis (Interaksi Dua Arah);
+  end fork
+  
+  |Backend Independen Qualifa|
+  :Akhiri Sesi (Waktu Habis atau Tombol Akhiri Sesi Diklik);
+  :Tutup Ruang Terapi & Arsip Log Metadata Sesi;
+  :Minta Klien Memberikan Rating & Ulasan (Q-UC06);
+  :Cairkan Honor Sesi ke Saldo Psikolog Klinis;
+  stop
+else (Tidak - Gagal / Kadaluwarsa)
+  |Backend Independen Qualifa|
+  :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal atau Kadaluwarsa";
+  
+  |Klien Qualifa|
+  if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
+    --> (A)
+    detach
+  else (Tidak)
+    stop
+  endif
+endif
 @enduml
 ```
 
@@ -581,21 +963,27 @@ stop
 |Psikolog Qualifa|
 start
 :Buka Dasbor Psikolog Menu Pengaturan Jadwal Praktik;
-:Pilih Hari & Jam Operasional Konseling;
-:Aktifkan Toggle "Online / Siap Konseling Sekarang";
+--> (A)
+:Tambah, Ubah, atau Hapus Slot Hari & Jam Operasional Terapi;
+:Klik Simpan Perubahan Jadwal;
 
 |Backend Independen Qualifa|
-:Validasi Aturan Buffer Waktu 30 Menit Antar Sesi Terapi;
-if (Apakah Ada Sesi Sebelumnya < 30 Menit yang Lalu?) then (Ya)
-  :Tampilkan Peringatan "Sesuai Kode Etik, Wajib Jeda Istirahat 30 Menit Antar Sesi";
+:Validasi Reservasi Eksisting & Aturan Buffer Waktu 30 Menit Antar Sesi;
+if (Apakah Ada Reservasi Bentrok ATAU Melanggar Buffer 30 Menit?) then (Ya - Melanggar)
+  :Tolak Perubahan & Tampilkan Error "Slot Melanggar Reservasi Aktif atau Kode Etik Jeda Istirahat 30 Menit";
   |Psikolog Qualifa|
-  :Slot Waktu Otomatis Diterapkan Buffer Jeda Istirahat;
-else (Tidak)
+  if (Ingin Atur Kembali Slot Jadwal Lain?) then (Ya)
+    --> (A)
+    detach
+  else (Tidak - Batal)
+    stop
+  endif
+else (Tidak - Slot Valid & Aman)
   |Backend Independen Qualifa|
-  :Update Status Psikolog di Database (ONLINE / AVAILABLE);
-  :Tampilkan Psikolog di Urutan Atas Katalog Pencarian Klien;
+  :Simpan Jadwal Operasional Baru ke Database Qualifa;
+  :Perbarui Ketersediaan Slot di Katalog Pencarian Klien;
+  stop
 endif
-stop
 @enduml
 ```
 
@@ -757,8 +1145,8 @@ stop
 
 ---
 
-### AD-Q-10: Audit Log WORM Hash & Manajemen Honor Psikolog (Q-UC18, Q-UC19)
-*Diagram alur pencatatan log transaksi mutlak WORM (Write-Once-Read-Many) serta pencairan honor sesi psikolog klinis.*
+### AD-Q-10: Pencairan Honor Psikolog & Perhitungan PPh 21 (Q-UC19)
+*Diagram alur penarikan honor sesi konseling klinis oleh psikolog dari dompet digital ke rekening bank, pemotongan pajak PPh 21 otomatis, dan auto-rollback jika transfer gagal.*
 
 ```plantuml
 @startuml
@@ -775,12 +1163,136 @@ start
 
 |Payment Gateway|
 :Proses Transfer Real-time ke Bank Psikolog;
-:Kirim Webhook SUCCESS ke Backend Qualifa;
+:Kirim Webhook Status Transfer ke Backend Qualifa;
 
 |Backend Independen Qualifa|
-:Kurangi Saldo Psikolog & Simpan Bukti Potong PPh 21;
-:Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
-:Kirim Email Bukti Transfer & Detail Honor ke Psikolog;
+if (Status Webhook PG = SUCCESS?) then (Ya)
+  :Kurangi Saldo Psikolog & Simpan Bukti Potong PPh 21;
+  :Generate Hash Log SHA-256 Transaksi ke WORM Hash Storage;
+  :Kirim Email Bukti Transfer & Detail Honor ke Psikolog;
+  |Psikolog Qualifa|
+  :Terima Email Bukti Transfer & Unduh Detail Honor / PPh 21;
+else (Tidak / FAILED)
+  |Backend Independen Qualifa|
+  :Eksekusi Rollback Saldo Available Psikolog (Saldo Kembali Utuh);
+  :Generate Hash Log SHA-256 Kegagalan Transfer ke WORM Storage;
+  :Kirim Notifikasi Error Transfer ke HP Psikolog ("Transfer Gagal, Saldo Dikembalikan");
+  |Psikolog Qualifa|
+  :Terima Notifikasi Error & Periksa Saldo yang Kembali Utuh;
+endif
 stop
 @enduml
 ```
+
+---
+
+### AD-Q-11: Memantau Laporan Keuangan Qualifa & Audit WORM (Q-UC18)
+*Diagram alur pengawasan buku besar honorarium, verifikasi bagi hasil platform (20%/80%), dan eksport bukti pajak PPh 21 ber-hash WORM SHA-256 oleh Admin Qualifa.*
+
+```plantuml
+@startuml
+|Admin Qualifa|
+start
+:Login ke Portal Backoffice Admin Qualifa;
+:Buka Modul Keuangan & Buku Besar Honorarium;
+:Filter Rentang Waktu & Cari Riwayat Pencairan Honor Mitra;
+
+|Backend Independen Qualifa|
+:Ambil Data Rekonsiliasi Saldo & Log Hash WORM SHA-256;
+:Tampilkan Tabel Rekapitulasi Bagi Hasil (20% Platform / 80% Psikolog) & PPh 21;
+
+|Admin Qualifa|
+if (Tindak Lanjut Laporan?) then (Eksport Data Pajak / DJP)
+  :Klik Unduh Laporan Rekapitulasi PPh 21 & Hash WORM;
+  
+  |Backend Independen Qualifa|
+  :Generate File Excel/PDF dengan Digital Signature WORM SHA-256;
+  :Kirim File Laporan ke Workstation Admin;
+else (Audit Rutin Selesai)
+  |Admin Qualifa|
+  :Tutup Modul Keuangan Honorarium;
+endif
+stop
+@enduml
+```
+
+---
+
+### AD-Q-20: Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
+*Diagram alur autentikasi tingkat lanjut untuk Admin Qualifa melalui portal backoffice terisolasi (`admin.qualifa.com`) dengan IP Whitelisting, verifikasi kredensial internal, dan otentikasi ganda TOTP Authenticator.*
+
+```plantuml
+@startuml
+title Activity Diagram: AD-Q-20 - Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
+|Admin Qualifa|
+start
+:Buka URL Portal Backoffice Admin Qualifa (`admin.qualifa.com`) via VPN/ZTNA;
+--> (A)
+
+|Gateway Security / IAM Qualifa|
+if (Apakah IP Address Terdaftar di Whitelist Qualifa?) then (Ya - IP Valid)
+  |Admin Qualifa|
+  :Tampilkan Form Login Khusus Backoffice Psikologi;
+  :Masukkan Email/Username & Password Internal Qualifa;
+  :Klik Login Backoffice;
+  
+  |Gateway Security / IAM Qualifa|
+  if (Apakah Kredensial Valid di DB IAM Qualifa?) then (Ya - Kredensial Valid)
+    --> (B)
+    |Admin Qualifa|
+    :Tampilkan Permintaan Kode TOTP 2FA;
+    :Buka Aplikasi Authenticator & Masukkan 6 Digit Kode;
+    
+    |Gateway Security / IAM Qualifa|
+    if (Apakah Kode TOTP Valid & Belum Kadaluwarsa?) then (Ya - TOTP Valid)
+      :Terbitkan Cryptographic JWT Session Token Khusus Qualifa;
+      :Arahkan ke Dasbor Admin Utama Qualifa (`SCR-QLF-07`);
+      
+      |WORM Audit Storage Qualifa|
+      :Catat Log Autentikasi Sukses (Timestamp, IP, Role: Ethics Committee / Admin);
+      
+      |Admin Qualifa|
+      stop
+    else (Tidak - TOTP Gagal)
+      |WORM Audit Storage Qualifa|
+      :Catat Log Percobaan TOTP Gagal (Anomali SOC Qualifa);
+      
+      |Gateway Security / IAM Qualifa|
+      :Tampilkan Error "Kode TOTP Tidak Valid atau Kadaluwarsa";
+      
+      |Admin Qualifa|
+      if (Coba Masukkan TOTP Lagi?) then (Ya - Ulangi Input TOTP)
+        --> (B)
+        detach
+      else (Tidak - Batal)
+        stop
+      endif
+    endif
+  else (Tidak - Kredensial Salah)
+    |WORM Audit Storage Qualifa|
+    :Catat Log Kredensial Gagal (Failed Login Attempt);
+    
+    |Gateway Security / IAM Qualifa|
+    :Tampilkan Error "Kredensial atau Kode TOTP Tidak Valid";
+    
+    |Admin Qualifa|
+    if (Coba Login Lagi?) then (Ya - Ulangi Login)
+      --> (A)
+      detach
+    else (Tidak - Batal)
+      stop
+    endif
+  endif
+else (Tidak - IP Liar / Tidak Dikenal)
+  |WORM Audit Storage Qualifa|
+  :Catat Peringatan SOC Keamanan Kritis (Unauthorized IP Access);
+  
+  |Gateway Security / IAM Qualifa|
+  :Blokir Koneksi & Tampilkan Error 403 Forbidden;
+  
+  |Admin Qualifa|
+  stop
+endif
+@enduml
+```
+

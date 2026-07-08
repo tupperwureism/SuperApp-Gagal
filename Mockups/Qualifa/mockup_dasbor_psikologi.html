@@ -35,7 +35,7 @@
         .header h1 { font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; background: linear-gradient(135deg, #fff, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .header p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
         
-        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1100px; width: 100%; margin-bottom: 3rem; }
+        .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; max-width: 850px; width: 100%; margin-bottom: 3rem; }
         @media (max-width: 900px) { .role-grid { grid-template-columns: 1fr; } }
         
         .role-card {
@@ -95,13 +95,13 @@
 <div class="role-desc">Stasiun kerja profesional SIPP terverifikasi. Kelola antrean konseling WebRTC, analisis risiko DASS-21, dan tulis DAP Note terenkripsi.</div>
 <button class="btn-enter">Masuk sebagai Mitra ➔</button>
 </a>
-<!-- 3. Admin HIMPSI -->
-<a class="role-card" href="mockup_admin_qualifa.html">
-<div class="icon-box">🛡️</div>
-<div class="role-title">Portal Admin HIMPSI</div>
-<div class="role-desc">Pengawasan kepatuhan etika HIMPSI, audit waktu tanggap hotline krisis 119 (&lt; 10 detik), dan manajemen verifikasi SIPP IPK.</div>
-<button class="btn-enter">Masuk sebagai Admin ➔</button>
-</a>
+</div>
+
+<!-- Discreet Internal Backoffice Link (ZTNA & 2FA Protected) -->
+<div style="margin-top: 1rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 2rem; width: 100%; max-width: 600px;">
+    <a href="mockup_admin_qualifa.html" style="color: #64748b; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;" onmouseover="this.style.color='#f87171'; this.style.borderColor='#f87171';" onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)';">
+        <i class="ph-bold ph-lock-key"></i> Portal Internal: Backoffice Admin Qualifa HIMPSI (ZTNA Protected)
+    </a>
 </div>
 </body>
 </html>

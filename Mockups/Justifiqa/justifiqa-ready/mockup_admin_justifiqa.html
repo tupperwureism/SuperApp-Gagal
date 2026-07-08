@@ -229,6 +229,52 @@
 <span class="badge badge-success">✔ ONLINE (6ms)</span>
 </div>
 </div>
+
+<!-- WORM AUDIT STORAGE LOG VIEWER (J-UC18) -->
+<div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+            <h4 style="font-size: 1.1rem; color: #facc15; display: flex; align-items: center; gap: 8px;">🛡️ WORM Audit Storage Log Viewer (`J-UC18`)</h4>
+            <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Catatan jejak audit mutlak (Write-Once-Read-Many) bersertifikat SHA-256 untuk kepatuhan hukum 10 tahun.</p>
+        </div>
+        <button class="btn btn-outline" onclick="alert('⚡ Memverifikasi integritas hash seluruh block log WORM... status: 100% IMMUTABLE & VERIFIED.')">🔍 Verifikasi Hash WORM</button>
+    </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Log ID & Timestamp</th>
+                <th>Tipe Aktivitas & Modul (`J-UC`)</th>
+                <th>Hash SHA-256 (Immutable Checksum)</th>
+                <th>Retensi Hukum</th>
+                <th>Status Audit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-001</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 14:03 WIB</div></td>
+                <td><span style="color:#38bdf8; font-weight:600;">E2EE Evidence Upload (`J-UC13`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">8f9d2a1c7b8e...e4b90a</code></td>
+                <td>10 Tahun (UU ITE)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-002</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 14:15 WIB</div></td>
+                <td><span style="color:#10b981; font-weight:600;">e-Meterai Peruri Stamp (`J-UC12`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">9b8c7d6e5f4a...f1a23c</code></td>
+                <td>10 Tahun (UU Bea Meterai)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-003</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 15:00 WIB</div></td>
+                <td><span style="color:#fbbf24; font-weight:600;">Escrow Payout PPh 21 (`J-UC19`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">4a5b6c7d8e9f...8e901d</code></td>
+                <td>10 Tahun (UU KUP Pajak)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
 </div>
 </div>
 <script>

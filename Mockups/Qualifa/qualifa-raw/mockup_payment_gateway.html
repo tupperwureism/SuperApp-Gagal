@@ -1,13 +1,14 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Qualifa - Psychology Payment Gateway</title>
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
+<meta charset="utf-8"/>
+<title>Qualifa - Psychology Payment Gateway</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Icons -->
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
         :root {
             --bg-base: #020617;
             --glass-bg: rgba(255, 255, 255, 0.03);
@@ -148,116 +149,99 @@
     </style>
 </head>
 <body>
-    <div class="mesh-bg"></div>
-
-    <div class="container">
-        <div class="header">
-            <button class="back-btn"><i class="ph ph-arrow-left"></i></button>
-            <h1 class="title">Selesaikan Pembayaran</h1>
-        </div>
-
-        <div class="content">
-            <!-- Left: Order Summary -->
-            <div class="glass-card">
-                <h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan</h2>
-                
-                <div class="order-item">
-                    <img src="https://ui-avatars.com/api/?name=Sarah&background=9333ea&color=fff" class="avatar" alt="Doctor">
-                    <div class="item-info">
-                        <h3>Psi. Sarah, S.Psi., M.Psi.</h3>
-                        <p>Psikolog Klinis Dewasa</p>
-                        <div class="badge">Sesi Chat (60 Menit)</div>
-                    </div>
-                </div>
-
-                <div class="divider"></div>
-
-                <div class="price-row">
-                    <span>Biaya Konsultasi</span>
-                    <span style="color: var(--text-main)">Rp 150.000</span>
-                </div>
-                <div class="price-row">
-                    <span>Biaya Layanan Platform</span>
-                    <span style="color: var(--text-main)">Rp 5.000</span>
-                </div>
-
-                <div class="divider"></div>
-
-                <div class="total-row">
-                    <span>Total Tagihan</span>
-                    <span>Rp 155.000</span>
-                </div>
-            </div>
-
-            <!-- Right: Payment Methods -->
-            <div class="glass-card">
-                <h2 class="section-title"><i class="ph-fill ph-wallet"></i> Metode Pembayaran</h2>
-
-                <div class="method-category">
-                    <h4>Dompet Digital (E-Wallet)</h4>
-                    <div class="method-option selected" onclick="selectMethod(this)">
-                        <div class="radio"></div>
-                        <div class="method-logo" style="background:#00aadd; color:white;">DANA</div>
-                        <div style="flex-grow:1;">DANA</div>
-                        <div style="color: var(--text-muted); font-size: 0.9rem;">Bebas Biaya Admin</div>
-                    </div>
-                    
-                    <div class="method-option" onclick="selectMethod(this)">
-                        <div class="radio"></div>
-                        <div class="method-logo" style="background:#00b14f; color:white;">GoPay</div>
-                        <div style="flex-grow:1;">GoPay</div>
-                    </div>
-                </div>
-
-                <div class="method-category">
-                    <h4>Transfer Bank (Virtual Account)</h4>
-                    <div class="method-option" onclick="selectMethod(this)">
-                        <div class="radio"></div>
-                        <div class="method-logo" style="background:#005E6A; color:white;">BCA</div>
-                        <div style="flex-grow:1;">BCA Virtual Account</div>
-                    </div>
-                </div>
-
-                <div class="method-category">
-                    <h4>Kartu Kredit / Debit</h4>
-                    <div class="method-option" onclick="selectMethod(this)">
-                        <div class="radio"></div>
-                        <div class="method-logo" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:white;">VISA</div>
-                        <div style="flex-grow:1;">Visa / Mastercard</div>
-                        <div style="color: var(--text-muted); font-size: 0.9rem;">+1.5% biaya admin</div>
-                    </div>
-                </div>
-
-                <button class="btn-pay" onclick="processPayment(); return false;">
-                    <span>Bayar Sekarang</span>
-                    <span>Rp 155.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
+<div class="mesh-bg"></div>
+<div class="container">
+<div class="header">
+<button class="back-btn"><i class="ph ph-arrow-left"></i></button>
+<h1 class="title">Selesaikan Pembayaran</h1>
+</div>
+<div class="content">
+<!-- Left: Order Summary -->
+<div class="glass-card">
+<h2 class="section-title"><i class="ph-fill ph-receipt"></i> Ringkasan Pesanan</h2>
+<div class="order-item">
+<img alt="Doctor" class="avatar" src="https://ui-avatars.com/api/?name=Sarah&amp;background=9333ea&amp;color=fff"/>
+<div class="item-info">
+<h3>Psi. Sarah, S.Psi., M.Psi.</h3>
+<p>Psikolog Klinis Dewasa</p>
+<div class="badge">Sesi Chat (60 Menit)</div>
+</div>
+</div>
+<div class="divider"></div>
+<div class="price-row">
+<span>Biaya Konsultasi</span>
+<span style="color: var(--text-main)">Rp 150.000</span>
+</div>
+<div class="price-row">
+<span>Biaya Layanan Platform</span>
+<span style="color: var(--text-main)">Rp 5.000</span>
+</div>
+<div class="divider"></div>
+<div class="total-row">
+<span>Total Tagihan</span>
+<span>Rp 155.000</span>
+</div>
+</div>
+<!-- Right: Payment Methods -->
+<div class="glass-card">
+<h2 class="section-title"><i class="ph-fill ph-wallet"></i> Metode Pembayaran</h2>
+<div class="method-category">
+<h4>Dompet Digital (E-Wallet)</h4>
+<div class="method-option selected" onclick="selectMethod(this)">
+<div class="radio"></div>
+<div class="method-logo" style="background:#00aadd; color:white;">DANA</div>
+<div style="flex-grow:1;">DANA</div>
+<div style="color: var(--text-muted); font-size: 0.9rem;">Bebas Biaya Admin</div>
+</div>
+<div class="method-option" onclick="selectMethod(this)">
+<div class="radio"></div>
+<div class="method-logo" style="background:#00b14f; color:white;">GoPay</div>
+<div style="flex-grow:1;">GoPay</div>
+</div>
+</div>
+<div class="method-category">
+<h4>Transfer Bank (Virtual Account)</h4>
+<div class="method-option" onclick="selectMethod(this)">
+<div class="radio"></div>
+<div class="method-logo" style="background:#005E6A; color:white;">BCA</div>
+<div style="flex-grow:1;">BCA Virtual Account</div>
+</div>
+</div>
+<div class="method-category">
+<h4>Kartu Kredit / Debit</h4>
+<div class="method-option" onclick="selectMethod(this)">
+<div class="radio"></div>
+<div class="method-logo" style="background:linear-gradient(135deg,#2563eb,#1d4ed8); color:white;">VISA</div>
+<div style="flex-grow:1;">Visa / Mastercard</div>
+<div style="color: var(--text-muted); font-size: 0.9rem;">+1.5% biaya admin</div>
+</div>
+</div>
+<button class="btn-pay" onclick="processPayment(); return false;">
+<span>Bayar Sekarang</span>
+<span>Rp 155.000 <i class="ph ph-arrow-right" style="margin-left: 10px; vertical-align: middle;"></i></span>
+</button>
+<button class="btn-cancel" onclick="window.location.href='mockup_katalog_qualifa.html'; return false;" style="background:transparent; border:1px dashed #a855f7; color:#a855f7; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+<i class="ph ph-arrow-left" style="font-size:1.1rem;"></i> Kembali ke Katalog Psikolog
                 </button>
-                <button class="btn-cancel" onclick="window.location.href='mockup_katalog_qualifa.html'; return false;" style="background:transparent; border:1px dashed #a855f7; color:#a855f7; width:100%; padding:12px; border-radius:12px; margin-top:12px; font-weight:600; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
-                    <i class="ph ph-arrow-left" style="font-size:1.1rem;"></i> Kembali ke Katalog Psikolog
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans UC-04 & UC-05) -->
-    <div id="paymentProcessingState" style="display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
-        <div style="background: #0f172a; border: 1px solid #a855f7; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(168,85,247,0.3);">
-            <div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(168,85,247,0.2); border-top-color: #a855f7; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
-            <div id="processingIconSuccess" style="display: none; width: 70px; height: 70px; background: #10b981; border-radius: 50%; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; color: #fff;">✓</div>
-            
-            <h2 id="processingTitle" style="color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">⏳ Pembayaran Sedang Diproses...</h2>
-            <p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway & memverifikasi transaksi E-Wallet/VA Anda.</p>
-            
-            <div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace;">
+</div>
+</div>
+</div>
+<!-- Layer Status Pembayaran Sedang Diproses (Simulasi Webhook Midtrans UC-04 & UC-05) -->
+<div id="paymentProcessingState" style="display: none; position: fixed; inset: 0; background: rgba(8, 12, 20, 0.95); z-index: 10000; align-items: center; justify-content: center; backdrop-filter: blur(8px);">
+<div style="background: #0f172a; border: 1px solid #a855f7; border-radius: 20px; padding: 40px; text-align: center; max-width: 450px; width: 90%; box-shadow: 0 20px 50px rgba(168,85,247,0.3);">
+<div id="processingSpinner" style="width: 70px; height: 70px; border: 4px solid rgba(168,85,247,0.2); border-top-color: #a855f7; border-radius: 50%; margin: 0 auto 25px; animation: spin 1s linear infinite;"></div>
+<div id="processingIconSuccess" style="display: none; width: 70px; height: 70px; background: #10b981; border-radius: 50%; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 2.2rem; color: #fff;">✓</div>
+<h2 id="processingTitle" style="color: #fff; font-size: 1.4rem; font-weight: 700; margin-bottom: 12px;">⏳ Pembayaran Sedang Diproses...</h2>
+<p id="processingDesc" style="color: #94a3b8; font-size: 0.9rem; line-height: 1.6; margin-bottom: 20px;">Menghubungi Midtrans Payment Gateway &amp; memverifikasi transaksi E-Wallet/VA Anda.</p>
+<div style="background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 12px; font-size: 0.8rem; color: #cbd5e1; font-family: monospace;">
                 Status: <span id="webhookStatus" style="color: #facc15;">AWAITING_WEBHOOK_RESPONSE</span>
-            </div>
-        </div>
-    </div>
-    <style>
+</div>
+</div>
+</div>
+<style>
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
-
-    <script>
+<script>
         function selectMethod(element) {
             document.querySelectorAll('.method-option').forEach(el => el.classList.remove('selected'));
             element.classList.add('selected');
@@ -298,20 +282,18 @@
             }, 3500);
         }
     </script>
-
 <!-- [TAMBAHAN: Layer Status Pembayaran Gagal/Expired] -->
 <div id="paymentFailedState" style="display: none; position: fixed; inset: 0; background: rgba(18, 18, 18, 0.95); z-index: 9999; align-items: center; justify-content: center;">
-    <div class="payment-failed-state" style="background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; border-radius: 15px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(255, 71, 87, 0.2);">
-        <div style="width: 80px; height: 80px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-            <i class="ph ph-x" style="font-size: 40px; color: #fff;"></i>
-        </div>
-        <h2 style="color: #ff4757; margin-bottom: 10px;">Transaksi Expired / Ditolak</h2>
-        <p style="color: #ccc; line-height: 1.5; font-size: 14px;">Waktu pembayaran Anda telah habis, atau saldo metode pembayaran tidak mencukupi.</p>
-        <button style="background: #2f3542; color: #fff; border: 1px solid #57606f; padding: 12px 25px; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; width: 100%;" onclick="document.getElementById('paymentFailedState').style.display='none'">
-            <i class="ph ph-arrow-counter-clockwise"></i> Coba Metode Pembayaran Lain
-        </button>
-    </div>
+<div class="payment-failed-state" style="background: rgba(255, 71, 87, 0.1); border: 1px solid #ff4757; border-radius: 15px; padding: 40px; text-align: center; max-width: 400px; box-shadow: 0 10px 40px rgba(255, 71, 87, 0.2);">
+<div style="width: 80px; height: 80px; background: #ff4757; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+<i class="ph ph-x" style="font-size: 40px; color: #fff;"></i>
 </div>
-
+<h2 style="color: #ff4757; margin-bottom: 10px;">Transaksi Expired / Ditolak</h2>
+<p style="color: #ccc; line-height: 1.5; font-size: 14px;">Waktu pembayaran Anda telah habis, atau saldo metode pembayaran tidak mencukupi.</p>
+<button onclick="document.getElementById('paymentFailedState').style.display='none'" style="background: #2f3542; color: #fff; border: 1px solid #57606f; padding: 12px 25px; border-radius: 8px; margin-top: 20px; font-weight: bold; cursor: pointer; width: 100%;">
+<i class="ph ph-arrow-counter-clockwise"></i> Coba Metode Pembayaran Lain
+        </button>
+</div>
+</div>
 </body>
 </html>

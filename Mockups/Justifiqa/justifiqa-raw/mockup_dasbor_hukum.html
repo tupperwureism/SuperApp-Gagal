@@ -1,12 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Justifiqa — Portal Utama & Pilihan Role Dasbor Hukum (100% Siloed App)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Justifiqa — Portal Utama &amp; Pilihan Role Dasbor Hukum</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&amp;family=Roboto+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
+<script src="https://unpkg.com/@phosphor-icons/web"></script>
+<style>
         :root {
             --bg-base: #020617;
             --glass-bg: rgba(17, 24, 39, 0.7);
@@ -35,7 +36,7 @@
         .header h1 { font-size: 2.8rem; font-weight: 800; color: #fff; margin-bottom: 0.8rem; background: linear-gradient(135deg, #fff, #38bdf8); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
         .header p { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
         
-        .role-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; max-width: 1100px; width: 100%; margin-bottom: 3rem; }
+        .role-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2.5rem; max-width: 850px; width: 100%; margin-bottom: 3rem; }
         @media (max-width: 900px) { .role-grid { grid-template-columns: 1fr; } }
         
         .role-card {
@@ -75,37 +76,33 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <span class="badge-silo">⚖️ Domain Standalone & Siloed Legal 100%</span>
-        <h1>Justifiqa Legal Hub</h1>
-        <p>Pusat kendali ekosistem bantuan hukum litigi & perdata mandiri. Terisolasi penuh di level arsitektur dan database tanpa percampuran dengan domain psikologi atau aplikasi lain.</p>
-    </div>
+<div class="header">
+<span class="badge-silo">⚖️ Domain Standalone &amp; Siloed Legal 100%</span>
+<h1>Justifiqa Legal Hub</h1>
+<p>Pusat kendali ekosistem bantuan hukum litigi &amp; perdata mandiri. Terisolasi penuh di level arsitektur dan database tanpa percampuran dengan domain psikologi atau aplikasi lain.</p>
+</div>
+<div class="role-grid">
+<!-- 1. Klien / Pencari Keadilan -->
+<a class="role-card" href="mockup_auth_justifiqa.html?role=klien">
+<div class="icon-box">⚖️</div>
+<div class="role-title">Dasbor Hukum Klien</div>
+<div class="role-desc">Pantau perkembangan perkara, kelola dokumen legal ber-e-Meterai Peruri, cari advokat litigasi ber-SKK, dan jadwalkan konsultasi E2EE.</div>
+<button class="btn-enter">Masuk sebagai Klien ➔</button>
+</a>
+<!-- 2. Mitra / Advokat Peradi -->
+<a class="role-card" href="mockup_auth_justifiqa.html?role=mitra" style="border-color: rgba(251,191,36,0.3);">
+<div class="icon-box" style="color: #fbbf24; background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.3);">👔</div>
+<div class="role-title">Workstation Advokat Mitra</div>
+<div class="role-desc">Stasiun kerja advokat ber-BAS pengadilan. Kelola antrean konsultasi, susun analisis hukum IRAC Note, dan draf somasi resmi bersertifikasi.</div>
+<button class="btn-enter" style="background: linear-gradient(135deg, #d97706, #b45309);">Masuk sebagai Mitra ➔</button>
+</a>
+</div>
 
-    <div class="role-grid">
-        <!-- 1. Klien / Pencari Keadilan -->
-        <a href="mockup_auth_justifiqa.html?role=klien" class="role-card">
-            <div class="icon-box">⚖️</div>
-            <div class="role-title">Dasbor Hukum Klien</div>
-            <div class="role-desc">Pantau perkembangan perkara, kelola dokumen legal ber-e-Meterai Peruri, cari advokat litigasi ber-SKK, dan jadwalkan konsultasi E2EE.</div>
-            <button class="btn-enter">Masuk sebagai Klien ➔</button>
-        </a>
-
-        <!-- 2. Mitra / Advokat Peradi -->
-        <a href="mockup_auth_justifiqa.html?role=mitra" class="role-card" style="border-color: rgba(251,191,36,0.3);">
-            <div class="icon-box" style="color: #fbbf24; background: rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.3);">👔</div>
-            <div class="role-title">Workstation Advokat Mitra</div>
-            <div class="role-desc">Stasiun kerja advokat ber-BAS pengadilan. Kelola antrean konsultasi, susun analisis hukum IRAC Note, dan draf somasi resmi bersertifikasi.</div>
-            <button class="btn-enter" style="background: linear-gradient(135deg, #d97706, #b45309);">Masuk sebagai Mitra ➔</button>
-        </a>
-
-        <!-- 3. Admin Legal & Compliance -->
-        <a href="mockup_admin_justifiqa.html" class="role-card" style="border-color: rgba(239,68,68,0.3);">
-            <div class="icon-box" style="color: #f87171; background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3);">🛡️</div>
-            <div class="role-title">Portal Admin Legal</div>
-            <div class="role-desc">Pengawasan keanggotaan Peradi/KAI, verifikasi BAS & KTA Advokat, otentikasi e-Meterai Peruri, dan moderasi sidang etik advokasi.</div>
-            <button class="btn-enter" style="background: linear-gradient(135deg, #ef4444, #dc2626);">Masuk sebagai Admin ➔</button>
-        </a>
-    </div>
-
+<!-- Discreet Internal Backoffice Link (ZTNA & 2FA Protected) -->
+<div style="margin-top: 1rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.08); padding-top: 2rem; width: 100%; max-width: 600px;">
+    <a href="mockup_login_admin_justifiqa.html" style="color: #64748b; font-size: 0.85rem; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; border-radius: 20px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); transition: all 0.2s;" onmouseover="this.style.color='#f87171'; this.style.borderColor='#f87171';" onmouseout="this.style.color='#64748b'; this.style.borderColor='rgba(255,255,255,0.08)';">
+        <i class="ph-bold ph-lock-key"></i> Portal Internal: Backoffice Admin Justifiqa (ZTNA & 2FA Protected)
+    </a>
+</div>
 </body>
 </html>

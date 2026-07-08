@@ -1,10 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <title>Justifiqa — Portal Admin Legal & Advokasi Litigasi (SD-J-09)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <style>
+<meta charset="utf-8"/>
+<title>Justifiqa — Portal Admin Legal &amp; Advokasi Litigasi</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
         .sidebar { width: 260px; background: #0d1322; border-right: 1px solid rgba(255,255,255,0.08); padding: 1.8rem 1.2rem; display: flex; flex-direction: column; gap: 1.5rem; flex-shrink: 0; }
@@ -48,195 +49,235 @@
     </style>
 </head>
 <body>
-    <div class="sidebar">
-        <a href="mockup_admin_justifiqa.html" class="brand">Justifiqa <span>ADMIN LEGAL</span></a>
-        <ul class="nav-menu">
-            <li class="nav-item"><a class="active" onclick="switchTab('verifikasi')">⚡ Verifikasi Advokat Litigasi</a></li>
-            <li class="nav-item"><a onclick="switchTab('etik')">🏛️ Sidang Etik & Moderasi</a></li>
-            <li style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                <a href="mockup_dasbor_hukum.html" class="nav-item" style="color: #38bdf8; font-size: 0.85rem;">
+<div class="sidebar">
+<a class="brand" href="mockup_admin_justifiqa.html">Justifiqa <span>ADMIN LEGAL</span></a>
+<ul class="nav-menu">
+<li class="nav-item"><a class="active" onclick="switchTab('verifikasi')">⚡ Verifikasi Advokat Litigasi</a></li>
+<li class="nav-item"><a onclick="switchTab('etik')">🏛️ Sidang Etik &amp; Moderasi</a></li>
+<li style="margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
+<a class="nav-item" href="mockup_dasbor_hukum.html" style="color: #38bdf8; font-size: 0.85rem;">
                     🏠 Kembali ke Hub Justifiqa
                 </a>
-            </li>
-        </ul>
-        <div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; color: #64748b;">
-            <div><strong style="color: #cbd5e1;">Lead Legal Officer</strong></div>
-            <div style="color: #34d399; margin-top: 2px;">● WORM Audit Active</div>
+</li>
+</ul>
+<div style="margin-top: auto; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08); font-size: 0.75rem; color: #64748b;">
+<div><strong style="color: #cbd5e1;">Lead Legal Officer</strong></div>
+<div style="color: #34d399; margin-top: 2px;">● WORM Audit Active</div>
+</div>
+</div>
+<div class="main">
+<div class="topbar">
+<div>
+<h1 style="font-size: 1.8rem; font-weight: 700; color: #fff;">Portal Admin Legal &amp; Kepatuhan UU Advokat</h1>
+<p style="color: #64748b; font-size: 0.95rem; margin-top: 4px;">Pengawasan keanggotaan Peradi/KAI, otentikasi e-Meterai Peruri, dan moderasi etika advokasi</p>
+</div>
+<div style="background: rgba(234,179,8,0.1); border: 1px solid #d97706; padding: 8px 16px; border-radius: 20px; color: #facc15; font-weight: 700; font-size: 0.85rem;">⚖️ SILOED STANDALONE APP (OPSI B)</div>
+</div>
+<div class="grid-3">
+<div class="card" style="margin:0; border-color: rgba(234,179,8,0.3); background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(15,23,42,0.9));">
+<div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">TOTAL ADVOKAT LITIGASI TERVERIFIKASI</div>
+<div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">940 <span style="font-size: 1rem; font-weight: normal; color: #facc15;">Advokat</span></div>
+<div style="color: #34d399; font-size: 0.75rem; margin-top: 8px;">✔ 100% NIA Peradi / KAI Valid</div>
+</div>
+<div class="card" style="margin:0; border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(15,23,42,0.9));">
+<div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">KLIEN &amp; PENCARI BANTUAN HUKUM</div>
+<div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">10.250 <span style="font-size: 1rem; font-weight: normal; color: #34d399;">Klien</span></div>
+<div style="color: #cbd5e1; font-size: 0.75rem; margin-top: 8px;">+140 Penerima Pro Bono SKTM Valid</div>
+</div>
+<div class="card" style="margin:0; border-color: rgba(59,130,246,0.3); background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(15,23,42,0.9));">
+<div style="color: #60a5fa; font-size: 0.8rem; font-weight: 600;">STEMPEL E-METERAI PERURI (RP 10.000)</div>
+<div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">3.420 <span style="font-size: 1rem; font-weight: normal; color: #93c5fd;">Dokumen</span></div>
+<div style="color: #60a5fa; font-size: 0.75rem; margin-top: 8px;">📑 Legal Opinion &amp; Surat Kuasa Sah Hukum</div>
+</div>
+</div>
+<!-- Workstation Tabs -->
+<div class="tabs">
+<button class="tab-btn active" id="tab-btn-verifikasi" onclick="switchTab('verifikasi')">⚡ Verifikasi Kredensial Advokat</button>
+<button class="tab-btn" id="tab-btn-etik" onclick="switchTab('etik')">🏛️ Moderasi &amp; Sidang Etik Advokat</button>
+<button class="tab-btn" id="tab-btn-api" onclick="switchTab('api')">🌐 Status Integrasi API &amp; WORM</button>
+</div>
+<!-- TAB 1: VERIFIKASI ADVOKAT (SD-J-09 / J-UC16) -->
+<div class="card" id="tab-content-verifikasi">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+<div>
+<h3 style="font-size: 1.2rem; color: #fff;">Antrean Verifikasi Kredensial &amp; Lisensi Advokat</h3>
+<p style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">Cross-check otomatis ke Pangkalan Data Mahkamah Agung &amp; Peradi via API Gateway</p>
+</div>
+<span class="badge badge-warning" id="pending-count-badge">⏳ 2 Antrean Pending</span>
+</div>
+<table class="admin-table">
+<thead>
+<tr>
+<th>Nama Advokat &amp; Organisasi</th>
+<th>No. SIPP / NIA</th>
+<th>Berita Acara Sumpah (BAS)</th>
+<th>Status Audit</th>
+<th style="text-align: right;">Aksi Verifikasi (J-UC16)</th>
+</tr>
+</thead>
+<tbody id="advocate-table-body">
+<tr id="row-adv-1">
+<td>
+<strong style="color: #fff; font-size: 0.95rem;">Budi Santoso, S.H., M.H.</strong>
+<div style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Peradi — DPC Jakarta Selatan</div>
+</td>
+<td><span style="font-family: monospace; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 4px 8px; border-radius: 6px;">10293/SIPP/PERADI/2023</span></td>
+<td>
+<a href="#" onclick="alert('📑 Membuka dokumen berkas BAS: PT DKI Jakarta No. 88/BAS/2023. SHA256: 9F8A7B6C')" style="color: #facc15; text-decoration: underline; font-size: 0.85rem;">PT DKI Jakarta No. 88/2023</a>
+</td>
+<td id="status-adv-1"><span class="badge badge-warning">⏳ PENDING AUDIT</span></td>
+<td id="action-adv-1" style="text-align: right;">
+<button class="btn btn-success" onclick="approveAdvocate('adv-1', 'Budi Santoso, S.H., M.H.')">✅ Setujui (200 OK)</button>
+<button class="btn btn-danger" onclick="rejectAdvocate('adv-1', 'Budi Santoso, S.H., M.H.')">❌ Tolak (400 Bad Request)</button>
+</td>
+</tr>
+<tr id="row-adv-2">
+<td>
+<strong style="color: #fff; font-size: 0.95rem;">Diana Putri, S.H., M.Li.</strong>
+<div style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">KAI — DPD Jawa Barat</div>
+</td>
+<td><span style="font-family: monospace; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 4px 8px; border-radius: 6px;">44812/SIPP/KAI/2024</span></td>
+<td>
+<a href="#" onclick="alert('📑 Membuka dokumen berkas BAS: PT Bandung No. 112/BAS/2024. SHA256: 3A2B1C4D')" style="color: #facc15; text-decoration: underline; font-size: 0.85rem;">PT Bandung No. 112/2024</a>
+</td>
+<td id="status-adv-2"><span class="badge badge-warning">⏳ PENDING AUDIT</span></td>
+<td id="action-adv-2" style="text-align: right;">
+<button class="btn btn-success" onclick="approveAdvocate('adv-2', 'Diana Putri, S.H., M.Li.')">✅ Setujui (200 OK)</button>
+<button class="btn btn-danger" onclick="rejectAdvocate('adv-2', 'Diana Putri, S.H., M.Li.')">❌ Tolak (400 Bad Request)</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- TAB 2: MODERASI PELANGGARAN & SIDANG ETIK (SD-J-09 / J-UC17) -->
+<div class="card" id="tab-content-etik" style="display: none;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
+<div>
+<h3 style="font-size: 1.2rem; color: #fff;">Panel Moderasi Laporan Pelanggaran Etik &amp; Hukum</h3>
+<p style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">Penanganan laporan masyarakat dengan hak jawab advokat dan penahanan akun darurat (Due Process Suspend)</p>
+</div>
+<span class="badge badge-danger">⚠️ 1 Kasus Etik Aktif</span>
+</div>
+<table class="admin-table">
+<thead>
+<tr>
+<th>Terlapor (Advokat Mitra)</th>
+<th>Pelapor (Klien)</th>
+<th>Dugaan Pelanggaran Kode Etik</th>
+<th>Bukti Berkas WORM</th>
+<th>Status Moderasi</th>
+<th style="text-align: right;">Aksi Due Process (J-UC17)</th>
+</tr>
+</thead>
+<tbody>
+<tr id="row-rep-1">
+<td>
+<strong style="color: #fff; font-size: 0.95rem;">Adv. Hendra Kusuma, S.H.</strong>
+<div style="color: #f87171; font-size: 0.8rem; margin-top: 2px;">NIA: 88219/PERADI/2018</div>
+</td>
+<td>
+<strong style="color: #cbd5e1;">Rina Wulandari</strong>
+<div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">#CASE-2026-002</div>
+</td>
+<td>
+<div style="color: #facc15; font-weight: 600; font-size: 0.85rem;">Penelantaran Kasus &amp; Wanprestasi</div>
+<p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Advokat tidak hadir dalam sidang pembacaan gugatan tanpa pemberitahuan kepada klien setelah escrow cair.</p>
+</td>
+<td>
+<a href="#" onclick="alert('📑 Bukti WORM Log E2EE Chat &amp; Surat Somasi Klien (Hash: SHA256-8B9C0D1E)')" style="color: #38bdf8; text-decoration: underline; font-size: 0.85rem;">📑 3 Bukti Terlampir</a>
+</td>
+<td id="status-rep-1"><span class="badge badge-warning">⏳ INVESTIGASI ETIK</span></td>
+<td id="action-rep-1" style="text-align: right;">
+<button class="btn btn-warning" onclick="suspendAdvocate('rep-1', 'Adv. Hendra Kusuma, S.H.')" style="margin-bottom: 4px;">🛑 Suspend Akun (Due Process 200 OK)</button>
+<br/>
+<button class="btn btn-outline" onclick="alert('ℹ️ Surat peringatan klarifikasi etik telah dikirimkan via email &amp; notifikasi aplikasi ke Adv. Hendra Kusuma.')" style="font-size: 0.75rem;">✉️ Kirim Panggilan Klarifikasi</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- TAB 3: STATUS INTEGRASI API (DEFAULT OLD SECTION) -->
+<div class="card" id="tab-content-api" style="display: none;">
+<h3 style="font-size: 1.2rem; color: #fff; margin-bottom: 1.2rem;">⚡ Status Integrasi API Eksternal &amp; Kriptografi Justifiqa (Murni Hukum)</h3>
+<div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
+<div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+<div>
+<div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERADI &amp; KAI REGISTRY</div>
+<strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIA Advokat &amp; Berita Acara Sumpah</strong>
+</div>
+<span class="badge badge-success">✔ ONLINE (15ms)</span>
+</div>
+<div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+<div>
+<div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERUM PERURI (E-METERAI)</div>
+<strong style="color: #fff; margin-top: 4px; display: block;">Pembubuhan Stempel Digital Rp 10.000</strong>
+</div>
+<span class="badge badge-success">✔ ONLINE (22ms)</span>
+</div>
+<div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+<div>
+<div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">DUKCAPIL KEMENDAGRI</div>
+<strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIK Klien &amp; Validasi SKTM Pro Bono</strong>
+</div>
+<span class="badge badge-success">✔ ONLINE (14ms)</span>
+</div>
+<div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
+<div>
+<div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PRIVILEGED ZERO-KNOWLEDGE VAULT</div>
+<strong style="color: #fff; margin-top: 4px; display: block;">Enkripsi E2EE Dokumen &amp; IRAC Workstation</strong>
+</div>
+<span class="badge badge-success">✔ ONLINE (6ms)</span>
+</div>
+</div>
+
+<!-- WORM AUDIT STORAGE LOG VIEWER (J-UC18) -->
+<div style="margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.5rem;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+        <div>
+            <h4 style="font-size: 1.1rem; color: #facc15; display: flex; align-items: center; gap: 8px;">🛡️ WORM Audit Storage Log Viewer (`J-UC18`)</h4>
+            <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Catatan jejak audit mutlak (Write-Once-Read-Many) bersertifikat SHA-256 untuk kepatuhan hukum 10 tahun.</p>
         </div>
+        <button class="btn btn-outline" onclick="alert('⚡ Memverifikasi integritas hash seluruh block log WORM... status: 100% IMMUTABLE & VERIFIED.')">🔍 Verifikasi Hash WORM</button>
     </div>
-    <div class="main">
-        <div class="topbar">
-            <div>
-                <h1 style="font-size: 1.8rem; font-weight: 700; color: #fff;">Portal Admin Legal & Kepatuhan UU Advokat (SD-J-09)</h1>
-                <p style="color: #64748b; font-size: 0.95rem; margin-top: 4px;">Pengawasan keanggotaan Peradi/KAI, otentikasi e-Meterai Peruri, dan moderasi etika advokasi</p>
-            </div>
-            <div style="background: rgba(234,179,8,0.1); border: 1px solid #d97706; padding: 8px 16px; border-radius: 20px; color: #facc15; font-weight: 700; font-size: 0.85rem;">⚖️ SILOED STANDALONE APP (OPSI B)</div>
-        </div>
+    <table class="admin-table">
+        <thead>
+            <tr>
+                <th>Log ID & Timestamp</th>
+                <th>Tipe Aktivitas & Modul (`J-UC`)</th>
+                <th>Hash SHA-256 (Immutable Checksum)</th>
+                <th>Retensi Hukum</th>
+                <th>Status Audit</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-001</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 14:03 WIB</div></td>
+                <td><span style="color:#38bdf8; font-weight:600;">E2EE Evidence Upload (`J-UC13`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">8f9d2a1c7b8e...e4b90a</code></td>
+                <td>10 Tahun (UU ITE)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-002</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 14:15 WIB</div></td>
+                <td><span style="color:#10b981; font-weight:600;">e-Meterai Peruri Stamp (`J-UC12`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">9b8c7d6e5f4a...f1a23c</code></td>
+                <td>10 Tahun (UU Bea Meterai)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+            <tr>
+                <td><strong style="color:#fff;">LOG-20260708-003</strong><div style="font-size:0.75rem; color:#64748b;">08 Jul 2026 • 15:00 WIB</div></td>
+                <td><span style="color:#fbbf24; font-weight:600;">Escrow Payout PPh 21 (`J-UC19`)</span></td>
+                <td><code style="background:rgba(255,255,255,0.05); padding:3px 6px; border-radius:4px; color:#facc15; font-size:0.8rem;">4a5b6c7d8e9f...8e901d</code></td>
+                <td>10 Tahun (UU KUP Pajak)</td>
+                <td><span class="badge badge-success">✔ IMMUTABLE</span></td>
+            </tr>
+        </tbody>
+    </table>
+</div>
 
-        <div class="grid-3">
-            <div class="card" style="margin:0; border-color: rgba(234,179,8,0.3); background: linear-gradient(135deg, rgba(234,179,8,0.15), rgba(15,23,42,0.9));">
-                <div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">TOTAL ADVOKAT LITIGASI TERVERIFIKASI</div>
-                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">940 <span style="font-size: 1rem; font-weight: normal; color: #facc15;">Advokat</span></div>
-                <div style="color: #34d399; font-size: 0.75rem; margin-top: 8px;">✔ 100% NIA Peradi / KAI Valid</div>
-            </div>
-            <div class="card" style="margin:0; border-color: rgba(16,185,129,0.3); background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(15,23,42,0.9));">
-                <div style="color: #94a3b8; font-size: 0.8rem; font-weight: 600;">KLIEN & PENCARI BANTUAN HUKUM</div>
-                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">10.250 <span style="font-size: 1rem; font-weight: normal; color: #34d399;">Klien</span></div>
-                <div style="color: #cbd5e1; font-size: 0.75rem; margin-top: 8px;">+140 Penerima Pro Bono SKTM Valid</div>
-            </div>
-            <div class="card" style="margin:0; border-color: rgba(59,130,246,0.3); background: linear-gradient(135deg, rgba(59,130,246,0.15), rgba(15,23,42,0.9));">
-                <div style="color: #60a5fa; font-size: 0.8rem; font-weight: 600;">STEMPEL E-METERAI PERURI (RP 10.000)</div>
-                <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 8px;">3.420 <span style="font-size: 1rem; font-weight: normal; color: #93c5fd;">Dokumen</span></div>
-                <div style="color: #60a5fa; font-size: 0.75rem; margin-top: 8px;">📑 Legal Opinion & Surat Kuasa Sah Hukum</div>
-            </div>
-        </div>
-
-        <!-- Workstation Tabs -->
-        <div class="tabs">
-            <button id="tab-btn-verifikasi" class="tab-btn active" onclick="switchTab('verifikasi')">⚡ Verifikasi Kredensial Advokat (J-UC16)</button>
-            <button id="tab-btn-etik" class="tab-btn" onclick="switchTab('etik')">🏛️ Moderasi & Sidang Etik Advokat (J-UC17)</button>
-            <button id="tab-btn-api" class="tab-btn" onclick="switchTab('api')">🌐 Status Integrasi API & WORM</button>
-        </div>
-
-        <!-- TAB 1: VERIFIKASI ADVOKAT (SD-J-09 / J-UC16) -->
-        <div id="tab-content-verifikasi" class="card">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
-                <div>
-                    <h3 style="font-size: 1.2rem; color: #fff;">Antrean Verifikasi Kredensial & Lisensi Advokat (SD-J-09 / J-UC16)</h3>
-                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">Cross-check otomatis ke Pangkalan Data Mahkamah Agung & Peradi via API Gateway</p>
-                </div>
-                <span class="badge badge-warning" id="pending-count-badge">⏳ 2 Antrean Pending</span>
-            </div>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Nama Advokat & Organisasi</th>
-                        <th>No. SIPP / NIA</th>
-                        <th>Berita Acara Sumpah (BAS)</th>
-                        <th>Status Audit</th>
-                        <th style="text-align: right;">Aksi Verifikasi (J-UC16)</th>
-                    </tr>
-                </thead>
-                <tbody id="advocate-table-body">
-                    <tr id="row-adv-1">
-                        <td>
-                            <strong style="color: #fff; font-size: 0.95rem;">Budi Santoso, S.H., M.H.</strong>
-                            <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">Peradi — DPC Jakarta Selatan</div>
-                        </td>
-                        <td><span style="font-family: monospace; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 4px 8px; border-radius: 6px;">10293/SIPP/PERADI/2023</span></td>
-                        <td>
-                            <a href="#" onclick="alert('📑 Membuka dokumen berkas BAS: PT DKI Jakarta No. 88/BAS/2023. SHA256: 9F8A7B6C')" style="color: #facc15; text-decoration: underline; font-size: 0.85rem;">PT DKI Jakarta No. 88/2023</a>
-                        </td>
-                        <td id="status-adv-1"><span class="badge badge-warning">⏳ PENDING AUDIT</span></td>
-                        <td style="text-align: right;" id="action-adv-1">
-                            <button class="btn btn-success" onclick="approveAdvocate('adv-1', 'Budi Santoso, S.H., M.H.')">✅ Setujui (200 OK)</button>
-                            <button class="btn btn-danger" onclick="rejectAdvocate('adv-1', 'Budi Santoso, S.H., M.H.')">❌ Tolak (400 Bad Request)</button>
-                        </td>
-                    </tr>
-                    <tr id="row-adv-2">
-                        <td>
-                            <strong style="color: #fff; font-size: 0.95rem;">Diana Putri, S.H., M.Li.</strong>
-                            <div style="color: #94a3b8; font-size: 0.8rem; margin-top: 2px;">KAI — DPD Jawa Barat</div>
-                        </td>
-                        <td><span style="font-family: monospace; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 4px 8px; border-radius: 6px;">44812/SIPP/KAI/2024</span></td>
-                        <td>
-                            <a href="#" onclick="alert('📑 Membuka dokumen berkas BAS: PT Bandung No. 112/BAS/2024. SHA256: 3A2B1C4D')" style="color: #facc15; text-decoration: underline; font-size: 0.85rem;">PT Bandung No. 112/2024</a>
-                        </td>
-                        <td id="status-adv-2"><span class="badge badge-warning">⏳ PENDING AUDIT</span></td>
-                        <td style="text-align: right;" id="action-adv-2">
-                            <button class="btn btn-success" onclick="approveAdvocate('adv-2', 'Diana Putri, S.H., M.Li.')">✅ Setujui (200 OK)</button>
-                            <button class="btn btn-danger" onclick="rejectAdvocate('adv-2', 'Diana Putri, S.H., M.Li.')">❌ Tolak (400 Bad Request)</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- TAB 2: MODERASI PELANGGARAN & SIDANG ETIK (SD-J-09 / J-UC17) -->
-        <div id="tab-content-etik" class="card" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem;">
-                <div>
-                    <h3 style="font-size: 1.2rem; color: #fff;">Panel Moderasi Laporan Pelanggaran Etik & Hukum (SD-J-09 / J-UC17)</h3>
-                    <p style="color: #64748b; font-size: 0.85rem; margin-top: 2px;">Penanganan laporan masyarakat dengan hak jawab advokat dan penahanan akun darurat (Due Process Suspend)</p>
-                </div>
-                <span class="badge badge-danger">⚠️ 1 Kasus Etik Aktif</span>
-            </div>
-            <table class="admin-table">
-                <thead>
-                    <tr>
-                        <th>Terlapor (Advokat Mitra)</th>
-                        <th>Pelapor (Klien)</th>
-                        <th>Dugaan Pelanggaran Kode Etik</th>
-                        <th>Bukti Berkas WORM</th>
-                        <th>Status Moderasi</th>
-                        <th style="text-align: right;">Aksi Due Process (J-UC17)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr id="row-rep-1">
-                        <td>
-                            <strong style="color: #fff; font-size: 0.95rem;">Adv. Hendra Kusuma, S.H.</strong>
-                            <div style="color: #f87171; font-size: 0.8rem; margin-top: 2px;">NIA: 88219/PERADI/2018</div>
-                        </td>
-                        <td>
-                            <strong style="color: #cbd5e1;">Rina Wulandari</strong>
-                            <div style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">#CASE-2026-002</div>
-                        </td>
-                        <td>
-                            <div style="color: #facc15; font-weight: 600; font-size: 0.85rem;">Penelantaran Kasus & Wanprestasi</div>
-                            <p style="color: #94a3b8; font-size: 0.8rem; margin-top: 4px;">Advokat tidak hadir dalam sidang pembacaan gugatan tanpa pemberitahuan kepada klien setelah escrow cair.</p>
-                        </td>
-                        <td>
-                            <a href="#" onclick="alert('📑 Bukti WORM Log E2EE Chat & Surat Somasi Klien (Hash: SHA256-8B9C0D1E)')" style="color: #38bdf8; text-decoration: underline; font-size: 0.85rem;">📑 3 Bukti Terlampir</a>
-                        </td>
-                        <td id="status-rep-1"><span class="badge badge-warning">⏳ INVESTIGASI ETIK</span></td>
-                        <td style="text-align: right;" id="action-rep-1">
-                            <button class="btn btn-warning" style="margin-bottom: 4px;" onclick="suspendAdvocate('rep-1', 'Adv. Hendra Kusuma, S.H.')">🛑 Suspend Akun (Due Process 200 OK)</button>
-                            <br>
-                            <button class="btn btn-outline" style="font-size: 0.75rem;" onclick="alert('ℹ️ Surat peringatan klarifikasi etik telah dikirimkan via email & notifikasi aplikasi ke Adv. Hendra Kusuma.')">✉️ Kirim Panggilan Klarifikasi</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <!-- TAB 3: STATUS INTEGRASI API (DEFAULT OLD SECTION) -->
-        <div id="tab-content-api" class="card" style="display: none;">
-            <h3 style="font-size: 1.2rem; color: #fff; margin-bottom: 1.2rem;">⚡ Status Integrasi API Eksternal & Kriptografi Justifiqa (Murni Hukum)</h3>
-            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem;">
-                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERADI & KAI REGISTRY</div>
-                        <strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIA Advokat & Berita Acara Sumpah</strong>
-                    </div>
-                    <span class="badge badge-success">✔ ONLINE (15ms)</span>
-                </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PERUM PERURI (E-METERAI)</div>
-                        <strong style="color: #fff; margin-top: 4px; display: block;">Pembubuhan Stempel Digital Rp 10.000</strong>
-                    </div>
-                    <span class="badge badge-success">✔ ONLINE (22ms)</span>
-                </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">DUKCAPIL KEMENDAGRI</div>
-                        <strong style="color: #fff; margin-top: 4px; display: block;">Verifikasi NIK Klien & Validasi SKTM Pro Bono</strong>
-                    </div>
-                    <span class="badge badge-success">✔ ONLINE (14ms)</span>
-                </div>
-                <div style="background: rgba(0,0,0,0.3); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <div style="color: #94a3b8; font-size: 0.75rem; font-weight: 700;">PRIVILEGED ZERO-KNOWLEDGE VAULT</div>
-                        <strong style="color: #fff; margin-top: 4px; display: block;">Enkripsi E2EE Dokumen & IRAC Workstation</strong>
-                    </div>
-                    <span class="badge badge-success">✔ ONLINE (6ms)</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
+</div>
+</div>
+<script>
         let pendingAudits = 2;
 
         function switchTab(tabName) {
@@ -266,7 +307,7 @@
             if (pendingAudits > 0) pendingAudits--;
             updatePendingBadge();
             
-            alert(`✅ 200 OK (J-UC16 Approval Sukses):\n\nKredensial advokat atas nama [${name}] telah diverifikasi sah sesuai Pangkalan Data MA & Peradi.\n\n• Status akun diubah menjadi AKTIF / VERIFIED di katalog Justifiqa.\n• Email notifikasi aktivasi akun siap praktik telah dikirimkan ke advokat.`);
+            alert(`✅ Kredensial Advokat Disetujui:\n\nKredensial advokat atas nama [${name}] telah diverifikasi sah sesuai Pangkalan Data MA & Peradi.\n\nStatus akun diaktifkan di Katalog Justifiqa.`);
         }
 
         // SD-J-09 / J-UC16: Reject Advocate (Error 400 / 403 Simulation)
@@ -276,7 +317,7 @@
             if (reason === null) return; // User cancelled
             
             if (!reason.trim()) {
-                alert("⚠️ Error 400 Bad Request: Alasan penolakan wajib diisi untuk kepatuhan transparansi audit log!");
+                alert("⚠️ Alasan Penolakan Wajib Diisi: Harap masukkan alasan penolakan demi kepatuhan dan transparansi audit log!");
                 return;
             }
 
@@ -289,7 +330,7 @@
             if (pendingAudits > 0) pendingAudits--;
             updatePendingBadge();
             
-            alert(`⚠️ 400 Bad Request / 403 Forbidden (J-UC16 Rejection):\n\nPendaftaran advokat [${name}] ditolak.\n\n• Alasan: "${reason}"\n• Status: REJECTED\n• Email pemberitahuan penolakan beserta alasan hukum telah dikirim ke pendaftar.`);
+            alert(`❌ Pendaftaran Ditolak:\n\nPendaftaran advokat [${name}] ditolak.\n\nAlasan: "${reason}"\nStatus: REJECTED\nEmail penjelasan hukum telah dikirimkan.`);
         }
 
         // SD-J-09 / J-UC17: Suspend Advocate (Due Process)
@@ -299,7 +340,7 @@
             if (reason === null) return; // User cancelled
 
             if (!reason.trim()) {
-                alert("⚠️ Error 400 Bad Request: Alasan penahanan akun darurat (suspend) wajib diisi untuk rekam jejak sidang etik!");
+                alert("⚠️ Alasan Suspend Wajib Diisi: Harap masukkan alasan penahanan akun darurat (suspend) untuk rekam jejak sidang etik!");
                 return;
             }
 
@@ -309,7 +350,7 @@
             if (statusEl) statusEl.innerHTML = `<span class="badge badge-danger">🛑 SUSPENDED (DUE PROCESS)</span>`;
             if (actionEl) actionEl.innerHTML = `<span style="color: #f87171; font-size: 0.85rem; font-weight: 600;">🛑 Akun Ditahan (200 OK)</span>`;
             
-            alert(`✅ 200 OK (J-UC17 Due Process Suspend):\n\nAkun advokat [${name}] resmi ditahan sementara (SUSPENDED) dari seluruh katalog praktik Justifiqa.\n\n• Alasan: "${reason}"\n• Tindakan Lanjutan: Surat Panggilan Klarifikasi Internal telah diterbitkan dan dikirimkan untuk jadwal Sidang Etik Dewan Kehormatan Peradi.`);
+            alert(`🛑 Akun Ditangguhkan:\n\nAkun advokat [${name}] resmi ditahan sementara (SUSPENDED) dari seluruh katalog praktik Justifiqa.\n\nAlasan: "${reason}"\nSurat Panggilan Klarifikasi Internal telah diterbitkan.`);
         }
 
         function updatePendingBadge() {

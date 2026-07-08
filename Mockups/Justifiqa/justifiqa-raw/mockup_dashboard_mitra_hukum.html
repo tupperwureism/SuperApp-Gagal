@@ -1,11 +1,11 @@
 <!DOCTYPE html>
+
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Portal Mitra (HUKUM) — Workstation Profesional (Justifiqa)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
-    
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Portal Mitra (HUKUM) — Workstation Profesional (Justifiqa)</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&amp;family=Roboto+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
 <style>
     * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
     body { background: #080c14; color: #f8fafc; min-height: 100vh; display: flex; }
@@ -49,8 +49,7 @@
     .btn-outline { background: transparent; border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; }
     .btn-outline:hover { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.3); }
 </style>
-
-    <style>
+<style>
         .toggle-switch-container {
             background: rgba(15,23,42,0.6);
             border: 1px solid rgba(56,189,248,0.3);
@@ -122,223 +121,220 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
     </style>
-    <script>
+<script>
         if (!window.location.search.includes('role=')) {
             localStorage.setItem('user_role_justifiqa', 'mitra');
         }
     </script>
 </head>
 <body>
-    <div class="sidebar" style="width: 290px;">
-        <div class="brand">Justifiqa <span style="color: #fbbf24; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24;">MITRA</span></div>
-        
-        <div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;">
-            <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #fbbf24;">BS</div>
-            <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Santoso, S.H., M.H.</div>
-            <div style="font-size: 0.8rem; color: #fbbf24; margin-top: 4px;">Justifiqa — Advokat Litigasi & Perdata</div>
-            <span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">✔ NIA PERADI Terverifikasi</span>
+<div class="sidebar" style="width: 290px;">
+<div class="brand">Justifiqa <span style="color: #fbbf24; font-size: 0.75rem; background: rgba(255,255,255,0.08); padding: 3px 8px; border-radius: 6px; border: 1px solid #fbbf24;">MITRA</span></div>
+<div style="display: flex; flex-direction: column; align-items: center; text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.08); margin-bottom: 1rem;">
+<div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #fbbf24, #3b82f6); color: #fff; font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; box-shadow: 0 4px 15px rgba(14,165,233,0.4); border: 2px solid #fbbf24;">BS</div>
+<div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Budi Santoso, S.H., M.H.</div>
+<div style="font-size: 0.8rem; color: #fbbf24; margin-top: 4px;">Justifiqa — Advokat Litigasi &amp; Perdata</div>
+<span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">✔ NIA PERADI Terverifikasi</span>
+</div>
+<div style="margin: 15px 0; padding: 12px; background: rgba(14,165,233,0.1); border: 1px solid rgba(14,165,233,0.25); border-radius: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1;">Status Sistem:</span>
+<span class="badge badge-success" style="font-size: 0.68rem; padding: 3px 8px;">🟢 SIAP (AUTO-SCHEDULED)</span>
+</div>
+<div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.3; margin-bottom: 8px;">
+Ketersediaan ditentukan otomatis berdasarkan kalender litigasi dan sesi aktif (J-UC04 / SD-J-04).
+</div>
+<div style="padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;">
+<input id="conflict-sim-cb" style="cursor: pointer;" type="checkbox" onclick="checkConflictSimulation(this)"/>
+<label for="conflict-sim-cb" style="font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;">Simulasi Sesi Sibuk (HTTP 409 Conflict)</label>
+</div>
+</div>
+<ul class="nav-menu">
+<li class="nav-item"><a class="active" href="javascript:void(0)" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">📊 Dasbor Utama</a></li>
+<li style="margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;">Domain Workstation</li>
+<li class="nav-item"><a href="mockup_modul_hukum.html" style="color: #fbbf24; font-weight: 600;">⚖️ Buka Workstation Justifiqa</a></li>
+<li class="nav-item" style="margin-top: 1rem;"><a href="mockup_dasbor_hukum.html">🏠 Portal Utama Justifiqa (Hub)</a></li>
+</ul>
+</div>
+<div class="main">
+<div class="topbar">
+<div>
+<h1>Selamat Bekerja, Budi Santoso, S.H., M.H.</h1>
+<p>Stasiun Kerja Advokat Profesional — Portal Mitra Justifiqa (Domain Hukum)</p>
+</div>
+<div style="display: flex; align-items: center; gap: 15px;">
+<span class="badge badge-info" style="padding: 8px 16px; font-size: 0.85rem;">🛡️ E2EE Zero-Knowledge Ready</span>
+</div>
+</div>
+
+<div class="card" id="antrean-section" style="border-color: #fbbf24;">
+<div class="card-title">
+<span style="display: flex; align-items: center; gap: 8px;"><span>⚡</span> Antrean Konsultasi Masuk (2 Sesi Menunggu)</span>
+<span class="badge badge-info">Realtime WebRTC Sync</span>
+</div>
+<div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
+<div style="display: flex; align-items: center; gap: 15px;">
+<div style="width: 50px; height: 50px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">AS</div>
+<div>
+<div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Ahmad Subarjo <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Pro Bono SKTM</span></div>
+<div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Wanprestasi kontrak kerja sepihak, butuh somasi hukum (IRAC)</div>
+<div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99201 • Waktu Tunggu: 3 menit lalu</div>
+</div>
+</div>
+<div style="display: flex; gap: 8px;">
+<a class="btn" href="mockup_modul_hukum.html" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA &amp; BUKA IRAC</a>
+<a class="btn btn-outline" href="mockup_chat_justifiqa.html?role=mitra" style="padding: 0.8rem 1.2rem; font-size: 0.95rem; font-weight: 700;">💬 MASUK CHAT</a>
+</div>
+</div>
+<div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
+<div style="display: flex; align-items: center; gap: 15px;">
+<div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">PT</div>
+<div>
+<div style="font-weight: 700; font-size: 1.05rem; color: #fff;">PT Harapan Maju <span class="badge badge-info" style="font-size: 0.65rem; padding: 2px 6px;">Komersial Retainer</span></div>
+<div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Sengketa hak cipta perangkat lunak &amp; tinjauan NDA perusahaan</div>
+<div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99202 • Waktu Tunggu: 8 menit lalu</div>
+</div>
+</div>
+<div style="display: flex; gap: 8px;">
+<a class="btn" href="mockup_modul_hukum.html" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA &amp; BUKA IRAC</a>
+<a class="btn btn-outline" href="mockup_chat_justifiqa.html?role=mitra" style="padding: 0.8rem 1.2rem; font-size: 0.95rem; font-weight: 700;">💬 MASUK CHAT</a>
+</div>
+</div>
+</div>
+<div class="card" id="history-section">
+<div class="card-title">
+<span style="display: flex; align-items: center; gap: 8px;"><span>📑</span> Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC &amp; e-Meterai)</span>
+<span class="badge badge-warning">1 Butuh Tindakan</span>
+</div>
+<div class="history-item">
+<div>
+<div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Hendra Wijaya — <span style="color: #fbbf24;">Akta Perjanjian Damai e-Meterai</span></div>
+<div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 14:30 WIB • Status: Draf IRAC selesai, menunggu pembubuhan e-Meterai Perum Peruri</div>
+</div>
+<a class="btn" href="mockup_modul_hukum.html" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📜 BUBUI E-METERAI</a>
+</div>
+<div class="history-item">
+<div>
+<div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Siti Aminah — <span style="color: #34d399;">Gugatan Hak Asuh Anak (Pro Bono)</span></div>
+<div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 11:00 WIB • Status: Berkas gugatan pengadilan resmi diterbitkan</div>
+</div>
+<a class="btn btn-outline" href="mockup_modul_hukum.html" style="font-weight: 600;">👁️ LIHAT BERKAS HUKUM</a>
+</div>
+</div>
+<div class="payout-card" id="dompet-section">
+<div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<span style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; color: #fff; font-weight: 700;"><span>💰</span> Workstation Keuangan Mitra &amp; Penarikan Dana (J-UC19 &amp; J-UC22)</span>
+<span class="badge badge-success">Beneficiary: Bank BCA 8810-xxxx-xxxx (Budi Santoso)</span>
+</div>
+<p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Pemisahan mutlak antara dompet operasional (untuk e-meterai tanpa potongan PPh 21 di <code>J-UC22</code>) dengan dompet penghasilan escrow konsultasi (pencairan dengan potongan PPh 21 5% di <code>J-UC19</code>).</p>
+
+<!-- KARTU 1: DOMPET OPERASIONAL ADVOKAT (TOP-UP J-UC22) -->
+<div style="background: linear-gradient(135deg, rgba(217,119,6,0.15), rgba(14,165,233,0.1)); border: 1px solid #d97706; border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 20px rgba(217,119,6,0.2);">
+    <div>
+        <div style="color: #fbbf24; font-size: 0.8rem; text-transform: uppercase; font-weight: 700; display: flex; align-items: center; gap: 6px;">
+            <span>💼</span> Dompet Operasional Advokat (Top-Up Balance - J-UC22)
         </div>
-
-        <div class="toggle-switch-container">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <span style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status Praktik:</span>
-                <span id="status-badge" class="badge badge-success" style="font-size: 0.7rem;">🟢 ONLINE</span>
-            </div>
-            <label class="toggle-switch" onclick="toggleSidebarStatus()">
-                <div id="sidebar-slider" class="toggle-slider">
-                    <div id="sidebar-knob" class="toggle-knob"></div>
-                </div>
-                <span id="status-text" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">Menerima Konsultasi</span>
-            </label>
-            <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed rgba(255,255,255,0.15); display: flex; align-items: center; gap: 6px;">
-                <input type="checkbox" id="conflict-sim-cb" style="cursor: pointer;">
-                <label for="conflict-sim-cb" style="font-size: 0.72rem; color: #fbbf24; cursor: pointer; line-height: 1.2;">Simulasi Konflik Jadwal / Sesi Aktif (SD-J-04: 409 Conflict)</label>
-            </div>
-        </div>
-
-        <ul class="nav-menu">
-            <li class="nav-item"><a href="javascript:void(0)" class="active" onclick="window.scrollTo({top:0, behavior:'smooth'}); return false;">📊 Dasbor Utama</a></li>
-            <li style="margin: 12px 0 5px; font-size: 0.75rem; color: #64748b; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding-left: 10px;">Domain Workstation</li>
-            <li class="nav-item"><a href="mockup_modul_hukum.html" style="color: #fbbf24; font-weight: 600;">⚖️ Buka Workstation Justifiqa</a></li>
-            <li class="nav-item" style="margin-top: 1rem;"><a href="mockup_dasbor_hukum.html">🏠 Portal Utama Justifiqa (Hub)</a></li>
-        </ul>
-    </div>
-    
-    <div class="main">
-        <div class="topbar">
-            <div>
-                <h1>Selamat Bekerja, Budi Santoso, S.H., M.H.</h1>
-                <p>Stasiun Kerja Advokat Profesional — Portal Mitra Justifiqa (Domain Hukum)</p>
-            </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <span class="badge badge-info" style="padding: 8px 16px; font-size: 0.85rem;">🛡️ E2EE Zero-Knowledge Ready</span>
-            </div>
-        </div>
-
-        <div style="background: rgba(14, 165, 233, 0.1); border: 1px dashed #0ea5e9; padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; font-size: 0.85rem; color: #38bdf8; line-height: 1.5;">
-            <strong style="color: #fff; font-size: 0.95rem;">💡 Panduan Uji Coba SD-J-04 (Mengatur Status Ketersediaan Praktik Advokat / J-UC09):</strong><br>
-            • <strong>Cabang 200 OK (Slot Jadwal Aman):</strong> Pastikan centang <em>"Simulasi Konflik Jadwal"</em> di sidebar kiri tidak aktif, lalu klik toggle <strong>Status Praktik</strong>. Sistem akan memperbarui status secara instan (Online/Offline) dan menampilkan alert respons sukses 200 OK.<br>
-            • <strong>Cabang 409 Conflict (Jadwal Bentrok / Sesi Aktif):</strong> Aktifkan centang <em>"Simulasi Konflik Jadwal (409 Conflict)"</em> di sidebar, lalu coba ubah toggle status. Sistem akan menolak perubahan dan menampilkan peringatan bentrok jadwal sidang/sesi konsultasi aktif.
-        </div>
-
-        <div id="antrean-section" class="card" style="border-color: #fbbf24;">
-            <div class="card-title">
-                <span style="display: flex; align-items: center; gap: 8px;"><span>⚡</span> Antrean Konsultasi Masuk (2 Sesi Menunggu)</span>
-                <span class="badge badge-info">Realtime WebRTC Sync</span>
-            </div>
-            
-            <div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #f59e0b; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">AS</div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">Ahmad Subarjo <span class="badge badge-success" style="font-size: 0.65rem; padding: 2px 6px;">Pro Bono SKTM</span></div>
-                        <div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Wanprestasi kontrak kerja sepihak, butuh somasi hukum (IRAC)</div>
-                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99201 • Waktu Tunggu: 3 menit lalu</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA & BUKA IRAC</a>
-                    <a href="mockup_chat_justifiqa.html?role=mitra" class="btn btn-outline" style="padding: 0.8rem 1.2rem; font-size: 0.95rem; font-weight: 700;">💬 MASUK CHAT</a>
-                </div>
-            </div>
-
-            <div class="queue-item" style="border-color: rgba(245,158,11,0.3);">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 50px; height: 50px; border-radius: 50%; background: #0ea5e9; color: #fff; font-weight: 700; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">PT</div>
-                    <div>
-                        <div style="font-weight: 700; font-size: 1.05rem; color: #fff;">PT Harapan Maju <span class="badge badge-info" style="font-size: 0.65rem; padding: 2px 6px;">Komersial Retainer</span></div>
-                        <div style="color: #fbbf24; font-size: 0.85rem; margin-top: 2px;">Keluhan: Sengketa hak cipta perangkat lunak & tinjauan NDA perusahaan</div>
-                        <div style="color: #64748b; font-size: 0.75rem; margin-top: 4px;">ID Sesi: SES-99202 • Waktu Tunggu: 8 menit lalu</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 8px;">
-                    <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.8rem 1.6rem; font-size: 0.95rem; font-weight: 700;">⚖️ TERIMA & BUKA IRAC</a>
-                    <a href="mockup_chat_justifiqa.html?role=mitra" class="btn btn-outline" style="padding: 0.8rem 1.2rem; font-size: 0.95rem; font-weight: 700;">💬 MASUK CHAT</a>
-                </div>
-            </div>
-        </div>
-
-        <div id="history-section" class="card">
-            <div class="card-title">
-                <span style="display: flex; align-items: center; gap: 8px;"><span>📑</span> Sesi Selesai / Arsip Litigasi (Wajib Drafting IRAC & e-Meterai)</span>
-                <span class="badge badge-warning">1 Butuh Tindakan</span>
-            </div>
-            
-            <div class="history-item">
-                <div>
-                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Hendra Wijaya — <span style="color: #fbbf24;">Akta Perjanjian Damai e-Meterai</span></div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 14:30 WIB • Status: Draf IRAC selesai, menunggu pembubuhan e-Meterai Perum Peruri</div>
-                </div>
-                <a href="mockup_modul_hukum.html" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 0.6rem 1.2rem; font-weight: 700;">📜 BUBUI E-METERAI</a>
-            </div>
-
-            <div class="history-item">
-                <div>
-                    <div style="font-weight: 600; font-size: 0.95rem; color: #fff;">Siti Aminah — <span style="color: #34d399;">Gugatan Hak Asuh Anak (Pro Bono)</span></div>
-                    <div style="color: #64748b; font-size: 0.8rem; margin-top: 4px;">Sesi selesai 11:00 WIB • Status: Berkas gugatan pengadilan resmi diterbitkan</div>
-                </div>
-                <a href="mockup_modul_hukum.html" class="btn btn-outline" style="font-weight: 600;">👁️ LIHAT BERKAS HUKUM</a>
-            </div>
-        </div>
-
-        <div id="dompet-section" class="payout-card">
-            <div class="card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                <span style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; color: #fff; font-weight: 700;"><span>💰</span> Workstation Keuangan Mitra & Penarikan Dana PPh 21 (SD-J-10)</span>
-                <span class="badge badge-success">Beneficiary: Bank BCA 8810-xxxx-xxxx (Budi Santoso)</span>
-            </div>
-            <p style="color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem;">Pengelolaan penghasilan konsultasi litigasi, pencairan dana otomatis dengan pemotongan PPh 21 (J-UC19), dan pencatatan log mutlak WORM Hash SHA-256 10 tahun (J-UC18).</p>
-            
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;">
-                <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Saldo Aktif Siap Tarik</div>
-                    <div id="available-balance-el" style="font-size: 1.6rem; font-weight: 800; color: #34d399; margin-top: 6px;">Rp 22.400.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">✔ Escrow Cair & Siap Payout</div>
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Escrow Pro Bono (Pending BPHN)</div>
-                    <div style="font-size: 1.6rem; font-weight: 800; color: #38bdf8; margin-top: 6px;">Rp 6.000.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">8 Sesi Bantuan Litigasi Bersubsidi BPHN</div>
-                </div>
-                <div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);">
-                    <div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Saldo Dibekukan (Frozen)</div>
-                    <div style="font-size: 1.6rem; font-weight: 800; color: #fbbf24; margin-top: 6px;">Rp 3.500.000</div>
-                    <div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Antrean Verifikasi Sesi Berjalan</div>
-                </div>
-            </div>
-
-            <!-- Formulir Pencairan Dana PPh 21 (J-UC19) -->
-            <div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
-                <h4 style="color: #fbbf24; font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">💸 Ajukan Pencairan Dana Escrow & Hitung PPh 21 (J-UC19)</h4>
-                <div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.2rem; align-items: flex-end;">
-                    <div>
-                        <label style="display: block; font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">Nominal Pencairan (Max: Saldo Aktif):</label>
-                        <div style="position: relative;">
-                            <span style="position: absolute; left: 12px; top: 10px; color: #64748b; font-weight: 700;">Rp</span>
-                            <input type="number" id="withdraw-amount" value="22400000" style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.2rem; background: #080c14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 0.95rem; font-weight: 700;">
-                        </div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">Estimasi PPh 21 (5%):</div>
-                        <div id="est-tax-el" style="font-size: 1.05rem; font-weight: 700; color: #f87171; margin-top: 4px;">Rp 1.120.000</div>
-                    </div>
-                    <div>
-                        <div style="font-size: 0.75rem; color: #94a3b8;">Terima Bersih (Netto):</div>
-                        <div id="est-net-el" style="font-size: 1.05rem; font-weight: 700; color: #34d399; margin-top: 4px;">Rp 21.280.000</div>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
-                    <div style="font-size: 0.8rem; color: #cbd5e1;">⚡ Rekening Tujuan: <strong>Bank BCA — 8810-xxxx-xxxx (Budi Santoso, S.H., M.H.)</strong></div>
-                    <div style="display: flex; gap: 10px;">
-                        <button class="btn btn-outline" style="border-color: #f87171; color: #f87171;" onclick="processWithdrawal(true)">⚠️ Simulasi Error 400 (Saldo Tidak Cukup)</button>
-                        <button class="btn btn-success" style="padding: 0.7rem 1.5rem; font-weight: 700;" onclick="processWithdrawal(false)">💸 Tarik Dana Sekarang (200 OK)</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Tabel Audit Log WORM (J-UC18) -->
-            <div style="margin-top: 1.5rem;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-                    <div>
-                        <h4 style="color: #fff; font-size: 1.05rem;">🔒 Riwayat Pencairan & Log Audit WORM Storage (J-UC18)</h4>
-                        <p style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">Rekam jejak mutlak (Write-Once-Read-Many) untuk kepatuhan pemeriksaan Dirjen Pajak & Audit Peradi</p>
-                    </div>
-                    <span class="badge badge-success" style="font-size: 0.75rem;">● WORM 10 Tahun Terkunci</span>
-                </div>
-                <table style="width: 100%; border-collapse: collapse; text-align: left;">
-                    <thead>
-                        <tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">
-                            <th style="padding: 0.8rem;">Waktu & Ref Bank</th>
-                            <th style="padding: 0.8rem;">Jumlah Bruto</th>
-                            <th style="padding: 0.8rem;">Potongan PPh 21 (5%)</th>
-                            <th style="padding: 0.8rem;">Transfer Netto</th>
-                            <th style="padding: 0.8rem;">WORM Hash SHA-256 (J-UC18)</th>
-                            <th style="padding: 0.8rem; text-align: right;">Bukti Pajak</th>
-                        </tr>
-                    </thead>
-                    <tbody id="worm-table-body" style="font-size: 0.85rem;">
-                        <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
-                            <td style="padding: 1rem 0.8rem;">
-                                <strong style="color: #fff;">01 Juli 2026</strong>
-                                <div style="color: #64748b; font-size: 0.75rem; font-family: monospace;">TRX-BCA-990142</div>
-                            </td>
-                            <td style="padding: 1rem 0.8rem; color: #cbd5e1;">Rp 15.000.000</td>
-                            <td style="padding: 1rem 0.8rem; color: #f87171;">-Rp 750.000</td>
-                            <td style="padding: 1rem 0.8rem; color: #34d399; font-weight: 700;">Rp 14.250.000</td>
-                            <td style="padding: 1rem 0.8rem;">
-                                <span style="font-family: monospace; background: rgba(56,189,248,0.1); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">SHA256: 9E8D7C6B...1A2B</span>
-                            </td>
-                            <td style="padding: 1rem 0.8rem; text-align: right;">
-                                <button class="btn btn-outline" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;" onclick="downloadTaxProof('TRX-BCA-990142', 15000000, 750000)">📑 Unduh PPh 21</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div style="font-size: 2rem; font-weight: 800; color: #fff; margin-top: 6px;">Rp 5.000</div>
+        <div style="display: flex; align-items: center; gap: 8px; margin-top: 6px;">
+            <span style="font-size: 0.75rem; background: rgba(239, 68, 68, 0.2); color: #f87171; padding: 3px 8px; border-radius: 12px; font-weight: 600; border: 1px solid rgba(239, 68, 68, 0.4);">⚠️ Di Bawah Minimum e-Meterai Rp12.000 (HTTP 402 Alert)</span>
+            <span style="font-size: 0.75rem; color: #94a3b8;">• Bebas Potongan PPh 21</span>
         </div>
     </div>
+    <div>
+        <a href="mockup_topup_advokat.html" class="btn" style="background: linear-gradient(135deg, #d97706, #b45309); color: #fff; padding: 0.8rem 1.5rem; font-weight: 700; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(217,119,6,0.4); text-decoration: none;">
+            ➕ Top-Up Saldo Dompet (`J-UC22`)
+        </a>
+    </div>
+</div>
 
-    <script>
-        let isOnline = true;
+<h4 style="color: #34d399; font-size: 1.05rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">🏦 Dompet Penghasilan Escrow Konsultasi (`J-UC19`)</h4>
+<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-bottom: 1.8rem;">
+<div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(16,185,129,0.3);">
+<div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Saldo Aktif Siap Tarik</div>
+<div id="available-balance-el" style="font-size: 1.6rem; font-weight: 800; color: #34d399; margin-top: 6px;">Rp 22.400.000</div>
+<div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">✔ Escrow Cair &amp; Siap Payout</div>
+</div>
+<div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(56,189,248,0.3);">
+<div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Escrow Pro Bono (Pending BPHN)</div>
+<div style="font-size: 1.6rem; font-weight: 800; color: #38bdf8; margin-top: 6px;">Rp 6.000.000</div>
+<div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">8 Sesi Bantuan Litigasi Bersubsidi BPHN</div>
+</div>
+<div style="background: rgba(0,0,0,0.4); padding: 1.2rem; border-radius: 12px; border: 1px solid rgba(245,158,11,0.3);">
+<div style="color: #64748b; font-size: 0.8rem; text-transform: uppercase; font-weight: 700;">Saldo Dibekukan (Frozen)</div>
+<div style="font-size: 1.6rem; font-weight: 800; color: #fbbf24; margin-top: 6px;">Rp 3.500.000</div>
+<div style="color: #94a3b8; font-size: 0.75rem; margin-top: 4px;">Antrean Verifikasi Sesi Berjalan</div>
+</div>
+</div>
+<!-- Formulir Pencairan Dana PPh 21 (J-UC19) -->
+<div style="background: rgba(15,23,42,0.9); border: 1px solid rgba(255,255,255,0.1); border-radius: 14px; padding: 1.5rem; margin-bottom: 2rem;">
+<h4 style="color: #fbbf24; font-size: 1rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 8px;">💸 Ajukan Pencairan Dana Escrow &amp; Hitung PPh 21</h4>
+<div style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 1.2rem; align-items: flex-end;">
+<div>
+<label style="display: block; font-size: 0.8rem; color: #94a3b8; font-weight: 600; margin-bottom: 6px;">Nominal Pencairan (Max: Saldo Aktif):</label>
+<div style="position: relative;">
+<span style="position: absolute; left: 12px; top: 10px; color: #64748b; font-weight: 700;">Rp</span>
+<input id="withdraw-amount" style="width: 100%; padding: 0.65rem 1rem 0.65rem 2.2rem; background: #080c14; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #fff; font-size: 0.95rem; font-weight: 700;" type="number" value="22400000"/>
+</div>
+</div>
+<div>
+<div style="font-size: 0.75rem; color: #94a3b8;">Estimasi PPh 21 (5%):</div>
+<div id="est-tax-el" style="font-size: 1.05rem; font-weight: 700; color: #f87171; margin-top: 4px;">Rp 1.120.000</div>
+</div>
+<div>
+<div style="font-size: 0.75rem; color: #94a3b8;">Terima Bersih (Netto):</div>
+<div id="est-net-el" style="font-size: 1.05rem; font-weight: 700; color: #34d399; margin-top: 4px;">Rp 21.280.000</div>
+</div>
+</div>
+<div style="display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.08);">
+<div style="font-size: 0.8rem; color: #cbd5e1;">⚡ Rekening Tujuan: <strong>Bank BCA — 8810-xxxx-xxxx (Budi Santoso, S.H., M.H.)</strong></div>
+<div style="display: flex; gap: 10px;">
+<button class="btn btn-outline" onclick="processWithdrawal(true)" style="border-color: #f87171; color: #f87171;">⚠️ Simulasi Error 400 (Saldo Tidak Cukup)</button>
+<button class="btn btn-success" onclick="processWithdrawal(false)" style="padding: 0.7rem 1.5rem; font-weight: 700;">💸 Tarik Dana Sekarang (200 OK)</button>
+</div>
+</div>
+</div>
+<!-- Tabel Audit Log WORM (J-UC18) -->
+<div style="margin-top: 1.5rem;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+<div>
+<h4 style="color: #fff; font-size: 1.05rem;">🔒 Riwayat Pencairan &amp; Log Audit WORM Storage</h4>
+<p style="color: #64748b; font-size: 0.8rem; margin-top: 2px;">Rekam jejak mutlak (Write-Once-Read-Many) untuk kepatuhan pemeriksaan Dirjen Pajak &amp; Audit Peradi</p>
+</div>
+<span class="badge badge-success" style="font-size: 0.75rem;">● WORM 10 Tahun Terkunci</span>
+</div>
+<table style="width: 100%; border-collapse: collapse; text-align: left;">
+<thead>
+<tr style="background: rgba(0,0,0,0.5); border-bottom: 1px solid rgba(255,255,255,0.1); color: #94a3b8; font-size: 0.75rem; text-transform: uppercase;">
+<th style="padding: 0.8rem;">Waktu &amp; Ref Bank</th>
+<th style="padding: 0.8rem;">Jumlah Bruto</th>
+<th style="padding: 0.8rem;">Potongan PPh 21 (5%)</th>
+<th style="padding: 0.8rem;">Transfer Netto</th>
+<th style="padding: 0.8rem;">WORM Hash SHA-256 (J-UC18)</th>
+<th style="padding: 0.8rem; text-align: right;">Bukti Pajak</th>
+</tr>
+</thead>
+<tbody id="worm-table-body" style="font-size: 0.85rem;">
+<tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+<td style="padding: 1rem 0.8rem;">
+<strong style="color: #fff;">01 Juli 2026</strong>
+<div style="color: #64748b; font-size: 0.75rem; font-family: monospace;">TRX-BCA-990142</div>
+</td>
+<td style="padding: 1rem 0.8rem; color: #cbd5e1;">Rp 15.000.000</td>
+<td style="padding: 1rem 0.8rem; color: #f87171;">-Rp 750.000</td>
+<td style="padding: 1rem 0.8rem; color: #34d399; font-weight: 700;">Rp 14.250.000</td>
+<td style="padding: 1rem 0.8rem;">
+<span style="font-family: monospace; background: rgba(56,189,248,0.1); color: #38bdf8; padding: 4px 8px; border-radius: 4px; font-size: 0.75rem;">SHA256: 9E8D7C6B...1A2B</span>
+</td>
+<td style="padding: 1rem 0.8rem; text-align: right;">
+<button class="btn btn-outline" onclick="downloadTaxProof('TRX-BCA-990142', 15000000, 750000)" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">📑 Unduh PPh 21</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<script>
         let availableBalance = 22400000;
 
         function formatRp(val) {
@@ -365,7 +361,7 @@
 
             if (simulateError || amount > availableBalance || amount <= 0) {
                 // SD-J-10 Langkah 359 Error Branch
-                alert('⚠️ ERROR 400 BAD REQUEST / 422 UNPROCESSABLE ENTITY (SD-J-10):\n\nGagal memproses pencairan dana! Nominal pencairan (' + formatRp(amount) + ') melebihi Saldo Aktif Siap Tarik Anda (' + formatRp(availableBalance) + ') atau nominal tidak valid.\n\nHarap periksa kembali saldo escrow yang tersedia sebelum mengajukan penarikan ke rekening bank.');
+                alert("⚠️ Pencairan Gagal:\n\nNominal pencairan (" + formatRp(amount) + ") melebihi saldo aktif siap tarik (" + formatRp(availableBalance) + ") atau bernilai tidak valid.\n\nHarap periksa kembali saldo Anda.");
                 return;
             }
 
@@ -412,46 +408,18 @@
                 tbody.insertBefore(tr, tbody.firstChild);
             }
 
-            alert(`✅ SUCCESS 200 OK (SD-J-10 / J-UC19 & J-UC18):\n\nPencairan dana berhasil diproses secara real-time melalui Payment Gateway Disbursement!\n\n• Nomor Referensi Bank: ${refNum}\n• Jumlah Bruto: ${formatRp(amount)}\n• Potongan Pajak PPh 21 (5%): -${formatRp(tax)}\n• Transfer Netto ke Rek BCA: ${formatRp(net)}\n\n• Status WORM Hash Storage: ${randomHash} (Tersimpan permanen & anti-tamper untuk masa retensi 10 tahun).`);
+            alert(`✅ Pencairan Berhasil:\n\nPencairan dana berhasil diproses secara real-time ke rekening bank Anda.\n\nNomor Referensi Bank: ${refNum}\nJumlah Bruto: ${formatRp(amount)}\nPotongan PPh 21 (5%): -${formatRp(tax)}\nTransfer Netto: ${formatRp(net)}\n\nStatus WORM Hash: ${randomHash}`);
         }
 
         function downloadTaxProof(refNum, gross, tax) {
-            alert(`📑 BUKTI PEMOTONGAN PAJAK PPH PASAL 21 (J-UC18 / SD-J-10):\n\n• No. Bukti Potong: PPH21-${refNum}\n• Nama Wajib Pajak: Budi Santoso, S.H., M.H.\n• NPWP: 88.921.402.1-012.000\n• Penghasilan Bruto: ${formatRp(gross)}\n• Tarif Pemotongan: 5% (Advokat/Tenaga Ahli)\n• PPh 21 Dipotong: ${formatRp(tax)}\n\n🔒 Dilengkapi Kode Verifikasi WORM Hash SHA-256 untuk pelaporan SPT Tahunan e-Filing DJP.`);
+            alert(`📑 Bukti Pemotongan Pajak PPh Pasal 21:\n\nNo. Bukti Potong: PPH21-${refNum}\nNama Wajib Pajak: Budi Santoso, S.H., M.H.\nNPWP: 88.921.402.1-012.000\nPenghasilan Bruto: ${formatRp(gross)}\nTarif Pemotongan: 5% (Tenaga Ahli)\nPPh 21 Dipotong: ${formatRp(tax)}\n\nSiap digunakan untuk lampiran SPT Tahunan.`);
         }
 
-        function toggleSidebarStatus() {
-            const conflictCb = document.getElementById('conflict-sim-cb');
-            if (conflictCb && conflictCb.checked) {
-                // SD-J-04 Langkah 171-172: 409 Conflict Branch
-                alert('⚠️ ERROR 409 CONFLICT (SD-J-04 / J-UC09 Alternatif 2b):\n\nGagal mengubah status ketersediaan praktik! Sistem mendeteksi adanya Sesi Konsultasi yang Sedang Berjalan (ID: SES-99201) atau Jadwal Sidang yang bentrok.\n\nHarap selesaikan sesi aktif atau sesuaikan slot jadwal konsultasi Anda terlebih dahulu sebelum mengubah status ketersediaan.');
-                return;
-            }
-
-            // SD-J-04 Langkah 174-177: 200 OK Branch
-            isOnline = !isOnline;
-            const slider = document.getElementById('sidebar-slider');
-            const knob = document.getElementById('sidebar-knob');
-            const badge = document.getElementById('status-badge');
-            const text = document.getElementById('status-text');
-            
-            if(isOnline) {
-                slider.style.background = '#10b981';
-                slider.style.boxShadow = '0 0 12px rgba(16,185,129,0.4)';
-                knob.style.left = '27px';
-                badge.className = 'badge badge-success';
-                badge.innerHTML = '🟢 ONLINE';
-                text.style.color = '#a7f3d0';
-                text.innerHTML = 'Menerima Konsultasi';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi ONLINE / AVAILABLE. Profil advokat Anda kini aktif dan siap menerima konsultasi dari klien di Katalog Justifiqa.');
+        function checkConflictSimulation(cb) {
+            if (cb.checked) {
+                alert("⚠️ SIMULASI SD-J-04 ACTIVATED (409 Conflict):\n\nSesi aktif atau jadwal persidangan terdeteksi! Sistem otomatis menandai ketersediaan advokat sebagai 'Sibuk / Conflict'. Klien baru yang mencoba memesan pada jam yang sama akan menerima peringatan HTTP 409.");
             } else {
-                slider.style.background = '#ef4444';
-                slider.style.boxShadow = '0 0 12px rgba(239,68,68,0.4)';
-                knob.style.left = '3px';
-                badge.className = 'badge badge-danger';
-                badge.innerHTML = '🔴 SIDANG / OFFLINE';
-                text.style.color = '#f87171';
-                text.innerHTML = 'Jadwal Tidak Tersedia';
-                alert('✅ SUCCESS 200 OK (SD-J-04 Langkah 176):\n\nStatus praktik berhasil diubah menjadi OFFLINE / SIDANG. Profil advokat Anda disembunyikan sementara dari katalog pencarian klien.');
+                alert("🟢 SIMULASI SD-J-04 DEACTIVATED (200 OK):\n\nSesi selesai! Kalender advokat kembali terbuka secara otomatis untuk menerima pesanan konsultasi berikutnya.");
             }
         }
         window.addEventListener('DOMContentLoaded', () => {

@@ -24,6 +24,7 @@ actor "Klien (Pencari Keadilan)" as Klien
 actor "Advokat / Notaris (Mitra Profesional)" as Mitra
 actor "Admin Justifiqa (System & Legal Admin)" as Admin
 actor "Payment Gateway" as PG
+actor "API Mekari Sign (Peruri)" as Mekari
 
 rectangle "Aplikasi Mandiri Justifiqa (Domain Hukum)" {
   ' Client & Partner Core Flows
@@ -39,54 +40,60 @@ rectangle "Aplikasi Mandiri Justifiqa (Domain Hukum)" {
   usecase "J-UC09: Mengatur Status Ketersediaan Praktik" as UC09
   usecase "J-UC10: Melayani Sesi Konsultasi Hukum" as UC10
   usecase "J-UC11: Membuat Catatan Hukum (IRAC Note)" as UC11
-  usecase "J-UC12: Menerbitkan Opini Hukum / Draf Kontrak" as UC12
+  usecase "J-UC12: Membuat & Memfinalisasi Draf Kontrak Bermeterai" as UC12
   
   ' Domain Specific Legal Flows
   usecase "J-UC13: Mengunggah Berkas Perkara E2EE (Zero-Knowledge)" as UC13
-  usecase "J-UC14: Pembubuhan e-Meterai Peruri pada Draf Hukum" as UC14
   usecase "J-UC15: Pengajuan Konsultasi Pro Bono (Verifikasi SKTM)" as UC15
+  usecase "J-UC22: Mengisi Saldo Dompet Advokat (Top-Up)" as UC22
   
   ' Independent Admin Flows
-  usecase "J-UC16: Memverifikasi Kredensial Advokat & SKTM Pro Bono" as UC16
+  usecase "J-UC20: Autentikasi Portal Backoffice Admin (TOTP 2FA)" as UC20
+  usecase "J-UC21: Melaporkan Dugaan Pelanggaran Etik Advokat" as UC21
+  usecase "J-UC16: Memverifikasi Kredensial & Lisensi Advokat (NIA & BAS)" as UC16
   usecase "J-UC17: Moderasi Akun & Due Process Suspend Flow" as UC17
   usecase "J-UC18: Audit Log Transaksi & WORM Hash Storage" as UC18
   usecase "J-UC19: Manajemen Pencairan Dana Escrow Advokat (PPh 21)" as UC19
   
   UC04 .> UC05 : <<include>>
   UC12 .> UC11 : <<extend>>
-  UC12 .> UC14 : <<extend>>
+  UC12 .> UC22 : <<include>>
   UC15 .> UC04 : <<extend>>
+
+  ' User Access Relationships
+  Klien -- UC01
+  Klien -- UC02
+  Klien -- UC03
+  Klien -- UC04
+  Klien -- UC05
+  Klien -- UC06
+  Klien -- UC10
+  Klien -- UC13
+  Klien -- UC15
+  Klien -- UC21
+  
+  Mitra -- UC04
+  Mitra -- UC07
+  Mitra -- UC08
+  Mitra -- UC09
+  Mitra -- UC10
+  Mitra -- UC11
+  Mitra -- UC12
+  Mitra -- UC13
+  Mitra -- UC15
+  Mitra -- UC19
+  Mitra -- UC22
+  
+  Admin -- UC20
+  Admin -- UC16
+  Admin -- UC17
+  Admin -- UC18
+  
+  UC05 -- PG
+  UC19 -- PG
+  UC22 -- PG
+  UC12 -- Mekari
 }
-
-Klien -- UC01
-Klien -- UC02
-Klien -- UC03
-Klien -- UC04
-Klien -- UC05
-Klien -- UC06
-Klien -- UC13
-Klien -- UC15
-
-Mitra -- UC04
-Klien -- UC10
-
-Mitra -- UC07
-Mitra -- UC08
-Mitra -- UC09
-Mitra -- UC10
-Mitra -- UC11
-Mitra -- UC12
-Mitra -- UC13
-Mitra -- UC14
-Mitra -- UC15
-Mitra -- UC19
-
-Admin -- UC16
-Admin -- UC17
-Admin -- UC18
-Admin -- UC19
-
-UC05 -- PG
 @enduml
 ```
 
@@ -127,6 +134,8 @@ rectangle "Aplikasi Mandiri Qualifa (Domain Psikologi)" {
   usecase "Q-UC15: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119" as UC15
   
   ' Independent Admin Flows
+  usecase "Q-UC20: Autentikasi Portal Backoffice Admin (TOTP 2FA)" as UC20
+  usecase "Q-UC21: Melaporkan Dugaan Malpraktik & Pelanggaran Etik Psikolog" as UC21
   usecase "Q-UC16: Memverifikasi STR/SIPP Psikolog Klinis (HIMPSI Sync)" as UC16
   usecase "Q-UC17: Moderasi Akun & Audit Komite Etik Psikologi" as UC17
   usecase "Q-UC18: Audit Log Transaksi & WORM Hash Storage" as UC18
@@ -146,6 +155,7 @@ Klien -- UC12
 Klien -- UC13
 Klien -- UC14
 Klien -- UC15
+Klien -- UC21
 
 Mitra -- UC04
 Klien -- UC10
@@ -160,11 +170,12 @@ Mitra -- UC13
 Mitra -- UC15
 Mitra -- UC19
 
+Admin -- UC20
 Admin -- UC16
 Admin -- UC17
 Admin -- UC18
-Admin -- UC19
 
 UC05 -- PG
+UC19 -- PG
 @enduml
 ```

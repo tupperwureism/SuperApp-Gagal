@@ -52,6 +52,8 @@ alt Email / No HP / NIK Sudah Terdaftar
         deactivate FE
     end
 else Kredensial Baru & Valid
+    activate BE
+    activate FE
     alt Jenis Akun = Klien (Pencari Keadilan)
         BE -> Ext ++ : Verify NIK & KK to API Dukcapil
         Ext --> BE -- : Validasi NIK Cocok
@@ -112,6 +114,8 @@ alt Kredensial Tidak Cocok
         deactivate FE
     end
 else Kredensial Cocok
+    activate BE
+    activate FE
     alt Status Akun = SUSPENDED (Due Process Legal)
         BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
         FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
@@ -280,6 +284,8 @@ alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
         deactivate FE
     end
 else Slot Jadwal Aman (200 OK)
+    activate BE
+    activate FE
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
     BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
@@ -447,6 +453,8 @@ alt SKTM Tidak Valid / Palsu
         deactivate FE
     end
 else SKTM Sah & Terverifikasi
+    activate BE
+    activate FE
     BE -> BE ++ : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
     BE --> BE -- : Return Computed Result / State
 activate Mitra
@@ -927,6 +935,8 @@ alt Email / No HP Sudah Terdaftar
         deactivate FE
     end
 else Kredensial Baru & Valid
+    activate BE
+    activate FE
     alt Jenis Akun = Klien (Pasien/User)
         BE -> DB ++ : Insert Klien (Status: AKTIF)
         DB --> BE -- : Success DB Insert
@@ -1125,6 +1135,8 @@ alt Jeda Istirahat Antar Sesi < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
         deactivate FE
     end
 else Jeda Waktu Memenuhi Syarat (> 30 Menit)
+    activate BE
+    activate FE
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
     BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)

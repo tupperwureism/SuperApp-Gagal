@@ -136,17 +136,14 @@
 <div style="font-size: 0.8rem; color: #c084fc; margin-top: 4px;">Qualifa — Psikolog Klinis &amp; Kerja</div>
 <span class="badge badge-success" style="font-size: 0.7rem; margin-top: 8px;">✔ SIPP IPK Terverifikasi</span>
 </div>
-<div class="toggle-switch-container">
-<div style="display: flex; justify-content: space-between; align-items: center;">
-<span style="font-size: 0.85rem; font-weight: 600; color: #cbd5e1;">Status Praktik:</span>
-<span class="badge badge-success" id="status-badge" style="font-size: 0.7rem;">🟢 ONLINE</span>
+<div style="margin: 15px 0; padding: 12px; background: rgba(192,132,252,0.1); border: 1px solid rgba(192,132,252,0.25); border-radius: 12px;">
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+<span style="font-size: 0.8rem; font-weight: 600; color: #cbd5e1;">Status Sistem:</span>
+<span class="badge badge-success" style="font-size: 0.68rem; padding: 3px 8px;">🟢 SIAP (AUTO-SCHEDULED)</span>
 </div>
-<label class="toggle-switch" onclick="toggleSidebarStatus()">
-<div class="toggle-slider" id="sidebar-slider">
-<div class="toggle-knob" id="sidebar-knob"></div>
+<div style="font-size: 0.72rem; color: #94a3b8; line-height: 1.3;">
+Ketersediaan konseling WebRTC dikendalikan otomatis oleh kalender sesi aktif E2EE.
 </div>
-<span id="status-text" style="font-size: 0.8rem; color: #a7f3d0; font-weight: 600;">Menerima Konsultasi</span>
-</label>
 </div>
 <ul class="nav-menu">
 <li class="nav-item"><a href="mockup_dasbor_psikologi.html">🏠 Portal Utama Qualifa (Hub)</a></li>
@@ -246,33 +243,6 @@
 </div>
 </div>
 <script>
-        let isOnline = true;
-        function toggleSidebarStatus() {
-            isOnline = !isOnline;
-            const slider = document.getElementById('sidebar-slider');
-            const knob = document.getElementById('sidebar-knob');
-            const badge = document.getElementById('status-badge');
-            const text = document.getElementById('status-text');
-            
-            if(isOnline) {
-                slider.style.background = '#10b981';
-                slider.style.boxShadow = '0 0 12px rgba(16,185,129,0.4)';
-                knob.style.left = '27px';
-                badge.className = 'badge badge-success';
-                badge.innerHTML = '🟢 ONLINE';
-                text.style.color = '#a7f3d0';
-                text.innerHTML = 'Menerima Konsultasi';
-            } else {
-                slider.style.background = '#ef4444';
-                slider.style.boxShadow = '0 0 12px rgba(239,68,68,0.4)';
-                knob.style.left = '3px';
-                badge.className = 'badge badge-danger';
-                badge.innerHTML = '🔴 SIDANG / OPERASI';
-                text.style.color = '#f87171';
-                text.innerHTML = 'Jadwal Tidak Tersedia';
-            }
-        }
-
         function showComplianceModal() {
             document.getElementById('complianceModal').style.display = 'flex';
         }
