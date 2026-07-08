@@ -36,8 +36,21 @@ BE -> DB ++ : Check Existing Email/No HP/NIK
 DB --> BE -- : Status Uniqueness Result
 
 alt Email / No HP / NIK Sudah Terdaftar
-    BE --> FE : 400 Bad Request (Akun Sudah Ada)
-    FE --> User : Tampilkan Error "Kredensial Sudah Terdaftar"
+    BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
+    FE --> User : Tampilkan Error "Kredensial Sudah Terdaftar" & Instruksi Perbaikan
+    deactivate BE
+    deactivate FE
+    
+    loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
+        User -> FE ++ : Perbaiki Data Input & Klik Daftar Kembali
+        FE -> BE ++ : POST /api/v1/auth/register (Corrected Payload & Files)
+        BE -> DB ++ : Check Existing Email/No HP/NIK
+        DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
+        BE --> FE : 200 OK (Data Valid & Unik)
+        FE --> User : Lanjut Proses Verifikasi Kredensial
+        deactivate BE
+        deactivate FE
+    end
 else Kredensial Baru & Valid
     alt Jenis Akun = Klien (Pencari Keadilan)
         BE -> Ext ++ : Verify NIK & KK to API Dukcapil
@@ -253,6 +266,19 @@ DB --> BE -- : Return Booking Schedule & Active Session State
 alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
     BE --> FE : 409 Conflict (Jadwal Bentrok / Sesi Aktif)
     FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
+    deactivate BE
+    deactivate FE
+    
+    loop [Pilih Slot Jam Lain yang Kosong / Sesuaikan Jadwal]
+        Mitra -> FE ++ : Sesuaikan Jam Operasional & Klik Simpan Kembali
+        FE -> BE ++ : PUT /api/v1/advocate/calendar (Updated Slot Rules)
+        BE -> DB ++ : Check Active Booking & Konflik Jadwal
+        DB --> BE -- : Return 0 Conflicts (Slot Aman)
+        BE --> FE : 200 OK (Slot Valid & Tidak Bentrok)
+        FE --> Mitra : Lanjut Simpan Perubahan
+        deactivate BE
+        deactivate FE
+    end
 else Slot Jadwal Aman (200 OK)
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
@@ -405,8 +431,21 @@ BE -> Ext ++ : Verify Keabsahan Nomor SKTM & NIK
 Ext --> BE -- : Return SKTM Verification Status
 
 alt SKTM Tidak Valid / Palsu
-    BE --> FE : 400 Bad Request (SKTM Tidak Terverifikasi)
-    FE --> Klien : Tampilkan Error & Tawarkan Sesi Berbayar Reguler
+    BE --> FE : 400 Bad Request / 422 Unprocessable Entity (SKTM Tidak Sah)
+    FE --> Klien : Tampilkan Error & Instruksi Perbaikan Berkas SKTM
+    deactivate BE
+    deactivate FE
+    
+    loop [Revisi & Unggah Ulang Berkas SKTM / Dokumen Kemensos]
+        Klien -> FE ++ : Perbaiki Nomor SKTM & Unggah Ulang Foto Dokumen
+        FE -> BE ++ : POST /api/v1/pro-bono/apply (Updated SKTM Payload)
+        BE -> Ext ++ : Verify Keabsahan Nomor SKTM & KK ke Kemensos
+        Ext --> BE -- : Return Status Valid & Terdaftar
+        BE --> FE : 200 OK (SKTM Valid & Terverifikasi)
+        FE --> Klien : Lanjut ke Matchmaking Advokat Pro Bono
+        deactivate BE
+        deactivate FE
+    end
 else SKTM Sah & Terverifikasi
     BE -> BE ++ : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
     BE --> BE -- : Return Computed Result / State
@@ -441,8 +480,22 @@ Mitra -> FE ++ : Buka Form Catatan IRAC & Isi Kolom (Issue, Rule, App, Concl)
 FE -> BE ++ : POST /api/v1/advocate/notes/irac (Session ID, IRAC Payload)
 BE -> BE ++ : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
 BE --> BE -- : Return Computed Result / State
-BE -> DB ++ : Simpan Catatan IRAC ke Rekam Perkara Klien
+BE -> DB ++ : Simpan Catatan IRAC ke Rekam Perkara Klien (with privacy_status)
 DB --> BE -- : Success Insert Note
+
+alt Status Privasi == Bagikan ke Klien (CLIENT_SHARED)
+    BE -> DB ++ : UPDATE irac_notes SET access_level = 'SHARED' WHERE id = note_id
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE -> FE ++ : Trigger Push Notification "Catatan Sesi IRAC Telah Dibagikan"
+    FE --> Klien : Tampilkan Ringkasan Catatan Sesi di Dasbor Klien
+    deactivate FE
+else Status Privasi == Internal Advokat (INTERNAL_ONLY - Work Product Privilege)
+    BE -> DB ++ : UPDATE irac_notes SET access_level = 'INTERNAL_ONLY' WHERE id = note_id
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE -> BE ++ : Enforce Work Product Privilege (Lock Access from Client Portal)
+    BE --> BE -- : Return Computed Result / State
+end
+
 BE --> FE : 201 Created (Catatan Tersimpan Aman)
 FE --> Mitra : Tampilkan Notifikasi Catatan Berhasil Diarsip
 deactivate BE
@@ -858,8 +911,21 @@ BE -> DB ++ : Check Existing Email/No HP
 DB --> BE -- : Status Uniqueness Result
 
 alt Email / No HP Sudah Terdaftar
-    BE --> FE : 400 Bad Request (Akun Sudah Ada)
-    FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar"
+    BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
+    FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar" & Instruksi Perbaikan
+    deactivate BE
+    deactivate FE
+    
+    loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
+        User -> FE ++ : Perbaiki Data Input & Klik Daftar Kembali
+        FE -> BE ++ : POST /api/v1/auth/register (Corrected Payload & Files)
+        BE -> DB ++ : Check Existing Email/No HP
+        DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
+        BE --> FE : 200 OK (Data Valid & Unik)
+        FE --> User : Lanjut Proses Verifikasi Kredensial
+        deactivate BE
+        deactivate FE
+    end
 else Kredensial Baru & Valid
     alt Jenis Akun = Klien (Pasien/User)
         BE -> DB ++ : Insert Klien (Status: AKTIF)
@@ -966,17 +1032,41 @@ FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
 Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
-PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
-BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
-BE --> BE -- : Return Computed Result / State
-BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-BE --> BE -- : Return Computed Result / State
-activate Mitra
-BE -> Mitra ++ : Kirim Push Notification Pengingat Jadwal Terapi
-deactivate BE
-PG --> Klien : 200 OK (Payment Status Verified)
 
-note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
+alt Webhook Status Transaksi = PAID / SUCCESS
+    PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+    BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
+    BE --> BE -- : Return Computed Result / State
+    BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+    BE --> BE -- : Return Computed Result / State
+    activate Mitra
+    BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+    deactivate BE
+    PG --> Klien : 200 OK (Payment Status Verified)
+    
+    note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
+else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+    PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+    BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
+    BE --> BE -- : Return Computed Result / State
+    BE --> PG -- : 200 OK (Webhook Processed)
+    PG --> Klien : 402 Payment Required / 400 Payment Failed
+    
+    loop [Coba Bayar Ulang atau Jadwal Ulang Reservasi]
+        Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+        FE -> BE ++ : POST /api/v1/counseling/retry-payment (Booking ID, New Method)
+        BE -> PG ++ : Create New Payment Invoice & VA Number
+        PG --> BE -- : Return New Invoice URL & VA Number
+        BE --> FE : 200 OK (New Billing Detail Rp300.000 + Fee)
+        FE --> Klien : Tampilkan Halaman Pembayaran Baru
+        deactivate BE
+        deactivate FE
+    end
+    
+    note over Klien, PG : Jika pembayaran ulang sukses, alur akan mentrigger kembali webhook PAID di atas
+end
+
+note over Klien, Mitra : Alur Sesi Konseling & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
 Klien -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=klien)
 FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Psikolog)
 Mitra -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=mitra)
@@ -1021,6 +1111,19 @@ DB --> BE -- : Return Last Session End Time & Active Schedule
 alt Jeda Istirahat Antar Sesi < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
     BE --> FE : 422 Unprocessable Entity (Buffer Rule Violation)
     FE --> Mitra : Tampilkan Peringatan "Wajib Jeda Istirahat 30 Menit Antar Sesi"
+    deactivate BE
+    deactivate FE
+    
+    loop [Sesuaikan Jam Jadwal agar Memenuhi Buffer Rule 30 Menit]
+        Mitra -> FE ++ : Sesuaikan Jam Operasional & Klik Simpan Kembali
+        FE -> BE ++ : PUT /api/v1/psychologist/calendar (Updated Slot Rules)
+        BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
+        DB --> BE -- : Return Last Session End Time & Active Schedule (Buffer > 30 Mnt)
+        BE --> FE : 200 OK (Slot Valid Memenuhi Buffer Rule)
+        FE --> Mitra : Lanjut Simpan Perubahan
+        deactivate BE
+        deactivate FE
+    end
 else Jeda Waktu Memenuhi Syarat (> 30 Menit)
     BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
     DB --> BE -- : Success Update
