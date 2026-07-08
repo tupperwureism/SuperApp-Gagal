@@ -544,6 +544,7 @@ deactivate Mitra
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-10 - Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
 autonumber
 actor "Admin Justifiqa" as Admin
 participant "Panel Admin Justifiqa" as FE
@@ -555,53 +556,79 @@ actor "Advokat Terlapor" as Mitra
 activate Admin
 Admin -> FE ++ : Buka Tab Laporan Pelanggaran Etik / Hukum
 FE -> BE ++ : GET /api/v1/admin/moderation/reports
-BE --> FE -- : Return Daftar Laporan & Bukti WORM
-FE --> Admin : Tampilkan Daftar Laporan
-Admin -> FE ++ : Proses Laporan Pelanggaran Berat & Klik Suspend
-FE -> BE ++ : POST /api/v1/admin/moderation/suspend (Advocate ID, Reason)
-BE -> DB ++ : Update Status Akun = SUSPENDED (Due Process)
-DB --> BE -- : 200 OK (Success / Rows Affected)
-BE -> WORM ++ : Generate & Simpan Surat Panggilan (Stempel Hash SHA-256)
-WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-BE -> DB ++ : Aktifkan Timer Countdown Masa Sanggah 14 Hari Kerja
-DB --> BE -- : 200 OK (Success / Rows Affected)
-activate Mitra
-BE -> Mitra ++ : Kirim Email, SMS, & Push Notifikasi Panggilan Klarifikasi
-Mitra --> BE : Terima Notifikasi Panggilan
-BE --> FE -- : 200 OK (Status Suspended & Surat Panggilan Terkirim)
-FE --> Admin : Tampilkan Konfirmasi Suspend
+BE --> FE -- : Return Daftar Laporan & Bukti WORM SHA-256
+FE --> Admin : Tampilkan Daftar Laporan & Bukti SHA-256
+Admin -> FE : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal
 
-Mitra -> BE ++ : GET /api/v1/advokat/moderation/status
-BE --> Mitra : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
-Mitra -> BE ++ : POST /api/v1/advokat/moderation/appeal (Defense Doc PDF)
-BE -> WORM ++ : Simpan Berkas Pembelaan & Stempel WORM Hash
-WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-BE -> FE ++ : Notifikasi Ada Bukti Sanggahan Baru Masuk
-deactivate FE
-BE --> Mitra : 200 OK (Sanggahan Diterima)
-
-Admin -> FE ++ : Review Berkas & Input Putusan Akhir Sidang Etik
-alt Terbukti Bersalah (Sanksi Pemecatan Permanen)
-  FE -> BE ++ : POST /api/v1/admin/moderation/verdict (Verdict: GUILTY)
-  BE -> DB ++ : Update Status Akun = REVOKED / PERMANENT_BAN
-  DB --> BE -- : 200 OK (Success / Rows Affected)
-  BE -> WORM ++ : Generate & Simpan SK Pemecatan (Hash SHA-256)
-  WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-  BE -> Mitra ++ : Kirim Email SK Pemecatan Permanen
-  Mitra --> BE : Terima SK Pemecatan
-  BE --> FE : 200 OK (Verdict Executed)
-  FE --> Admin : Tampilkan Status Pemecatan Permanen
-else Tidak Terbukti / Rehabilitasi (Unsuspend)
-  FE -> BE : POST /api/v1/admin/moderation/verdict (Verdict: REHABILITATED)
-  BE -> DB ++ : Pulihkan Status Akun = VERIFIED / AKTIF
-  DB --> BE -- : 200 OK (Success / Rows Affected)
-  BE -> WORM ++ : Generate & Simpan Surat Rehabilitasi (Hash SHA-256)
-  WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-  BE -> Mitra ++ : Kirim Email Pemulihan Akun & Pembukaan Katalog
-  Mitra --> BE : Terima Notifikasi Pemulihan
-  BE --> FE -- : 200 OK (Account Rehabilitated)
-  FE --> Admin : Tampilkan Status Rehabilitasi Berhasil
+alt Bukti Permulaan Tidak Sah / Laporan Palsu (SHA-256 Invalid)
+    Admin -> FE : Klik Tolak & Arsip Laporan (Clear / Dismiss)
+    FE -> BE ++ : POST /api/v1/admin/moderation/dismiss {report_id}
+    BE -> DB ++ : UPDATE moderation_reports SET status = 'DISMISSED'
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE --> FE -- : 200 OK (Laporan Diabaikan)
+    FE --> Admin : Tampilkan Status Laporan Tidak Terbukti (Clear)
+else Bukti Permulaan Sah & Terverifikasi SHA-256
+    alt Pelanggaran Ringan / Administratif (Tanpa Suspend Akun)
+        Admin -> FE : Klik Terbitkan Peringatan Tertulis / Pembinaan
+        FE -> BE ++ : POST /api/v1/admin/moderation/warning {advocate_id, reason}
+        BE -> WORM ++ : Catat Surat Peringatan Tertulis ke WORM Storage
+        WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+        BE -> FE : 200 OK (Warning Issued)
+        FE --> Admin : Tampilkan Status Peringatan Terkirim
+        activate Mitra
+        BE -> Mitra : Kirim Email & Push Notifikasi Surat Peringatan
+    else Pelanggaran Berat / Kritis (Due Process Suspend)
+        Admin -> FE : Klik "🛑 Suspend Akun & Kirim Panggilan Klarifikasi"
+        FE -> BE ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}
+        BE -> DB ++ : UPDATE advocate_accounts SET status = 'SUSPENDED'
+        DB --> BE -- : 200 OK (Success / Rows Affected)
+        BE -> WORM ++ : Generate & Simpan Surat Panggilan (Stempel Hash SHA-256)
+        WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+        BE -> DB ++ : Aktifkan Timer Countdown Masa Sanggah 14 Hari Kerja
+        DB --> BE -- : 200 OK (Success / Rows Affected)
+        BE --> FE -- : 200 OK (Status Suspended & Surat Panggilan Terkirim)
+        FE --> Admin : Tampilkan Konfirmasi Suspend & Timer 14 Hari
+        
+        activate Mitra
+        BE -> Mitra : Kirim Email, SMS, & Push Notifikasi Panggilan Klarifikasi
+        Mitra -> BE ++ : GET /api/v1/advokat/moderation/status
+        BE --> Mitra -- : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
+        
+        alt Advokat Mengajukan Berkas Sanggahan (Dalam Masa 14 Hari)
+            Mitra -> BE ++ : POST /api/v1/advokat/moderation/appeal (Defense Doc PDF)
+            BE -> WORM ++ : Simpan Berkas Pembelaan & Stempel WORM Hash
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE -> FE : Notifikasi Ada Bukti Sanggahan Baru Masuk
+            BE --> Mitra -- : 200 OK (Sanggahan Diterima)
+        else Tidak Mengajukan Sanggahan / Timer 14 Hari Habis (Putusan Verstek)
+            BE -> DB ++ : UPDATE moderation_cases SET defense_status = 'NO_DEFENSE_VERSTEK'
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> FE : Notifikasi Masa Sanggah Habis (Siap Putusan Verstek)
+        end
+        
+        Admin -> FE : Review Berkas & Input Putusan Akhir Sidang Etik
+        alt Terbukti Bersalah (Sanksi Pemecatan Permanen)
+            FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'GUILTY'}
+            BE -> DB ++ : UPDATE advocate_accounts SET status = 'REVOKED'
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> WORM ++ : Generate & Simpan SK Pemecatan (Hash SHA-256)
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE --> FE -- : 200 OK (Verdict Executed)
+            FE --> Admin : Tampilkan Status Pemecatan Permanen
+            BE -> Mitra : Kirim Email SK Pemecatan Permanen
+        else Tidak Terbukti / Rehabilitasi (Unsuspend)
+            FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'REHABILITATED'}
+            BE -> DB ++ : Pulihkan Status Akun = VERIFIED / AKTIF
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> WORM ++ : Generate & Simpan Surat Rehabilitasi (Hash SHA-256)
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE --> FE -- : 200 OK (Account Rehabilitated)
+            FE --> Admin : Tampilkan Status Rehabilitasi Berhasil
+            BE -> Mitra : Kirim Email Pemulihan Akun & Pembukaan Katalog
+        end
+    end
 end
+deactivate FE
 deactivate Admin
 deactivate Mitra
 @enduml
@@ -748,6 +775,50 @@ deactivate Klien
 ### SD-J-14: [DILEBUR KE DALAM SD-J-06]
 *Catatan: Skenario J-UC14 (Pembubuhan e-Meterai Peruri) telah ditiadakan sebagai diagram mandiri dan dilebur seutuhnya ke dalam **SD-J-06 (J-UC12, J-UC14)** sebagai alur kerja terpadu perumusan dan finalisasi dokumen bermeterai yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan pemotongan saldo dompet advokat.*
 
+### SD-J-21: Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
+*Sequence diagram pengajuan laporan dugaan pelanggaran kode etik, kerahasiaan, atau wanprestasi advokat oleh klien beserta lampiran barang bukti digital terverifikasi SHA-256.*
+
+```plantuml
+@startuml
+title Sequence Diagram: SD-J-21 - Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
+autonumber
+actor "Klien Justifiqa" as Klien
+participant "Frontend Klien" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+database "WORM Hash Storage" as WORM
+
+activate Klien
+Klien -> FE ++ : Buka Profil Advokat / Riwayat Sesi & Klik "Laporkan Pelanggaran"
+FE --> Klien : Tampilkan Form Whistleblowing & Pilihan Kategori Pelanggaran
+Klien -> FE : Pilih Kategori Pelanggaran & Isi Kronologi Kejadian
+
+alt Klien Melampirkan Bukti Transkrip E2EE / Dokumen Pendukung
+    Klien -> FE : Unggah File Ekspor Transkrip E2EE / Bukti PDF
+    FE -> BE ++ : POST /api/v1/client/reports/verify-evidence {file}
+    BE -> BE ++ : Verifikasi Kriptografi & Compute Hash SHA-256 Bukti
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK {evidence_hash: SHA-256, verified: true}
+    FE --> Klien : Tampilkan Bukti Terlampir & Hash SHA-256 Valid
+else Klien Tidak Melampirkan Bukti Pendukung
+    FE --> Klien : Tampilkan Peringatan "Laporan Tanpa Bukti Sah Berisiko Ditolak Saat Triage"
+end
+
+Klien -> FE : Centang Pernyataan Kebenaran Laporan & Klik "Kirim Laporan"
+FE -> BE ++ : POST /api/v1/client/reports/advokat {advocate_id, category, description, evidence_hash}
+BE -> DB ++ : INSERT INTO moderation_reports (client_id, advocate_id, category, status: 'PENDING_TRIAGE')
+DB --> BE -- : Report Ticket Created
+BE -> WORM ++ : Catat Hash SHA-256 Tiket Laporan ke WORM Storage
+WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+BE -> DB ++ : Teruskan Tiket Laporan ke Antrean Investigasi Admin Legal (`AD-J-10`)
+DB --> BE -- : Queue Updated
+BE --> FE -- : 201 Created {ticket_id, status: 'PENDING_TRIAGE'}
+FE --> Klien : Tampilkan Konfirmasi Laporan Diterima & Nomor Tiket Investigasi
+deactivate FE
+deactivate Klien
+@enduml
+```
+
 ---
 
 ### SD-J-22: Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
@@ -831,42 +902,51 @@ alt IP Address Tidak Terdaftar (Unauthorized IP)
     IAM --> FE : 403 Forbidden (Access Denied)
     FE --> Admin : Blokir Akses & Tampilkan Halaman Error 403
 else IP Address Terdaftar di Whitelist
-    IAM --> FE : 200 OK (Allow Form Login)
+    IAM --> FE -- : 200 OK (Allow Form Login)
     FE --> Admin : Tampilkan Form Login Backoffice Hukum
-    Admin -> FE : Submit Email & Password Internal Justifiqa
-    FE -> IAM : POST /api/v1/admin/auth/login (Credentials)
-    IAM -> DB ++ : Query Kredensial & Status Akun Admin Justifiqa
-    DB --> IAM -- : Return User Data & Password Hash
     
-    alt Kredensial Tidak Valid / Akun Terkunci
-        IAM -> WORM ++ : Catat Percobaan Login Gagal (Failed Attempt)
-        WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-        IAM --> FE : 401 Unauthorized (Kredensial Salah)
-        FE --> Admin : Tampilkan Error "Kredensial Tidak Valid"
-    else Kredensial Valid
-        IAM --> FE : 200 OK (Require TOTP 2FA Verification)
-        FE --> Admin : Tampilkan Permintaan Kode TOTP 2FA
-        Admin -> FE : Input 6 Digit Kode dari Aplikasi Authenticator
-        FE -> IAM : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
-        IAM -> IAM ++ : Verifikasi Algoritma TOTP (Time-step Check)
-        IAM --> IAM -- : 200 OK (Token / State Verified)
+    loop [Maksimal 3x Percobaan Input Kredensial Login Backoffice]
+        Admin -> FE : Submit Email & Password Internal Justifiqa
+        FE -> IAM ++ : POST /api/v1/admin/auth/login (Credentials)
+        IAM -> DB ++ : Query Kredensial & Status Akun Admin Justifiqa
+        DB --> IAM -- : Return User Data & Password Hash
         
-        alt Kode TOTP Salah / Kadaluarsa
-            IAM -> WORM ++ : Catat Anomali Kegagalan TOTP SOC Justifiqa
+        alt Kredensial Tidak Valid / Akun Terkunci
+            IAM -> WORM ++ : Catat Percobaan Login Gagal (Failed Attempt)
             WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-            IAM --> FE : 401 Unauthorized (TOTP Invalid)
-            FE --> Admin : Tampilkan Error "Kode TOTP Tidak Valid"
-        else Kode TOTP Valid
-            IAM -> IAM ++ : Generate Cryptographic JWT Session Token
-            IAM --> IAM -- : 200 OK (Token / State Verified)
-            IAM -> WORM ++ : Catat Log Autentikasi Sukses (Timestamp, IP, Role)
-            WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-            IAM --> FE : 200 OK (Return JWT Token & Admin Profile)
-            FE --> Admin : Redirect ke Dasbor Admin Utama Justifiqa (`SCR-JST-07`)
+            IAM --> FE : 401 Unauthorized (Kredensial Salah)
+            FE --> Admin : Tampilkan Error "Kredensial Tidak Valid"
+            note over Admin, FE : [REPEAT LOOP: Admin mengulangi input kredensial ke baris awal loop]
+        else Kredensial Valid
+            IAM --> FE -- : 200 OK (Require TOTP 2FA Verification)
+            FE --> Admin : Tampilkan Permintaan Kode TOTP 2FA
+            note over Admin, IAM : [BREAK LOOP: Kredensial Valid Lanjut ke Verifikasi TOTP 2FA]
+            
+            loop [Maksimal 3x Percobaan Verifikasi Kode TOTP 2FA]
+                Admin -> FE : Input 6 Digit Kode dari Aplikasi Authenticator
+                FE -> IAM ++ : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
+                IAM -> IAM ++ : Verifikasi Algoritma TOTP (Time-step Check)
+                IAM --> IAM -- : 200 OK (Token / State Verified)
+                
+                alt Kode TOTP Salah / Kadaluarsa
+                    IAM -> WORM ++ : Catat Anomali Kegagalan TOTP SOC Justifiqa
+                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+                    IAM --> FE : 401 Unauthorized (TOTP Invalid)
+                    FE --> Admin : Tampilkan Error "Kode TOTP Tidak Valid"
+                    note over Admin, FE : [REPEAT LOOP: Admin memasukkan ulang kode TOTP ke baris awal loop]
+                else Kode TOTP Valid
+                    IAM -> IAM ++ : Generate Cryptographic JWT Session Token
+                    IAM --> IAM -- : 200 OK (Token / State Verified)
+                    IAM -> WORM ++ : Catat Log Autentikasi Sukses (Timestamp, IP, Role)
+                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+                    IAM --> FE -- : 200 OK (Return JWT Token & Admin Profile)
+                    FE --> Admin : Redirect ke Dasbor Admin Utama Justifiqa (`SCR-JST-07`)
+                    note over Admin, IAM : [BREAK LOOP: TOTP Valid Lanjut ke Dasbor Admin Utama]
+                end
+            end
         end
     end
 end
-IAM --> FE -- : 200 OK (Token / State Verified)
 deactivate FE
 deactivate Admin
 @enduml

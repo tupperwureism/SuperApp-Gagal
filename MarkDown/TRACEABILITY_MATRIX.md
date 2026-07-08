@@ -49,7 +49,7 @@ Dokumen ini memetakan pelacakan penuh (*end-to-end traceability*) dari level **U
 | **J-UC18** | Memantau Laporan Keuangan Escrow | Admin Justifiqa | AD-J-12 | SD-J-12 | **ST-J-17** | PSAK 71, UU HPP | Revenue Share (25% Platform / 75% Advokat), Hashed Export |
 | **J-UC19** | Mencairkan Dana Escrow & PPh 21 | Advokat Justifiqa| AD-J-11 | SD-J-11 | **ST-J-17** | PER-16/PJ/2016, UU TPPU | Auto Potong PPh 21, Cross-Check Rekening Bank vs SIPP |
 | **J-UC20** | Autentikasi Portal Backoffice Admin | Admin Justifiqa | AD-J-20 | SD-J-20 | **ST-J-18** | ISO 27001 Security | IP Whitelisting Subdomain, MFA TOTP Mandatory |
-| **J-UC21** | Melaporkan Pelanggaran Etik Advokat | Klien Hukum | AD-J-10 | SD-J-10 | **ST-J-19** | Kode Etik Peradi, UU ITE | Whistleblowing Form, Lampiran Log E2EE SHA-256 |
+| **J-UC21** | Melaporkan Pelanggaran Etik Advokat | Klien Hukum | AD-J-21 | SD-J-21 | **ST-J-19** | Kode Etik Peradi, UU ITE | Whistleblowing Form, Lampiran Log E2EE SHA-256 |
 
 ---
 

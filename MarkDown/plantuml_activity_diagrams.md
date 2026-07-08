@@ -452,46 +452,58 @@ stop
 
 ```plantuml
 @startuml
+title Activity Diagram: AD-J-10 - Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
 |Admin Legal Justifiqa|
 start
 :Buka Menu "Moderasi & Laporan Pelanggaran Etik";
-:Pilih Akun Advokat Terlapor;
-if (Ada Laporan Pelanggaran Berat?) then (Ya)
-  :Jalankan Protokol Due Process Investigation;
-  :Klik Tombol "🛑 Suspend Akun & Kirim Panggilan Klarifikasi";
-  
+:Pilih Akun Advokat Terlapor & Periksa Barang Bukti WORM SHA-256;
+
+if (Apakah Bukti Permulaan Sah & Terverifikasi SHA-256?) then (Ya - Bukti Valid)
+  if (Apakah Tergolong Pelanggaran Berat / Kritis?) then (Ya - Pelanggaran Berat)
+    :Jalankan Protokol Due Process Investigation;
+    :Klik Tombol "🛑 Suspend Akun & Kirim Panggilan Klarifikasi";
+    
+    |Backend Independen Justifiqa|
+    :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
+    :Generate Surat Panggilan & Stempel Hash SHA-256 ke WORM Storage;
+    :Aktifkan Timer Countdown Masa Sanggah/Banding (14 Hari Kerja);
+    :Kirim Email, SMS, & Push Notifikasi Surat Panggilan ke Advokat;
+    
+    |Advokat Terlapor|
+    :Menerima Notifikasi & Mengunduh Surat Panggilan Ber-hash SHA-256;
+    :Melihat Timer Masa Sanggah 14 Hari di Dasbor Advokat;
+    
+    if (Mengajukan Berkas Sanggahan / Banding?) then (Ya - Mengajukan Pembelaan)
+      :Unggah Berkas Pembelaan & Bukti Counter-Evidence;
+      |Backend Independen Justifiqa|
+      :Simpan Berkas Sanggahan ke WORM & Notifikasikan Admin;
+    else (Tidak / Timer Habis - Putusan Verstek)
+      |Backend Independen Justifiqa|
+      :Tandai Kasus sebagai "No Defense Submitted (Verstek)";
+    endif
+    
+    |Admin Legal Justifiqa|
+    :Input Putusan Akhir Sidang Etik (Dewan Kehormatan);
+    if (Terbukti Bersalah?) then (Ya - Sanksi Berat)
+      |Backend Independen Justifiqa|
+      :Ubah Status Akun Jadi REVOKED / PERMANENT_BAN;
+      :Terbitkan Surat Keputusan Pemecatan Ber-hash SHA-256;
+    else (Tidak - Rehabilitasi)
+      |Backend Independen Justifiqa|
+      :Pulihkan Status Akun Jadi VERIFIED / AKTIF (Rehabilitasi);
+      :Terbitkan Surat Rehabilitasi Nama Baik Ber-hash SHA-256;
+    endif
+  else (Tidak - Pelanggaran Ringan / Administratif)
+    |Admin Legal Justifiqa|
+    :Terbitkan Peringatan Tertulis / Pembinaan (Tanpa Suspend Akun);
+    |Backend Independen Justifiqa|
+    :Catat Surat Teguran ke WORM Storage & Kirim ke Advokat;
+  endif
+else (Tidak - Bukti Tidak Sah / Laporan Palsu)
+  |Admin Legal Justifiqa|
+  :Tolak & Arsip Laporan sebagai Tidak Terbukti (Clear);
   |Backend Independen Justifiqa|
-  :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
-  :Generate Surat Panggilan & Stempel Hash SHA-256 ke WORM Storage;
-  :Aktifkan Timer Countdown Masa Sanggah/Banding (14 Hari Kerja);
-  :Kirim Email, SMS, & Push Notifikasi Surat Panggilan ke Advokat;
-  
-  |Advokat Terlapor|
-  :Menerima Notifikasi & Mengunduh Surat Panggilan Ber-hash SHA-256;
-  :Melihat Timer Masa Sanggah 14 Hari di Dasbor Advokat;
-  if (Mengajukan Berkas Sanggahan / Banding?) then (Ya)
-    :Unggah Berkas Pembelaan & Bukti Counter-Evidence;
-    |Backend Independen Justifiqa|
-    :Simpan Berkas Sanggahan ke WORM & Notifikasikan Admin;
-  else (Tidak / Timer Habis - Putusan Verstek)
-    |Backend Independen Justifiqa|
-    :Tandai Kasus sebagai "No Defense Submitted";
-  endif
-  
-  |Admin Legal Justifiqa|
-  :Input Putusan Akhir Sidang Etik (Dewan Kehormatan);
-  if (Terbukti Bersalah?) then (Ya - Sanksi Berat)
-    |Backend Independen Justifiqa|
-    :Ubah Status Akun Jadi REVOKED / PERMANENT_BAN;
-    :Terbitkan Surat Keputusan Pemecatan Ber-hash SHA-256;
-  else (Tidak - Rehabilitasi)
-    |Backend Independen Justifiqa|
-    :Pulihkan Status Akun Jadi VERIFIED / AKTIF (Rehabilitasi);
-    :Terbitkan Surat Rehabilitasi Nama Baik Ber-hash SHA-256;
-  endif
-else (Tidak)
-  |Admin Legal Justifiqa|
-  :Arsip Laporan sebagai Clear / Tidak Terbukti;
+  :Update Status Laporan = DISMISSED;
 endif
 stop
 @enduml
@@ -622,6 +634,42 @@ stop
 
 ### AD-J-14: [DILEBUR KE DALAM AD-J-06]
 *Catatan: Skenario J-UC14 (Pembubuhan e-Meterai Peruri) telah ditiadakan sebagai diagram mandiri dan dilebur seutuhnya ke dalam **AD-J-06 (J-UC12, J-UC14)** sebagai alur kerja terpadu perumusan dan finalisasi dokumen bermeterai yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan pemotongan saldo dompet advokat.*
+
+### AD-J-21: Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
+*Diagram alur pengajuan laporan dugaan pelanggaran kode etik, kerahasiaan, atau wanprestasi advokat oleh klien beserta lampiran barang bukti digital terverifikasi SHA-256.*
+
+```plantuml
+@startuml
+title Activity Diagram: AD-J-21 - Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
+|Klien Justifiqa|
+start
+:Buka Riwayat Konsultasi / Profil Advokat;
+:Klik Tombol "Laporkan Pelanggaran Etik / Wanprestasi";
+:Pilih Kategori Pelanggaran (Kerahasiaan, Pemerasan, Benturan Kepentingan, Wanprestasi);
+:Tulis Kronologi Kejadian Pelanggaran;
+
+if (Apakah Melampirkan Bukti Transkrip E2EE / Dokumen Pendukung?) then (Ya - Lampirkan Bukti)
+  :Unggah Ekspor Transkrip E2EE / Dokumen Bukti;
+  |Backend Independen Justifiqa|
+  :Verifikasi Enkripsi & Generate Stempel Hash SHA-256 Bukti;
+  |Klien Justifiqa|
+else (Tidak - Tanpa Bukti Lampiran)
+  :Tampilkan Peringatan "Laporan Tanpa Bukti Sah Berisiko Ditolak Saat Triage";
+endif
+
+:Centang Pernyataan Kebenaran Laporan & Klik Kirim Laporan;
+
+|Backend Independen Justifiqa|
+:Simpan Laporan ke Database (`moderation_reports`);
+:Catat Hash SHA-256 Tiket Laporan ke WORM Storage;
+:Teruskan Tiket Laporan ke Antrean Investigasi Admin Legal (`AD-J-10`);
+:Kirim Email & Notifikasi Nomor Tiket Laporan kepada Klien;
+
+|Klien Justifiqa|
+:Tampilkan Konfirmasi Laporan Diterima & Nomor Tiket Investigasi;
+stop
+@enduml
+```
 
 ---
 
