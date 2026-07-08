@@ -22,6 +22,11 @@ Dokumen ini adalah acuan mutlak (*SOP & Guardrails*) bagi Agen ketika bertugas p
 4. **Aturan Aktivasi Kontinu pada Percabangan Kondisional (`alt` / `else` / `loop`):**
    * Dalam PlantUML, parser memproses state aktivasi secara linear dari atas ke bawah. Jika seorang participant (`BE`, `FE`) dinonaktifkan (`deactivate BE`) di dalam cabang pertama (`alt [Error]`) atau di dalam siklus pengulangan (`loop [Retry]`), parser akan menandai participant tersebut nonaktif. Standalone `activate BE` di dalam cabang `else` berikutnya sering kali diabaikan oleh layout engine PlantUML karena tidak terikat pada panah pesan yang masuk.
    * **Aturan Mutlak:** Untuk menjamin *activation bar* yang 100% utuh dan kontinu pada seluruh cabang eksekusi tanpa terputus, **DILARANG KERAS** menaruh perintah `deactivate BE` atau `deactivate FE` di dalam cabang `alt`, `else`, atau `loop` yang merupakan bagian dari satu sesi interaksi yang sama. Biarkan participant tetap aktif selama validasi/retry berlangsung, dan lakukan deaktivasi (`deactivate BE`, `deactivate FE`) hanya satu kali di akhir rangkaian interaksi (sebelum `@enduml` atau pada penutupan sesi).
+5. **Pola Outer Loop & Annotasi Eksplisit Break/Repeat (`Outer Loop Validation Pattern`):**
+   * Setiap alur validasi atau verifikasi yang memiliki mekanisme pengulangan/retry (misalnya registrasi, login, verifikasi OTP, retry pembayaran, atau pengaturan kalender) **WAJIB dibungkus dari awal trigger pesan hingga evaluasi kondisi dalam satu `loop [Maksimal Nx Percobaan ...]` di bagian luar (Outer Loop)**.
+   * Di dalam blok kondisional (`alt / else`), **WAJIB** ditambahkan anotasi note eksplisit agar pembaca teknis dapat dengan jelas memahami titik keluar dari loop tanpa kebingungan:
+     - Pada cabang kegagalan (yang memicu pengulangan): tambahkan `note over <Actor>, <Participant> : [REPEAT LOOP: ... penjelasan ... to baris awal loop]`.
+     - Pada cabang keberhasilan (yang menghentikan pengulangan): tambahkan `note over <Actor>, <Participant> : [BREAK LOOP: ... penjelasan kondisi sukses ...]`.
 
 ---
 

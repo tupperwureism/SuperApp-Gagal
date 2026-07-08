@@ -29,39 +29,48 @@ participant "API Dukcapil / Peradi" as Ext
 activate User
 User -> FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
 FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
-User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
-FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
+loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
+    User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
+    FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
-BE -> DB ++ : Check Existing Email/No HP/NIK
-DB --> BE -- : Status Uniqueness Result
-
-alt Email / No HP / NIK Sudah Terdaftar
-    BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
-    FE --> User : Tampilkan Error "Kredensial Sudah Terdaftar" & Instruksi Perbaikan
-    
-    loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
-        User -> FE : Perbaiki Data Input & Klik Daftar Kembali
-        FE -> BE : POST /api/v1/auth/register (Corrected Payload & Files)
+    alt Format & Ukuran File Tidak Valid (Maks 5MB, PDF/JPG)
+        BE --> FE : 400 Bad Request / 422 Unprocessable Entity (Invalid File Format or Size Limit)
+        FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
+        note over User, FE : [REPEAT LOOP: Pengguna memperbaiki format file dan mengirim ulang ke baris awal loop]
+    else Format & Ukuran File Valid
         BE -> DB ++ : Check Existing Email/No HP/NIK
-        DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
-        BE --> FE : 200 OK (Data Valid & Unik)
-        FE --> User : Lanjut Proses Verifikasi Kredensial
-    end
-else Kredensial Baru & Valid
-    alt Jenis Akun = Klien (Pencari Keadilan)
-        BE -> Ext ++ : Verify NIK & KK to API Dukcapil
-        Ext --> BE -- : Validasi NIK Cocok
-        BE -> DB ++ : Insert Klien (Status: AKTIF)
-        DB --> BE -- : Success DB Insert
-        BE --> FE : 201 Created (Registrasi Sukses)
-        FE --> User : Arahkan ke Halaman Login Justifiqa
-    else Jenis Akun = Advokat / Notaris
-        BE -> DB ++ : Insert Advokat (Status: PENDING_VERIFICATION)
-        DB --> BE -- : Success DB Insert
-        BE -> BE ++ : Add to Admin Audit Queue (Verifikasi SIPP/Peradi)
-        BE --> BE -- : Return Computed Result / State
-        BE --> FE : 201 Created (Menunggu Verifikasi Admin)
-        FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
+        DB --> BE -- : Status Uniqueness Result
+
+        alt Email / No HP / NIK Sudah Terdaftar
+            BE --> FE : 409 Conflict (Akun Sudah Terdaftar)
+            FE --> User : Tampilkan Error "Email/No HP/NIK Sudah Terdaftar" & Instruksi Perbaikan
+            note over User, FE : [REPEAT LOOP: Pengguna mengganti kredensial dan mengirim ulang ke baris awal loop]
+        else Kredensial Baru & Unik
+            alt Jenis Akun = Klien (Pencari Keadilan)
+                BE -> Ext ++ : Verify NIK & KK to API Dukcapil
+                Ext --> BE -- : Return NIK Validation Status
+                
+                alt NIK Tidak Valid / Tidak Cocok di Dukcapil
+                    BE --> FE : 422 Unprocessable Entity (NIK Tidak Terdaftar / Tidak Cocok di Dukcapil)
+                    FE --> User : Tampilkan Error "NIK Tidak Valid / Tidak Cocok"
+                    note over User, FE : [REPEAT LOOP: Pengguna memperbaiki NIK dan mengirim ulang ke baris awal loop]
+                else NIK Valid & Cocok
+                    BE -> DB ++ : Insert Klien (Status: AKTIF)
+                    DB --> BE -- : Success DB Insert
+                    BE --> FE : 201 Created (Registrasi Sukses)
+                    FE --> User : Arahkan ke Halaman Login Justifiqa
+                    note over User, BE : [BREAK LOOP: NIK Valid & Akun Klien Berhasil Dibuat]
+                end
+            else Jenis Akun = Advokat / Notaris
+                BE -> DB ++ : Insert Advokat (Status: PENDING_VERIFICATION)
+                DB --> BE -- : Success DB Insert
+                BE -> BE ++ : Add to Admin Audit Queue (Verifikasi SIPP/Peradi)
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE : 201 Created (Menunggu Verifikasi Admin)
+                FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
+                note over User, BE : [BREAK LOOP: Akun Advokat Berhasil Disimpan PENDING_VERIFICATION]
+            end
+        end
     end
 end
 deactivate BE
@@ -85,38 +94,37 @@ database "Database Justifiqa" as DB
 participant "SMS / Email Gateway" as SMS
 
 activate User
-User -> FE ++ : Masukkan Email/No HP & Password
-FE -> BE ++ : POST /api/v1/auth/login (Credentials)
+loop [Maksimal 3x Percobaan Input Kredensial Login]
+    User -> FE : Masukkan Email/No HP & Password
+    FE -> BE ++ : POST /api/v1/auth/login (Credentials)
 
-BE -> DB ++ : Query User by Email/No HP
-DB --> BE -- : Return User Record & Password Hash
+    BE -> DB ++ : Query User by Email/No HP
+    DB --> BE -- : Return User Record & Password Hash
 
-alt Kredensial Tidak Cocok
-    BE --> FE : 401 Unauthorized (Kredensial Salah)
-    FE --> User : Tampilkan Error Email/No HP atau Password Salah
-    
-    loop [Mencoba Login Ulang saat Kredensial Salah]
-        User -> FE : Masukkan Kembali Email/No HP & Password yang Benar
-        FE -> BE : POST /api/v1/auth/login (Corrected Credentials)
-        BE -> DB ++ : Query User by Email/No HP
-        DB --> BE -- : Return User Record & Password Hash
+    alt Kredensial Tidak Cocok
+        BE --> FE : 401 Unauthorized (Kredensial Salah)
+        FE --> User : Tampilkan Error Email/No HP atau Password Salah
+        note over User, FE : [REPEAT LOOP: Pengguna memasukkan kembali kredensial ke baris awal loop]
+    else Kredensial Cocok
         BE --> FE : 200 OK (Credentials Verified)
-        FE --> User : Lanjut ke Langkah MFA / OTP
+        note over User, BE : [BREAK LOOP: Kredensial Cocok Lanjut ke Langkah MFA / OTP]
     end
-else Kredensial Cocok
-    alt Status Akun = SUSPENDED (Due Process Legal)
-        BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
-        FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
-    else Status Akun = AKTIF
-        BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
-        BE --> BE -- : Return Computed Result / State
-        BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
-        SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
-        BE --> FE : 200 OK (OTP Sent, Waiting Verification)
-        FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
-        note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
-        
-        User -> FE : Masukkan Kode OTP 6-Digit
+end
+
+alt Status Akun = SUSPENDED (Due Process Legal)
+    BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
+    FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
+else Status Akun = AKTIF
+    BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
+    BE --> BE -- : Return Computed Result / State
+    BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
+    SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
+    BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+    FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
+    note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
+    
+    loop [Maksimal 3x Percobaan Verifikasi OTP]
+        User -> FE : Masukkan Kode OTP 6-Digit (Atau Klik Resend OTP)
         FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
         
         alt OTP Valid & Belum Expire
@@ -126,11 +134,12 @@ else Kredensial Cocok
             BE --> BE -- : Return Signed JWT String
             BE --> FE : 200 OK (JWT Token, User Profile)
             FE --> User : Masuk ke Dasbor Utama Justifiqa
+            note over User, BE : [BREAK LOOP: Sesi Valid Lanjut ke Dasbor]
         else OTP Salah / Kadaluarsa
             BE --> FE : 400 Bad Request (OTP Invalid / Expired)
             FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
             
-            loop [Minta Kirim Ulang OTP / Resend OTP]
+            opt [Pengguna Meminta Kirim Ulang OTP / Resend OTP]
                 User -> FE : Klik Tombol Resend OTP
                 FE -> BE : POST /api/v1/auth/resend-otp (User ID, Channel)
                 BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
@@ -140,6 +149,7 @@ else Kredensial Cocok
                 BE --> FE : 200 OK (New OTP Sent)
                 FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
             end
+            note over User, FE : [REPEAT LOOP: Pengguna memasukkan kode OTP baru ke baris awal loop]
         end
     end
 end
@@ -172,39 +182,39 @@ BE --> FE : Return Billing Detail (Rp250.000 + Fee)
 FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
-Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
+loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+    Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
 
-alt Webhook Status Transaksi = PAID / SUCCESS
-    PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
-    BE -> BE ++ : Tahan Dana di Rekening Escrow Sementara Justifiqa
-    BE --> BE -- : Return Computed Result / State
-    BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-    BE --> BE -- : Return Computed Result / State
-    activate Mitra
-    BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-    deactivate BE
-    PG --> Klien : 200 OK (Payment Status Verified)
-    
-    note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
-else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
-    PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
-    BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
-    BE --> BE -- : Return Computed Result / State
-    BE --> PG -- : 200 OK (Webhook Processed)
-    PG --> Klien : 402 Payment Required / 400 Payment Failed
-    
-    loop [Coba Bayar Ulang atau Jadwal Ulang Reservasi]
-        Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
-        FE -> BE ++ : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
-        BE -> PG ++ : Create New Payment Invoice & VA Number
-        PG --> BE -- : Return New Invoice URL & VA Number
-        BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
-        FE --> Klien : Tampilkan Halaman Pembayaran Baru
+    alt Webhook Status Transaksi = PAID / SUCCESS
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+        BE -> BE ++ : Tahan Dana di Rekening Escrow Sementara Justifiqa
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+        BE --> BE -- : Return Computed Result / State
+        activate Mitra
+        BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
         deactivate BE
-        deactivate FE
+        PG --> Klien : 200 OK (Payment Status Verified)
+        note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
+        
+        note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
+    else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+        BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
+        BE --> BE -- : Return Computed Result / State
+        BE --> PG -- : 200 OK (Webhook Processed)
+        PG --> Klien : 402 Payment Required / 400 Payment Failed
+        
+        opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+            Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+            FE -> BE : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+            BE -> PG ++ : Create New Payment Invoice & VA Number
+            PG --> BE -- : Return New Invoice URL & VA Number
+            BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
+            FE --> Klien : Tampilkan Halaman Pembayaran Baru
+        end
+        note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
     end
-    
-    note over Klien, PG : Jika pembayaran ulang sukses, alur akan mentrigger kembali webhook PAID di atas
 end
 
 note over Klien, Mitra : Alur Sesi Konsultasi & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
@@ -243,29 +253,24 @@ participant "Backend Independen Justifiqa" as BE
 database "Database Justifiqa" as DB
 
 activate Mitra
-Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
-FE -> BE ++ : PUT /api/v1/advocate/calendar (Status: OPEN_SLOT)
+loop [Percobaan Pengaturan Slot Kalender hingga Tidak Ada Konflik]
+    Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
+    FE -> BE ++ : PUT /api/v1/advocate/calendar (Status: OPEN_SLOT)
 
-BE -> DB ++ : Check Active Booking & Konflik Jadwal (SD-J-04)
-DB --> BE -- : Return Booking Schedule & Active Session State
+    BE -> DB ++ : Check Active Booking & Konflik Jadwal (SD-J-04)
+    DB --> BE -- : Return Booking Schedule & Active Session State
 
-alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
-    BE --> FE : 409 Conflict (Jadwal Bentrok / Sesi Aktif)
-    FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
-    
-    loop [Pilih Slot Jam Lain yang Kosong / Sesuaikan Jadwal]
-        Mitra -> FE : Sesuaikan Jam Operasional & Klik Simpan Kembali
-        FE -> BE : PUT /api/v1/advocate/calendar (Updated Slot Rules)
-        BE -> DB ++ : Check Active Booking & Konflik Jadwal
-        DB --> BE -- : Return 0 Conflicts (Slot Aman)
-        BE --> FE : 200 OK (Slot Valid & Tidak Bentrok)
-        FE --> Mitra : Lanjut Simpan Perubahan
+    alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
+        BE --> FE : 409 Conflict (Jadwal Bentrok / Sesi Aktif)
+        FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
+        note over Mitra, FE : [REPEAT LOOP: Mitra sesuaikan jam operasional & simpan kembali ke baris awal loop]
+    else Slot Jadwal Aman (200 OK)
+        BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
+        DB --> BE -- : Success Update
+        BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
+        FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Menerima Klien
+        note over Mitra, BE : [BREAK LOOP: Jadwal Kalender Berhasil Diperbarui & Aktif]
     end
-else Slot Jadwal Aman (200 OK)
-    BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
-    DB --> BE -- : Success Update
-    BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
-    FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Menerima Klien
 end
 deactivate BE
 deactivate FE
@@ -407,30 +412,33 @@ participant "API Dukcapil / Dinsos" as Ext
 actor "Advokat Pro Bono Mitra" as Mitra
 
 activate Klien
-Klien -> FE ++ : Ajukan Bantuan Pro Bono & Unggah Foto SKTM
-FE -> BE ++ : POST /api/v1/pro-bono/apply (SKTM Blob, KTP)
-BE -> Ext ++ : Verify Keabsahan Nomor SKTM & NIK
-Ext --> BE -- : Return SKTM Verification Status
+loop [Percobaan Pengajuan Pro Bono & Pemilihan Advokat hingga Diterima]
+    Klien -> FE ++ : Ajukan Pro Bono, Unggah SKTM & Pilih Advokat di Katalog
+    FE -> BE ++ : POST /api/v1/pro-bono/apply (SKTM Blob, KTP, AdvocateID)
+    BE -> Ext ++ : Verify Keabsahan Nomor SKTM & NIK
+    Ext --> BE -- : Return SKTM Verification Status
 
-alt SKTM Tidak Valid / Palsu
-    BE --> FE : 400 Bad Request / 422 Unprocessable Entity (SKTM Tidak Sah)
-    FE --> Klien : Tampilkan Error & Instruksi Perbaikan Berkas SKTM
-    
-    loop [Revisi & Unggah Ulang Berkas SKTM / Dokumen Kemensos]
-        Klien -> FE : Perbaiki Nomor SKTM & Unggah Ulang Foto Dokumen
-        FE -> BE : POST /api/v1/pro-bono/apply (Updated SKTM Payload)
-        BE -> Ext ++ : Verify Keabsahan Nomor SKTM & KK ke Kemensos
-        Ext --> BE -- : Return Status Valid & Terdaftar
-        BE --> FE : 200 OK (SKTM Valid & Terverifikasi)
-        FE --> Klien : Lanjut ke Matchmaking Advokat Pro Bono
+    alt SKTM Tidak Valid / Tidak Terverifikasi di Dukcapil/Dinsos
+        BE --> FE : 422 Unprocessable Entity (SKTM Tidak Terverifikasi)
+        FE --> Klien : Tampilkan Alasan Penolakan & Opsi Beralih ke Konsultasi Berbayar Reguler / Perbaiki Berkas
+        note over Klien, FE : [REPEAT LOOP: Klien memperbaiki SKTM atau beralih ke katalog reguler]
+    else SKTM Sah & Terverifikasi
+        BE -> BE ++ : Approve SKTM & Buat Invoice Rp0 (Gratis)
+        BE --> BE -- : Return Computed Result / State
+        BE -> Mitra ++ : Request Reservasi Konsultasi Pro Bono Rp0
+        
+        alt Advokat Menerima Penugasan Pro Bono
+            Mitra --> BE : 200 OK (Terima Reservasi Pro Bono)
+            BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
+            FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis (J-UC04)
+            note over Klien, Mitra : [BREAK LOOP: SKTM Sah & Advokat Menerima Sesi Pro Bono]
+        else Advokat Berhalangan / Menolak Reservasi
+            Mitra --> BE : 409 Conflict / 422 Unprocessable Entity (Advokat Berhalangan)
+            BE --> FE : 409 Conflict (Slot Advokat Penuh / Ditolak)
+            FE --> Klien : Tampilkan Notifikasi Penolakan & Instruksi Pilih Ulang Advokat
+            note over Klien, FE : [REPEAT LOOP: Klien memilih ulang advokat / slot waktu di katalog pro bono]
+        end
     end
-else SKTM Sah & Terverifikasi
-    BE -> BE ++ : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
-    BE --> BE -- : Return Computed Result / State
-    BE -> Mitra ++ : Assign Kasus ke Advokat Kuota Pro Bono Aktif
-    Mitra --> BE -- : Terima Penugasan Pro Bono
-    BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
-    FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis
 end
 deactivate BE
 deactivate FE
@@ -769,6 +777,7 @@ BE --> FE -- : 201 Created {snap_token, order_id}
 FE --> Mitra : Tampilkan Halaman Pembayaran (Snap Checkout UI)
 
 Mitra -> PG ++ : Selesaikan Pembayaran via M-Banking / E-Wallet Eksternal
+PG --> Mitra -- : Tampilkan Status Pembayaran / Redirect ke Aplikasi Dompet
 
 alt Pembayaran Sukses Diterima Payment Gateway
     PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'PAID', signature}
@@ -778,19 +787,19 @@ alt Pembayaran Sukses Diterima Payment Gateway
     DB --> BE -- : 200 OK (Success / Rows Affected)
     BE -> DB ++ : UPDATE advocate_wallets SET balance = balance + amount WHERE advocate_id = advocate_id
     DB --> BE -- : Balance Updated
-    BE --> PG : 200 OK (Webhook Received)
+    BE --> PG -- : 200 OK (Webhook Received)
     
-    BE -> FE ++ : Push Notification / SSE "Saldo Dompet Berhasil Ditambahkan"
-    deactivate FE
+    BE -> FE : Push Notification / SSE "Saldo Dompet Berhasil Ditambahkan"
     FE --> Mitra : Tampilkan Resi Top-Up & Update Saldo Dompet Aktif
 else Pembayaran Kedaluwarsa / Dibatalkan (Expired / Cancelled)
-    PG -> BE : Webhook Callback {order_id, status: 'EXPIRED'}
+    PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'EXPIRED'}
     BE -> DB ++ : UPDATE wallet_transactions SET status = 'CANCELLED' WHERE order_id = order_id
     DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE --> PG -- : 200 OK
+    BE --> PG -- : 200 OK (Webhook Received)
+    
+    BE -> FE : Push Notification / SSE "Tagihan Top-Up Kedaluwarsa"
     FE --> Mitra : Tampilkan Status Tagihan Kedaluwarsa
 end
-PG --> Mitra : 200 OK (Payment Status Verified)
 deactivate Mitra
 @enduml
 ```
@@ -881,37 +890,39 @@ database "Database Qualifa" as DB
 activate User
 User -> FE ++ : Buka Halaman Registrasi Qualifa & Pilih Jenis Akun
 FE --> User : Tampilkan Formulir Registrasi Spesifik Qualifa
-User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
-FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
+loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
+    User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
+    FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
-BE -> DB ++ : Check Existing Email/No HP
-DB --> BE -- : Status Uniqueness Result
-
-alt Email / No HP Sudah Terdaftar
-    BE --> FE : 400 Bad Request / 409 Conflict (Akun Sudah Terdaftar)
-    FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar" & Instruksi Perbaikan
-    
-    loop [Coba Perbaiki Input & Kirim Ulang Pendaftaran]
-        User -> FE : Perbaiki Data Input & Klik Daftar Kembali
-        FE -> BE : POST /api/v1/auth/register (Corrected Payload & Files)
+    alt Format & Ukuran File Tidak Valid (Maks 5MB, PDF/JPG)
+        BE --> FE : 400 Bad Request / 422 Unprocessable Entity (Invalid File Format or Size Limit)
+        FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
+        note over User, FE : [REPEAT LOOP: Pengguna memperbaiki format file dan mengirim ulang ke baris awal loop]
+    else Format & Ukuran File Valid
         BE -> DB ++ : Check Existing Email/No HP
-        DB --> BE -- : Status Uniqueness Result (0 Duplicates Found)
-        BE --> FE : 200 OK (Data Valid & Unik)
-        FE --> User : Lanjut Proses Verifikasi Kredensial
-    end
-else Kredensial Baru & Valid
-    alt Jenis Akun = Klien (Pasien/User)
-        BE -> DB ++ : Insert Klien (Status: AKTIF)
-        DB --> BE -- : Success DB Insert
-        BE --> FE : 201 Created (Registrasi Sukses)
-        FE --> User : Arahkan ke Halaman Login Qualifa
-    else Jenis Akun = Psikolog Klinis
-        BE -> DB ++ : Insert Psikolog (Status: PENDING_VERIFICATION)
-        DB --> BE -- : Success DB Insert
-        BE -> BE ++ : Add to Admin Audit Queue (Verifikasi STR HIMPSI)
-        BE --> BE -- : Return Computed Result / State
-        BE --> FE : 201 Created (Menunggu Verifikasi Etik)
-        FE --> User : Tampilkan Pesan "Menunggu Verifikasi Etik 1x24 Jam"
+        DB --> BE -- : Status Uniqueness Result
+
+        alt Email / No HP Sudah Terdaftar
+            BE --> FE : 409 Conflict (Akun Sudah Terdaftar)
+            FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar" & Instruksi Perbaikan
+            note over User, FE : [REPEAT LOOP: Pengguna mengganti kredensial dan mengirim ulang ke baris awal loop]
+        else Kredensial Baru & Unik
+            alt Jenis Akun = Klien (Pasien/User)
+                BE -> DB ++ : Insert Klien (Status: AKTIF)
+                DB --> BE -- : Success DB Insert
+                BE --> FE : 201 Created (Registrasi Sukses)
+                FE --> User : Arahkan ke Halaman Login Qualifa
+                note over User, BE : [BREAK LOOP: Akun Klien Berhasil Dibuat AKTIF]
+            else Jenis Akun = Psikolog Klinis
+                BE -> DB ++ : Insert Psikolog (Status: PENDING_VERIFICATION)
+                DB --> BE -- : Success DB Insert
+                BE -> BE ++ : Add to Admin Audit Queue (Verifikasi STR HIMPSI)
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE : 201 Created (Menunggu Verifikasi Etik)
+                FE --> User : Tampilkan Pesan "Menunggu Verifikasi Etik 1x24 Jam"
+                note over User, BE : [BREAK LOOP: Akun Psikolog Berhasil Disimpan PENDING_VERIFICATION]
+            end
+        end
     end
 end
 deactivate BE
@@ -935,29 +946,37 @@ database "Database Qualifa" as DB
 participant "SMS / Email Gateway" as SMS
 
 activate User
-User -> FE ++ : Masukkan Email/No HP & Password
-FE -> BE ++ : POST /api/v1/auth/login (Credentials)
+loop [Maksimal 3x Percobaan Input Kredensial Login]
+    User -> FE : Masukkan Email/No HP & Password
+    FE -> BE ++ : POST /api/v1/auth/login (Credentials)
 
-BE -> DB ++ : Query User by Email/No HP
-DB --> BE -- : Return User Record & Password Hash
+    BE -> DB ++ : Query User by Email/No HP
+    DB --> BE -- : Return User Record & Password Hash
 
-alt Kredensial Tidak Cocok
-    BE --> FE : 401 Unauthorized (Kredensial Salah)
-    FE --> User : Tampilkan Error Email/No HP atau Password Salah
-else Kredensial Cocok
-    alt Status Akun = SUSPENDED (Komite Etik)
-        BE --> FE : 403 Forbidden (Akun Suspended oleh Komite Etik)
-        FE --> User : Tampilkan Error Akun Dalam Investigasi Etik
-    else Status Akun = AKTIF
-        BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
-        BE --> BE -- : Return Computed Result / State
-        BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
-        SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
-        BE --> FE : 200 OK (OTP Sent, Waiting Verification)
-        FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
-        note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
-        
-        User -> FE : Masukkan Kode OTP 6-Digit
+    alt Kredensial Tidak Cocok
+        BE --> FE : 401 Unauthorized (Kredensial Salah)
+        FE --> User : Tampilkan Error Email/No HP atau Password Salah
+        note over User, FE : [REPEAT LOOP: Pengguna memasukkan kembali kredensial ke baris awal loop]
+    else Kredensial Cocok
+        BE --> FE : 200 OK (Credentials Verified)
+        note over User, BE : [BREAK LOOP: Kredensial Cocok Lanjut ke Langkah MFA / OTP]
+    end
+end
+
+alt Status Akun = SUSPENDED (Komite Etik)
+    BE --> FE : 403 Forbidden (Akun Suspended oleh Komite Etik)
+    FE --> User : Tampilkan Error Akun Dalam Investigasi Etik
+else Status Akun = AKTIF
+    BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
+    BE --> BE -- : Return Computed Result / State
+    BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
+    SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
+    BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+    FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
+    note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
+    
+    loop [Maksimal 3x Percobaan Verifikasi OTP]
+        User -> FE : Masukkan Kode OTP 6-Digit (Atau Klik Resend OTP)
         FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
         
         alt OTP Valid & Belum Expire
@@ -967,9 +986,22 @@ else Kredensial Cocok
             BE --> BE -- : Return Signed JWT String
             BE --> FE : 200 OK (JWT Token, User Profile)
             FE --> User : Masuk ke Dasbor Utama Qualifa
+            note over User, BE : [BREAK LOOP: Sesi Valid Lanjut ke Dasbor]
         else OTP Salah / Kadaluarsa
             BE --> FE : 400 Bad Request (OTP Invalid)
             FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
+            
+            opt [Pengguna Meminta Kirim Ulang OTP / Resend OTP]
+                User -> FE : Klik Tombol Resend OTP
+                FE -> BE : POST /api/v1/auth/resend-otp (User ID, Channel)
+                BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
+                BE --> BE -- : Return Computed Result / State
+                BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, New OTP)
+                SMS --> BE -- : 200 OK (New OTP Sent Successfully)
+                BE --> FE : 200 OK (New OTP Sent)
+                FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
+            end
+            note over User, FE : [REPEAT LOOP: Pengguna memasukkan kode OTP baru ke baris awal loop]
         end
     end
 end
@@ -1002,39 +1034,39 @@ BE --> FE : Return Billing Detail (Rp300.000 + Fee)
 FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
-Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
+loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+    Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
 
-alt Webhook Status Transaksi = PAID / SUCCESS
-    PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
-    BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
-    BE --> BE -- : Return Computed Result / State
-    BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-    BE --> BE -- : Return Computed Result / State
-    activate Mitra
-    BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-    deactivate BE
-    PG --> Klien : 200 OK (Payment Status Verified)
-    
-    note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
-else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
-    PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
-    BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
-    BE --> BE -- : Return Computed Result / State
-    BE --> PG -- : 200 OK (Webhook Processed)
-    PG --> Klien : 402 Payment Required / 400 Payment Failed
-    
-    loop [Coba Bayar Ulang atau Jadwal Ulang Reservasi]
-        Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
-        FE -> BE ++ : POST /api/v1/counseling/retry-payment (Booking ID, New Method)
-        BE -> PG ++ : Create New Payment Invoice & VA Number
-        PG --> BE -- : Return New Invoice URL & VA Number
-        BE --> FE : 200 OK (New Billing Detail Rp300.000 + Fee)
-        FE --> Klien : Tampilkan Halaman Pembayaran Baru
+    alt Webhook Status Transaksi = PAID / SUCCESS
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+        BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+        BE --> BE -- : Return Computed Result / State
+        activate Mitra
+        BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
         deactivate BE
-        deactivate FE
+        PG --> Klien : 200 OK (Payment Status Verified)
+        note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konseling]
+        
+        note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
+    else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+        BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
+        BE --> BE -- : Return Computed Result / State
+        BE --> PG -- : 200 OK (Webhook Processed)
+        PG --> Klien : 402 Payment Required / 400 Payment Failed
+        
+        opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+            Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+            FE -> BE : POST /api/v1/counseling/retry-payment (Booking ID, New Method)
+            BE -> PG ++ : Create New Payment Invoice & VA Number
+            PG --> BE -- : Return New Invoice URL & VA Number
+            BE --> FE : 200 OK (New Billing Detail Rp300.000 + Fee)
+            FE --> Klien : Tampilkan Halaman Pembayaran Baru
+        end
+        note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
     end
-    
-    note over Klien, PG : Jika pembayaran ulang sukses, alur akan mentrigger kembali webhook PAID di atas
 end
 
 note over Klien, Mitra : Alur Sesi Konseling & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
@@ -1073,29 +1105,24 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 
 activate Mitra
-Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
-FE -> BE ++ : PUT /api/v1/psychologist/calendar (Status: OPEN_SLOT)
+loop [Percobaan Pengaturan Slot Kalender hingga Memenuhi Buffer Rule 30 Mnt]
+    Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
+    FE -> BE ++ : PUT /api/v1/psychologist/calendar (Status: OPEN_SLOT)
 
-BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
-DB --> BE -- : Return Last Session End Time & Active Schedule
+    BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
+    DB --> BE -- : Return Last Session End Time & Active Schedule
 
-alt Jeda Istirahat Antar Sesi < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
-    BE --> FE : 422 Unprocessable Entity (Buffer Rule Violation)
-    FE --> Mitra : Tampilkan Peringatan "Wajib Jeda Istirahat 30 Menit Antar Sesi"
-    
-    loop [Sesuaikan Jam Jadwal agar Memenuhi Buffer Rule 30 Menit]
-        Mitra -> FE : Sesuaikan Jam Operasional & Klik Simpan Kembali
-        FE -> BE : PUT /api/v1/psychologist/calendar (Updated Slot Rules)
-        BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
-        DB --> BE -- : Return Last Session End Time & Active Schedule (Buffer > 30 Mnt)
-        BE --> FE : 200 OK (Slot Valid Memenuhi Buffer Rule)
-        FE --> Mitra : Lanjut Simpan Perubahan
+    alt Ada Reservasi Bentrok ATAU Jeda Istirahat < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
+        BE --> FE : 409 Conflict / 422 Unprocessable Entity (Schedule Conflict or Buffer Rule Violation)
+        FE --> Mitra : Tampilkan Peringatan "Slot Bentrok atau Melanggar Wajib Jeda Istirahat 30 Menit"
+        note over Mitra, FE : [REPEAT LOOP: Mitra sesuaikan jam operasional & simpan kembali ke baris awal loop]
+    else Slot Valid & Jeda Waktu Memenuhi Syarat (> 30 Menit)
+        BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
+        DB --> BE -- : Success Update
+        BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
+        FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Konseling
+        note over Mitra, BE : [BREAK LOOP: Jadwal Kalender Berhasil Diperbarui & Memenuhi Buffer Rule]
     end
-else Jeda Waktu Memenuhi Syarat (> 30 Menit)
-    BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
-    DB --> BE -- : Success Update
-    BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
-    FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Konseling
 end
 deactivate BE
 deactivate FE
