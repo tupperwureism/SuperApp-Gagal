@@ -28,7 +28,7 @@ participant "API Dukcapil / Peradi" as Ext
 
 activate User
 User -> FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
-FE --> User -- : Tampilkan Formulir Registrasi Spesifik Justifiqa
+FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
 User -> FE ++ : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
 FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
@@ -95,7 +95,7 @@ else Kredensial Cocok
         BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
         SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
         BE --> FE : 200 OK (OTP Sent, Waiting Verification)
-        FE --> User -- : Tampilkan Layar Input OTP & Instruksi Cek SMS
+        FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
         note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
         
         User -> FE ++ : Masukkan Kode OTP 6-Digit
@@ -142,7 +142,7 @@ FE -> BE ++ : POST /api/v1/consultations/book (Advokat ID, Slot)
 BE -> PG ++ : Create Payment Invoice & Virtual Account
 PG --> BE -- : Return Invoice URL & VA Number
 BE --> FE : Return Billing Detail (Rp250.000 + Fee)
-FE --> Klien -- : Tampilkan Halaman Pembayaran
+FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
 Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
@@ -153,18 +153,14 @@ BE -> BE ++ : Update Booking Status = TERKONFIRMASI
 BE --> BE -- : Return Computed Result / State
 activate Mitra
 BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-deactivate Mitra
 deactivate BE
-PG --> Klien -- : 200 OK (Payment Status Verified)
-deactivate Klien
+PG --> Klien : 200 OK (Payment Status Verified)
 
 note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
-activate Klien
-activate Mitra
 Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
-FE --> Klien -- : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
 Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
-FE --> Mitra -- : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien, DOM Inverted)
+FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien, DOM Inverted)
 Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
 Mitra -> Klien : Berikan Analisis & Nasihat Hukum
 
@@ -177,8 +173,8 @@ BE -> BE ++ : Cairkan Dana Escrow ke Saldo Advokat (Potong Fee 25% & PPh 21)
 BE --> BE -- : Return Computed Result / State
 deactivate BE
 deactivate FE
-deactivate Mitra
 deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
@@ -239,22 +235,20 @@ deactivate LocK
 LocK -> BE ++ : POST /api/v1/chat/upload-secure (Encrypted Blob, SHA-256 Hash)
 BE -> WORM ++ : Simpan Blob Terenkripsi & Hash Integritas
 WORM --> BE -- : Storage Confirmation
-activate Mitra
 BE --> LocM ++ : Kirim Webhook Notification File Baru Diunggah
+activate Mitra
 LocM --> Mitra : Notifikasi Berkas Baru Tersedia
 deactivate LocM
-deactivate Mitra
 deactivate BE
 deactivate LocK
-deactivate Klien
 
-activate Mitra
 Mitra -> LocM ++ : Klik Unduh Bukti Perkara
 LocM -> BE ++ : GET /api/v1/chat/download-secure (File ID)
 BE --> LocM -- : Return Encrypted Blob
 LocM -> LocM ++ : Dekripsi Lokal dengan Session Key
 deactivate LocM
-LocM --> Mitra -- : Tampilkan Dokumen Utuh untuk Ditelusuri
+LocM --> Mitra : Tampilkan Dokumen Utuh untuk Ditelusuri
+deactivate Klien
 deactivate Mitra
 @enduml
 ```
@@ -319,22 +313,22 @@ end
 
 DB --> BE : Save Confirmed
 BE --> FE : 200 OK (Dokumen Final Siap)
-FE --> Mitra -- : Tampilkan Konfirmasi Sukses & Tautan Unduh
+FE --> Mitra : Tampilkan Konfirmasi Sukses & Tautan Unduh
 deactivate BE
 
 Mitra -> FE ++ : Unduh Arsip Dokumen Bermeterai
 FE -> BE ++ : GET /api/v1/documents/{id}/download
 BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
-FE --> Mitra -- : Render & Simpan File PDF Bermeterai
-deactivate Mitra
+FE --> Mitra : Render & Simpan File PDF Bermeterai
 
 activate Klien
 BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
 Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
 FE -> BE ++ : GET /api/v1/documents/{id}/download
 BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
-FE --> Klien -- : Render File PDF Bermeterai
+FE --> Klien : Render File PDF Bermeterai
 deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
@@ -364,16 +358,16 @@ alt SKTM Tidak Valid / Palsu
 else SKTM Sah & Terverifikasi
     BE -> BE ++ : Approve Pengajuan & Buat Invoice Rp0 (Gratis)
     BE --> BE -- : Return Computed Result / State
-    activate Mitra
+activate Mitra
     BE -> Mitra ++ : Assign Kasus ke Advokat Kuota Pro Bono Aktif
     Mitra --> BE -- : Terima Penugasan Pro Bono
-    deactivate Mitra
     BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
     FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis
 end
 deactivate BE
 deactivate FE
 deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
@@ -398,7 +392,7 @@ BE --> BE -- : Return Computed Result / State
 BE -> DB ++ : Simpan Catatan IRAC ke Rekam Perkara Klien
 DB --> BE -- : Success Insert Note
 BE --> FE : 201 Created (Catatan Tersimpan Aman)
-FE --> Mitra -- : Tampilkan Notifikasi Catatan Berhasil Diarsip
+FE --> Mitra : Tampilkan Notifikasi Catatan Berhasil Diarsip
 deactivate BE
 deactivate Mitra
 @enduml
@@ -423,20 +417,18 @@ activate Admin
 Admin -> FE ++ : Buka Antrean Audit Advokat Baru
 FE -> BE ++ : GET /api/v1/admin/audits/advocates (Pending List)
 BE --> FE -- : Return Dokumen SIPP, KTP, & Peradi
-FE --> Admin -- : Tampilkan Dokumen Kredensial Advokat
+FE --> Admin : Tampilkan Dokumen Kredensial Advokat
 Admin -> Peradi ++ : Verifikasi Keabsahan Nomor SIPP & Berita Acara Sumpah
-Peradi --> Admin -- : Hasil Verifikasi Status Advokat
+Peradi --> Admin : Hasil Verifikasi Status Advokat
 
 alt Kredensial Palsu / Kadaluarsa
     Admin -> FE ++ : Klik Tolak Kredensial & Isi Alasan
     FE -> BE ++ : POST /api/v1/admin/audits/reject (Advocate ID)
     BE -> DB ++ : Update Status = REJECTED
     DB --> BE -- : 200 OK (Success / Rows Affected)
-    activate Mitra
+activate Mitra
     BE -> Mitra ++ : Kirim Email Alasan Penolakan Akun
     Mitra --> BE : Terima Notifikasi
-    deactivate Mitra
-    deactivate Mitra
     BE --> FE : 200 OK (Status Rejected)
     FE --> Admin : Notifikasi Penolakan Berhasil Dikirim
 else Kredensial Sah & Aktif
@@ -444,16 +436,14 @@ else Kredensial Sah & Aktif
     FE -> BE : POST /api/v1/admin/audits/approve (Advocate ID)
     BE -> DB ++ : Update Status = AKTIF / VERIFIED
     DB --> BE -- : 200 OK (Success / Rows Affected)
-    activate Mitra
     BE -> Mitra ++ : Kirim Email Akun Aktif Siap Praktik
     Mitra --> BE : Terima Notifikasi
-    deactivate Mitra
-    deactivate Mitra
     BE --> FE : 200 OK (Status Approved)
-    FE --> Admin -- : Notifikasi Persetujuan Berhasil Dikirim
+    FE --> Admin : Notifikasi Persetujuan Berhasil Dikirim
     deactivate BE
 end
 deactivate Admin
+deactivate Mitra
 @enduml
 ```
 
@@ -476,7 +466,7 @@ activate Admin
 Admin -> FE ++ : Buka Tab Laporan Pelanggaran Etik / Hukum
 FE -> BE ++ : GET /api/v1/admin/moderation/reports
 BE --> FE -- : Return Daftar Laporan & Bukti WORM
-FE --> Admin -- : Tampilkan Daftar Laporan
+FE --> Admin : Tampilkan Daftar Laporan
 Admin -> FE ++ : Proses Laporan Pelanggaran Berat & Klik Suspend
 FE -> BE ++ : POST /api/v1/admin/moderation/suspend (Advocate ID, Reason)
 BE -> DB ++ : Update Status Akun = SUSPENDED (Due Process)
@@ -488,24 +478,18 @@ DB --> BE -- : 200 OK (Success / Rows Affected)
 activate Mitra
 BE -> Mitra ++ : Kirim Email, SMS, & Push Notifikasi Panggilan Klarifikasi
 Mitra --> BE : Terima Notifikasi Panggilan
-deactivate Mitra
-deactivate Mitra
 BE --> FE -- : 200 OK (Status Suspended & Surat Panggilan Terkirim)
-FE --> Admin -- : Tampilkan Konfirmasi Suspend
-deactivate Admin
+FE --> Admin : Tampilkan Konfirmasi Suspend
 
-activate Mitra
 Mitra -> BE ++ : GET /api/v1/advokat/moderation/status
-BE --> Mitra -- : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
+BE --> Mitra : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
 Mitra -> BE ++ : POST /api/v1/advokat/moderation/appeal (Defense Doc PDF)
 BE -> WORM ++ : Simpan Berkas Pembelaan & Stempel WORM Hash
 WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
 BE -> FE ++ : Notifikasi Ada Bukti Sanggahan Baru Masuk
 deactivate FE
-BE --> Mitra -- : 200 OK (Sanggahan Diterima)
-deactivate Mitra
+BE --> Mitra : 200 OK (Sanggahan Diterima)
 
-activate Admin
 Admin -> FE ++ : Review Berkas & Input Putusan Akhir Sidang Etik
 alt Terbukti Bersalah (Sanksi Pemecatan Permanen)
   FE -> BE ++ : POST /api/v1/admin/moderation/verdict (Verdict: GUILTY)
@@ -513,11 +497,8 @@ alt Terbukti Bersalah (Sanksi Pemecatan Permanen)
   DB --> BE -- : 200 OK (Success / Rows Affected)
   BE -> WORM ++ : Generate & Simpan SK Pemecatan (Hash SHA-256)
   WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-  activate Mitra
   BE -> Mitra ++ : Kirim Email SK Pemecatan Permanen
   Mitra --> BE : Terima SK Pemecatan
-  deactivate Mitra
-  deactivate Mitra
   BE --> FE : 200 OK (Verdict Executed)
   FE --> Admin : Tampilkan Status Pemecatan Permanen
 else Tidak Terbukti / Rehabilitasi (Unsuspend)
@@ -526,15 +507,13 @@ else Tidak Terbukti / Rehabilitasi (Unsuspend)
   DB --> BE -- : 200 OK (Success / Rows Affected)
   BE -> WORM ++ : Generate & Simpan Surat Rehabilitasi (Hash SHA-256)
   WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-  activate Mitra
   BE -> Mitra ++ : Kirim Email Pemulihan Akun & Pembukaan Katalog
   Mitra --> BE : Terima Notifikasi Pemulihan
-  deactivate Mitra
-  deactivate Mitra
   BE --> FE -- : 200 OK (Account Rehabilitated)
-  FE --> Admin -- : Tampilkan Status Rehabilitasi Berhasil
+  FE --> Admin : Tampilkan Status Rehabilitasi Berhasil
 end
 deactivate Admin
+deactivate Mitra
 @enduml
 ```
 
@@ -605,7 +584,7 @@ DB --> BE -- : Return Financial Records
 BE -> WORM ++ : Validasi Integritas Hash SHA-256 Transaksi
 WORM --> BE -- : Return Hash Validation Status
 BE --> FE -- : 200 OK (Data Ledger & Status Hash Valid)
-FE --> Admin -- : Tampilkan Tabel Laporan Keuangan Escrow & PPh 21
+FE --> Admin : Tampilkan Tabel Laporan Keuangan Escrow & PPh 21
 
 opt Unduh Bukti Rekap PPh 21 & Hash Audit
     Admin -> FE ++ : Klik Unduh Laporan Rekap PPh 21
@@ -613,7 +592,7 @@ opt Unduh Bukti Rekap PPh 21 & Hash Audit
     BE -> BE ++ : Generate Dokumen PDF/Excel dengan Digital Signature SHA-256
     BE --> BE -- : Return Computed Result / State
     BE --> FE -- : 200 OK (File Export Ready)
-    FE --> Admin -- : Download File Laporan Rekapitulasi Pajak
+    FE --> Admin : Download File Laporan Rekapitulasi Pajak
 end
 deactivate Admin
 @enduml
@@ -705,7 +684,7 @@ DB --> BE -- : Transaction ID Created
 BE -> PG ++ : POST /v1/payment-gateway/snap-token {order_id, amount, customer_details}
 PG --> BE -- : 200 OK {snap_token, redirect_url, qris_string}
 BE --> FE -- : 201 Created {snap_token, order_id}
-FE --> Mitra -- : Tampilkan Halaman Pembayaran (Snap Checkout UI)
+FE --> Mitra : Tampilkan Halaman Pembayaran (Snap Checkout UI)
 
 Mitra -> PG ++ : Selesaikan Pembayaran via M-Banking / E-Wallet Eksternal
 
@@ -729,7 +708,7 @@ else Pembayaran Kedaluwarsa / Dibatalkan (Expired / Cancelled)
     BE --> PG -- : 200 OK
     FE --> Mitra : Tampilkan Status Tagihan Kedaluwarsa
 end
-PG --> Mitra -- : 200 OK (Payment Status Verified)
+PG --> Mitra : 200 OK (Payment Status Verified)
 deactivate Mitra
 @enduml
 ```
@@ -817,8 +796,9 @@ participant "Frontend Qualifa App" as FE
 participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 
+activate User
 User -> FE ++ : Buka Halaman Registrasi Qualifa & Pilih Jenis Akun
-FE --> User -- : Tampilkan Formulir Registrasi Spesifik Qualifa
+FE --> User : Tampilkan Formulir Registrasi Spesifik Qualifa
 User -> FE ++ : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
 FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
@@ -845,6 +825,7 @@ else Kredensial Baru & Valid
 end
 deactivate BE
 deactivate FE
+deactivate User
 @enduml
 ```
 
@@ -862,6 +843,7 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 participant "SMS / Email Gateway" as SMS
 
+activate User
 User -> FE ++ : Masukkan Email/No HP & Password
 FE -> BE ++ : POST /api/v1/auth/login (Credentials)
 
@@ -881,7 +863,7 @@ else Kredensial Cocok
         BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
         SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
         BE --> FE : 200 OK (OTP Sent, Waiting Verification)
-        FE --> User -- : Tampilkan Layar Input OTP & Instruksi Cek SMS
+        FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
         note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
         
         User -> FE ++ : Masukkan Kode OTP 6-Digit
@@ -904,6 +886,7 @@ else Kredensial Cocok
 end
 deactivate BE
 deactivate FE
+deactivate User
 @enduml
 ```
 
@@ -921,12 +904,13 @@ participant "Backend Independen Qualifa" as BE
 participant "Payment Gateway" as PG
 actor "Psikolog Klinis Qualifa" as Mitra
 
+activate Klien
 Klien -> FE ++ : Pilih Psikolog, Jadwal Sesi Terapi, & Klik Reservasi
 FE -> BE ++ : POST /api/v1/counseling/book (Psikolog ID, Slot)
 BE -> PG ++ : Create Payment Invoice & Virtual Account
 PG --> BE -- : Return Invoice URL & VA Number
 BE --> FE : Return Billing Detail (Rp300.000 + Fee)
-FE --> Klien -- : Tampilkan Halaman Pembayaran
+FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
 Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
@@ -935,16 +919,16 @@ BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
 BE --> BE -- : Return Computed Result / State
 BE -> BE ++ : Update Booking Status = TERKONFIRMASI
 BE --> BE -- : Return Computed Result / State
+activate Mitra
 BE -> Mitra ++ : Kirim Push Notification Pengingat Jadwal Terapi
-deactivate Mitra
 deactivate BE
-PG --> Klien -- : 200 OK (Payment Status Verified)
+PG --> Klien : 200 OK (Payment Status Verified)
 
 note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
 Klien -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=klien)
-FE --> Klien -- : Render Client Viewpoint (.user=Klien di kanan, Topbar=Psikolog)
+FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Psikolog)
 Mitra -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=mitra)
-FE --> Mitra -- : Render Partner Viewpoint (.user=Psikolog di kanan, Topbar=Klien, DOM Inverted)
+FE --> Mitra : Render Partner Viewpoint (.user=Psikolog di kanan, Topbar=Klien, DOM Inverted)
 Klien -> Mitra : Sesi Konseling Teks / Audio / Video Call (E2EE)
 Mitra -> Klien : Berikan Intervensi Klinis & Dukungan Psikologis
 
@@ -957,6 +941,8 @@ BE -> BE ++ : Cairkan Honor Sesi ke Saldo Psikolog (Potong Fee 20% & PPh 21)
 BE --> BE -- : Return Computed Result / State
 deactivate BE
 deactivate FE
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
@@ -973,6 +959,7 @@ participant "Frontend Dasbor Psikolog" as FE
 participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 
+activate Mitra
 Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
 FE -> BE ++ : PUT /api/v1/psychologist/calendar (Status: OPEN_SLOT)
 
@@ -990,6 +977,7 @@ else Jeda Waktu Memenuhi Syarat (> 30 Menit)
 end
 deactivate BE
 deactivate FE
+deactivate Mitra
 @enduml
 ```
 
@@ -1007,6 +995,7 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 participant "Wellness Alert Engine" as Alert
 
+activate Klien
 Klien -> FE ++ : Pilih Emotikon Emosi, Pemicu, & Tulis Jurnal Harian
 FE -> BE ++ : POST /api/v1/wellness/mood-tracker (Mood Score, Notes)
 BE -> DB ++ : Simpan Catatan Jurnal & Update Riwayat Emosi
@@ -1027,6 +1016,7 @@ else Tren Emosi Stabil / Normal
 end
 deactivate BE
 deactivate FE
+deactivate Klien
 @enduml
 ```
 
@@ -1044,6 +1034,7 @@ participant "Backend Independen Qualifa" as BE
 participant "Media CDN Server" as CDN
 database "Database Qualifa" as DB
 
+activate Klien
 Klien -> FE ++ : Buka Menu Relaksasi & Pilih Trek Audio Meditasi
 FE -> BE ++ : GET /api/v1/wellness/meditation/stream (Track ID, Bandwidth)
 BE -> BE ++ : Evaluate Client Bandwidth & Network Speed
@@ -1061,8 +1052,9 @@ BE -> DB ++ : Log Exercise Activity Start
 DB --> BE -- : 200 OK (Success / Rows Affected)
 BE --> FE -- : 200 OK (Stream URL)
 FE -> CDN ++ : Start Audio Streaming
-FE --> Klien -- : Putar Audio Meditasi & Tampilkan Timer Relaksasi
+FE --> Klien : Putar Audio Meditasi & Tampilkan Timer Relaksasi
 CDN --> FE -- : 200 OK (Service Response / Executed)
+deactivate Klien
 @enduml
 ```
 
@@ -1080,6 +1072,7 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 participant "Emergency Crisis System" as Crisis
 
+activate Klien
 Klien -> FE ++ : Isi 21 Pertanyaan Asesmen DASS-21 & Submit
 FE -> BE ++ : POST /api/v1/assessment/dass21 (Responses Array)
 BE -> BE ++ : Hitung Skor Sub-Skala Depresi, Anxiety, & Stress
@@ -1100,6 +1093,7 @@ else Skor Normal / Sedang / Ringan
 end
 deactivate BE
 deactivate FE
+deactivate Klien
 @enduml
 ```
 
@@ -1117,6 +1111,7 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa (Encrypted)" as DB
 actor "Klien Qualifa" as Klien
 
+activate Mitra
 Mitra -> FE ++ : Buat Catatan DAP Note & Pilih Tugas Worksheet CCBT
 FE -> BE ++ : POST /api/v1/psychologist/clinical-notes (Sesi ID, DAP Payload)
 BE -> BE ++ : Enkripsi Catatan Klinis dengan Field-Level Encryption
@@ -1129,15 +1124,17 @@ alt Psikolog Memberikan Tugas CCBT Worksheet
     FE -> BE : POST /api/v1/counseling/ccbt/assign (Sesi ID, Template ID)
     BE -> DB ++ : Simpan Tugas di Dasbor Klien
     DB --> BE -- : 200 OK (Success / Rows Affected)
+activate Klien
     BE -> Klien ++ : Kirim Push Notification Tugas CCBT Baru
-    deactivate Klien
     BE --> FE : 201 Created (Tugas Terkirim ke Klien)
 else Tanpa Tugas CCBT
     BE --> FE : 201 Created (Catatan DAP Note Tersimpan)
 end
 
-FE --> Mitra -- : Tampilkan Konfirmasi Sukses Pengarsipan Klinis
+FE --> Mitra : Tampilkan Konfirmasi Sukses Pengarsipan Klinis
 deactivate BE
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
@@ -1156,20 +1153,21 @@ database "Database Qualifa" as DB
 participant "Pangkalan Data HIMPSI / STR" as HIMPSI
 actor "Psikolog Terlapor / Pendaftar" as Mitra
 
+activate Admin
 Admin -> FE ++ : Buka Antrean Verifikasi Psikolog Baru
 FE -> BE ++ : GET /api/v1/admin/audits/psychologists (Pending List)
 BE --> FE -- : Return Dokumen STR, SIPP, & Kartu HIMPSI
-FE --> Admin -- : Tampilkan Dokumen STR & HIMPSI
+FE --> Admin : Tampilkan Dokumen STR & HIMPSI
 Admin -> HIMPSI ++ : Cek Keabsahan STR & Status Keanggotaan HIMPSI
-HIMPSI --> Admin -- : Hasil Verifikasi Status STR
+HIMPSI --> Admin : Hasil Verifikasi Status STR
 
 alt STR Tidak Sah / Kadaluarsa
     Admin -> FE ++ : Tolak Verifikasi & Isi Alasan
     FE -> BE ++ : POST /api/v1/admin/audits/reject (Psychologist ID)
     BE -> DB ++ : Update Status = REJECTED
     DB --> BE -- : 200 OK (Success / Rows Affected)
+activate Mitra
     BE -> Mitra ++ : Kirim Email Alasan Penolakan Kredensial
-    deactivate Mitra
     BE --> FE : 200 OK (Status Rejected)
     FE --> Admin : Notifikasi Penolakan Terkirim
 else STR Sah & Aktif
@@ -1178,9 +1176,8 @@ else STR Sah & Aktif
     BE -> DB ++ : Update Status = AKTIF / VERIFIED
     DB --> BE -- : 200 OK (Success / Rows Affected)
     BE -> Mitra ++ : Kirim Email Selamat Datang & Panduan Etik
-    deactivate Mitra
     BE --> FE : 200 OK (Status Approved)
-    FE --> Admin -- : Notifikasi Persetujuan Terkirim
+    FE --> Admin : Notifikasi Persetujuan Terkirim
     deactivate BE
 end
 
@@ -1190,9 +1187,10 @@ FE -> BE ++ : POST /api/v1/admin/ethics/suspend (Psychologist ID, Reason)
 BE -> DB ++ : Update Status Akun = SUSPENDED (Investigasi Etik)
 DB --> BE -- : 200 OK (Success / Rows Affected)
 BE -> Mitra ++ : Kirim Surat Panggilan Klarifikasi Komite Etik Qualifa
-deactivate Mitra
 BE --> FE -- : 200 OK (Account Suspended & Panggilan Terkirim)
-FE --> Admin -- : Tampilkan Konfirmasi Suspend
+FE --> Admin : Tampilkan Konfirmasi Suspend
+deactivate Admin
+deactivate Mitra
 @enduml
 ```
 
@@ -1210,6 +1208,7 @@ participant "Backend Independen Qualifa" as BE
 participant "Payment Gateway Disbursement" as PG
 database "WORM Hash Storage" as WORM
 
+activate Mitra
 Mitra -> FE ++ : Ajukan Pencairan Honor Sesi ke Rekening Bank
 FE -> BE ++ : POST /api/v1/psychologist/payouts/withdraw (Amount, Bank Acc)
 
@@ -1236,6 +1235,7 @@ else Webhook Transfer FAILED / REJECTED
 end
 deactivate BE
 deactivate FE
+deactivate Mitra
 @enduml
 ```
 
@@ -1253,6 +1253,7 @@ participant "Backend Independen Qualifa" as BE
 database "Database Qualifa" as DB
 database "WORM Hash Storage" as WORM
 
+activate Admin
 Admin -> FE ++ : Buka Modul Keuangan & Buku Besar Honorarium
 FE -> BE ++ : GET /api/v1/admin/finance/honorarium-ledger?startDate=X&endDate=Y
 BE -> DB ++ : Query Rekapitulasi Saldo & Bagi Hasil (20%/80%)
@@ -1260,7 +1261,7 @@ DB --> BE -- : Return Financial Records
 BE -> WORM ++ : Validasi Integritas Hash SHA-256 Transaksi
 WORM --> BE -- : Return Hash Validation Status
 BE --> FE -- : 200 OK (Data Ledger & Status Hash Valid)
-FE --> Admin -- : Tampilkan Tabel Laporan Keuangan Honorarium & PPh 21
+FE --> Admin : Tampilkan Tabel Laporan Keuangan Honorarium & PPh 21
 
 opt Unduh Bukti Rekap PPh 21 & Hash Audit
     Admin -> FE ++ : Klik Unduh Laporan Rekap PPh 21
@@ -1268,8 +1269,9 @@ opt Unduh Bukti Rekap PPh 21 & Hash Audit
     BE -> BE ++ : Generate Dokumen PDF/Excel dengan Digital Signature SHA-256
     BE --> BE -- : Return Computed Result / State
     BE --> FE -- : 200 OK (File Export Ready)
-    FE --> Admin -- : Download File Laporan Rekapitulasi Pajak
+    FE --> Admin : Download File Laporan Rekapitulasi Pajak
 end
+deactivate Admin
 @enduml
 ```
 

@@ -1,240 +1,123 @@
-# DECISION LOG & CORRECTION HISTORY
-**Proyek:** LifeQ SuperApp (Ekosistem Layanan 3-in-1: Medis, Hukum, & Psikologi)
-**Lokasi Proyek:** `d:\justificadll`
+# Project Decision & Correction Log (LifeQ Standalone Ecosystem)
+
+Dokumen ini mencatat seluruh keputusan arsitektural penting, koreksi teknis dari pengguna, dan aturan rekayasa yang **WAJIB** dipatuhi oleh tim pengembang dan Agen AI agar tidak terjadi kesalahan berulang (*Context Rot & Memory Integrity* - Aturan 3).
 
 ---
 
-## FASE: HIGH-FIDELITY MOCKUP REVISION (CYBER-NAVY GLASSMORPHISM)
-
-### 1. Koreksi & Keputusan Desain: Dasbor Klien (`mockup_dashboard_klien.html`)
-- **Koreksi Pengguna / Referensi Wireframe:** Dasbor Klien sebelumnya mengalami penyimpangan struktur berupa penambahan navigasi menu bar samping (sidebar kiri).
-- **Keputusan Arsitektur:** 
-  - **Penghapusan Total Sidebar Kiri (No Left Sidebar):** Dasbor Klien didefinisikan secara mutlak sebagai **Portal Landing/Control Full-Width tanpa Sidebar Kiri** yang mengalir dari kiri ke kanan.
-  - **Struktur Hero Section & Universal Search Bar:** Menampilkan salam sambutan untuk Ahmad Subarjo (SKTM Pro Bono Verified) dengan pencarian terpadu atas gejala penyakit, masalah hukum perdata, maupun tes DASS-21.
-  - **Grid 3 Pilar Layanan:** Akses langsung ke kartu layanan Sehatifiqa (Medis), Justifiqa (Hukum/Litigasi), dan Qualifa (Psikologi/Mental Health).
-  - **Bottom Section Layout (2 Kolom):** Kolom kiri memuat Spanduk Persetujuan Bantuan Hukum Pro Bono Rp 0 (Desil 1 DTKS) & Kartu Konsultasi Aktif (dr. Andi Saputra, Sp.A - Ruang E2EE, countdown timer); Kolom kanan memuat Riwayat Aksi Cepat (e-Resep Digital, Akta Hukum e-Meterai asli, Jurnal Mood Tracker).
-
-### 2. Koreksi & Keputusan Desain: Dasbor Mitra (`mockup_dashboard_mitra.html`)
-- **Koreksi Pengguna / Referensi UML & Wireframe:** Dasbor Mitra sebelumnya mengalami kesalahan kaprah (*salah kaprah*) berupa pencampuran 3 domain sekaligus (Medis, Hukum, Psikologi) di dalam antarmuka satu profesional, serta kerumitan berlebih (*clutter* / *over-engineering*).
-- **Keputusan Arsitektur Mutlak (Pure Domain-Alignment):**
-  - **Spesifikasi per Domain (SD-11 & SD-14):** Seorang Mitra terdaftar hanya pada **SATU domain spesifik**. Untuk profil representatif `dr. Andi Saputra, Sp.A`, domainnya adalah murni **Medis (Sehatifiqa)**. Seluruh kartu dekoratif pemilih domain (Hukum/Psikologi) di Main Area **DIHAPUS TOTAL** karena menyalahi logika profesi (dokter tidak membuka sesi somasi hukum atau konseling psikologi).
-  - **Penyederhanaan Layout Sidebar (`wf_dashboard_mitra.html`):** Memuat Profil Profesional, **Toggle Switch Status Ketersediaan** (*ONLINE / Menerima Konsultasi* ↔ *SIDANG/OPERASI / Jadwal Tidak Tersedia*), dan menu navigasi bersih: Dasbor Utama, Antrean Konsultasi, Riwayat Sesi & Notes, Dompet Saldo & Payout (SD-18), serta tautan cepat khusus domain `🩺 Buka Workstation Sehatifiqa`.
-  - **Antrean & Riwayat Khusus Domain:** Seluruh sesi masuk pada antrean dan sesi selesai pada riwayat disaring **murni untuk kasus medis/pediatri** (wajib isi SOAP Note & e-Resep DDI Checker). Kasus hukum (IRAC) dan psikologi (DASS-21/DAP) dilarang muncul di dasbor dokter anak.
-  - **Koreksi Logika Dompet Saldo (SD-18):** Mitra adalah Penerima Pembayaran (*Payee/Beneficiary*). Fitur keuangan menampilkan Saldo Aktif Siap Tarik, pencairan klaim subsidi Pro Bono medis Kemensos, dan Payout Real-Time ke rekening BCA dengan pemotongan PPh 21.
-
-### 3. Rekonsiliasi & Master Bundle
-- Skrip generator `d:\justificadll\Tools\gen_dashboards.py` telah dieksekusi untuk meregenerasi file:
-  - `d:\justificadll\Mockups\mockup_dashboard_admin.html`
-  - `d:\justificadll\Mockups\mockup_dashboard_mitra.html`
-  - `d:\justificadll\Mockups\mockup_dashboard_klien.html`
-- **Penghapusan File Gabungan (`gabungan_semua_mockup.html`):** Sesuai instruksi mutlak pengguna dan prinsip *100% Siloed App*, file master gabungan dan skrip penggabung (`rebuild_gabungan_mockup.py`) telah **DIHAPUS PERMANEN** karena bertentangan dengan isolasi arsitektur per domain.
+## 1. Catatan Koreksi Teknis & Aturan PlantUML (03 Juli 2026)
+* **Koreksi Pengguna**: Terjadi *syntax error* pada saat import kode PlantUML ke Draw.io karena pemenggalan baris (*newline/multiline*) di dalam tanda kutip nama aktor.
+* **Akar Masalah**: Penulisan literal newline `\n` atau enter di dalam string `actor "Klien\n(Pencari Keadilan)" as Klien` dianggap sebagai tanda kutip tidak tertutup oleh parser PlantUML 1.2025.10 di Draw.io.
+* **ATURAN MUTLAK PLANTUML**:
+  1. **DILARANG KERAS** menggunakan karakter pemenggal baris (`\n`, `\r`, atau enter) di dalam tanda kutip untuk definisi Aktor, Use Case, Participant, Swimlane/Partition, atau Component.
+  2. Semua label entitas PlantUML **WAJIB** ditulis dalam 1 baris utuh yang bersih:
+     * *Benar*: `actor "Klien (Pencari Keadilan)" as Klien`
+     * *Salah*: `actor "Klien\n(Pencari Keadilan)" as Klien`
+  3. Biarkan mesin pembuat diagram (Draw.io/PlantUML) melakukan *text-wrapping* secara otomatis pada kotak/elemen grafisnya tanpa pemenggalan manual di level sintaks.
 
 ---
-*Catatan audit ini disimpan sebagai memori persisten agar penyimpangan spesifikasi navigasi maupun struktur antarmuka tidak terulang pada fase eksekusi berikutnya.*
 
-## FASE: REVISI PSIKOLOGI (QUALIFA 100% SILOED APP - ZERO PERCAMPURAN / NO LIFEQ)
+## 2. Keputusan Arsitektural: Opsi B - 100% Siloed Standalone Apps (03 Juli 2026)
+* **Latar Belakang**: Keputusan bisnis terbaru dari manajemen/bos meniadakan konsep SuperApp 3 domain (Medis, Hukum, Psikologi) dan menghapus total domain Medis (*Sehatifiqa*).
+* **Arsitektur Terpilih**: **Opsi B (100% Siloed & Independent Total Architecture)**.
+* **Spesifikasi Arsitektur**:
+  1. **Justifiqa (Domain Hukum)**: Aplikasi berdiri sendiri dari ujung ke ujung (*frontend, backend, database, authentication MFA, escrow payment, dan admin panel khusus hukum*). Tidak berbagi sistem dengan aplikasi lain.
+  2. **Qualifa (Domain Psikologi)**: Aplikasi berdiri sendiri dari ujung ke ujung (*frontend, backend, database, authentication MFA, payment, dan admin panel khusus psikologi/komite etik*). Tidak berbagi sistem dengan aplikasi lain.
+* **Pembersihan Konteks Lama (*Cognitive Refresh*)**:
+  * Seluruh ingatan dan referensi mengenai "SuperApp", "LifeQ Core Shared Engine", "SSO LifeQ ID", dan "Domain Medis/Sehatifiqa/Dokter/Apotek" dinyatakan **TIDAK BERLAKU LAGI** dan telah dipangkas dari spesifikasi aktif proyek.
 
-### 1. Koreksi Pengguna / Aturan Mutlak Domain Isolasi:
-- **Koreksi Pengguna:** Pengguna menegaskan bahwa Qualifa (Psikologi) harus terisolasi 100% sebagai aplikasi mandiri (*Siloed App*), tidak boleh dicampuradukkan dengan domain hukum atau medis, dan DILARANG KERAS memuat sisa branding "LifeQ" atau "SuperApp" generik.
-- **Keputusan Arsitektur & UI/UX Mutlak:**
-  - **Sanitasi Branding Total:** Seluruh string "LifeQ", "BY LIFEQ", dan "SuperApp" telah dihapus secara menyeluruh dari semua file HTML (termasuk mockup standalone dan wireframes).
-  - **Hub Utama Psikologi (`mockup_dasbor_psikologi.html`):** Dibuat sebagai portal utama ekosistem Qualifa yang memberikan pilihan role secara jelas: Pasien/Klien, Mitra Psikolog Klinis, dan Admin HIMPSI.
-  - **Portal Auth (`mockup_auth.html`):** Logika tombol "Daftar Sekarang" memunculkan notifikasi sistem (sudah terdaftar), tombol "Masuk Sekarang" dan OTP Modal me-redirect dengan tepat ke `mockup_dashboard_mitra_psikologi.html` jika kolom Mitra aktif, atau ke `mockup_dashboard_psikologi_klien.html` jika kolom Klien aktif.
-  - **Workstation & Modul Terpisah (Zero Hallucination Role separation):**
-    - `mockup_modul_psikologi_klien.html`: Khusus pasien untuk mengisi Jurnal Mood Tracker harian, Skala DASS-21, Audio Grounding CDN, dan CCBT Worksheet. Dilarang melihat atau mengubah DAP Note klinis.
-    - `mockup_modul_psikologi_mitra.html`: Khusus psikolog SIPP untuk menganalisis skor DASS-21 pasien, mengelola antrean, dan menulis Rekam Medis DAP Note dengan enkripsi AES-256 dan kunci WORM (*Write-Once-Read-Many*). Dilarang menampilkan input mood tracker pasien.
-    - `mockup_modul_psikologi.html`: Bekerja sebagai Hub/Selektor yang mengarahkan ke versi Klien atau versi Mitra.
-  - **Katalog Psikolog (`mockup_katalog_qualifa.html`):** Diperbarui dengan filter interaktif berbasis JavaScript (pencarian nama, filter tarif subsidi/pro bono, dan filter spesialisasi klinis).
-  - **Penegasan Anti-SuperApp / Anti-Bundle:** Tidak ada lagi pembuatan file gabungan lintas domain. Setiap domain berdiri di atas berkas dan navigasi yang terpisah dan terisolasi.
+---
 
-## FASE: STANDARISASI LOGIKA UI/UX & SCREEN CATALOG (THE 6-PILLAR SPEC)
+## 3. Status Alur Kerja Rekayasa (*Phase-Gate Tracking*)
+* [x] **Langkah 1.A**: Refactoring Use Case Diagram (`plantuml_uc_diagrams.md`) & Skenario Teks (`unified_use_case_scenarios.md`, `use_case_scenarios.md`) ke Arsitektur Siloed Opsi B. *(Selesai & Direview)*
+* [x] **Langkah 1.B**: Refactoring Activity Diagram (`plantuml_activity_diagrams.md`). *(Selesai & Direview)*
+* [x] **Langkah 1.C**: Refactoring Sequence Diagram (`plantuml_sequence_diagrams.md`). *(Selesai & Direview)*
+* [ ] **Langkah 2**: Refactoring Product Backlog (`product_backlog.md`) & Matriks Kepatuhan.
+* [x] **Langkah 3**: Refactoring Wireframe & Mockup HTML (Membuang modul medis & memisahkan antarmuka Klien dan Mitra untuk Justifiqa & Qualifa). *(Selesai & Direview)*
+* [ ] **Langkah 4**: Desain ERD & Database Schema Standalone.
 
-### 1. Koreksi & Keputusan Arsitektur:
-- **Pemisahan Total Portal Autentikasi (`mockup_auth_qualifa.html` vs `mockup_auth_justifiqa.html`):** Untuk menghilangkan kecacatan pencampuran domain pada portal login, autentikasi telah dipisah 100% menjadi dua file mandiri. File lama (`mockup_auth.html`) diubah menjadi Siloed Domain Gateway selector.
-- **Penerapan Dokumen Rujukan Logika (`ui_specification_guide.md`):** Sebagai langkah mitigasi terhadap halusinasi logika antarmuka dan putusnya alur interaksi (seperti kasus OTP modal atau hilangnya field identitas pada mode registrasi), telah dibuat dokumen **UI/UX Functional Specification & Screen Catalog**.
-- **Anatomi 6 Pilar (The 6-Pillar Spec):** Setiap 20 halaman di dalam sistem wajib memenuhi standar pengecekan: (1) Screen Metadata & ID, (2) Role & Access Control, (3) Component Inventory, (4) Interactive State Machine (Event -> Action -> Redirection), (5) Edge Cases & Error Handling, dan (6) Domain Compliance (UU PDP, WORM DAP Note, e-Meterai Peradi).
-- **Traceability Guarantee:** Dokumen ini bertindak sebagai *authoritative guide* sebelum perancangan database ERD dan eksekusi kode frontend dilakukan.
-- **Isolasi Direktori Global (`Mockups/Qualifa` vs `Mockups/Justifiqa`):** Sesuai arahan mutlak pengguna, direktori `Mockups` telah dipisahkan secara fisik menjadi subdirektori `Qualifa/` (menampung 13 file psikologi) dan `Justifiqa/` (menampung 10 file hukum), sementara portal gateway selector (`mockup_auth.html`) dan file admin/wireframing bersama tetap berada di root `Mockups/` dengan tautan yang mengarah tepat ke subdirektori masing-masing.
-- **Koreksi Tatanan Alur & Hierarki Layar (Hub Sebelum Auth):** Atas koreksi kritis pengguna mengenai tatanan alur psikologi, posisi `mockup_dasbor_psikologi.html` (Qualifa Psychology Hub) resmi ditetapkan sebagai **Gerbang Masuk Utama / Section 1 (SCR-QLF-01)** sebelum gerbang autentikasi `mockup_auth_qualifa.html` **(SCR-QLF-02)**. Tautan kartu role Klien dan Mitra diubah agar mengalir melalui proses verifikasi kredensial & OTP modal (`?role=klien` atau `?role=mitra`) sebelum diizinkan mengakses dasbor interior. Master bundle `mockup_qualifa_standalone.html` juga telah diregenerasi dengan urutan 9 babak yang sejalan.
-- **Koreksi Cascading 4 Temuan Anomali UI/UX (Zero-Tolerance for Flaws):** Atas laporan hasil pengecekan visual pengguna, telah dieksekusi perbaikan menyeluruh secara serentak di semua file terkait dan master bundle:
-  1. *Perbaikan Typo:* Mengubah "KUNCING DARURAT AKTIF" menjadi "KUNCI DARURAT AKTIF" pada modal krisis `mockup_modul_psikologi_klien.html`.
-  2. *Disambiguasi Copywriting Keuangan:* Memperjelas perbedaan antara "Saldo Dompet Aktif (Siap Tarik)" (saldo yang tersedia untuk ditarik saat ini setelah potongan PPh 21 & bagi hasil) dengan "Total Riwayat Penghasilan (Lifetime)" (akumulasi kumulatif seluruh pendapatan sejak hari pertama) pada `mockup_dashboard_mitra_psikologi.html`.
-  3. *Koreksi Pelanggaran RBAC (Anti-Leap to Admin):* Menghapus tautan menu "Portal Kepatuhan HIMPSI" yang melompat ke dasbor Admin pada sidebar Mitra (`mockup_dashboard_mitra_psikologi.html` & `mockup_modul_psikologi_mitra.html`). Diganti dengan modal internal "Status Kepatuhan SIPP & Etik HIMPSI" yang menampilkan keabsahan STR/SIPP psikolog secara mandiri tanpa menembus domain admin.
-  4. *Fungsionalisasi Penuh Dasbor Admin:* Mengubah `mockup_admin_qualifa.html` dari yang sebelumnya memiliki 3 menu bertipe placeholder *alert*, menjadi sistem workstation interaktif 4-tab ("Dasbor Kepatuhan", "Verifikasi SIPP Psikolog", "Log WORM Crisis 119", dan "Sidang Etik Psikologi & Buffer Rule 30m").
-- **Koreksi Lanjutan 4 Alur & Redundansi UI/UX (Zero-Tolerance for Flaws - 04 Juli 2026):**
-  1. *Penghapusan File Redundan (`mockup_modul_psikologi.html`):* Mengonfirmasi bahwa file `mockup_modul_psikologi.html` adalah file hub generik lama yang tidak lagi terpakai sejak dipisahkan menjadi workstation spesifik (`mockup_modul_psikologi_klien.html` untuk pasien dan `mockup_modul_psikologi_mitra.html` untuk psikolog). File redundan tersebut telah dihapus permanen, dan referensinya di dokumen panduan (`ui_specification_guide.md`) telah dibersihkan.
-  2. *Verifikasi Bersih "Pro Bono":* Memeriksa seluruh file pada katalog Qualifa (`mockup_katalog_qualifa.html`) dan mengonfirmasi bahwa istilah "pro bono" telah 100% tersanitasi sejak revisi sebelumnya menjadi "Subsidi Tarif / Sesi Sosial / Rp 0".
-  3. *Koreksi Alur Pembayaran Konsultasi:* Memperbaiki lompatan alur keliru pada kartu katalog psikolog di `mockup_katalog_qualifa.html` yang sebelumnya langsung membuka ruang WebRTC (`mockup_chat_qualifa.html`). Kini, tombol "Berkonsultasi & Booking Sesi", "Konsultasi Cepat (Darurat)", dan "Pilih Paket Konseling" mengarah tepat ke `mockup_payment_gateway.html` (Midtrans) untuk menyelesaikan transaksi sebelum akses terapi dibuka.
-  4. *Panel Interaktif Daftar Langganan (Subscribed Doctors & Patients Caseload):*
-     - Master bundle `mockup_qualifa_standalone.html` telah diregenerasi penuh untuk mengintegrasikan seluruh perubahan logika dan antarmuka ini.
-- **Koreksi Alur Interaktif & Kedalaman Visual (Interactive State Machine - 05 Juli 2026):**
-  - Menanggapi diagnosis objektif mengenai akar masalah kedalaman mockup dan *batching prompt*, telah diterapkan **Interactive State Machine (4 State Wajib)** pada alur transaksi pembayaran dan konfirmasi jadwal untuk mengatasi ketimpangan detail antara SD (UC-04/UC-05) dengan visualisasi mockup statis:
-  - **Payment Gateway Interaktif (`mockup_payment_gateway.html` di Qualifa, Justifiqa, dan Root):**
-    - Tombol *"Bayar Sekarang"* dilengkapi penangan event yang memicu Layer Modal *"⏳ Pembayaran Sedang Diproses..."* (simulasi latensi verifikasi Webhook Midtrans selama 1.8 detik).
-    - Setelah verifikasi sukses, status berubah otomatis menjadi *SETTLEMENT_CONFIRMED (200 OK)* dengan pesan *"✅ Pembayaran Terkonfirmasi!"*, lalu sistem melakukan auto-redirect ke Dasbor Klien dengan membawa parameter state (`?demo_confirm=1` dan *localStorage flag*).
-    - Modal kegagalan pembayaran (`#paymentFailedState`) distandarisasi ke posisi tersembunyi (`display: none`) untuk mencegah pemblokiran layar saat awal dimuat.
-  - **Dasbor Klien Auto-Refresh (`mockup_dashboard_psikologi_klien.html` & `mockup_dashboard_hukum_klien.html`):**
-    - Saat dasbor menerima parameter atau flag konfirmasi pembayaran baru, sistem menampilkan Top Floating Toast *"⏳ Pembayaran Terkonfirmasi! Melakukan sinkronisasi & refresh jadwal dalam 2 detik..."*.
-    - Setelah jeda 2 detik, sistem menyimulasikan pembaruan data secara dinamis dengan pesan *"🎉 Refresh Berhasil!"* dan secara otomatis membuka Modal Daftar Langganan Aktif (pada Qualifa) atau menyorot kartu penanganan kasus litigasi (pada Justifiqa).
-  - **Katalog Advokat Justifiqa (`mockup_katalog_justifiqa.html`):** Meluruskan alur pemesanan konsultasi hukum dan bantuan hukum pro bono agar mengarah tepat ke `mockup_payment_gateway.html` sebelum membuka ruang komunikasi E2EE.
-  - **Regenerasi Master Standalone Bundles:** Telah diciptakan skrip baru `rebuild_justifiqa_bundle.py` untuk mendampingi `rebuild_qualifa_bundle.py`. Kedua berkas bundel utama (`mockup_qualifa_standalone.html` berisi 10 babak dan `mockup_justifiqa_standalone.html` berisi 8 babak) telah diregenerasi secara sukses sehingga 100% konsisten dan siap untuk uji coba interaktif secara *offline* maupun presentasi sign-off.
-- **Implementasi Role-Aware Routing Engine & Resolusi Bug Lompatan Dasbor (05 Juli 2026):**
-  - Mengatasi laporan bug keliru alur di mana Mitra (Psikolog/Advokat) yang menekan tombol *"Akhiri Sesi"* atau *"Kembali ke Dasbor"* pada ruang chat terlempar ke dasbor Klien.
-  - Menerapkan **Role-Aware Routing Engine** secara serentak (Cascade Correction) pada kedua antarmuka komunikasi E2EE yang bersifat *stateless/shared*:
-    1. **Qualifa Ruang Terapi WebRTC (`mockup_chat_qualifa.html`):** Skrip dinamis mendeteksi parameter URL `?role=mitra` (atau *localStorage* `user_role_qualifa`) dan secara otomatis mengalihkan tombol kembali ke `mockup_dashboard_mitra_psikologi.html` serta tombol akhiri sesi ke `mockup_modul_psikologi_mitra.html` (Workstation DAP Note).
-    2. **Justifiqa Ruang Litigasi (`mockup_chat_justifiqa.html`):** Skrip dinamis mendeteksi parameter `?role=mitra` (atau *localStorage* `user_role_justifiqa`) dan secara otomatis mengarahkan advokat kembali ke `mockup_dashboard_mitra_hukum.html` serta tombol akhiri sesi ke `mockup_modul_hukum.html` (Workstation IRAC).
-  - Memperbarui seluruh tautan masuk ruang chat di seluruh dasbor, workstation, dan modal (Klien vs Mitra) agar menyertakan parameter `?role=klien` atau `?role=mitra` secara eksplisit, serta meregenerasi kedua master standalone bundles.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 1: SD-J-01 (06 Juli 2026):**
-  - Menerapkan paradigma baru di mana eksekusi dan verifikasi mockup dilakukan per Batch berbasis Sequence Diagram (SD) sebagai panglima alur.
-  - **Batch 1 (`SD-J-01`: Registrasi Akun Klien & Advokat):** Membedah `mockup_auth_justifiqa.html` dan menemukan bahwa fungsi submit registrasi sebelumnya hanya mengarah pada skenario negatif (*Akun sudah terdaftar* / 400 Bad Request).
-  - Melakukan *Loop-Back Fix* dengan memperkaya `mockup_auth_justifiqa.html` dan `ui_specification_guide.md` untuk memfasilitasi 3 cabang alur interaktif penuh sesuai SD-J-01:
-    1. **Cabang Error 400 (Sudah Terdaftar):** Dipicu saat NIK/NIA bernilai default `NIA-998201` atau mengandung kata `exist`.
-    2. **Cabang Sukses Klien (201 AKTIF):** Dipicu saat pendaftaran baru di tab Klien; melakukan simulasi verifikasi NIK ke API Dukcapil dan mengarahkan pengguna ke halaman login.
-    3. **Cabang Sukses Advokat (201 PENDING_VERIFICATION):** Dipicu saat pendaftaran baru di tab Advokat Mitra; menyimpan dokumen KTA Peradi & BAS Pengadilan Tinggi ke antrean audit admin sesuai UU Advokat No. 18/2003 & Kode Etik Peradi.
-  - Ditambahkan panel panduan interaktif (*helper guide*) langsung di atas formulir registrasi untuk memudahkan pengujian, serta meregenerasi master bundel `mockup_justifiqa_standalone.html`.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 2: SD-J-02 (06 Juli 2026):**
-  - **Batch 2 (`SD-J-02`: Login Akun Klien & Advokat MFA 2FA):** Membedah alur login pada `mockup_auth_justifiqa.html` dan menemukan dua ketidaksesuaian kritis dengan `SD-J-02`: (1) Modal OTP sebelumnya hanya 4 digit dan bersifat *readonly*, padahal Langkah 87 & 93 SD-J-02 mewajibkan **MFA 6-Digit**; (2) Tombol login langsung memicu OTP tanpa validasi kredensial awal atau pengecekan akun *suspended*.
-  - Melakukan *Loop-Back Fix* secara tuntas pada `mockup_auth_justifiqa.html` dan `ui_specification_guide.md`:
-    1. **Cabang Error 401 (Kredensial Salah):** Dipicu saat email/password mengandung kata `salah` atau kosong; memunculkan peringatan salah kredensial & sisa percobaan login.
-    2. **Cabang Error 403 (Akun Suspended):** Dipicu saat email mengandung kata `block` atau `suspend`; memunculkan peringatan akun ditangguhkan karena investigasi pelanggaran Kode Etik Justifiqa.
-    3. **Cabang Sukses Kirim OTP 6-Digit (200 OK):** Dipicu saat email normal; sistem membuka modal MFA dengan **6 kotak input interaktif (dapat diedit)** yang masa berlakunya disimulasikan 5 menit.
-    4. **Cabang Error 400 (OTP Invalid/Expired):** Pada modal OTP, jika pengguna mengubah angka menjadi `000000`, sistem menolak masuk dan meminta pengiriman ulang kode. Jika OTP valid, sistem menerbitkan JWT Token dan mengarahkan ke dasbor sesuai peran (Mitra atau Klien).
-  - Ditambahkan kotak panduan pengujian (*helper guide*) untuk alur login di atas kolom email, serta meregenerasi master bundel `mockup_justifiqa_standalone.html`.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 3: SD-J-03 (06 Juli 2026):**
-  - **Batch 3 (`SD-J-03`: Konsultasi Hukum & Pembayaran Escrow Justifiqa):** Melakukan audit alur terhadap `mockup_payment_gateway.html` (Justifiqa) dan `mockup_chat_justifiqa.html` berdasarkan Langkah 124-147 `SD-J-03` dan `J-UC04, J-UC05, J-UC06, J-UC10`. Ditemukan anomali: (1) Rincian tagihan belum mencerminkan tarif Escrow Rp250.000 + Rp10.000 Fee Platform (Langkah 128); (2) Belum ada mekanisme pengujian transaksi kedaluwarsa/ditolak (UC-05 Alternatif 5a/5b); (3) Saat mengakhiri sesi chat, tidak ada pemicu Modal Ulasan & Rating (`J-UC06`) atau notifikasi pencairan dana Escrow (Langkah 146 & 147).
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Sinkronisasi Katalog & Harga Escrow:** Memperbarui `mockup_katalog_justifiqa.html` dan rincian pesanan di `mockup_payment_gateway.html` menjadi Advokat Rizky Ramadhan dengan tagihan Rp260.000 (Rp250.000 Retainer + Rp10.000 Fee Platform & Escrow).
-    2. **Fungsionalisasi Simulasi Timeout / Ditolak:** Menambahkan tombol *"Simulasi Waktu Habis / Ditolak (UC-05 5a/5b)"* di halaman pembayaran yang memunculkan layer error 400 Bad Request / Expired.
-    3. **Penahanan Dana Escrow (Langkah 133):** Memperbarui respons sukses webhook Midtrans agar secara eksplisit menyatakan bahwa dana Rp250.000 ditahan di Rekening Escrow Sementara Justifiqa hingga sesi selesai.
-    4. **Modal Ulasan J-UC06 & Pelepasan Escrow (Langkah 146 & 147):** Di `mockup_chat_justifiqa.html`, mengganti lompatan statis dengan interaktif modal. Untuk Klien: memunculkan Modal Rating 5 Bintang interaktif (opsi kirim ulasan atau skip) dan mencairkan escrow sebelum kembali ke dasbor. Untuk Mitra Advokat: menampilkan alert pencairan saldo escrow (potong fee 25% & PPh 21) lalu menuju Workstation IRAC Note.
-  - Ditambahkan panel panduan interaktif (*helper guide*) di kedua mockup, memperbarui spesifikasi `SCR-JST-04b` & `SCR-JST-06` di `ui_specification_guide.md`, dan meregenerasi master bundel statis.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 4: SD-J-04 (06 Juli 2026):**
-  - **Batch 4 (`SD-J-04`: Mengatur Status Ketersediaan Praktik Advokat / J-UC09):** Melakukan audit alur pada `mockup_dashboard_mitra_hukum.html` berdasarkan Langkah 164-178 `SD-J-04`. Ditemukan anomali: (1) Fungsi toggle status sebelumnya hanya membalikkan boolean tanpa melakukan pengecekan bentrok jadwal atau sesi konsultasi yang sedang aktif (Error 409 Conflict); (2) Teks badge saat offline masih menggunakan terminologi medis dari Qualifa ("OPERASI") padahal seharusnya terminologi advokat ("SIDANG / OFFLINE"); (3) Dokumen `use_case_scenarios.md` untuk `UC-09` belum mencantumkan alur alternatif gagal akibat konflik jadwal.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Fungsionalisasi Cabang 409 Conflict (Jadwal Bentrok / Sesi Aktif):** Menambahkan kotak centang interaktif *"Simulasi Konflik Jadwal / Sesi Aktif (SD-J-04: 409 Conflict)"* di sidebar dasbor advokat. Jika dicentang, klik pada toggle status praktik akan ditolak oleh sistem dengan peringatan Error 409 Conflict dan meminta penyelesaian sesi aktif terlebih dahulu.
-    2. **Fungsionalisasi Cabang 200 OK (Slot Jadwal Aman):** Jika tidak ada konflik, klik pada toggle status akan memperbarui status secara instan antara `🟢 ONLINE (Menerima Konsultasi)` dan `🔴 SIDANG / OFFLINE (Jadwal Tidak Tersedia)` disertai notifikasi sukses 200 OK.
-    3. **Sinkronisasi Dokumen Rujukan:** Menambahkan alur alternatif `2b. Kegagalan Perubahan Status karena Konflik Jadwal / Sesi Aktif (Error 409 Conflict)` pada `UC-09` di `use_case_scenarios.md`, serta memperbarui inventaris komponen dan mesin status `SCR-JST-03` di `ui_specification_guide.md`.
-  - Ditambahkan kotak panduan pengujian (*helper guide*) di dasbor advokat serta meregenerasi master bundel statis `mockup_justifiqa_standalone.html`.
-- **Standarisasi Kualitas UI/UX - Excessive Revision Gate (06 Juli 2026):**
-  - Mengadopsi pedoman baru `excessive_revision.md` sebagai gerbang kendali mutu paska-eksekusi (*Post-Batch Polish Gate*) untuk memisahkan *functional tracing* dengan kualitas presentasi UI/UX akhir.
-  - **Koreksi Strategi Eksekusi (Two Standalones Pattern):** Ditetapkan bahwa pengaplikasian aturan pada `excessive_revision.md` **diberlakukan setelah seluruh batch dalam domain (Batch 1 - 10) selesai dieksekusi dalam kondisi mentah (*raw SD-driven*)**.
-  - Seluruh perubahan pembersihan teks pada file UI/Mockups (Batch 1 - 4) telah **direvert kembali ke kondisi mentah (*raw*)** agar ketercejakan spesifikasi (`UC-05`, `SD-J-04`, `J-UC06`, dsb.) tetap dipertahankan selama masa eksekusi alur SD.
-  - Nantinya akan dihasilkan dua artefak master terpisah: **Mockup Standalone Mentah** (kaya akan referensi teknis & SD-tracing) dan **Mockup Standalone Matang** (telah dipoles bersih dengan panduan `excessive_revision.md`).
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 5: SD-J-05 (06 Juli 2026):**
-  - **Batch 5 (`SD-J-05`: Mengunggah Berkas Perkara E2EE Zero-Knowledge / J-UC13):** Melakukan audit alur pada `mockup_chat_justifiqa.html` berdasarkan Langkah 197-209 `SD-J-05`. Ditemukan anomali: (1) Tombol unggah bukti sebelumnya menggunakan tag salah `J-UC09` dan hanya memunculkan alert statis tanpa validasi batas ukuran file (maks 15 MB), pemindaian virus, atau simulasi enkripsi Zero-Knowledge ke WORM Storage; (2) Dokumen `use_case_scenarios.md` belum memperbarui `UC-13` dari sisa sistem medis Qualifa menjadi `J-UC13: Mengunggah Berkas Perkara E2EE Zero-Knowledge`.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Fungsionalisasi Modal Unggah Bukti E2EE:** Menambahkan modal interaktif `#uploadEvidenceModal` di `mockup_chat_justifiqa.html` yang memungkinkan pemilihan skenario pengujian:
-       - **200 OK (Normal / Bersih):** Simulasi pemindaian virus client-side bersih (`LocK`), enkripsi AES-256 Session Key secara Zero-Knowledge, penyimpanan ke WORM Hash Storage dengan hash SHA-256, dan penyematan stempel *"PRIVILEGED LEGAL EVIDENCE"*. Berhasil menambahkan gelembung dokumen baru ke ruang chat secara dinamis.
-       - **400 Bad Request (3a - Malware Detected):** Simulasi pemindai client-side mendeteksi virus/code berbahaya, menolak file dan membatalkan enkripsi sebelum meninggalkan perangkat klien.
-       - **413 Payload Too Large / 415 Unsupported Media Type (3b):** Simulasi penolakan upload akibat ukuran file melampaui batas maksimal 15 MB atau format di luar PDF/JPG.
-    2. **Fungsionalisasi Simulasi Unduh & Dekripsi Bukti:** Gelembung dokumen di obrolan kini interaktif; klik pada dokumen mensimulasikan Langkah 204-208 (pengambilan blob dari WORM dan dekripsi lokal menggunakan Session Key di workstation advokat).
-    3. **Sinkronisasi Dokumen Rujukan:** Mengganti spesifikasi lama medis `UC-13` dengan `J-UC13: Mengunggah Berkas Perkara E2EE Zero-Knowledge` di `use_case_scenarios.md`, serta memperbarui `SCR-JST-06` di `ui_specification_guide.md`.
-  - Ditambahkan panduan uji coba di dalam obrolan serta meregenerasi master bundel statis `mockup_justifiqa_standalone.html`.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 6: SD-J-06 (06 Juli 2026):**
-  - **Batch 6 (`SD-J-06`: Pembubuhan e-Meterai Peruri & Retensi WORM / J-UC11, J-UC12, J-UC14):** Melakukan audit menyeluruh pada `mockup_modul_hukum.html` berdasarkan alur Langkah 210-224 `SD-J-06`. Ditemukan anomali: (1) Tombol simpan IRAC belum interaktif dan tidak mensimulasikan enkripsi WORM (J-UC11); (2) Tombol e-Meterai Peruri langsung memunculkan alert statis tanpa memilih skenario sukses/gagal (J-UC14); (3) **Download Gate (J-UC12)** hanya berupa teks statis dan belum mengunci pengunduhan sebelum e-Meterai dibubuhkan; (4) Dokumen rujukan `use_case_scenarios.md` belum menyinkronkan `UC-10`, `UC-11`, dan `UC-12` dengan spesifikasi hukum Justifiqa.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Fungsionalisasi IRAC Legal Drafting (`J-UC11`):** Menambahkan tombol aksi ganda "Simpan & Enkripsi IRAC ke WORM (200 OK)" yang menambahkan versi baru ke dalam Version Control System secara dinamis, serta tombol "Simulasi Error 400" (validasi form kosong).
-    2. **Fungsionalisasi Modal Stamping e-Meterai Peruri (`SD-J-06 / J-UC14`):** Menambahkan gerbang modal `#stampingModal` interaktif yang memungkinkan pengujian skenario sukses (200 OK / 201 Created: verifikasi kuota saldo dari 18 menjadi 17, penerbitan serial number SHA-256, dan penguncian versi vFinal) serta skenario gagal (402 Payment Required / 502 Bad Gateway akibat kuota habis atau timeout API Peruri).
-    3. **Implementasi Interaktif Download Gate (`J-UC12 / J-UC14`):** Menghubungkan logika pembubuhan e-Meterai dengan status pengunduhan dokumen. Sebelum stamping, tombol unduh akta akan ditolak dengan Error 403 Forbidden (dokumen belum bermeterai sah). Setelah stamping berhasil (200 OK), Download Gate terbuka secara dinamis dan mengizinkan Klien mengunduh akta bersertifikat PDF/A-2b yang berketetapan hukum tetap.
-    4. **Sinkronisasi Dokumen Rujukan:** Memperbarui `use_case_scenarios.md` (mengganti spesifikasi medis Qualifa menjadi `J-UC10`, `J-UC11`, `J-UC12/J-UC14`) dan `ui_specification_guide.md` (`SCR-JST-05`).
-  - Ditambahkan kotak panduan pengujian interaktif (Helper Guide Box Batch 6) pada bagian atas `mockup_modul_hukum.html` serta meregenerasi master bundel statis `mockup_justifiqa_standalone.html`.
-  - **Koreksi & Audit Root Cause Batch 6 (06 Juli 2026):** Ditemukan duplikasi blok deklarasi HTML (`<!DOCTYPE html>`, `<head>`, `<style>`, sidebar, dan topbar) di dalam `mockup_modul_hukum.html` akibat ketidaksengajaan saat code replacement sebelumnya. Perbaikan telah dieksekusi dengan menghapus baris duplikasi tersebut dan meregenerasi master bundel `mockup_justifiqa_standalone.html`.
-- **Protokol Investigasi Bug & Struktur Folder Pasca-Domain (Disepakati 06 Juli 2026):**
-  - Sesuai prinsip **Anti-Halusinasi & Git Tracking (Rule #1 & #2)**, setelah seluruh batch domain mentah (Batch 1–10) selesai dikerjakan, pengecekan modul per modul akan dilakukan oleh pengguna. Jika ditemukan error atau bug, Agen diwajibkan melacak asal-usul perubahan tersebut menggunakan riwayat komit Git (`git diff` / `git log` per batch) agar analisa akar masalah bersifat pasti faktual dan tidak menebak-nebak (no self-assumption).
-  - **Struktur Dua Versi Mockup (Two-Version Standalone Protocol):**
-    1. **`justifiqa-raw` (Domain Mentah):** Direktori/berkas mockup yang mempertahankan seluruh referensi teknis SD-Driven, pelacakan kode Use Case (J-UCXX, SD-J-XX), HTTP status codes, dan penjelasan teknis mendetail sebagai rekam jejak rekayasa perangkat lunak.
-    2. **`justifiqa-ready` (Domain Matang / Bersih):** Direktori/berkas mockup yang sudah bersih dari bug serta telah melewati proses verifikasi dan pembersihan berlebihan (`excessive_revision.md`), di mana seluruh label rujukan teknis internal dan kalimat pop-up berlebihan dihapus sehingga siap disajikan kepada pengguna akhir (*end-user production ready*).
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 7: SD-J-07 (06 Juli 2026):**
-  - **Batch 7 (`SD-J-07`: Konsultasi Pro Bono SKTM / J-UC15):** Melakukan audit pada `mockup_dashboard_hukum_klien.html` dan `mockup_payment_gateway.html` berdasarkan Langkah 261-274 `SD-J-07`. Ditemukan anomali: (1) Dasbor klien hanya menampilkan teks statis verifikasi SKTM tanpa mekanisme interaktif pengajuan Pro Bono atau pengecekan API Dukcapil/Dinsos (DTKS); (2) Workstation Pembayaran (`mockup_payment_gateway.html`) belum menyediakan opsi pembayaran Voucher Subsidi Pro Bono (Rp 0 - 100% Gratis); (3) Dokumen `use_case_scenarios.md` belum memiliki spesifikasi `J-UC15` terkait Pro Bono.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Fungsionalisasi Modal Verifikasi SKTM Dukcapil (`SD-J-07 / J-UC15`):** Menambahkan tombol aksi interaktif "🤝 Ajukan Subsidi Pro Bono (SD-J-07)" pada `mockup_dashboard_hukum_klien.html` yang membuka modal `#proBonoModal`. Modal ini mendukung verifikasi Zero-Knowledge terhadap Nomor Induk Kependudukan (NIK) dan Nomor SKTM yang tersinkronisasi dengan Data Terpadu Kesejahteraan Sosial (DTKS) Dinsos.
-    2. **Simulasi Skenario 200 OK & 400 Bad Request:** Dalam modal `#proBonoModal`, disediakan tombol simulasi:
-       - **200 OK (SKTM Sah & Terverifikasi DTKS - Langkah 270-274):** Mensimulasikan API Dukcapil merespons sah, memperbarui badge status menjadi "✅ Pro Bono Aktif (Rp 0)", menerbitkan Invoice Subsidi Rp 0, mengalokasikan penugasan advokat litigasi pro bono (Budi Santoso, S.H., M.H.), serta membuka akses tombol masuk ke ruang konsultasi gratis.
-       - **400 Bad Request (3a - SKTM Tidak Valid / NIK Tidak Terdaftar - Langkah 266-268):** Mensimulasikan penolakan verifikasi SKTM, memunculkan Error 400, dan menanyakan apakah Klien ingin melanjutkan penanganan perkara melalui Sesi Berbayar Reguler (dialihkan ke Katalog Advokat).
-    3. **Integrasi Voucher Pro Bono di Payment Gateway (`SCR-JST-04b`):** Menambahkan kategori pembayaran "Subsidi Bantuan Hukum (Pro Bono / DTKS)" dengan opsi "Voucher Pro Bono SKTM (100% Gratis)" pada `mockup_payment_gateway.html`. Saat dipilih, sistem secara otomatis mengubah tombol bayar menjadi klaim subsidi sebesar Rp 0 dan memvalidasi voucher pro bono dengan respons sukses `PRO_BONO_SUBSIDY_APPROVED (200 OK)`.
-    4. **Sinkronisasi Dokumen Rujukan:** Menambahkan spesifikasi lengkap `### J-UC15: Pengajuan Bantuan Hukum Cuma-Cuma (Pro Bono SKTM)` di dalam `use_case_scenarios.md`, serta memperbarui matriks ketercejakan (`Traceability`) pada `ui_specification_guide.md` (`SCR-JST-02`, `SCR-JST-04`, `SCR-JST-04b`).
-  - Meregenerasi master bundel statis `mockup_justifiqa_standalone.html` (memastikan struktur HTML tetap utuh tanpa duplikasi).
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 8: SD-J-08 (06 Juli 2026):**
-  - **Batch 8 (`SD-J-08`: Membuat Catatan Sesi Hukum Terstruktur / IRAC Note — `J-UC11`):** Melakukan audit pada `mockup_modul_hukum.html` berdasarkan alur Langkah 285-296 `SD-J-08` dan aturan ST-J-11 (AC 3). Ditemukan bahwa formulir IRAC sebelumnya belum menyediakan pemilih Referensi Kasus/Sesi Klien (`Session ID`) untuk menautkan catatan ke sesi konsultasi yang baru saja selesai, belum menyediakan opsi visibilitas (Internal Advokat vs Bagikan ke Klien), serta belum melakukan penyimpanan dinamis ke penampung arsip versi WORM di dalam antarmuka.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Pengembangan UI IRAC Note (`SD-J-08 / J-UC11`):** Menambahkan pemilih Referensi Kasus (`#irac_case_id`) dengan opsi sesi klien (seperti `#CASE-2026-001 Ahmad Zaky` dan `#CASE-2026-004 Budi Santoso Pro Bono`), opsi tombol radio Visibilitas Catatan (`ST-J-11 AC 3`: 🔒 Internal Advokat E2EE vs 📤 Bagikan ke Klien), serta menstandardisasi identitas setiap field textarea IRAC (`#irac_issue`, `#irac_rule`, `#irac_app`, `#irac_concl`).
-    2. **Validasi Interaktif 200 OK & 400 Bad Request:** Memperbarui fungsi `saveIracNote(simulateError)` di dalam `mockup_modul_hukum.html`:
-       - **200 OK / 201 Created (Langkah 290-296):** Mensimulasikan verifikasi kelengkapan seluruh kolom IRAC. Jika valid, sistem membangkitkan hash enkripsi AES-256 secara dinamis (misal: `AES256-8F9A2B4C-6D8E`), menyimpan data secara simulatif ke dalam `localStorage` (`justifiqa_latest_irac`), serta menambahkan blok entri versi baru secara real-time ke daftar versi WORM Storage dengan lencana visibilitas dan status retensi 10 tahun terkunci permanen.
-       - **400 Bad Request (3a - Form Tidak Lengkap - Langkah 288-290):** Mengaktifkan tombol simulasi `⚠️ Simulasi Error 400 (Kosongkan & Validasi)` yang mengosongkan kolom dan/atau mencegat input kosong dengan peringatan error interaktif bahwa seluruh struktur IRAC wajib diisi lengkap demi memenuhi standar rekam medis/hukum Justifiqa.
-    3. **Sinkronisasi Dokumen Rujukan:** Memperbarui deskripsi alur utama `J-UC11` pada `use_case_scenarios.md` agar mencakup pemilihan Referensi Kasus/Sesi, serta memperbarui inventaris komponen dan mesin status `SCR-JST-05` di dalam `ui_specification_guide.md`.
-    4. **Regenerasi Master Bundles:** Meregenerasi master bundel statis `mockup_justifiqa_standalone.html` melalui `rebuild_justifiqa_bundle.py` sehingga seluruh fungsionalitas IRAC Note siap diuji langsung dalam format gabungan mandiri.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 9: SD-J-09 (06 Juli 2026):**
-  - **Batch 9 (`SD-J-09`: Verifikasi Kredensial & Moderasi Akun Admin Justifiqa — `J-UC16`, `J-UC17`):** Melakukan audit pada `mockup_admin_justifiqa.html` (`SCR-JST-07`). Ditemukan bahwa berkas tersebut sebelumnya hanya berupa halaman dasbor statis dengan indikator status API dan tombol `alert()`, belum menyediakan antrean pemeriksaan Nomor Induk Advokat (NIA/SIPP) dan Berita Acara Sumpah (BAS), serta belum memiliki panel penanganan laporan pelanggaran etik advokat dan fitur penahanan akun darurat (*Due Process Suspend*).
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Pengembangan UI Workstation Admin (`SD-J-09 / J-UC16 & J-UC17`):** Mengembangkan antarmuka tab interaktif pada `mockup_admin_justifiqa.html` yang terdiri dari 3 tab kerja: (a) `⚡ Verifikasi Kredensial Advokat (J-UC16)` untuk memeriksa dan memvalidasi keaslian SIPP/BAS advokat baru; (b) `🏛️ Moderasi & Sidang Etik Advokat (J-UC17)` untuk menangani laporan pelanggaran kode etik dari klien dengan akses ke log bukti WORM E2EE; dan (c) `🌐 Status Integrasi API & WORM` yang mempertahankan pemantauan konektivitas sistem ke Pangkalan Data MA, Peradi, Peruri, dan Dukcapil.
-    2. **Validasi Interaktif 200 OK & 400 Bad Request / 403 Forbidden:** Memperkaya `mockup_admin_justifiqa.html` dengan logika JavaScript interaktif:
-       - **`approveAdvocate()` (200 OK — Langkah 327-332):** Memvalidasi keabsahan SIPP & BAS ke Pangkalan Data MA/Peradi, mengubah lencana status menjadi `✅ AKTIF / VERIFIED`, mengupdate penghitung antrean, dan mensimulasikan pengiriman email notifikasi aktivasi akun siap praktik.
-       - **`rejectAdvocate()` (400 Bad Request / 403 — Langkah 322-326):** Memunculkan prompt input Alasan Penolakan secara eksplisit (wajib diisi demi kepatuhan audit log), mengubah status menjadi `❌ REJECTED`, dan mensimulasikan pengiriman email penjelasan hukum kepada pendaftar.
-       - **`suspendAdvocate()` (Due Process Suspend — Langkah 335-338):** Memvalidasi alasan penahanan akun darurat pada kasus pelanggaran kode etik, mengubah status menjadi `🛑 SUSPENDED (Due Process)`, dan menerbitkan Surat Panggilan Klarifikasi Internal untuk sidang etik Dewan Kehormatan Peradi.
-    3. **Sinkronisasi Dokumen Rujukan:** Menambahkan spesifikasi lengkap `### J-UC16: Memverifikasi Kredensial & Lisensi Advokat (NIA & BAS)` dan `### J-UC17: Memoderasi Laporan Pelanggaran Kode Etik & Suspend Akun (Due Process)` ke dalam `use_case_scenarios.md`, serta memperbarui matriks ketercejakan (`Traceability`) dan inventaris komponen `SCR-JST-07` pada `ui_specification_guide.md`.
-- **Eksekusi Paradigma SD-Driven UI/UX - Batch 10: SD-J-10 (06 Juli 2026):**
-  - **Batch 10 (`SD-J-10`: Audit Log WORM Hash & Pencairan Dana Escrow PPh 21 — `J-UC18`, `J-UC19`):** Melakukan audit pada `mockup_dashboard_mitra_hukum.html` (`SCR-JST-03`). Ditemukan bahwa bagian keuangan sebelumnya hanya berupa kartu informasi saldo statis dengan tombol `alert()` sederhana, belum mendukung formulir interaktif pencairan dana escrow dengan kalkulasi otomatis pemotongan PPh Pasal 21 (5% untuk tenaga ahli advokat), serta belum menyediakan tabel riwayat pencairan dengan verifikasi kriptografi WORM Hash SHA-256 yang terkunci permanen 10 tahun.
-  - Melakukan *Loop-Back Fix* menyeluruh:
-    1. **Pengembangan UI Workstation Keuangan Mitra (`SD-J-10 / J-UC18 & J-UC19`):** Mengembangkan antarmuka interaktif pada `mockup_dashboard_mitra_hukum.html` dengan menambahkan (a) Formulir Pencairan Dana Escrow yang dilengkapi input nominal, penampil kalkulasi real-time estimasi potongan PPh 21 (5%) dan terima bersih (netto); dan (b) Tabel Riwayat Pencairan & Log Audit WORM Storage yang menampilkan nomor referensi bank, jumlah bruto/netto, potongan pajak, serta string enkripsi SHA-256 Hash.
-    2. **Validasi Interaktif 200 OK & 400 Bad Request:** Memperkaya `mockup_dashboard_mitra_hukum.html` dengan logika JavaScript interaktif:
-       - **`processWithdrawal(false)` (200 OK — Langkah 356-367):** Memvalidasi kecukupan saldo (nominal <= Saldo Aktif Siap Tarik dan > 0). Jika valid, sistem memotong saldo aktif secara real-time, mengkalkulasi PPh 21 (5%), membangkitkan nomor referensi bank dan SHA-256 WORM Hash secara dinamis, menambahkan baris riwayat baru ke tabel WORM Log, serta menampilkan resi sukses penarikan dana.
-       - **`processWithdrawal(true)` (400 Bad Request / 422 — Langkah 359):** Mensimulasikan atau menangani kesalahan input (misal nominal melebihi saldo), memunculkan peringatan Error 400 Bad Request / 422 Unprocessable Entity interaktif, dan menjaga saldo tetap utuh tanpa diproses ke Payment Gateway.
-       - **`downloadTaxProof()` (J-UC18 — Langkah 364-367):** Mensimulasikan penerbitan dan pengunduhan Bukti Pemotongan Pajak PPh Pasal 21 lengkap dengan NPWP, tarif pemotongan, dan kode WORM Hash SHA-256 untuk lampiran SPT Tahunan e-Filing DJP.
-    3. **Sinkronisasi Dokumen Rujukan:** Menambahkan spesifikasi lengkap `### J-UC18: Memantau Log Audit Transaksi & WORM Hash Storage` dan `### J-UC19: Melakukan Pencairan Dana Escrow & Perhitungan PPh 21 (Withdrawal)` ke dalam `use_case_scenarios.md`, serta memperbarui matriks ketercejakan (`Traceability`), inventaris komponen wajib, dan mesin status `SCR-JST-03` pada `ui_specification_guide.md`.
-    4. **Regenerasi Master Bundles:** Meregenerasi master bundel statis `mockup_justifiqa_standalone.html` melalui `rebuild_justifiqa_bundle.py` sehingga seluruh fungsionalitas WORM Hash & pencairan PPh 21 tergabung sempurna dalam bundel mandiri.
-- **Eksekusi Pasca-Domain — Standarisasi & Dua Versi Mockup (06 Juli 2026):**
-  - **Penyelesaian Seluruh Batch Domain (Batch 1 - 10):** Setelah seluruh 10 batch eksekusi paradigma SD-Driven UI/UX pada domain Justifiqa & Qualifa tuntas dan disetujui, dilakukan tahap akhir paska-domain (*Post-Domain Final Polish*).
-  - **Penerapan Protokol Dua Versi (*Two-Version Standalone Protocol*):**
-    1. **`justifiqa-raw/` & `qualifa-raw/`:** Menyimpan 100% berkas UI mentah dengan jejak rekayasa utuh (kode `SD-J-XX`, `J-UCXX`, HTTP status codes pada judul/badge/alert, serta penjelasan teknis). Dilengkapi master bundel statis `mockup_*_standalone_raw.html`.
-    2. **`justifiqa-ready/` & `qualifa-ready/` (dan Folder Utama Domain):** Menyimpan berkas UI matang yang telah melewati pembersihan otomatis (*Excessive Revision Clean*) menggunakan skrip `build_two_version_mockups.py`. Seluruh penanda teknis pada elemen presentasi UI (`<title>`, `<h1>`-`<h6>`, `<button>`, `<a>`, `<span>`) dihapus dan string alert diperhalus tanpa mengganggu kotak panduan pengujian interaktif (*helper guides*).
-  - **Perbaikan Navigasi Paska-Domain:** Memperbaiki tautan navigasi rusak pada `mockup_dashboard_hukum_klien.html` yang sebelumnya mengarah ke file lawas `mockup_katalog_mitra.html` menjadi `mockup_katalog_justifiqa.html`.
-  - **Otomatisasi Penuh (*build_two_version_mockups.py*):** Mengintegrasikan parser regex aman (non-swallowing alert replacer) untuk memastikan pembaruan UI di masa depan dapat dieksekusi secara instan, konsisten, dan bebas halusinasi.
-- **Eksekusi Cascading Fix — Audit Arsitektur & Presentasi Visual Multi-Role (06 Juli 2026):**
-  - Mengaudit dan memperbaiki 4 pola anomali arsitektur secara menyeluruh (*Cascading Fix*) atas instruksi dan pengamatan tajam pengguna:
-    1. **Pola 1 (Navigasi Redundan / Duplikat):** Menghapus tautan redundan `"🏠 Portal Utama Justifiqa"` pada sidebar `mockup_dashboard_hukum_klien.html` (dan seluruh versinya) yang sebelumnya menunjuk ke URL yang sama persis dengan tombol `"⚖️ Dasbor Hukum Klien"`.
-    2. **Pola 2 (Pembersihan Tuntas Residu Kotak Panduan QA di Versi Ready):** Memperbarui skrip otomatisasi `build_two_version_mockups.py` dengan menambahkan parser DOM BeautifulSoup dan regex pembersih untuk secara aktif membuang seluruh kotak panduan teknis (`Panduan Uji Coba SD-XX`) dan tombol simulasi QA pada folder `justifiqa-ready/`, `qualifa-ready/`, folder utama domain, dan master bundel statis `*_ready.html`. Versi *ready* kini 100% bersih dan layak produksi publik.
-    3. **Pola 3 (Presentasi DOM Obrolan Multi-Role Dinamis):** Memperkaya *Role-Aware Routing Engine* pada `mockup_chat_justifiqa.html` dan `mockup_chat_qualifa.html`. Ketika parameter `?role=mitra` terdeteksi, skrip secara otomatis membalikkan presentasi DOM obrolan: mengubah identitas topbar dan foto profil menjadi Klien, membalikkan kelas CSS gelembung pesan (`.partner` menjadi `.user` di kanan untuk pesan keluar advokat/psikolog, dan `.user` menjadi `.partner` di kiri untuk pesan masuk klien), serta menyesuaikan *placeholder* input obrolan dan teks konfirmasi modal.
-    4. **Pola 4 (Standardisasi Komentar Arsitektur Visual/State Persisten):** Menanamkan blok komentar arsitektur terstruktur (`/* VISUAL STATE ARCHITECTURE: ... */`) di dalam skrip JS antarmuka obrolan dan dasbor klien sebagai dokumentasi transisi state persisten untuk mencegah *context rot* bagi pengembang atau agen AI di masa depan.
-    5. **Pola 5 (Alinasi Spesifikasi & UML atas "Viewpoint Blindness"):** Atas masukan kritis pengguna mengenai perlunya pembaruan AD & SD agar selaras dengan pembalikan DOM multi-role, dieksekusi perbaikan cascading pada 4 dokumen fondasi:
-       - **Sequence Diagram (`SD-J-03` & `SD-Q-03` dalam `plantuml_sequence_diagrams.md`):** Ditambahkan pesan balasan eksplisit dari Frontend kepada aktor Klien (`Render Client Viewpoint`) dan Mitra (`Render Partner Viewpoint, DOM Inverted`).
-       - **Activity Diagram (`AD-J-03` & `AD-Q-03` dalam `plantuml_activity_diagrams.md`):** Ditambahkan node aktivitas presentasi visual antarmuka (`Render Client Viewpoint` vs `Render Partner Viewpoint`) setelah aktor memasuki ruang konsultasi/terapi virtual.
-       - **UI Specification Guide (`ui_specification_guide.md` — `SCR-JST-06` & `SCR-QLF-07`):** Ditambahkan protokol wajib *"Multi-Role Viewpoint Inversion Matrix"* yang mengatur tabel pembalikan identitas topbar, avatar, gelembung pesan `.user` vs `.partner`, serta teks placeholder berdasarkan parameter `?role=`.
-       - **Use Case Scenarios (`use_case_scenarios.md` & `unified_use_case_scenarios.md`):** Ditambahkan klausul *"Actor Viewpoint & DOM State Routing"* pada alur utama konsultasi (`UC-04`, `J-UC10`, dan `UC-10`).
-- **Eksekusi Pembalikan DOM Obrolan & Deprekasi Dokumen Redundan (06 Juli 2026):**
-  - **Deprekasi `unified_use_case_scenarios.md`:** Atas instruksi eksplisit pengguna untuk menyederhanakan dan mengeliminasi redudansi spesifikasi, dokumen `unified_use_case_scenarios.md` resmi tidak digunakan lagi (*deprecated* / diabaikan). Seluruh rujukan skenario Use Case difokuskan sepenuhnya pada dokumen resmi `use_case_scenarios.md`.
-  - **Eksekusi Tuntas Pembalikan DOM Multi-Role (Pola 3 & 5):** Melakukan eksekusi perbaikan pada kode sumber `mockup_chat_justifiqa.html` dan `mockup_chat_qualifa.html` di dalam folder `justifiqa-raw/` dan `qualifa-raw/`, kemudian menjalankan skrip otomatisasi `build_two_version_mockups.py` untuk menyebarkan perubahan ke folder `ready/`, folder utama domain, serta master bundel statis `*_standalone.html`. Kini seluruh gelembung pesan (`.user` vs `.partner`), identitas topbar obrolan, dan placeholder input telah benar-benar beradaptasi secara adaptif dan dinamis ketika dibuka oleh Klien (`?role=klien`) maupun oleh Mitra Advokat/Psikolog (`?role=mitra`).
-- **Eksekusi 6 Quick Fixes & Pembentukan Navigation Map sebagai Sumber Kebenaran Tunggal (06 Juli 2026):**
-  - **Penyusunan `navigation-map.json`:** Membentuk artefak pemetaan navigasi global seluruh sistem (Justifiqa & Qualifa) untuk menjamin tidak ada lagi tautan sirkular, tautan putus (*dead end*), atau rute yang terisolasi.
-  - **Eksekusi Tuntas 6 Quick Fixes Logika Navigasi & State:**
-    1. **Penghapusan Tautan Sirkular Dasbor:** Menghapus menu "Portal Utama Justifiqa" yang menunjuk ke dirinya sendiri pada `mockup_dashboard_hukum_klien.html` di folder `raw/`, `ready/`, dan standalone bundle.
-    2. **Tombol "Kembali ke Katalog" di Payment Gateway:** Menambahkan tombol kembali ke katalog pada `mockup_payment_gateway.html` (Justifiqa & Qualifa) agar pengguna tidak terjebak jika batal/gagal melakukan pembayaran.
-    3. **Penanganan Flag Pro Bono & Routing Kasus saat Sesi Chat Berakhir:** Memperbarui fungsi `handleEndSession()` pada `mockup_chat_justifiqa.html` dan `mockup_chat_qualifa.html` agar mendeteksi status Pro Bono SKTM (`?probono=true`) serta meneruskan parameter `caseId`/`sessId` ke workstation mitra (`mockup_modul_hukum.html` / `mockup_modul_psikologi_mitra.html`).
-    4. **Auto-Select Kasus & Breadcrumb di Workstation:** Memperbarui *event listener* `DOMContentLoaded` pada workstation hukum dan klinis untuk otomatis memilih ID kasus/sesi dari URL parameter dan memperbarui judul topbar/breadcrumb.
-    5. **Konsistensi State Role di LocalStorage:** Menambahkan skrip inisialisasi `localStorage.setItem('user_role_*', 'mitra')` sebelum render DOM di bagian `<head>` pada dasbor mitra advokat dan psikolog.
-    6. **Aksesibilitas Workstation Admin:** Menambahkan menu tautan "Admin Legal/Klinis Workstation" pada sidebar dasbor mitra serta tautan "Kembali ke Dasbor Mitra" di dalam halaman admin, sehingga halaman admin tidak lagi terisolasi.
-  - **Rebuild Standalone Bundles:** Seluruh perubahan telah distandardisasi dan disinkronkan ke seluruh lapisan (`raw/`, `ready/`, root, dan file bundel statis) menggunakan skrip `build_two_version_mockups.py`. Kini sistem berada pada kondisi *Sign-Off Ready* untuk beralih ke tahapan Pasca-Domain (ERD & Database Schema).
-- **Penyempurnaan Arsitektur Hub Simetris & Eliminasi Pelanggaran RBAC (06 Juli 2026):**
-  - **Identifikasi Flaw RBAC dari Quick Fix #6:** Atas observasi kritis pengguna terhadap adanya tombol *"Kembali ke Dasbor Mitra (Advokat/Psikolog)"* di dalam portal Admin, dilakukan analisis dampak cascading. Disepakati bahwa menghubungkan portal Admin Legal/Compliance langsung ke Dasbor Mitra eksternal adalah pelanggaran prinsip *Role-Based Access Control (RBAC)* dan segregasi tugas (*separation of duties*).
-  - **Penciptaan Hub Justifiqa Simetris (`mockup_dasbor_hukum.html`):** Mengatasi ketidaksimetrisan arsitektur antar domain dengan membangun file baru `mockup_dasbor_hukum.html` (Justifiqa Legal Hub) yang menampilkan 3 kartu pilihan peran resmi: Klien/Pencari Keadilan, Advokat Mitra Peradi, dan Admin Legal & Compliance. Kini Justifiqa dan Qualifa memiliki arsitektur gerbang navigasi yang 100% setara dan konsisten.
-  - **Pembersihan Tautan Silang RBAC di 4 Titik:**
-    1. `mockup_admin_justifiqa.html`: Menghapus tautan ke dasbor advokat dan menggantinya dengan tombol keluar yang sah menuju Hub utama Justifiqa (`mockup_dasbor_hukum.html`).
-    2. `mockup_admin_qualifa.html`: Menghapus tautan ke dasbor psikolog dan mempertahankan tombol keluar menuju Hub utama Qualifa (`mockup_dasbor_psikologi.html`).
-    3. `mockup_dashboard_mitra_hukum.html`: Menghapus menu *"Admin Legal Workstation"* dari sidebar advokat dan memperbarui tautan *"Portal Utama Justifiqa (Hub)"* menuju `mockup_dasbor_hukum.html`.
-    4. `mockup_dashboard_mitra_psikologi.html`: Menghapus menu *"Admin Klinis Workstation"* dari sidebar psikolog.
-  - **Pembaruan Navigation Map (`navigation-map.json` v1.1.0) & Bundel Standalone:** Memperbarui peta navigasi untuk mendaftarkan halaman `landing` Justifiqa serta menghapus seluruh *edge* navigasi yang melanggar RBAC. Skrip otomatisasi telah dijalankan untuk menyinkronkan seluruh perubahan ke lapisan `raw/`, `ready/`, root, dan master statis `*_standalone.html`.
-- **Pemusnahan Anomali Duplikasi Bersarang & Memori Permanen (07 Juli 2026):**
-  - **Identifikasi & Koreksi Transparan:** Atas temuan kritis pengguna terhadap keberadaan folder duplikat `Mockups\justificadll`, dilakukan audit menyeluruh yang mengonfirmasi bahwa folder tersebut adalah anomali duplikasi bersarang sebesar 68,3 MB yang terbentuk secara tidak sengaja akibat eksekusi perintah kloning/salin dengan *working directory* yang keliru pada sesi sebelumnya.
-  - **Eksekusi Pemusnahan Tuntas:** Melakukan penghapusan permanen (`Remove-Item -Recurse -Force`) atas direktori `d:\justificadll\Mockups\justificadll`. Audit lanjutan membuktikan tidak ada lagi folder bersarang atau sampah tidak terlacak di dalam direktori antarmuka.
-  - **Klausul Memori Permanen (Rule #3):** Dicatatkan secara eksplisit bahwa setiap eksekusi perintah sistem atau operasi file di masa depan **wajib memeriksa dan memvalidasi direktori kerja aktif (*current working directory*)** agar tidak pernah lagi menciptakan duplikasi bersarang atau polusi folder di dalam struktur repositori proyek.
-- **Koreksi Kritis Visual UI/UX & Eliminasi Redundansi Logika (07 Juli 2026):**
-  - **Penyelesaian 5 Flaw Antarmuka (Gambar 1–5):**
-    1. *Gambar 1 (Justifiqa Hub & Qualifa Hub):* Menghapus baris tautan cepat (`.quick-nav`) di bagian bawah halaman pendaratan/hub agar pengguna wajib masuk melalui kartu peran resmi, mencegah jalan pintas yang melanggar autentikasi peran.
-    2. *Gambar 2 (Katalog Justifiqa):* Mengimplementasikan fungsi filter interaktif JavaScript (`filterCards()`) yang terhubung pada *category pills*, input pencarian nama/NIA, dan dropdown tarif/rating. Menambahkan 2 kartu advokat baru (Spesialis Ketenagakerjaan & Spesialis Hukum Siber) agar seluruh kategori memiliki hasil filter yang valid dan fungsional.
-    3. *Gambar 3 & 4 (Sidebar Ruang Chat Privileged):* Menghapus menu tautan langsung *"Ruang Chat Privileged/WebRTC"* dari sidebar dasbor Klien maupun Mitra di kedua domain (Justifiqa & Qualifa). Mengoreksi halusinasi logika relasi: komunikasi *chat* adalah relasi *many-to-many* (satu mitra memiliki banyak klien, dan sebaliknya), sehingga titik masuk ruang *chat* **hanya sah dilakukan dari dalam kartu perkara/antrean sesi konsultasi spesifik**, bukan dari tautan statis di sidebar.
-    4. *Gambar 5 (Konsistensi Tombol Portal Hub di Dasbor Mitra):* Mengoreksi struktur HTML tautan *"Portal Utama Justifiqa (Hub)"* pada dasbor mitra agar berada di dalam elemen `<li class="nav-item">`, sehingga tampil konsisten berupa kotak tombol menu di dalam sidebar (setara dengan dasbor klien), bukan teks biru yang melayang di luar kotak navigasi.
-  - **Klausul Memori Permanen Visual & Logika (Rule #3):** Dicatatkan sebagai memori permanen bahwa: (1) Dalam menghasilkan atau merevisi kode UI/UX mockup, agen dilarang membuat elemen navigasi redundan yang menyalahi kardinalitas relasi data (*many-to-many logic gap*). (2) Skrip filter dan pencarian pada halaman katalog/daftar wajib diverifikasi implementasi DOM-nya (bukan hanya spesifikasi teks) agar tombol interaktif benar-benar bekerja.
+---
 
+## 4. Keputusan Arsitektural: Pembubuhan e-Meterai & Pemisahan Dompet Advokat (07 Juli 2026)
+* **Koreksi Pengguna**: Skema A (menagih biaya e-Meterai via invoice tambahan ke klien di tengah proses stamping) menyebabkan alur kerja terlalu rumit dan bertele-tele. Usulan menggabungkan pengisian saldo dan penarikan saldo ke dalam satu Use Case ditolak karena melanggar *Single Responsibility Principle (SRP)*.
+* **Arsitektur Terpilih**:
+  1. **Platform-Facilitated Stamping (Peleburan J-UC14 ke J-UC12)**: Pembubuhan e-Meterai resmi Peruri Rp10.000 via Mekari Sign ditarik langsung ke dalam alur kerja perumusan kontrak (`J-UC12` / `AD-J-06` / `SD-J-06`). Biaya meterai (Rp12.000/lembar) dipotong secara otomatis dari saldo dompet digital advokat.
+  2. **Pemisahan Tegas Top-Up vs Withdrawal (SRP & Clean Architecture)**:
+     * **`J-UC19` (Withdrawal)**: Khusus menangani penarikan saldo (*cash-out*) ke bank pribadi, melibatkan perhitungan otomatis potongan pajak tenaga ahli PPh 21 (5%) dan verifikasi WORM Storage.
+     * **`J-UC22` (Top-Up)**: Khusus menangani pengisian saldo dompet advokat (*cash-in*) melalui Payment Gateway Checkout (Snap / QRIS / VA) untuk membayar layanan platform, **tanpa pemotongan pajak PPh 21**.
+* **Implikasi Spesifikasi**:
+  * `J-UC14`, `AD-J-14`, dan `SD-J-14` ditiadakan sebagai diagram mandiri (dilebur seutuhnya ke dalam `J-UC12` / `AD-J-06` / `SD-J-06`).
+  * `J-UC05` diubah judulnya menjadi *Melakukan Pembayaran Escrow Konsultasi* untuk memperjelas batasannya terhadap top-up dompet advokat.
+  * **Enkapsulasi Sub-Activity (`AD-J-06` / `SD-J-06`)**: Dilarang keras mengekspansi atau menaruh langkah-langkah Webhook Payment Gateway di dalam diagram `AD-J-06` maupun `SD-J-06`. Alur top-up dipanggil murni sebagai sub-activity/reference (`Lihat AD-J-22` / `Lihat SD-J-22`) sebelum mengulang kembali ke pengecekan saldo, sehingga sistem dapat menangani kondisi sukses maupun gagal top-up tanpa asumsi *happy-path*.
 
+# Project Decision & Correction Log (LifeQ Standalone Ecosystem)
 
+Dokumen ini mencatat seluruh keputusan arsitektural penting, koreksi teknis dari pengguna, dan aturan rekayasa yang **WAJIB** dipatuhi oleh tim pengembang dan Agen AI agar tidak terjadi kesalahan berulang (*Context Rot & Memory Integrity* - Aturan 3).
 
+---
 
+## 1. Catatan Koreksi Teknis & Aturan PlantUML (03 Juli 2026)
+* **Koreksi Pengguna**: Terjadi *syntax error* pada saat import kode PlantUML ke Draw.io karena pemenggalan baris (*newline/multiline*) di dalam tanda kutip nama aktor.
+* **Akar Masalah**: Penulisan literal newline `\n` atau enter di dalam string `actor "Klien\n(Pencari Keadilan)" as Klien` dianggap sebagai tanda kutip tidak tertutup oleh parser PlantUML 1.2025.10 di Draw.io.
+* **ATURAN MUTLAK PLANTUML**:
+  1. **DILARANG KERAS** menggunakan karakter pemenggal baris (`\n`, `\r`, atau enter) di dalam tanda kutip untuk definisi Aktor, Use Case, Participant, Swimlane/Partition, atau Component.
+  2. Semua label entitas PlantUML **WAJIB** ditulis dalam 1 baris utuh yang bersih:
+     * *Benar*: `actor "Klien (Pencari Keadilan)" as Klien`
+     * *Salah*: `actor "Klien\n(Pencari Keadilan)" as Klien`
+  3. Biarkan mesin pembuat diagram (Draw.io/PlantUML) melakukan *text-wrapping* secara otomatis pada kotak/elemen grafisnya tanpa pemenggalan manual di level sintaks.
+
+---
+
+## 2. Keputusan Arsitektural: Opsi B - 100% Siloed Standalone Apps (03 Juli 2026)
+* **Latar Belakang**: Keputusan bisnis terbaru dari manajemen/bos meniadakan konsep SuperApp 3 domain (Medis, Hukum, Psikologi) dan menghapus total domain Medis (*Sehatifiqa*).
+* **Arsitektur Terpilih**: **Opsi B (100% Siloed & Independent Total Architecture)**.
+* **Spesifikasi Arsitektur**:
+  1. **Justifiqa (Domain Hukum)**: Aplikasi berdiri sendiri dari ujung ke ujung (*frontend, backend, database, authentication MFA, escrow payment, dan admin panel khusus hukum*). Tidak berbagi sistem dengan aplikasi lain.
+  2. **Qualifa (Domain Psikologi)**: Aplikasi berdiri sendiri dari ujung ke ujung (*frontend, backend, database, authentication MFA, payment, dan admin panel khusus psikologi/komite etik*). Tidak berbagi sistem dengan aplikasi lain.
+* **Pembersihan Konteks Lama (*Cognitive Refresh*)**:
+  * Seluruh ingatan dan referensi mengenai "SuperApp", "LifeQ Core Shared Engine", "SSO LifeQ ID", dan "Domain Medis/Sehatifiqa/Dokter/Apotek" dinyatakan **TIDAK BERLAKU LAGI** dan telah dipangkas dari spesifikasi aktif proyek.
+
+---
+
+## 3. Status Alur Kerja Rekayasa (*Phase-Gate Tracking*)
+* [x] **Langkah 1.A**: Refactoring Use Case Diagram (`plantuml_uc_diagrams.md`) & Skenario Teks (`unified_use_case_scenarios.md`, `use_case_scenarios.md`) ke Arsitektur Siloed Opsi B. *(Selesai & Direview)*
+* [x] **Langkah 1.B**: Refactoring Activity Diagram (`plantuml_activity_diagrams.md`). *(Selesai & Direview)*
+* [x] **Langkah 1.C**: Refactoring Sequence Diagram (`plantuml_sequence_diagrams.md`). *(Selesai & Direview)*
+* [ ] **Langkah 2**: Refactoring Product Backlog (`product_backlog.md`) & Matriks Kepatuhan.
+* [x] **Langkah 3**: Refactoring Wireframe & Mockup HTML (Membuang modul medis & memisahkan antarmuka Klien dan Mitra untuk Justifiqa & Qualifa). *(Selesai & Direview)*
+* [ ] **Langkah 4**: Desain ERD & Database Schema Standalone.
+
+---
+
+## 4. Keputusan Arsitektural: Pembubuhan e-Meterai & Pemisahan Dompet Advokat (07 Juli 2026)
+* **Koreksi Pengguna**: Skema A (menagih biaya e-Meterai via invoice tambahan ke klien di tengah proses stamping) menyebabkan alur kerja terlalu rumit dan bertele-tele. Usulan menggabungkan pengisian saldo dan penarikan saldo ke dalam satu Use Case ditolak karena melanggar *Single Responsibility Principle (SRP)*.
+* **Arsitektur Terpilih**:
+  1. **Platform-Facilitated Stamping (Peleburan J-UC14 ke J-UC12)**: Pembubuhan e-Meterai resmi Peruri Rp10.000 via Mekari Sign ditarik langsung ke dalam alur kerja perumusan kontrak (`J-UC12` / `AD-J-06` / `SD-J-06`). Biaya meterai (Rp12.000/lembar) dipotong secara otomatis dari saldo dompet digital advokat.
+  2. **Pemisahan Tegas Top-Up vs Withdrawal (SRP & Clean Architecture)**:
+     * **`J-UC19` (Withdrawal)**: Khusus menangani penarikan saldo (*cash-out*) ke bank pribadi, melibatkan perhitungan otomatis potongan pajak tenaga ahli PPh 21 (5%) dan verifikasi WORM Storage.
+     * **`J-UC22` (Top-Up)**: Khusus menangani pengisian saldo dompet advokat (*cash-in*) melalui Payment Gateway Checkout (Snap / QRIS / VA) untuk membayar layanan platform, **tanpa pemotongan pajak PPh 21**.
+* **Implikasi Spesifikasi**:
+  * `J-UC14`, `AD-J-14`, dan `SD-J-14` ditiadakan sebagai diagram mandiri (dilebur seutuhnya ke dalam `J-UC12` / `AD-J-06` / `SD-J-06`).
+  * `J-UC05` diubah judulnya menjadi *Melakukan Pembayaran Escrow Konsultasi* untuk memperjelas batasannya terhadap top-up dompet advokat.
+  * **Enkapsulasi Sub-Activity (`AD-J-06` / `SD-J-06`)**: Dilarang keras mengekspansi atau menaruh langkah-langkah Webhook Payment Gateway di dalam diagram `AD-J-06` maupun `SD-J-06`. Alur top-up dipanggil murni sebagai sub-activity/reference (`Lihat AD-J-22` / `Lihat SD-J-22`) sebelum mengulang kembali ke pengecekan saldo, sehingga sistem dapat menangani kondisi sukses maupun gagal top-up tanpa asumsi *happy-path*.
+
+---
+
+## 5. Keputusan Arsitektural: Isolasi Domain Admin Backoffice (08 Juli 2026)
+* **Koreksi Pengguna**: Penggabungan alur Login Admin Backoffice untuk Justifiqa dan Qualifa ke dalam satu diagram templat bersama (`AD-ADMIN-01: J-UC20 / Q-UC20`) melanggar prinsip *100% Siloed & Independent Total Architecture (Opsi B)*.
+* **Arsitektur Terpilih**:
+  * **Penghapusan Diagram Gabungan**: `AD-ADMIN-01` ditiadakan seutuhnya dari seluruh spesifikasi.
+  * **Spesifikasi Spesifik Domain**: Alur Login Admin Backoffice dipecah menjadi dua diagram yang sepenuhnya independen pada masing-masing domain, lengkap dengan spesifikasi URL, IAM Gateway, Database Kredensial, dan WORM Audit Storage terpisah:
+    1. **Justifiqa (`J-UC20`)**: Direpresentasikan oleh **`AD-J-20`** dan **`SD-J-20`** (mengarah ke portal `admin.justifiqa.com` dan dasbor `SCR-JST-07`).
+    2. **Qualifa (`Q-UC20`)**: Direpresentasikan oleh **`AD-Q-20`** dan **`SD-Q-20`** (mengarah ke portal `admin.qualifa.com` dan dasbor `SCR-QLF-07`).
+
+---
+
+## 6. Keputusan Arsitektural: Wajib Spesifikasi Eksekusi / Activation Bars pada Sisi Sistem & User/Actor (08 Juli 2026)
+* **Koreksi Pengguna**: Seluruh Sequence Diagram sebelumnya tidak memiliki *activation bars* (`activate` / `deactivate` atau `++` / `--`). Bahkan pada iterasi perbaikan awal, activation bar hanya ditambahkan pada sisi sistem (Frontend, Backend, DB, Eksternal), sementara **pada sisi User/Actor (Klien, Mitra Advokat/Psikolog, Admin) sama sekali tidak memiliki activation bar**. Selain itu, terdapat kesalahan arah panah balasan (`return arrow`) dari SMS Gateway yang langsung diarahkan ke User (`SMS --> User --`) padahal SMS Gateway dipanggil oleh Backend (`BE`), serta masih terdapat sisa teks lawas mengenai "Toggle ONLINE" pada alur ketersediaan praktik yang bertentangan dengan keputusan penjadwalan otomatis kalender.
+* **Arsitektur Terpilih**:
+  1. **Penerapan Mutlak Activation Bars Sisi Sistem & User/Actor**: Seluruh Sequence Diagram pada domain Justifiqa (`SD-J-01` sd `SD-J-20`) dan Qualifa (`SD-Q-01` sd `SD-Q-20`) **WAJIB** dilengkapi notasi masa eksekusi aktif (`++` / `--` atau `activate` / `deactivate`) untuk setiap pemanggilan layanan, **termasuk pada sisi User/Actor** (memulai sesi interaksi dengan `activate <Actor>` dan mengakhirinya dengan `deactivate <Actor>`).
+  2. **Penjadwalan Slot Kalender**: Menghapus seluruh terminologi "Toggle ONLINE" dari `SD-J-04` dan `SD-Q-04`, diganti dengan "Atur Ketersediaan Slot Kalender" yang mengandalkan pengecekan konflik jadwal otomatis (`HTTP 409` / `HTTP 422`).
+  3. **Aturan Return Arrow API Gateway**: Pemanggilan API eksternal dari Backend (seperti SMS Gateway, Payment Gateway, Dukcapil, Peradi, Peruri, WORM) **WAJIB** mengembalikan respons HTTP ke sistem yang memanggilnya (`SMS --> BE -- : 200 OK`), **DILARANG KERAS** mengarahkan return arrow ke User (`SMS --> User --`) yang merusak struktur *call stack* API. Pengiriman pesan fisik ke ponsel/email pengguna direpresentasikan sebagai notasi catatan atau panah event terpisah pasca-respons Backend ke Frontend.
+  4. **Aturan Return Arrow Database & Internal Call**: Setiap pemanggilan query atau transaksi ke Database (`BE -> DB ++`) **WAJIB** diakhiri dengan panah balasan (`DB --> BE -- : 200 OK / Rows Affected`), tidak boleh hanya dinonaktifkan sepihak (`deactivate DB`). Hal yang sama berlaku untuk pemanggilan internal method pada Backend (`BE -> BE ++` wajib diringangi `BE --> BE --`).
+  5. **Batas Keamanan Blok Kondisional (`alt`)**: Transaksi pembaruan database (seperti `Update Last Login Timestamp`) dan pencetakan token sesi (seperti `Generate JWT Session Token`) **WAJIB TETAP BERADA DI DALAM** blok percabangan kondisi valid (`alt [OTP Valid & Belum Expire]`). Dilarang keras memindahkan langkah kritis tersebut ke luar/sebelum blok `alt` hanya demi memperkecil tampilan visual frame, karena akan menyebabkan cacat fatal di mana jam login dan token JWT diproses untuk setiap percobaan OTP, termasuk OTP yang salah/invalid.
+  6. **Larangan Penggunaan Shorthand Deactivation (`--`) pada Panah yang Mengarah ke Aktor/User**: Dalam sintaks PlantUML, menaruh `--` pada panah balasan visualisasi UI atau API ke arah Aktor (seperti `FE --> Klien --` atau `PG --> Klien --`) akan menonaktifkan Aktor penerima di tengah interaksi dan menyebabkan *double deactivation error* (`Activate/Deactivate already done on Klien`). Seluruh panah visualisasi ke Aktor wajib ditulis bersih tanpa `--` (`FE --> Klien`). Aktor hanya diaktifkan 1 kali saat interaksi dimulai (`activate <Actor>`) dan dinonaktifkan 1 kali di akhir diagram sebelum `@enduml` (`deactivate <Actor>`).
