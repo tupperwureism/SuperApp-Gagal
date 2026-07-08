@@ -571,12 +571,17 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
     alt Pelanggaran Ringan / Administratif (Tanpa Suspend Akun)
         Admin -> FE : Klik Terbitkan Peringatan Tertulis / Pembinaan
         FE -> BE ++ : POST /api/v1/admin/moderation/warning {advocate_id, reason}
-        BE -> WORM ++ : Catat Surat Peringatan Tertulis ke WORM Storage
-        WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-        BE -> FE : 200 OK (Warning Issued)
+        par Catat Surat Teguran ke WORM Storage
+            BE -> WORM ++ : Catat Surat Peringatan Tertulis ke WORM Storage
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+        else Kirim Notifikasi & Surat ke Advokat
+            activate Mitra
+            BE -> Mitra : Kirim Email & Push Notifikasi Surat Peringatan
+            Mitra --> BE : Menerima & Membaca Surat Peringatan Tertulis
+            deactivate Mitra
+        end
+        BE --> FE -- : 200 OK (Warning Issued)
         FE --> Admin : Tampilkan Status Peringatan Terkirim
-        activate Mitra
-        BE -> Mitra : Kirim Email & Push Notifikasi Surat Peringatan
     else Pelanggaran Berat / Kritis (Due Process Suspend)
         Admin -> FE : Klik "🛑 Suspend Akun & Kirim Panggilan Klarifikasi"
         FE -> BE ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}

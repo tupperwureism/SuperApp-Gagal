@@ -496,8 +496,15 @@ if (Apakah Bukti Permulaan Sah & Terverifikasi SHA-256?) then (Ya - Bukti Valid)
   else (Tidak - Pelanggaran Ringan / Administratif)
     |Admin Legal Justifiqa|
     :Terbitkan Peringatan Tertulis / Pembinaan (Tanpa Suspend Akun);
-    |Backend Independen Justifiqa|
-    :Catat Surat Teguran ke WORM Storage & Kirim ke Advokat;
+    fork
+      |Backend Independen Justifiqa|
+      :Catat Surat Teguran ke WORM Storage;
+    fork again
+      |Backend Independen Justifiqa|
+      :Kirim Email & Push Notifikasi Surat Teguran;
+      |Advokat Terlapor|
+      :Menerima & Membaca Surat Peringatan Tertulis;
+    end fork
   endif
 else (Tidak - Bukti Tidak Sah / Laporan Palsu)
   |Admin Legal Justifiqa|
