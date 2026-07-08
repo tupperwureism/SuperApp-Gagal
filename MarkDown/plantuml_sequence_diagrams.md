@@ -85,6 +85,19 @@ DB --> BE -- : Return User Record & Password Hash
 alt Kredensial Tidak Cocok
     BE --> FE : 401 Unauthorized (Kredensial Salah)
     FE --> User : Tampilkan Error Email/No HP atau Password Salah
+    deactivate BE
+    deactivate FE
+    
+    loop [Mencoba Login Ulang saat Kredensial Salah]
+        User -> FE ++ : Masukkan Kembali Email/No HP & Password yang Benar
+        FE -> BE ++ : POST /api/v1/auth/login (Corrected Credentials)
+        BE -> DB ++ : Query User by Email/No HP
+        DB --> BE -- : Return User Record & Password Hash
+        BE --> FE : 200 OK (Credentials Verified)
+        FE --> User : Lanjut ke Langkah MFA / OTP
+        deactivate BE
+        deactivate FE
+    end
 else Kredensial Cocok
     alt Status Akun = SUSPENDED (Due Process Legal)
         BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
@@ -109,8 +122,23 @@ else Kredensial Cocok
             BE --> FE : 200 OK (JWT Token, User Profile)
             FE --> User : Masuk ke Dasbor Utama Justifiqa
         else OTP Salah / Kadaluarsa
-            BE --> FE : 400 Bad Request (OTP Invalid)
+            BE --> FE : 400 Bad Request (OTP Invalid / Expired)
             FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
+            deactivate BE
+            deactivate FE
+            
+            loop [Minta Kirim Ulang OTP / Resend OTP]
+                User -> FE ++ : Klik Tombol Resend OTP
+                FE -> BE ++ : POST /api/v1/auth/resend-otp (User ID, Channel)
+                BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
+                BE --> BE -- : Return Computed Result / State
+                BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, New OTP)
+                SMS --> BE -- : 200 OK (New OTP Sent Successfully)
+                BE --> FE : 200 OK (New OTP Sent)
+                FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
+                deactivate BE
+                deactivate FE
+            end
         end
         deactivate BE
         deactivate FE
@@ -146,17 +174,41 @@ FE --> Klien : Tampilkan Halaman Pembayaran
 deactivate BE
 
 Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
-PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
-BE -> BE ++ : Tahan Dana di Rekening Escrow Sementara Justifiqa
-BE --> BE -- : Return Computed Result / State
-BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-BE --> BE -- : Return Computed Result / State
-activate Mitra
-BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-deactivate BE
-PG --> Klien : 200 OK (Payment Status Verified)
 
-note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
+alt Webhook Status Transaksi = PAID / SUCCESS
+    PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+    BE -> BE ++ : Tahan Dana di Rekening Escrow Sementara Justifiqa
+    BE --> BE -- : Return Computed Result / State
+    BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+    BE --> BE -- : Return Computed Result / State
+    activate Mitra
+    BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+    deactivate BE
+    PG --> Klien : 200 OK (Payment Status Verified)
+    
+    note over Klien, Mitra : Sesi Konsultasi Dimulai Sesuai Waktu Reservasi
+else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+    PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+    BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
+    BE --> BE -- : Return Computed Result / State
+    BE --> PG -- : 200 OK (Webhook Processed)
+    PG --> Klien : 402 Payment Required / 400 Payment Failed
+    
+    loop [Coba Bayar Ulang atau Jadwal Ulang Reservasi]
+        Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+        FE -> BE ++ : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+        BE -> PG ++ : Create New Payment Invoice & VA Number
+        PG --> BE -- : Return New Invoice URL & VA Number
+        BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
+        FE --> Klien : Tampilkan Halaman Pembayaran Baru
+        deactivate BE
+        deactivate FE
+    end
+    
+    note over Klien, PG : Jika pembayaran ulang sukses, alur akan mentrigger kembali webhook PAID di atas
+end
+
+note over Klien, Mitra : Alur Sesi Konsultasi & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
 Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
 FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
 Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
