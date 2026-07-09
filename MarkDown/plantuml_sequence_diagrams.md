@@ -552,6 +552,16 @@ Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
 FE -> BE ++ : GET /api/v1/documents/{id}/download
 BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
 FE --> Klien : Render File PDF Bermeterai
+alt Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
+    Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
+    FE -> BE ++ : POST /api/v1/documents/{id}/approve
+    BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+    BE --> BE -- : Return Computed Result / State
+    BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+    DB --> BE -- : 200 OK
+    BE --> FE -- : 200 Approved
+    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
+end
 deactivate Klien
 deactivate Mitra
 @enduml
@@ -628,12 +638,18 @@ BE --> BE -- : Return Computed Result / State
 BE -> DB ++ : Simpan Catatan IRAC ke Rekam Perkara Klien (with privacy_status)
 DB --> BE -- : Success Insert Note
 
-alt Status Privasi == Bagikan ke Klien (CLIENT_SHARED)
+alt Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable (CLIENT_SHARED)
     BE -> DB ++ : UPDATE irac_notes SET access_level = 'SHARED' WHERE id = note_id
     DB --> BE -- : 200 OK (Success / Rows Affected)
     BE -> FE ++ : Trigger Push Notification "Catatan Sesi IRAC Telah Dibagikan"
     FE --> Klien : Tampilkan Ringkasan Catatan Sesi di Dasbor Klien
     deactivate FE
+    alt Klien Menyetujui IRAC Note ATAU SLA 2x24 Jam Habis (Deliverable Approved)
+        BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+        BE --> BE -- : Return Computed Result / State
+        BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+        DB --> BE -- : 200 OK
+    end
 else Status Privasi == Internal Advokat (INTERNAL_ONLY - Work Product Privilege)
     BE -> DB ++ : UPDATE irac_notes SET access_level = 'INTERNAL_ONLY' WHERE id = note_id
     DB --> BE -- : 200 OK (Success / Rows Affected)
@@ -827,7 +843,7 @@ activate Mitra
 Mitra -> FE ++ : Ajukan Pencairan Dana (Withdrawal) ke Rekening Bank
 FE -> BE ++ : POST /api/v1/advocate/payouts/withdraw (Amount, Bank Acc)
 
-BE -> BE ++ : Validasi Saldo & Hitung Potongan Pajak PPh 21
+BE -> BE ++ : Validasi Saldo Tunai Available (Hanya Escrow Tunai yang Sudah Release dari Deliverable Approved - Excl. Token Virtual) & Hitung PPh 21
 BE --> BE -- : Return Computed Result / State
 BE -> PG ++ : POST /api/disbursement/transfer (Net Amount, Bank Detail)
 

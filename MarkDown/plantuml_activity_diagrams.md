@@ -445,6 +445,14 @@ fork again
   
   |Klien Justifiqa|
   :Terima & Unduh Dokumen Hukum (Download Gate);
+  if (Apakah Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam?) then (Ya - Disetujui / Final Approved)
+    |Backend Independen Justifiqa|
+    :Trigger Deliverable-Triggered Escrow Release (J-UC19);
+    :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
+  else (Tidak - Minta Revisi)
+    |Klien Justifiqa|
+    :Ajukan Catatan Revisi Draf Kontrak ke Advokat;
+  endif
 end fork
 stop
 @enduml
@@ -523,11 +531,19 @@ start
 |Backend Independen Justifiqa|
 :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
 :Simpan di Arsip Perkara Klien Justifiqa;
-if (Status Privasi == Bagikan ke Klien?) then (Ya - Bagikan)
-  :Kirim Notifikasi Catatan Sesi Baru ke Klien;
+if (Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable?) then (Ya - Bagikan & Trigger Escrow)
+  :Kirim Notifikasi Catatan IRAC Baru ke Klien;
   |Klien Justifiqa|
-  :Baca & Unduh Ringkasan Catatan IRAC di Dasbor;
-else (Tidak - Internal Advokat)
+  :Baca & Review Ringkasan Catatan IRAC di Dasbor;
+  if (Klien Menyetujui IRAC Note ATAU SLA 2x24 Jam Habis?) then (Ya - Disetujui / Auto-Approve)
+    |Backend Independen Justifiqa|
+    :Trigger Deliverable-Triggered Escrow Release (J-UC19);
+    :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
+  else (Tidak - Minta Klarifikasi / Revisi)
+    |Klien Justifiqa|
+    :Kirim Permintaan Revisi IRAC Note ke Advokat;
+  endif
+else (Tidak - Catatan Internal Pribadi)
   |Backend Independen Justifiqa|
   :Kunci Akses Klien (Internal Work Product Privilege);
 endif
@@ -650,7 +666,8 @@ start
 :Klik Penarikan Dana (Withdrawal) ke Rekening Bank Bersangkutan;
 
 |Backend Independen Justifiqa|
-:Periksa Saldo Available & Validasi Rekening Tujuan;
+:Periksa Saldo Dompet Tunai Available (Hanya Escrow Tunai yang Sudah Release dari Deliverable Approved - Bukan Token Virtual);
+:Validasi Rekening Bank Tujuan Advokat;
 :Hitung Potongan Pajak PPh 21 Sesuai Regulasi Ditjen Pajak;
 :Buat Instruksi Pencairan Dana Bersih;
 :Kirim Request Transfer ke Payment Gateway Disbursement;
