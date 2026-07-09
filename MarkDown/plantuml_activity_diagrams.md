@@ -292,7 +292,15 @@ else (Tidak - Konsultasi Premium / Pro)
     repeat while (Waktu Sesi Masih Tersisa & Sesi Belum Diakhiri?) is (Ya - Lanjut Chatting)
     
     |Backend Independen Justifiqa|
-    :Akhiri Sesi Online & Tutup Ruang Chat E2EE;
+    :Akhiri Waktu Live Chat 60 Menit & Kunci Ruang Chat E2EE (Read-Only History);
+    :Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled);
+    if (Apakah Paket Sesi = Tier 2 Premium atau Tier 3 Pro?) then (Ya - Butuh Deliverable)
+      :Ubah Status Perkara Jadi PENDING_DELIVERABLE;
+      :Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread) di Dasbor Perkara;
+      :Aktifkan Sistem Tiket Komentar Terstruktur [KLARIFIKASI FAKTA] / [REVISI KLAUSUL];
+    else (Tidak - Tier 1 Gratis Pro Bono)
+      :Sesi Selesai (CLOSED) & Kreditkan Poin Reputasi ke Advokat;
+    endif
   endif
 
   |Backend Independen Justifiqa|
@@ -446,9 +454,9 @@ repeat
     :Kirim Notifikasi Dokumen Siap Diperiksa ke Klien;
     
     |Klien Justifiqa|
-    :Terima & Unduh Dokumen Hukum (Download Gate);
+    :Terima & Unduh Dokumen Hukum di Asynchronous Deliverable Thread;
   end fork
-repeat while (Apakah Klien Meminta Revisi Draf Kontrak?) is (Ya - Butuh Revisi Draf v2/v3)
+repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Async Thread (Lolos DLP) & SLA 3x24 Jam Belum Habis?) is (Ya - Butuh Revisi Draf v2/v3)
 
 |Backend Independen Justifiqa|
 :Dokumen Final Disetujui Klien ATAU SLA 3x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
@@ -558,8 +566,8 @@ stop
 
 ---
 
-### AD-J-09: Verifikasi Kredensial Advokat Mitra Peradi (J-UC16)
-*Diagram alur audit verifikasi keabsahan lisensi profesi (NIA/BAS/SIPP) advokat baru oleh Admin Legal Justifiqa.*
+### AD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
+*Diagram alur verifikasi kredensial profesi Peradi serta pertahanan 3-Lapisan sanitasi profil/media anti-bypass kontak pribadi.*
 
 ```plantuml
 @startuml
@@ -571,11 +579,35 @@ start
 if (Kredensial Sah & Aktif?) then (Ya)
   |Backend Independen Justifiqa|
   :Ubah Status Akun Advokat Jadi VERIFIED / AKTIF;
+  :Kunci Nama Tampilan (Layer 1: Immutable Display Name dari KTP/Peradi);
   :Kirim Email Pemberitahuan Akun Aktif;
 else (Tidak - Palsu/Kadaluarsa)
   |Backend Independen Justifiqa|
   :Ubah Status Akun Jadi REJECTED;
   :Kirim Email Alasan Penolakan Kredensial;
+  stop
+endif
+
+|Advokat Justifiqa|
+:Perbarui Deskripsi Profil (Bio/Pengalaman) ATAU Unggah Foto Profil;
+
+|Backend Independen Justifiqa|
+if (Apakah Perbaruan = Foto Profil / Avatar?) then (Ya - Media Upload)
+  :Jalankan Layer 3: Media OCR Sandbox Engine (Ekstrak Teks Gambar);
+  if (Terdeteksi Nomor HP / Steganografi Kontak di Gambar?) then (Ya - Kontak Ilegal)
+    :Tolak Unggahan (422 Unprocessable Media - Contact Detected);
+    stop
+  else (Tidak - Gambar Bersih)
+    :Publikasikan Foto Profil Terverifikasi;
+  endif
+else (Tidak - Perbaruan Teks Bio/Deskripsi)
+  :Jalankan Layer 2: Pre-Publication NLP Contact Scanner;
+  if (Terdeteksi Pola Nomor HP / Email / Sosmed di Teks?) then (Ya - Kontak Ilegal)
+    :Tolak Pembaruan (400 Profile Rejected - DLP Violation);
+    stop
+  else (Tidak - Teks Bersih)
+    :Publikasikan Deskripsi Profil Advokat;
+  endif
 endif
 stop
 @enduml
@@ -589,12 +621,12 @@ stop
 ```plantuml
 @startuml
 title Activity Diagram: AD-J-10 - Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
-|Admin Legal Justifiqa|
+|Admin Legal Justifiqa / Behavioral Fraud Engine|
 start
-:Buka Menu "Moderasi & Laporan Pelanggaran Etik";
-:Pilih Akun Advokat Terlapor & Periksa Barang Bukti WORM SHA-256;
+:Buka Menu "Moderasi & Laporan Pelanggaran Etik" ATAU Terima Trigger Otomatis Anomali Perilaku (Drop-Off < 5 Menit / Evasion Fraud);
+:Pilih Akun Advokat Terlapor & Periksa Barang Bukti WORM SHA-256 / Log Anomali;
 
-if (Apakah Bukti Permulaan Sah & Terverifikasi SHA-256?) then (Ya - Bukti Valid)
+if (Apakah Bukti Permulaan Sah / Skor Anomali Kritis Terverifikasi?) then (Ya - Bukti Valid)
   if (Apakah Tergolong Pelanggaran Berat / Kritis?) then (Ya - Pelanggaran Berat)
     :Jalankan Protokol Due Process Investigation;
     :Klik Tombol "🛑 Suspend Akun & Kirim Panggilan Klarifikasi";
@@ -626,10 +658,11 @@ if (Apakah Bukti Permulaan Sah & Terverifikasi SHA-256?) then (Ya - Bukti Valid)
     
     |Admin Legal Justifiqa|
     :Input Putusan Akhir Sidang Etik (Dewan Kehormatan);
-    if (Terbukti Bersalah?) then (Ya - Sanksi Berat)
+    if (Terbukti Bersalah Melanggar Etik / Penggelapan Transaksi?) then (Ya - Sanksi Berat Reputational Death)
       |Backend Independen Justifiqa|
-      :Ubah Status Akun Jadi REVOKED / PERMANENT_BAN;
+      :Ubah Status Akun Jadi REVOKED / PERMANENT_BAN & Hanguskan Poin Reputasi;
       :Terbitkan Surat Keputusan Pemecatan Ber-hash SHA-256;
+      :Kirim Laporan Pelanggaran Integritas Digital Resmi ke Dewan Kehormatan Peradi;
     else (Tidak - Rehabilitasi)
       |Backend Independen Justifiqa|
       :Pulihkan Status Akun Jadi VERIFIED / AKTIF (Rehabilitasi);

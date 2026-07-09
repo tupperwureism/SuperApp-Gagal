@@ -323,42 +323,54 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         end
     end
 
-    Mitra -> FE ++ : Klik Akhiri Sesi Konsultasi
-    FE -> BE ++ : POST /api/v1/consultations/end (Sesi ID)
-    BE -> BE ++ : Tutup Ruang Chat & Simpan Metadata Transaksi
-    BE --> BE -- : Return Computed Result / State
-    BE --> FE -- : 200 OK (Session Closed)
-    FE --> Mitra : Konfirmasi Sesi Selesai
-    deactivate FE
+    alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
+        BE -> BE ++ : Akhiri Live Chat & Kunci Ruang Chat E2EE (Read-Only History)
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled)
+        BE --> BE -- : Return Computed Result / State
+        
+        alt Paket Sesi == Tier 2 Premium atau Tier 3 Pro (Deliverable Required)
+            BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+            DB --> BE -- : 200 OK
+            BE -> FE ++ : Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread)
+            FE --> Mitra : Tampilkan Antarmuka Tiket Komentar [KLARIFIKASI FAKTA] / [REVISI KLAUSUL]
+            deactivate FE
+            FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
+        else Paket Sesi == Tier 1 Gratis (Legal Triage Pro Bono)
+            BE -> DB ++ : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = session_id
+            DB --> BE -- : 200 OK
+            BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat
+            BE --> BE -- : Return Computed Result / State
+        end
+    end
 end
 BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
 FE --> Klien : Tampilkan Modal Ulasan & Rating
 deactivate FE
 
-alt Level Konsultasi = Tier 1 Gratis (Legal Triage)
-    BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit)
-    BE --> BE -- : Return Computed Result / State
-else Level Konsultasi = Tier 2 Premium (Deliverable: IRAC Consultation Note)
-    loop [Siklus Review & Revisi IRAC Note - Ulangi Selama Klien Meminta Revisi]
-        Mitra -> FE ++ : Unggah Dokumen IRAC Consultation Note ke Dasbor Klien
-        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac
+alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
+    loop [Siklus Klarifikasi Saran Hukum di Asynchronous Deliverable Thread]
+        Mitra -> FE ++ : Unggah Dokumen Laporan Saran Hukum (Client Advice Summary)
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
         BE --> FE -- : 201 Created
-        FE --> Mitra : Konfirmasi IRAC Note Dirilis
+        FE --> Mitra : Konfirmasi Laporan Saran Dirilis
         deactivate FE
 
-        alt Klien Meminta Klarifikasi / Revisi IRAC Note
-            Klien -> FE ++ : Kirim Catatan Revisi IRAC Note
-            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac/revise
+        alt Klien Meminta Klarifikasi Tambahan Atas Saran Hukum
+            Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+            BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+            BE --> BE -- : Return DLP Decision
             BE --> FE -- : 200 OK
-            FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+            FE --> Klien : Pertanyaan Klarifikasi Terkirim
             deactivate FE
-            note over Klien, BE : [REPEAT LOOP] Advokat memproses catatan Klien dan mengunggah ulang dokumen revisi
-        else Klien Menyetujui IRAC Note ATAU Melewati SLA 2x24 Jam
-            break [BREAK LOOP] IRAC Note Disetujui / SLA Habis -> Keluar dari Siklus Revisi
-                Klien -> FE ++ : Klik Setujui IRAC Note (Final Approve) / Auto-Approve SLA
-                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac/approve
+            note over Klien, BE : [REPEAT LOOP] Advokat memberikan jawaban penjelasan tambahan di Async Thread
+        else Klien Menerima Laporan ATAU Melewati SLA 2x24 Jam
+            break [BREAK LOOP] Laporan Diterima / SLA Habis -> Keluar dari Siklus
+                Klien -> FE ++ : Klik Setujui & Terima Laporan / Auto-Approve SLA
+                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
                 BE --> FE -- : 200 Approved
-                FE --> Klien : Konfirmasi IRAC Note Disetujui
+                FE --> Klien : Konfirmasi Laporan Disetujui
                 deactivate FE
             end
         end
@@ -373,9 +385,11 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         FE --> Mitra : Konfirmasi Dokumen Final Diunggah
         deactivate FE
 
-        alt Klien Meminta Revisi Draf Dokumen
-            Klien -> FE ++ : Kirim Catatan Revisi Draf Dokumen
-            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/revise
+        alt Klien Meminta Revisi Draf Dokumen di Asynchronous Deliverable Thread
+            Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/revise
+            BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+            BE --> BE -- : Return DLP Decision
             BE --> FE -- : 200 OK
             FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
             deactivate FE
@@ -554,9 +568,11 @@ loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi]
     BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
     FE --> Klien : Render File PDF Bermeterai
     
-    alt Klien Meminta Revisi Draf Kontrak
-        Klien -> FE : Kirim Catatan Revisi Draf
-        FE -> BE ++ : POST /api/v1/documents/{id}/revise
+    alt Klien Meminta Revisi Draf Kontrak di Asynchronous Deliverable Thread
+        Klien -> FE : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+        FE -> BE ++ : POST /api/v1/documents/{id}/async-thread/revise
+        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+        BE --> BE -- : Return DLP Decision
         BE --> FE -- : 200 OK
         FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
         note over Klien, BE : [REPEAT LOOP] Advokat memproses revisi dan mengunggah draf v2/v3
@@ -692,8 +708,8 @@ deactivate Mitra
 
 ---
 
-### SD-J-09: Verifikasi Kredensial Advokat Mitra Peradi (J-UC16)
-*Sequence diagram audit verifikasi keabsahan lisensi profesi (NIA/BAS/SIPP) advokat baru oleh Admin Legal Justifiqa dengan spesifikasi eksekusi aktif lengkap pada sisi Admin, Advokat (actor), dan sistem.*
+### SD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
+*Sequence diagram audit verifikasi keabsahan lisensi profesi Peradi serta pertahanan 3-Lapisan sanitasi profil/media anti-bypass kontak pribadi dengan spesifikasi eksekusi aktif lengkap pada sisi Admin, Advokat (actor), dan sistem.*
 
 ```plantuml
 @startuml
@@ -714,39 +730,72 @@ Admin -> Peradi ++ : Verifikasi Keabsahan Nomor SIPP & Berita Acara Sumpah
 Peradi --> Admin : Hasil Verifikasi Status Advokat
 
 alt Kredensial Palsu / Kadaluarsa
-    Admin -> FE ++ : Klik Tolak Kredensial & Isi Alasan
+    Admin -> FE : Klik Tolak Kredensial & Isi Alasan
     FE -> BE ++ : POST /api/v1/admin/audits/reject (Advocate ID)
-    BE -> DB ++ : Update Status = REJECTED
+    BE -> DB ++ : UPDATE users SET status = 'REJECTED' WHERE id = advocate_id
     DB --> BE -- : 200 OK (Success / Rows Affected)
 activate Mitra
     BE -> Mitra ++ : Kirim Email Alasan Penolakan Akun
     Mitra --> BE : Terima Notifikasi
-    BE --> FE : 200 OK (Status Rejected)
+    BE --> FE -- : 200 OK (Status Rejected)
     FE --> Admin : Notifikasi Penolakan Berhasil Dikirim
 else Kredensial Sah & Aktif
     Admin -> FE : Klik Setujui Kredensial
-    FE -> BE : POST /api/v1/admin/audits/approve (Advocate ID)
-    BE -> DB ++ : Update Status = AKTIF / VERIFIED
-    DB --> BE -- : 200 OK (Success / Rows Affected)
+    FE -> BE ++ : POST /api/v1/admin/audits/approve (Advocate ID)
+    BE -> DB ++ : UPDATE users SET status = 'VERIFIED', display_name = verified_ktp_name, name_locked = TRUE WHERE id = advocate_id
+    DB --> BE -- : 200 OK (Layer 1: Immutable Display Name Locked)
     BE -> Mitra ++ : Kirim Email Akun Aktif Siap Praktik
     Mitra --> BE : Terima Notifikasi
-    BE --> FE : 200 OK (Status Approved)
+    BE --> FE -- : 200 OK (Status Approved)
     FE --> Admin : Notifikasi Persetujuan Berhasil Dikirim
-    deactivate BE
 end
 deactivate Admin
+
+alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile DLP)
+    alt Unggah Foto Profil / Avatar (Layer 3: Media OCR Sandbox)
+        Mitra -> FE ++ : Unggah File Foto Profil Baru
+        FE -> BE ++ : POST /api/v1/advocate/profile/avatar
+        BE -> BE ++ : Eksekusi OCR Sandbox Engine (Tesseract/Vision OCR)
+        BE --> BE -- : Return Extracted Image Text
+        alt Terdeteksi Nomor HP / Steganografi Kontak di Foto
+            BE --> FE : 422 Unprocessable Media (Contact Info Detected in Image)
+            FE --> Mitra : Tampilkan Error "Foto Profil Mengandung Kontak Dilarang"
+        else Gambar Bersih / Lolos OCR
+            BE -> DB ++ : UPDATE advocate_profiles SET avatar_url = url WHERE id = advocate_id
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Avatar Terverifikasi)
+            FE --> Mitra : Tampilkan Foto Profil Baru
+            deactivate FE
+        end
+    else Perbarui Teks Bio / Deskripsi Diri (Layer 2: Pre-Publication NLP Scan)
+        Mitra -> FE ++ : Simpan Pembaruan Bio & Pengalaman Kerja
+        FE -> BE ++ : PUT /api/v1/advocate/profile {bio, experience}
+        BE -> BE ++ : Eksekusi NLP Contact & Regex Bypass Scanner
+        BE --> BE -- : Return Scan Decision
+        alt Terdeteksi Nomor HP / Email / Sosmed di Teks Bio
+            BE --> FE : 400 Bad Request (Profile Rejected - DLP Contact Violation)
+            FE --> Mitra : Tampilkan Error "Teks Profil Mengandung Kontak Pribadi"
+        else Teks Bersih / Lolos NLP
+            BE -> DB ++ : UPDATE advocate_profiles SET bio = content WHERE id = advocate_id
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Profil Diperbarui)
+            FE --> Mitra : Konfirmasi Profil Berhasil Dipublikasikan
+            deactivate FE
+        end
+    end
+end
 deactivate Mitra
 @enduml
 ```
 
 ---
 
-### SD-J-10: Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
-*Sequence diagram penanganan laporan pelanggaran kode etik, investigasi Due Process of Law, pengajuan sanggahan, dan putusan akhir akun advokat dengan spesifikasi eksekusi aktif lengkap pada sisi Admin, Advokat (actor), dan sistem.*
+### SD-J-10: Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
+*Sequence diagram penanganan laporan pelanggaran kode etik, investigasi Due Process of Law, deteksi fraud perilaku (e.g. drop-off < 5 menit), pengajuan sanggahan, dan putusan akhir akun advokat (Reputational Death).*
 
 ```plantuml
 @startuml
-title Sequence Diagram: SD-J-10 - Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
+title Sequence Diagram: SD-J-10 - Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
 autonumber
 actor "Admin Justifiqa" as Admin
 participant "Panel Admin Justifiqa" as FE
@@ -756,11 +805,11 @@ database "WORM Hash Storage" as WORM
 actor "Advokat Terlapor" as Mitra
 
 activate Admin
-Admin -> FE ++ : Buka Tab Laporan Pelanggaran Etik / Hukum
+Admin -> FE ++ : Buka Tab Laporan Pelanggaran Etik / Hukum (atau Sistem Menerima Trigger Anomali Fraud)
 FE -> BE ++ : GET /api/v1/admin/moderation/reports
-BE --> FE -- : Return Daftar Laporan & Bukti WORM SHA-256
+BE --> FE -- : Return Daftar Laporan & Bukti WORM SHA-256 / Log Anomali
 FE --> Admin : Tampilkan Daftar Laporan & Bukti SHA-256
-Admin -> FE : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal
+Admin -> FE : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal / Skor Anomali
 
 alt Bukti Permulaan Tidak Sah / Laporan Palsu (SHA-256 Invalid)
     Admin -> FE : Klik Tolak & Arsip Laporan (Clear / Dismiss)
@@ -824,15 +873,17 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         end
         
         Admin -> FE : Review Berkas & Input Putusan Akhir Sidang Etik
-        alt Terbukti Bersalah (Sanksi Pemecatan Permanen)
+        alt Terbukti Bersalah (Sanksi Reputational Death & Pemecatan Permanen)
             FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'GUILTY'}
-            BE -> DB ++ : UPDATE advocate_accounts SET status = 'REVOKED'
+            BE -> DB ++ : UPDATE users SET status = 'REVOKED', reputation_score = 0 WHERE id = advocate_id
             DB --> BE -- : 200 OK (Success / Rows Affected)
             BE -> WORM ++ : Generate & Simpan SK Pemecatan (Hash SHA-256)
             WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-            BE --> FE -- : 200 OK (Verdict Executed)
-            FE --> Admin : Tampilkan Status Pemecatan Permanen
-            BE -> Mitra : Kirim Email SK Pemecatan Permanen
+            BE -> BE ++ : Kirim Laporan Pelanggaran Integritas Digital ke Dewan Kehormatan Peradi
+            BE --> BE -- : Return Report Confirmation
+            BE --> FE -- : 200 OK (Verdict & External Report Executed)
+            FE --> Admin : Tampilkan Status Pemecatan Permanen & Dilaporkan ke Peradi
+            BE -> Mitra : Kirim Email SK Pemecatan Permanen & Pemberitahuan Laporan Peradi
         else Tidak Terbukti / Rehabilitasi (Unsuspend)
             FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'REHABILITATED'}
             BE -> DB ++ : Pulihkan Status Akun = VERIFIED / AKTIF
