@@ -255,38 +255,41 @@ else (Tidak - Konsultasi Premium / Pro)
     :Tunggu Respons Substansial Pertama Advokat (Active Session Trigger);
     :Mulai Countdown Timer Sesi (Durasi 45 - 90 Menit - Fair Clock Engine);
     
-    fork
-      |Advokat Justifiqa|
-      :Memberikan Advice & Analisis Hukum;
-    fork again
-      |Klien Justifiqa|
-      :Mengajukan Pertanyaan & Diskusi;
-    end fork
-    
-    |Backend Independen Justifiqa|
-    :Periksa Isi Pesan via DLP Circumvention Filter (Deteksi Kontak Pribadi / Ajakan Bypass Offline Ilegal);
-    if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Nomor Luar Sistem?) then (Ya - Pelanggaran)
-      :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara Tidak Menerima);
-      :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
-      if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
-        :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
-        :Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21);
-        stop
-      else (Tidak - Level 1 Block)
+    repeat
+      fork
+        |Advokat Justifiqa|
+        :Kirim Pesan Teks / Audio / Video (Advice Hukum);
+      fork again
+        |Klien Justifiqa|
+        :Kirim Pesan Teks / Audio / Video (Pertanyaan / Diskusi);
+      end fork
+      
+      |Backend Independen Justifiqa|
+      :Pre-Broadcast Inline DLP Interception (~30ms Scan Sebelum Diteruskan ke Lawan Bicara);
+      if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Kontak Pribadi?) then (Ya - Pelanggaran)
+        :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara 0% Melihat);
+        :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
+        if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
+          :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
+          :Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21);
+          stop
+        else (Tidak - Level 1 Block)
+        endif
+      else (Tidak - Lolos DLP / Aman)
+        :Broadcast Pesan ke UI Lawan Bicara (Message Delivered);
       endif
-    else (Tidak - Aman)
-    endif
 
-    if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
-      :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
-      if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
-        :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
-        stop
-      else (Tidak - Advokat Membalas)
-        :Lanjutkan (RESUME) Countdown Timer Sesi;
+      if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
+        :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
+        if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
+          :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
+          stop
+        else (Tidak - Advokat Membalas)
+          :Lanjutkan (RESUME) Countdown Timer Sesi;
+        endif
+      else (Tidak - Respons Lancar)
       endif
-    else (Tidak - Respons Lancar)
-    endif
+    repeat while (Waktu Sesi Masih Tersisa & Sesi Belum Diakhiri?) is (Ya - Lanjut Chatting)
     
     |Backend Independen Justifiqa|
     :Akhiri Sesi Online & Tutup Ruang Chat E2EE;
