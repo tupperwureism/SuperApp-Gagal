@@ -315,50 +315,34 @@ else (Tidak - Konsultasi Premium / Pro)
       :Unggah Laporan ke Dasbor Klien;
       |Klien Justifiqa|
       :Review Laporan Saran Hukum di Dasbor;
-      if (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] di Ruang Kerja Asinkron?) then (Ya - Gunakan Ruang Asinkron)
-        repeat
-          |Klien Justifiqa|
-          :Kirim Pertanyaan Klarifikasi Terbatas;
-          |Advokat Justifiqa|
-          :Berikan Jawaban Penjelasan / Perbarui Laporan;
-          |Klien Justifiqa|
-          :Review Jawaban / Laporan Pembaruan;
-        repeat while (Apakah Klien Masih Mengajukan Klarifikasi & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Klarifikasi)
-        |Backend Independen Justifiqa|
-        :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-        if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
-          :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
-        else (Tidak - Disetujui Klien)
-        endif
-      else (Tidak - Langsung Setuju / Laporan Diterima)
-      endif
+      while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
+        |Klien Justifiqa|
+        :Kirim Pertanyaan Klarifikasi Terbatas;
+        |Advokat Justifiqa|
+        :Berikan Jawaban Penjelasan / Perbarui Laporan;
+        |Klien Justifiqa|
+        :Review Jawaban / Laporan Pembaruan;
+      endwhile (Tidak - Laporan Disetujui / Kuota Habis / SLA Habis)
       |Backend Independen Justifiqa|
-      :Disetujui Klien ATAU SLA 2x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     else (Tier 3 Pro - Legal Drafting / Opinion)
       |Advokat Justifiqa|
       :Susun Draf Dokumen Hukum Final (Drafting v1);
       :Unggah Draf Dokumen ke Dasbor Klien;
       |Klien Justifiqa|
       :Review Draf Dokumen Hukum di Dasbor;
-      if (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Ruang Kerja Asinkron?) then (Ya - Gunakan Ruang Asinkron)
-        repeat
-          |Klien Justifiqa|
-          :Kirim Catatan Revisi Klausul Terbatas;
-          |Advokat Justifiqa|
-          :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
-          |Klien Justifiqa|
-          :Review Draf Revisi Terbaru;
-        repeat while (Apakah Klien Masih Mengajukan Revisi & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Lanjut Revisi)
-        |Backend Independen Justifiqa|
-        :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-        if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
-          :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
-        else (Tidak - Disetujui Klien)
-        endif
-      else (Tidak - Langsung Setuju / Draf Diterima)
-      endif
+      while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
+        |Klien Justifiqa|
+        :Kirim Catatan Revisi Klausul Terbatas;
+        |Advokat Justifiqa|
+        :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
+        |Klien Justifiqa|
+        :Review Draf Revisi Terbaru;
+      endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
       |Backend Independen Justifiqa|
-      :Disetujui Klien ATAU SLA 3x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     endif
   endif
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
@@ -488,15 +472,15 @@ repeat
     |Klien Justifiqa|
     :Terima & Unduh Dokumen Hukum di Asynchronous Deliverable Thread;
   end fork
-repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Async Thread (Lolos DLP) & Kuota Putaran Revisi < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Butuh Revisi Draf v2/v3)
+while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Async Thread (Lolos DLP) & Kuota Putaran Revisi < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Butuh Revisi Draf v2/v3)
+  |Advokat Justifiqa|
+  :Perbarui Draf Dokumen Hukum & Unggah Revisi;
+  |Klien Justifiqa|
+  :Review Draf Revisi Terbaru;
+endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
 
 |Backend Independen Justifiqa|
 :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
-  :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
-else (Tidak - Disetujui Klien)
-endif
-:Dokumen Final Disetujui Klien ATAU SLA 3x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
 :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
 stop
 @enduml
