@@ -174,6 +174,7 @@ participant "Payment Gateway" as PG
 actor "Advokat Justifiqa" as Mitra
 
 activate Klien
+activate Mitra
 Klien -> FE ++ : Pilih Level Konsultasi (Gratis / Premium / Pro), Advokat, & Slot
 FE -> BE ++ : POST /api/v1/consultations/book (tier, advocate_id, slot, use_promo=true)
 
@@ -206,7 +207,7 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
         FE --> Klien : Tampilkan Halaman Pembayaran PG
 
         loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
-            Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
+            Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
 
             alt Webhook Status Transaksi = PAID / SUCCESS
                 PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
@@ -215,8 +216,10 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
                 BE -> BE ++ : Update Booking Status = TERKONFIRMASI
                 BE --> BE -- : Return Computed Result / State
                 BE --> PG -- : 200 OK (Webhook Processed)
-                BE -> FE : Push Notification Pembayaran Sukses
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Sukses
                 FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
+                deactivate FE
                 BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
                 note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
             else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
@@ -224,16 +227,19 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
                 BE -> BE ++ : Rollback Saldo Promo Credit Klien & Cancel Invoice
                 BE --> BE -- : Return Computed Result / State
                 BE --> PG -- : 200 OK (Webhook Processed)
-                BE -> FE : Push Notification Pembayaran Gagal / Kadaluwarsa
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Gagal / Kadaluwarsa
                 FE --> Klien : Tampilkan Error Pembayaran Gagal
+                deactivate FE
             
                 opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
-                    Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
-                    FE -> BE : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+                    Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+                    FE -> BE ++ : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
                     BE -> PG ++ : Create New Payment Invoice & VA Number
                     PG --> BE -- : Return New Invoice URL & VA Number
-                    BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
+                    BE --> FE -- : 200 OK (New Billing Detail Rp250.000 + Fee)
                     FE --> Klien : Tampilkan Halaman Pembayaran Baru
+                    deactivate FE
                 end
                 note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
             end
@@ -244,24 +250,36 @@ end
 alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake)
     Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
     FE -> BE ++ : POST /api/v1/consultations/offline/check-in {booking_id, qr_token}
-    BE --> FE : 200 OK (Sesi Offline Tatap Muka Dimulai)
+    BE --> FE -- : 200 OK (Sesi Offline Tatap Muka Dimulai)
     FE --> Klien : Tampilkan Status Sesi Berjalan
+    deactivate FE
     note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
-    Klien -> FE : Pindai QR Code Check-out saat Sesi Selesai
-    FE -> BE : POST /api/v1/consultations/offline/check-out {booking_id}
+    Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
+    FE -> BE ++ : POST /api/v1/consultations/offline/check-out {booking_id}
+    BE --> FE -- : 200 OK (Check-out Berhasil)
+    FE --> Klien : Tampilkan Ringkasan Sesi Offline
+    deactivate FE
 else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
     FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+    deactivate FE
     Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
     FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien)
-    Klien -> FE : Kirim Pesan Pembuka Perkara
+    deactivate FE
+    Klien -> FE ++ : Kirim Pesan Pembuka Perkara
     FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
     BE -> BE ++ : Tunggu Balasan Substansial Pertama Advokat (Active Session Trigger)
     BE --> BE -- : Return Computed Result / State
-    Mitra -> FE : Kirim Balasan Pertama
-    FE -> BE : POST /api/v1/chat/messages {session_id, content}
+    BE --> FE -- : 200 OK (Message Sent & Clock Active)
+    FE --> Klien : Tampilkan Chat Status Active
+    deactivate FE
+    Mitra -> FE ++ : Kirim Balasan Pertama
+    FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
     BE -> BE ++ : Mulai Countdown Timer Sesi (Durasi 45-90m - Fair Clock Engine)
     BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (Timer Berdetak)
+    FE --> Mitra : Tampilkan Timer Sesi Aktif
+    deactivate FE
 
     loop [Interaksi Dua Arah & Monitoring SLA Balasan]
         Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
@@ -273,7 +291,9 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             alt Advokat Tidak Aktif / AFK > 15 Menit
                 BE -> BE ++ : Batalkan Sesi & Aktifkan Tombol Klaim Refund Escrow 100% Klien
                 BE --> BE -- : Return Computed Result / State
-                BE --> FE : Push Alert Sesi Dibatalkan (AFK Abandonment)
+                BE -> FE ++ : Push Alert Sesi Dibatalkan (AFK Abandonment)
+                FE --> Klien : Tampilkan Modal Refund 100%
+                deactivate FE
             else Advokat Kembali Membalas Pesan
                 BE -> BE ++ : Lanjutkan (RESUME) Countdown Timer Sesi
                 BE --> BE -- : Return Computed Result / State
@@ -281,12 +301,17 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         end
     end
 
-    Mitra -> FE : Klik Akhiri Sesi Konsultasi
-    FE -> BE : POST /api/v1/consultations/end (Sesi ID)
+    Mitra -> FE ++ : Klik Akhiri Sesi Konsultasi
+    FE -> BE ++ : POST /api/v1/consultations/end (Sesi ID)
     BE -> BE ++ : Tutup Ruang Chat & Simpan Metadata Transaksi
     BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (Session Closed)
+    FE --> Mitra : Konfirmasi Sesi Selesai
+    deactivate FE
 end
-BE -> FE : Trigger Rating & Ulasan Modal (J-UC06)
+BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+FE --> Klien : Tampilkan Modal Ulasan & Rating
+deactivate FE
 
 alt Transaksi Menggunakan Uang Tunai PG / Split Payment (Ada Uang Tunai Escrow)
     BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
@@ -298,8 +323,6 @@ else Transaksi 100% Virtual Token / Uang-Uangan (Tanpa Escrow Tunai)
     BE --> BE -- : Return Computed Result / State
 end
 
-deactivate BE
-deactivate FE
 deactivate Klien
 deactivate Mitra
 @enduml
