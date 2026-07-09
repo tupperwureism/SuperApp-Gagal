@@ -652,14 +652,29 @@ DB --> BE -- : Success Insert Note
 alt Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable (CLIENT_SHARED)
     BE -> DB ++ : UPDATE irac_notes SET access_level = 'SHARED' WHERE id = note_id
     DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE -> FE ++ : Trigger Push Notification "Catatan Sesi IRAC Telah Dibagikan"
-    FE --> Klien : Tampilkan Ringkasan Catatan Sesi di Dasbor Klien
+    BE -> FE ++ : Trigger Push Notification "Laporan Konsultasi Hukum Telah Dibagikan"
+    FE --> Klien : Tampilkan Ringkasan & Rekomendasi Hukum di Dasbor Klien
     deactivate FE
-    alt Klien Menyetujui IRAC Note ATAU SLA 2x24 Jam Habis (Deliverable Approved)
-        BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
-        BE --> BE -- : Return Computed Result / State
-        BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
-        DB --> BE -- : 200 OK
+    
+    loop [Siklus Klarifikasi / Revisi Catatan Sesi - Selama Klien Meminta Klarifikasi & SLA Belum Habis]
+        alt Klien Meminta Klarifikasi / Revisi Catatan
+            Klien -> FE : Kirim Permintaan Klarifikasi / Tambahan Penjelasan
+            FE -> BE ++ : POST /api/v1/advocate/notes/irac/clarify
+            BE --> FE -- : 200 OK
+            FE --> Klien : Permintaan Klarifikasi Terkirim ke Advokat
+            note over Klien, BE : [REPEAT LOOP] Advokat memperbarui poin penjelasan / rekomendasi v2
+        else Klien Menyetujui Laporan Konsultasi ATAU SLA 2x24 Jam Habis (Deliverable Approved)
+            break [BREAK LOOP] Laporan Disetujui / SLA Habis -> Keluar dari Siklus
+                Klien -> FE : Klik Setujui & Terima Laporan Konsultasi
+                FE -> BE ++ : POST /api/v1/advocate/notes/irac/approve
+                BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+                BE --> BE -- : Return Computed Result / State
+                BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+                DB --> BE -- : 200 OK
+                BE --> FE -- : 200 Approved
+                FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
+            end
+        end
     end
 else Status Privasi == Internal Advokat (INTERNAL_ONLY - Work Product Privilege)
     BE -> DB ++ : UPDATE irac_notes SET access_level = 'INTERNAL_ONLY' WHERE id = note_id

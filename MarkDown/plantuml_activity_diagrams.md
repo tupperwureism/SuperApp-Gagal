@@ -401,9 +401,9 @@ title Activity Diagram: AD-J-06 - Membuat & Memfinalisasi Draf Kontrak Hukum Ber
 start
 :Buka Menu "Generator Draf Hukum / Legal Opinion";
 :Pilih Template Dokumen (Surat Somasi / Perjanjian / LO);
-:Isi Klausul Hukum & Identitas Para Pihak;
 repeat
   |Advokat Justifiqa|
+  :Isi / Perbarui Klausul Hukum & Identitas Para Pihak (Drafting v1 / Revisi v2/v3);
   :Simpan & Review Versi Draf (Versioning v1/v2/v3);
   if (Apakah Dokumen Memerlukan Pembubuhan e-Meterai?) then (Ya - Perlu e-Meterai)
     :Klik Tombol "Finalisasi Dokumen & Bubuhkan e-Meterai Resmi";
