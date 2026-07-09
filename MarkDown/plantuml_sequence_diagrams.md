@@ -174,62 +174,72 @@ participant "Payment Gateway" as PG
 actor "Advokat Justifiqa" as Mitra
 
 activate Klien
-Klien -> FE ++ : Pilih Advokat, Jadwal Sesi, & Klik Reservasi
-FE -> BE ++ : POST /api/v1/consultations/book (Advokat ID, Slot, use_promo=true)
-BE -> BE ++ : Periksa Saldo Promo Credit Klien (Welcome Bonus Rp100.000)
-BE --> BE -- : Return Promo Credit Balance
+Klien -> FE ++ : Pilih Level Konsultasi (Gratis / Premium / Pro), Advokat, & Slot
+FE -> BE ++ : POST /api/v1/consultations/book (tier, advocate_id, slot, use_promo=true)
 
-alt Saldo Promo Mencukupi 100% Tagihan (Full Promo Credit)
-    BE -> BE ++ : Potong Saldo Promo & Alokasikan Subsidi Platform ke Escrow Sementara
+alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
+    BE -> BE ++ : Create Triage Session (fee = Rp0, duration = 15m, no_escrow)
     BE --> BE -- : Return Computed Result / State
-    BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-    BE --> BE -- : Return Computed Result / State
-    BE --> FE : 200 OK (Reservasi Terkonfirmasi via Promo Credit)
-    FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
+    BE --> FE : 200 OK (Sesi Triage Gratis Terkonfirmasi)
+    FE --> Klien : Buka Ruang Chat E2EE Langsung (Maks 15 Menit)
     activate Mitra
-    BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
-    opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
-        BE -> BE ++ : Potong Saldo Promo Klien (Subsidi Platform)
+    BE -> Mitra : Push Notification Sesi Triage Baru (Advokat Muda/Paralegal)
+else Level Konsultasi = Premium / Pro (Berbayar via Promo Credit / PG)
+    BE -> BE ++ : Periksa Saldo Promo Credit Klien (Welcome Bonus Rp100.000)
+    BE --> BE -- : Return Promo Credit Balance
+
+    alt Saldo Promo Mencukupi 100% Tagihan (Full Promo Credit)
+        BE -> BE ++ : Potong Saldo Promo & Alokasikan Subsidi Platform ke Escrow Sementara
         BE --> BE -- : Return Computed Result / State
-    end
-    BE -> PG ++ : Create Payment Invoice untuk Nominal Sisa / Penuh
-    PG --> BE -- : Return Invoice URL & VA Number
-    BE --> FE -- : Return Billing Detail (Nominal Sisa / Penuh)
-    FE --> Klien : Tampilkan Halaman Pembayaran PG
-
-    loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
-        Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
-
-        alt Webhook Status Transaksi = PAID / SUCCESS
-            PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
-            BE -> BE ++ : Tahan Dana Pembayaran PG ke Rekening Escrow Sementara
+        BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+        BE --> BE -- : Return Computed Result / State
+        BE --> FE : 200 OK (Reservasi Terkonfirmasi via Promo Credit)
+        FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
+        activate Mitra
+        BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+    else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
+        opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
+            BE -> BE ++ : Potong Saldo Promo Klien (Subsidi Platform)
             BE --> BE -- : Return Computed Result / State
-            BE -> BE ++ : Update Booking Status = TERKONFIRMASI
-            BE --> BE -- : Return Computed Result / State
-            BE --> PG -- : 200 OK (Webhook Processed)
-            BE -> FE : Push Notification Pembayaran Sukses
-            FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
-            activate Mitra
-            BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
-            note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
-        else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
-            PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
-            BE -> BE ++ : Rollback Saldo Promo Credit Klien & Cancel Invoice
-            BE --> BE -- : Return Computed Result / State
-            BE --> PG -- : 200 OK (Webhook Processed)
-            BE -> FE : Push Notification Pembayaran Gagal / Kadaluwarsa
-            FE --> Klien : Tampilkan Error Pembayaran Gagal
-        
-        opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
-            Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
-            FE -> BE : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
-            BE -> PG ++ : Create New Payment Invoice & VA Number
-            PG --> BE -- : Return New Invoice URL & VA Number
-            BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
-            FE --> Klien : Tampilkan Halaman Pembayaran Baru
         end
-        note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
+        BE -> PG ++ : Create Payment Invoice untuk Nominal Sisa / Penuh
+        PG --> BE -- : Return Invoice URL & VA Number
+        BE --> FE -- : Return Billing Detail (Nominal Sisa / Penuh)
+        FE --> Klien : Tampilkan Halaman Pembayaran PG
+
+        loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+            Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
+
+            alt Webhook Status Transaksi = PAID / SUCCESS
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+                BE -> BE ++ : Tahan Dana Pembayaran PG ke Rekening Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                BE -> FE : Push Notification Pembayaran Sukses
+                FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
+                activate Mitra
+                BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+                note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
+            else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+                BE -> BE ++ : Rollback Saldo Promo Credit Klien & Cancel Invoice
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                BE -> FE : Push Notification Pembayaran Gagal / Kadaluwarsa
+                FE --> Klien : Tampilkan Error Pembayaran Gagal
+            
+            opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+                Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+                FE -> BE : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+                BE -> PG ++ : Create New Payment Invoice & VA Number
+                PG --> BE -- : Return New Invoice URL & VA Number
+                BE --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
+                FE --> Klien : Tampilkan Halaman Pembayaran Baru
+            end
+            note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
+        end
     end
 end
 

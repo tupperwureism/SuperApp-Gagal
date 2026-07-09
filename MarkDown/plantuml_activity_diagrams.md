@@ -151,14 +151,39 @@ endif
 |Klien Justifiqa|
 start
 :Buka Katalog Advokat & Notaris;
-:Filter Spesialisasi (Pidana, Perdata, Bisnis, Pertanahan);
---> (A)
-|Klien Justifiqa|
-:Pilih Advokat & Pilih Jadwal Konsultasi;
-:Klik Konfirmasi Reservasi;
+:Filter Spesialisasi & Pilih Level Konsultasi (Gratis / Premium / Pro);
 
-|Backend Independen Justifiqa|
-:Hitung Biaya & Periksa Saldo Dompet Promo (Welcome Bonus Credit Rp 100.000);
+if (Apakah Level Konsultasi = Gratisan / Legal Triage?) then (Ya - Rp 0)
+  :Pilih Sesi Triage 15 Menit (Advokat Muda / Paralegal);
+  |Backend Independen Justifiqa|
+  :Buka Ruang Chat E2EE Langsung (Tanpa Invoice / Escrow);
+  :Mulai Countdown Timer Triage (Maks 15 Menit Text Chat);
+  
+  fork
+    |Advokat Justifiqa|
+    :Memberikan Jawaban Dasar / Orientasi Hukum;
+  fork again
+    |Klien Justifiqa|
+    :Mengajukan Pertanyaan Dasar / Ringan;
+  end fork
+  
+  |Backend Independen Justifiqa|
+  :Akhiri Sesi Triage 15 Menit;
+  if (Apakah Klien Membutuhkan Analisis Kasus Lanjutan?) then (Ya - Upgrade Premium/Pro)
+    --> (A)
+    detach
+  else (Tidak - Selesai)
+    :Arahkan Klien ke Modul Ulasan & Rating;
+    stop
+  endif
+else (Tidak - Konsultasi Premium / Pro)
+  --> (A)
+  |Klien Justifiqa|
+  :Pilih Advokat Sesuai Tier (Reguler / Senior Partner) & Jadwal Sesi;
+  :Klik Konfirmasi Reservasi;
+
+  |Backend Independen Justifiqa|
+  :Hitung Biaya Sesuai Tier & Periksa Saldo Dompet Promo (Welcome Bonus Rp 100.000);
 if (Apakah Saldo Promo Credit Mencukupi 100% Tagihan?) then (Ya - Full Promo Credit)
   :Potong Saldo Dompet Promo Klien;
   :Alokasikan Dana Subsidi Platform ke Rekening Escrow Sementara;
