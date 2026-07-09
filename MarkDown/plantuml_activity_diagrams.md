@@ -250,17 +250,6 @@ endif
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
   :Cairkan Dana Escrow ke Saldo Advokat (Potong Fee & PPh 21);
   stop
-else (Tidak - Gagal / Kadaluwarsa)
-  |Backend Independen Justifiqa|
-  :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal atau Kadaluwarsa";
-  
-  |Klien Justifiqa|
-  if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
-    --> (A)
-    detach
-  else (Tidak)
-    stop
-  endif
 endif
 @enduml
 ```
