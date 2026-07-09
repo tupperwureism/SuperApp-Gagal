@@ -153,24 +153,52 @@ start
 :Buka Katalog Advokat & Notaris;
 :Filter Spesialisasi (Pidana, Perdata, Bisnis, Pertanahan);
 --> (A)
+|Klien Justifiqa|
 :Pilih Advokat & Pilih Jadwal Konsultasi;
 :Klik Konfirmasi Reservasi;
 
 |Backend Independen Justifiqa|
-:Buat Tagihan (Invoice) & Kirim ke Payment Gateway;
+:Hitung Biaya & Periksa Saldo Dompet Promo (Welcome Bonus Credit Rp 100.000);
+if (Apakah Saldo Promo Credit Mencukupi 100% Tagihan?) then (Ya - Full Promo Credit)
+  :Potong Saldo Dompet Promo Klien;
+  :Alokasikan Dana Subsidi Platform ke Rekening Escrow Sementara;
+else (Tidak - Bayar Penuh / Split Payment)
+  if (Apakah Klien Menggunakan Sebagian Promo Credit?) then (Ya - Split Payment)
+    :Potong Saldo Promo Credit Klien (Subsidi Platform);
+    :Buat Tagihan Sisa (Invoice) & Kirim ke Payment Gateway;
+  else (Tidak - Bayar 100% via PG)
+    :Buat Tagihan Penuh (Invoice) & Kirim ke Payment Gateway;
+  endif
+  
+  |Payment Gateway|
+  :Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
+  
+  |Klien Justifiqa|
+  :Lakukan Pembayaran Sesuai Nominal Sisa / Penuh;
+  
+  |Payment Gateway|
+  if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
+    |Backend Independen Justifiqa|
+    :Alokasikan Dana Pembayaran PG ke Rekening Escrow Sementara;
+  else (Tidak - Gagal / Kadaluwarsa)
+    |Backend Independen Justifiqa|
+    :Kembalikan Saldo Promo Credit Klien (Rollback);
+    :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal";
+    
+    |Klien Justifiqa|
+    if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
+      --> (A)
+      detach
+    else (Tidak)
+      stop
+    endif
+  endif
+endif
 
-|Payment Gateway|
-:Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
-
-|Klien Justifiqa|
-:Lakukan Pembayaran Sesuai Nominal;
-
-|Payment Gateway|
-if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
-  |Backend Independen Justifiqa|
-  :Tahan Dana di Rekening Escrow Sementara;
-  :Ubah Status Reservasi Jadi TERKONFIRMASI;
-  :Kirim Pengingat Jadwal ke Advokat & Klien;
+|Backend Independen Justifiqa|
+:Tahan Total Dana Konsultasi di Rekening Escrow Sementara;
+:Ubah Status Reservasi Jadi TERKONFIRMASI;
+:Kirim Pengingat Jadwal ke Advokat & Klien;
   
   fork
     |Advokat Justifiqa|
