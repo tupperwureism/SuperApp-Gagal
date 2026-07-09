@@ -287,18 +287,15 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         BE -> BE ++ : DLP Engine Scan (Deteksi Pola Bypass Offline / Kontak Pribadi)
         BE --> BE -- : Return DLP Scan Decision
 
-        alt DLP Terdeteksi Ajakan Ketemuan Offline Ilegal / Bypass Platform
-            BE -> BE ++ : Masking Nomor/Alamat & Catat Pelanggaran Platform Leakage
+        alt DLP Terdeteksi Ajakan Ketemuan Offline Ilegal / Bypass Platform (Level 1)
+            BE -> BE ++ : Drop Message Secara Real-Time (Pesan Tidak Diteruskan ke Lawan Bicara)
             BE --> BE -- : Return Computed Result / State
-            BE --> FE -- : 403 Forbidden / Warning Security Alert
-            FE --> Klien : Tampilkan Peringatan Larangan Transaksi Di Luar Platform
-            deactivate FE
-            BE -> FE ++ : Push Alert Pelanggaran ke Advokat
-            FE --> Mitra : Tampilkan Peringatan Pelanggaran SLA & Ketentuan
+            BE --> FE -- : 403 Forbidden / Red Security Alert
+            FE --> Klien : Tampilkan Peringatan Keras Pengiriman Kontak Pribadi Ditolak
             deactivate FE
 
-            opt Akumulasi Pelanggaran >= 2x (Residivis Bypass)
-                BE -> BE ++ : Bekukan Sesi Chat & Tahan Escrow Sementara
+            opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
+                BE -> BE ++ : Bekukan Sesi Chat Permanen & Tahan Escrow Sementara
                 BE --> BE -- : Return Computed Result / State
                 BE -> BE ++ : Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21)
                 BE --> BE -- : Return Computed Result / State

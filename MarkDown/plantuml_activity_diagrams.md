@@ -266,13 +266,13 @@ else (Tidak - Konsultasi Premium / Pro)
     |Backend Independen Justifiqa|
     :Periksa Isi Pesan via DLP Circumvention Filter (Deteksi Kontak Pribadi / Ajakan Bypass Offline Ilegal);
     if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Nomor Luar Sistem?) then (Ya - Pelanggaran)
-      :Kirim Peringatan Keamanan & Sensor Informasi Kontak (Masking);
-      :Catat Strike Pelanggaran Platform Leakage pada Profil Mitra;
-      if (Akumulasi Pelanggaran >= 2x?) then (Ya - Suspend & Hold Escrow)
-        :Bekukan Sesi & Tahan Dana Escrow Sementara;
-        :Eskalasi Laporan Pelanggaran ke Admin Legal Compliance (J-UC21);
+      :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara Tidak Menerima);
+      :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
+      if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
+        :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
+        :Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21);
         stop
-      else (Tidak - Peringatan Pertama)
+      else (Tidak - Level 1 Block)
       endif
     else (Tidak - Aman)
     endif

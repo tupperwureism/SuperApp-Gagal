@@ -45,12 +45,11 @@ Sebelum Klien dan Advokat dapat membuka ruang obrolan E2EE (`J-UC03`), kedua bel
 2. **Persetujuan DLP Security Scan**: Sepakat bahwa sistem berhak mengoperasikan pemindaian **DLP (*Data Loss Prevention*) Circumvention Filter** pada pertukaran teks/meta untuk mendeteksi pola nomor telepon/kontak pribadi ilegal dan upaya *bypass* tagihan.
 3. **Pembatalan Garansi & Pelepasan Tanggung Jawab (*Liability Disclaimer*)**: Segala bentuk penipuan, malpraktik, atau sengketa yang timbul akibat pertemuan/transaksi di luar platform secara otomatis **membatalkan hak Klaim Refund Escrow 100%** dan membebaskan Justifiqa dari segala tuntutan hukum.
 
-#### 2. Matriks Eskalasi Pelanggaran Platform Leakage (DLP Enforcement Matrix)
+#### 2. Matriks Penegakan Zero-Tolerance Anti-Bypass (2-Tier Enforcement Matrix)
 | Tingkat Pelanggaran | Kondisi Pemicu (DLP Filter) | Tindakan Sistem Otomatis | Sanksi & Eskalasi Hukum |
 | :--- | :--- | :--- | :--- |
-| **Strike 1 (Warning)** | Terdeteksi pola nomor telepon luar/ajakan ketemuan offline liar pertama kali | 1. Masking/penyensoran otomatis string kontak.<br>2. Menampilkan *In-Chat Security Warning Banner* kepada Klien & Advokat. | Peringatan tercatat pada profil Advokat (*Internal Audit Log*). |
-| **Strike 2 (Temporary Freeze)** | Mengulangi ajakan *bypass* / bertukar kontak luar setelah peringatan | 1. Sesi obrolan dibekukan sementara (*Chat Freeze*).<br>2. Penahanan sementara dana Escrow pada Rekening Penampungan. | Pembuatan tiket investigasi otomatis ke **Admin Legal Compliance (`J-UC21`)**. |
-| **Strike 3 (Sanction & Suspend)** | Residivis terbukti melakukan pengalihan transaksi luar platform | 1. Penghentian sesi permanen.<br>2. Pembatalan pencairan Escrow ke Advokat (refund ke Klien atau hold sesuai keputusan etik). | **Pembekuan Akun Advokat (Suspension)** & pelaporan ke Komisi Pengawas Etik Mitra Justifiqa. |
+| **Level 1 (Percobaan Pertama — Instant Block & Mask)** | Terdeteksi string kontak (no. HP, WA, email, link luar) atau kalimat ajakan transaksi offline luar sistem | 1. **Pesan diblokir / dicegat secara real-time (*Message Dropped*)** — lawan bicara **TIDAK MENERIMA** nomor atau ajakan tersebut.<br>2. Tampilkan *Red Security Alert* kepada pengirim. | Catatan percobaan pelanggaran pada *Internal Audit Log* Mitra/Klien. |
+| **Level 2 (Percobaan Kedua / Evasion — Instant Freeze & Suspend)** | Pengirim mencoba mengulangi atau mengakali blokir (misal *obfuscation*: "kosong delapan satu dua...") | 1. **Sesi obrolan langsung dibekukan permanen (*Instant Session Freeze*)**.<br>2. Dana Escrow ditahan (*Escrow Hold*). | 1. Eskalasi otomatis ke **Admin Legal Compliance (`J-UC21`)**.<br>2. **Pembekuan Akun Mitra (*Account Suspension*) / Blacklist Klien**. |
 
 ---
 
