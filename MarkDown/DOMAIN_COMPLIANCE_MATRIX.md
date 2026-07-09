@@ -66,3 +66,32 @@ Sesuai amanat **UU PDP No. 27 Tahun 2022 Pasal 26 & Pasal 46**, seluruh data sen
 1. **Pusat Data Utama (*Primary Database*)**: Terletak di *Cloud Data Center* wilayah Indonesia (AWS Region Jakarta `ap-southeast-3` atau GCP Jakarta `asia-southeast2`).
 2. **WORM Storage Vault**: Penyimpanan log forensik ber-hash SHA-256 abadi berada pada *Object Storage Lock (Compliance Mode)* di Indonesia.
 3. **Pengecualian CDN Asset Publik**: Hanya aset statis publik tanpa PII/PHI (seperti gambar antarmuka, berkas suara meditasi MP3, dan *stylesheet* antarmuka) yang diizinkan menggunakan *Global CDN* (Cloudflare/CloudFront).
+
+---
+
+## BAGIAN III: CORE GOVERNANCE & ARCHITECTURAL GUARDRAILS (JUSTIFIQA COMPLIANCE FRAMEWORK)
+
+Seluruh perancangan diagram alur (`AD`), diagram interaksi (`SD`), dan implementasi kode Justifiqa **WAJIB** tunduk pada 4 pilar tata kelola arsitektur berikut:
+
+### 3.1 Prinsip Persetujuan Ganda (*4-Eyes Principle / Dual-Sign-Off Rule*)
+Untuk mencegah penyalahgunaan wewenang sepihak (*unilateral abuse of power*), kesalahan mitigasi, dan menjaga *Due Process of Law*, seluruh tindakan administratif berdampak tinggi **DILARANG KERAS** dieksekusi oleh satu aktor admin tunggal.
+| Tindakan Kritis (*High-Impact Action*) | Aktor Inisiator (*Maker / Tahap 1*) | Aktor Validator (*Checker / Approver Tahap 2*) | Bukti Audit yang Wajib Dilampirkan |
+| :--- | :--- | :--- | :--- |
+| **Penjatuhan Sanksi Suspend Akun (`AD/SD-J-21`)** | Admin Legal Investigasi | Supervisor Legal / Komite Etik | Hash SHA-256 Surat Teguran & Bukti Forensik Pelanggaran Berat |
+| **Pencairan / Rollback Darurat Dana Escrow** | Admin Keuangan (*Finance Maker*) | Manajer Keuangan (*Finance Checker*) | Berita Acara Sengketa & Tiket Resolusi Dispute |
+| **Pencabutan / Pembatalan Sanksi Advokat** | Admin Legal | Dewan Kehormatan / Compliance Head | Berita Acara Klarifikasi / Putusan Banding |
+
+### 3.2 Regulasi Waktu Konsultasi Daring (*Fair-Clock & Smart SLA Engine*)
+Untuk mencegah manipulasi waktu konsultasi (*stalling tactics*) dan melindungi hak konsumen hukum:
+1. **Trigger Mulai Sesi (*Active Session Trigger*)**: Timer konsultasi (45–90 menit) **tidak boleh berdetak** sebelum Advokat mengirimkan respons pertama yang substansial di ruang obrolan E2EE.
+2. **Jeda Otomatis SLA 5 Menit (*Auto-Pause SLA*)**: Jika Advokat tidak merespons pertanyaan Klien dalam durasi $> 5$ menit, sistem otomatis **menjeda (*PAUSE*)** timer utama sesi.
+3. **Penalti Pengabaian Sesi (*AFK Abandonment Clause*)**: Jika Advokat tidak aktif selama $> 15$ menit tanpa persetujuan penundaan, Klien berhak mengklaim pengembalian dana Escrow 100% secara otomatis.
+
+### 3.3 Kepatuhan Sesi Tatap Muka (*Offline Consultation QR-Code Handshake*)
+Untuk memitigasi kebocoran transaksi di luar sistem (*Platform Leakage*) pada layanan Tier Premium & Pro:
+* **Verifikasi Kehadiran Fisik**: Sesi konsultasi offline wajib dipicu melalui pemindaian **QR Code Check-in** di lokasi kantor hukum resmi/mitra terverifikasi.
+* **Pelepasan Escrow Berbasis QR**: Pencairan dana Escrow konsultasi offline hanya sah jika telah terjadi pemindaian ganda (*Dual QR Check-in & Check-out*).
+
+### 3.4 Akuntansi Terpisah Token Virtual vs. Tunai Escrow (*Dual-Bucket Ledger*)
+* **Uang Tunai Rupiah via Payment Gateway**: Dicatat pada Rekening Escrow Sementara $\rightarrow$ Dicairkan ke Saldo Dompet Tunai Advokat (*Cashable Withdrawal*).
+* **Token Virtual / Uang-Uangan (*Promo Welcome Credit*)**: Dicatat pada *Virtual Token Ledger* $\rightarrow$ Dikreditkan sebagai **Poin/Token Internal Non-Tunai (*Non-Cashable Reputation / In-App Reward*)**. Advokat tidak dapat mencairkan token virtual menjadi uang Rupiah.
