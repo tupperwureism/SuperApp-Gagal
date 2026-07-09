@@ -281,8 +281,33 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     FE --> Mitra : Tampilkan Timer Sesi Aktif
     deactivate FE
 
-    loop [Interaksi Dua Arah & Monitoring SLA Balasan]
-        Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
+    loop [Interaksi Dua Arah, DLP Circumvention Filter & Monitoring SLA Balasan]
+        Klien -> FE ++ : Kirim Pesan Teks / Audio / Video
+        FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
+        BE -> BE ++ : DLP Engine Scan (Deteksi Pola Bypass Offline / Kontak Pribadi)
+        BE --> BE -- : Return DLP Scan Decision
+
+        alt DLP Terdeteksi Ajakan Ketemuan Offline Ilegal / Bypass Platform
+            BE -> BE ++ : Masking Nomor/Alamat & Catat Pelanggaran Platform Leakage
+            BE --> BE -- : Return Computed Result / State
+            BE --> FE -- : 403 Forbidden / Warning Security Alert
+            FE --> Klien : Tampilkan Peringatan Larangan Transaksi Di Luar Platform
+            deactivate FE
+            BE -> FE ++ : Push Alert Pelanggaran ke Advokat
+            FE --> Mitra : Tampilkan Peringatan Pelanggaran SLA & Ketentuan
+            deactivate FE
+
+            opt Akumulasi Pelanggaran >= 2x (Residivis Bypass)
+                BE -> BE ++ : Bekukan Sesi Chat & Tahan Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21)
+                BE --> BE -- : Return Computed Result / State
+            end
+        else Pesan Aman / Valid (Lolos DLP)
+            BE --> FE -- : 200 OK (Message Delivered)
+            FE --> Mitra : Tampilkan Pesan Chat
+            deactivate FE
+        end
         
         alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
             BE -> BE ++ : Jeda Sementara (PAUSE) Countdown Timer & Kirim Push Alert SLA ke Advokat

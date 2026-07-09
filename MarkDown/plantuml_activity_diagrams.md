@@ -264,6 +264,19 @@ else (Tidak - Konsultasi Premium / Pro)
     end fork
     
     |Backend Independen Justifiqa|
+    :Periksa Isi Pesan via DLP Circumvention Filter (Deteksi Kontak Pribadi / Ajakan Bypass Offline Ilegal);
+    if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Nomor Luar Sistem?) then (Ya - Pelanggaran)
+      :Kirim Peringatan Keamanan & Sensor Informasi Kontak (Masking);
+      :Catat Strike Pelanggaran Platform Leakage pada Profil Mitra;
+      if (Akumulasi Pelanggaran >= 2x?) then (Ya - Suspend & Hold Escrow)
+        :Bekukan Sesi & Tahan Dana Escrow Sementara;
+        :Eskalasi Laporan Pelanggaran ke Admin Legal Compliance (J-UC21);
+        stop
+      else (Tidak - Peringatan Pertama)
+      endif
+    else (Tidak - Aman)
+    endif
+
     if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
       :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
       if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
