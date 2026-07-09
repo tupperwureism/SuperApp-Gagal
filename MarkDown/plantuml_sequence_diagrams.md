@@ -256,8 +256,17 @@ FE -> BE ++ : POST /api/v1/consultations/end (Sesi ID)
 BE -> BE ++ : Tutup Ruang Chat & Simpan Metadata Transaksi
 BE --> BE -- : Return Computed Result / State
 BE -> FE : Trigger Rating & Ulasan Modal (J-UC06)
-BE -> BE ++ : Cairkan Dana Escrow ke Saldo Advokat (Potong Fee 25% & PPh 21)
-BE --> BE -- : Return Computed Result / State
+
+alt Transaksi Menggunakan Uang Tunai PG / Split Payment (Ada Uang Tunai Escrow)
+    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+    BE --> BE -- : Return Computed Result / State
+    BE -> BE ++ : Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit)
+    BE --> BE -- : Return Computed Result / State
+else Transaksi 100% Virtual Token / Uang-Uangan (Tanpa Escrow Tunai)
+    BE -> BE ++ : Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit / Reputasi)
+    BE --> BE -- : Return Computed Result / State
+end
+
 deactivate BE
 deactivate FE
 deactivate Klien
