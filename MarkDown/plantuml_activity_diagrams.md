@@ -310,34 +310,54 @@ else (Tidak - Konsultasi Premium / Pro)
     :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
   else (Tidak - Premium / Pro Berbayar Escrow)
     if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
-      repeat
-        |Advokat Justifiqa|
-        :Susun / Perbarui Dokumen Laporan Saran Hukum (Client Advice Summary);
-        :Unggah Dokumen ke Dasbor Ruang Kerja Asinkron;
-        |Klien Justifiqa|
-        :Review & Verifikasi Laporan di Ruang Kerja Asinkron;
-      repeat while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Klarifikasi Terbatas)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
-        :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
-      else (Tidak - Disetujui Klien)
+      |Advokat Justifiqa|
+      :Susun Dokumen Laporan Saran Hukum (Client Advice Summary v1);
+      :Unggah Laporan ke Dasbor Klien;
+      |Klien Justifiqa|
+      :Review Laporan Saran Hukum di Dasbor;
+      if (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] di Ruang Kerja Asinkron?) then (Ya - Gunakan Ruang Asinkron)
+        repeat
+          |Klien Justifiqa|
+          :Kirim Pertanyaan Klarifikasi Terbatas;
+          |Advokat Justifiqa|
+          :Berikan Jawaban Penjelasan / Perbarui Laporan;
+          |Klien Justifiqa|
+          :Review Jawaban / Laporan Pembaruan;
+        repeat while (Apakah Klien Masih Mengajukan Klarifikasi & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Klarifikasi)
+        |Backend Independen Justifiqa|
+        :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+        if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
+          :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
+        else (Tidak - Disetujui Klien)
+        endif
+      else (Tidak - Langsung Setuju / Laporan Diterima)
       endif
+      |Backend Independen Justifiqa|
       :Disetujui Klien ATAU SLA 2x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     else (Tier 3 Pro - Legal Drafting / Opinion)
-      repeat
-        |Advokat Justifiqa|
-        :Susun / Perbarui Draf Dokumen Hukum Final (Drafting v1 / Revisi v2);
-        :Unggah Dokumen Hukum Final ke Dasbor Ruang Kerja Asinkron;
-        |Klien Justifiqa|
-        :Review & Verifikasi Draf Dokumen Hukum;
-      repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Lanjut Revisi Terbatas)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
-        :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
-      else (Tidak - Disetujui Klien)
+      |Advokat Justifiqa|
+      :Susun Draf Dokumen Hukum Final (Drafting v1);
+      :Unggah Draf Dokumen ke Dasbor Klien;
+      |Klien Justifiqa|
+      :Review Draf Dokumen Hukum di Dasbor;
+      if (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Ruang Kerja Asinkron?) then (Ya - Gunakan Ruang Asinkron)
+        repeat
+          |Klien Justifiqa|
+          :Kirim Catatan Revisi Klausul Terbatas;
+          |Advokat Justifiqa|
+          :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
+          |Klien Justifiqa|
+          :Review Draf Revisi Terbaru;
+        repeat while (Apakah Klien Masih Mengajukan Revisi & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Lanjut Revisi)
+        |Backend Independen Justifiqa|
+        :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+        if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
+          :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
+        else (Tidak - Disetujui Klien)
+        endif
+      else (Tidak - Langsung Setuju / Draf Diterima)
       endif
+      |Backend Independen Justifiqa|
       :Disetujui Klien ATAU SLA 3x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     endif
   endif
