@@ -585,8 +585,14 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
     else Pelanggaran Berat / Kritis (Due Process Suspend)
         Admin -> FE : Klik "🛑 Suspend Akun & Kirim Panggilan Klarifikasi"
         FE -> BE ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}
-        BE -> DB ++ : UPDATE advocate_accounts SET status = 'SUSPENDED'
+        BE -> DB ++ : UPDATE advocate_accounts SET status = 'SUSPENDED', catalog = 'UNLISTED'
         DB --> BE -- : 200 OK (Success / Rows Affected)
+        alt Mitra Sedang Dalam Sesi Konsultasi Aktif (IN_PROGRESS)
+            BE -> DB ++ : Tahan Dana Escrow Sesi Aktif (status = 'FROZEN_IN_ESCROW')
+            DB --> BE -- : 200 OK (Graceful Finish Allowed)
+        end
+        BE -> DB ++ : Batalkan Reservasi Mendatang & Auto-Refund 100% Dana Klien
+        DB --> BE -- : 200 OK (Refund Processed)
         BE -> WORM ++ : Generate & Simpan Surat Panggilan (Stempel Hash SHA-256)
         WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
         BE -> DB ++ : Aktifkan Timer Countdown Masa Sanggah 14 Hari Kerja

@@ -464,7 +464,13 @@ if (Apakah Bukti Permulaan Sah & Terverifikasi SHA-256?) then (Ya - Bukti Valid)
     :Klik Tombol "🛑 Suspend Akun & Kirim Panggilan Klarifikasi";
     
     |Backend Independen Justifiqa|
-    :Ubah Status Akun Terlapor Jadi SUSPENDED (Sementara);
+    :Ubah Status Akun Terlapor Jadi SUSPENDED & Sembunyikan Katalog (UNLISTED);
+    if (Apakah Mitra Sedang Dalam Sesi Konsultasi Aktif?) then (Ya - IN_PROGRESS)
+      :Biarkan Sesi Aktif Berlangsung Hingga Selesai (Graceful Finish);
+      :Tahan Dana Escrow Sesi Aktif (Frozen in Escrow);
+    else (Tidak - Idle)
+    endif
+    :Batalkan Seluruh Reservasi Mendatang & Auto-Refund 100% Dana Klien;
     :Generate Surat Panggilan & Stempel Hash SHA-256 ke WORM Storage;
     :Aktifkan Timer Countdown Masa Sanggah/Banding (14 Hari Kerja);
     :Kirim Email, SMS, & Push Notifikasi Surat Panggilan ke Advokat;
