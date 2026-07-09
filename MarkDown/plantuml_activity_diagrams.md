@@ -649,7 +649,7 @@ stop
 title Activity Diagram: AD-J-10 - Moderasi Akun & Due Process Suspend Admin Justifiqa (J-UC17)
 |Admin Legal Justifiqa / Behavioral Fraud Engine|
 start
-:Buka Menu "Moderasi & Laporan Pelanggaran Etik" ATAU Terima Trigger Otomatis Anomali Perilaku (Drop-Off < 5 Menit / Evasion Fraud);
+:Buka Antrean Investigasi Moderasi (Menerima Laporan Klien J-UC21 ATAU Security Alert Otomatis DLP Backend);
 :Pilih Akun Advokat Terlapor & Periksa Barang Bukti WORM SHA-256 / Log Anomali;
 
 if (Apakah Bukti Permulaan Sah / Skor Anomali Kritis Terverifikasi?) then (Ya - Bukti Valid)

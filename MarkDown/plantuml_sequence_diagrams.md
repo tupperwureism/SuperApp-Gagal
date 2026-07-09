@@ -861,7 +861,7 @@ database "WORM Hash Storage" as WORM
 actor "Advokat Terlapor" as Mitra
 
 activate Admin
-Admin -> FE ++ : Buka Tab Laporan Pelanggaran Etik / Hukum (atau Sistem Menerima Trigger Anomali Fraud)
+Admin -> FE ++ : Buka Antrean Investigasi Moderasi (Menerima Laporan Klien J-UC21 ATAU Security Alert DLP Backend)
 FE -> BE ++ : GET /api/v1/admin/moderation/reports
 BE --> FE -- : Return Daftar Laporan & Bukti WORM SHA-256 / Log Anomali
 FE --> Admin : Tampilkan Daftar Laporan & Bukti SHA-256
