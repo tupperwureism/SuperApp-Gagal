@@ -468,9 +468,14 @@ repeat
     |Klien Justifiqa|
     :Terima & Unduh Dokumen Hukum di Asynchronous Deliverable Thread;
   end fork
-repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Async Thread (Lolos DLP) & SLA 3x24 Jam Belum Habis?) is (Ya - Butuh Revisi Draf v2/v3)
+repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] di Async Thread (Lolos DLP) & Kuota Putaran Revisi < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Butuh Revisi Draf v2/v3)
 
 |Backend Independen Justifiqa|
+:Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
+  :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
+else (Tidak - Disetujui Klien)
+endif
 :Dokumen Final Disetujui Klien ATAU SLA 3x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
 :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
 stop

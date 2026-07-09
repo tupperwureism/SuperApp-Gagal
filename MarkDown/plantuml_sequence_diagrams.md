@@ -581,14 +581,14 @@ BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
 FE --> Mitra : Render & Simpan File PDF Bermeterai
 
 activate Klien
-loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi]
+loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi & Kuota < 2x]
     BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
     Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
     FE -> BE ++ : GET /api/v1/documents/{id}/download
     BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
     FE --> Klien : Render File PDF Bermeterai
     
-    alt Klien Meminta Revisi Draf Kontrak di Asynchronous Deliverable Thread
+    alt Klien Meminta Revisi Draf Kontrak di Asynchronous Deliverable Thread (Putaran < 2x)
         Klien -> FE : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
         FE -> BE ++ : POST /api/v1/documents/{id}/async-thread/revise
         BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
@@ -596,8 +596,15 @@ loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi]
         BE --> FE -- : 200 OK
         FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
         note over Klien, BE : [REPEAT LOOP] Advokat memproses revisi dan mengunggah draf v2/v3
-    else Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
-        break [BREAK LOOP] Dokumen Final Disetujui / SLA Habis -> Keluar dari Siklus Revisi
+    else Klien Menyetujui Dokumen Final ATAU Kuota 2x Habis ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
+        break [BREAK LOOP] Dokumen Final Disetujui / Kuota Habis / SLA Habis -> Keluar dari Siklus Revisi
+            BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+            DB --> BE -- : 200 OK
+            opt [Jika Batas Kuota 2x Habis / SLA Habis]
+                BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+                FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                deactivate FE
+            end
             Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
             FE -> BE ++ : POST /api/v1/documents/{id}/approve
             BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
