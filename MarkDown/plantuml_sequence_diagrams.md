@@ -197,7 +197,55 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
         FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
         BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
     else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
-        ref over Klien, FE, BE, PG : Eksekusi Alur Pembayaran & Penahanan Escrow (Lihat Sub-SD J-UC05 Pembayaran & Escrow)
+        opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
+            BE -> BE ++ : Potong Saldo Promo Klien (Subsidi Platform)
+            BE --> BE -- : Return Computed Result / State
+        end
+        BE -> PG ++ : Create Payment Invoice untuk Nominal Sisa / Penuh
+        PG --> BE -- : Return Invoice URL & VA Number
+        BE --> FE -- : Return Billing Detail (Nominal Sisa / Penuh)
+        FE --> Klien : Tampilkan Halaman Pembayaran PG
+
+        loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+            Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
+
+            alt Webhook Status Transaksi = PAID / SUCCESS
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+                BE -> BE ++ : Tahan Dana Pembayaran PG ke Rekening Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Sukses
+                FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
+                deactivate FE
+                BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+                note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
+            else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+                BE -> BE ++ : Rollback Saldo Promo Credit Klien & Cancel Invoice
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Gagal / Kadaluwarsa
+                FE --> Klien : Tampilkan Error Pembayaran Gagal
+                deactivate FE
+            
+                opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+                    Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+                    FE -> BE ++ : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+                    BE -> PG ++ : Create New Payment Invoice & VA Number
+                    PG --> BE -- : Return New Invoice URL & VA Number
+                    BE --> FE -- : 200 OK (New Billing Detail Rp250.000 + Fee)
+                    FE --> Klien : Tampilkan Halaman Pembayaran Baru
+                    deactivate FE
+                end
+                note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
+            end
+        end
+    end
+end
 
 alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake)
     Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
@@ -233,14 +281,46 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     FE --> Mitra : Tampilkan Timer Sesi Aktif
     deactivate FE
 
-    loop [Interaksi Dua Arah & Pengawasan Keamanan/SLA]
+    loop [Interaksi Dua Arah, DLP Circumvention Filter & Monitoring SLA Balasan]
         Klien -> FE ++ : Kirim Pesan Teks / Audio / Video
         FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
-        ref over BE, FE : Eksekusi Inline DLP Scan & Anti-Bypass Kontak (Lihat Domain Security)
-        BE --> FE -- : 200 OK (Message Delivered) / 403 Forbidden (Violation Blocked)
-        FE --> Mitra : Tampilkan Pesan Chat (Jika Lolos DLP)
-        deactivate FE
-        ref over BE, FE : Eksekusi SLA Monitoring & Auto-Pause Timer jika AFK > 5 Menit
+        BE -> BE ++ : DLP Engine Scan (Deteksi Pola Bypass Offline / Kontak Pribadi)
+        BE --> BE -- : Return DLP Scan Decision
+
+        alt DLP Terdeteksi Ajakan Ketemuan Offline Ilegal / Bypass Platform (Level 1)
+            BE -> BE ++ : Drop Message Secara Real-Time (Pesan Tidak Diteruskan ke Lawan Bicara)
+            BE --> BE -- : Return Computed Result / State
+            BE --> FE -- : 403 Forbidden / Red Security Alert
+            FE --> Klien : Tampilkan Peringatan Keras Pengiriman Kontak Pribadi Ditolak
+            deactivate FE
+
+            opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
+                BE -> BE ++ : Bekukan Sesi Chat Permanen & Tahan Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21)
+                BE --> BE -- : Return Computed Result / State
+            end
+        else Pesan Aman / Valid (Lolos DLP)
+            BE --> FE -- : 200 OK (Message Delivered)
+            FE --> Mitra : Tampilkan Pesan Chat
+            deactivate FE
+        end
+        
+        alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
+            BE -> BE ++ : Jeda Sementara (PAUSE) Countdown Timer & Kirim Push Alert SLA ke Advokat
+            BE --> BE -- : Return Computed Result / State
+            
+            alt Advokat Tidak Aktif / AFK > 15 Menit
+                BE -> BE ++ : Batalkan Sesi & Aktifkan Tombol Klaim Refund Escrow 100% Klien
+                BE --> BE -- : Return Computed Result / State
+                BE -> FE ++ : Push Alert Sesi Dibatalkan (AFK Abandonment)
+                FE --> Klien : Tampilkan Modal Refund 100%
+                deactivate FE
+            else Advokat Kembali Membalas Pesan
+                BE -> BE ++ : Lanjutkan (RESUME) Countdown Timer Sesi
+                BE --> BE -- : Return Computed Result / State
+            end
+        end
     end
 
     alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
@@ -295,7 +375,8 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
             end
         end
     end
-    ref over Klien, BE, Mitra : Eksekusi Alur Pencairan Escrow Otomatis (Lihat Sub-SD J-UC19 Deliverable-Triggered Escrow Release)
+    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+    BE --> BE -- : Return Computed Result / State
     BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
@@ -326,7 +407,8 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
             end
         end
     end
-    ref over Klien, BE, Mitra : Eksekusi Alur Pencairan Escrow Otomatis (Lihat Sub-SD J-UC19 Deliverable-Triggered Escrow Release)
+    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+    BE --> BE -- : Return Computed Result / State
     BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
@@ -504,7 +586,10 @@ loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi]
         break [BREAK LOOP] Dokumen Final Disetujui / SLA Habis -> Keluar dari Siklus Revisi
             Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
             FE -> BE ++ : POST /api/v1/documents/{id}/approve
-            ref over Klien, BE, Mitra : Eksekusi Alur Pencairan Escrow Otomatis (Lihat Sub-SD J-UC19 Deliverable-Triggered Escrow Release)
+            BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+            BE --> BE -- : Return Computed Result / State
+            BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+            DB --> BE -- : 200 OK
             BE --> FE -- : 200 Approved
             FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
         end
