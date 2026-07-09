@@ -47,3 +47,11 @@ Pencairan Rekening Penampungan Sementara (*Escrow*) **DILARANG KERAS** dipicu ha
 1. **Inline Middleware Scan (~30ms)**: Setiap pesan *chat* masuk ke lapisan *Edge Gateway Backend* dan diverifikasi **SEBELUM** di-broadcast ke *socket* lawan bicara (*Zero Exposure*).
 2. **Level 1 (Drop & Red Alert)**: Jika terdeteksi kontak/ajakan transaksi di luar platform, pesan **langsung dibatalkan (*Message Dropped*)**.
 3. **Level 2 (Instant Freeze)**: Jika pengirim mengulangi percobaan (*evasion attempt*), sistem **langsung membekukan sesi**, menahan Escrow, dan mengeskalasi ke `J-UC21` untuk pembekuan akun pengirim nakal (*Actor Attribution Engine*).
+
+---
+
+## 7. Asynchronous Deliverable Thread & Multi-Layer Profile/Media DLP Sanitization
+1. **Asynchronous Deliverable Q&A Thread**: Pasca-habisnya waktu obrolan langsung 60 menit, percakapan *live* ditutup (`read-only`) dan digantikan oleh **Ruang Kerja Asinkron (*Deliverable Thread*)** pada Dasbor Perkara untuk klarifikasi fakta tertinggal atau pengajuan catatan revisi draf (`J-UC12, J-UC14`). Seluruh pesan/lampiran di thread ini tetap dipindai *Inline DLP*.
+2. **Layer 1 - Verified Display Name Lock**: Nama Tampilan Advokat dikunci dari KTP/Kartu Peradi terverifikasi (`AD/SD-J-09`); dilarang menyisipkan nomor HP/kontak.
+3. **Layer 2 - Profile Text NLP Sanitization**: Setiap pembaruan Bio/Deskripsi/Pengalaman dipindai NLP/Regex sebelum tayang; terdeteksi nomor telepon/kontak $\rightarrow$ `400 Profile Rejected`.
+4. **Layer 3 - Media OCR Sandbox Engine**: Foto Profil/Avatar dan gambar lampiran dipindai OCR; terdeteksi teks nomor telepon/steganografi kontak $\rightarrow$ `422 Unprocessable Media`.

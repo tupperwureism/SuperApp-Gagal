@@ -73,6 +73,28 @@ Untuk melindungi hak Klien mendapatkan hasil kerja profesional tertulis dan memb
 
 ---
 
+### 1.5 Kepatuhan Ruang Kerja Asinkron & Sanitasi Profil/Media 3-Lapisan (*3-Layer Profile & Media DLP*)
+
+Untuk menutup celah komunikasi pasca-berakhirnya waktu obrolan langsung 60 menit serta mencegah upaya kebocoran kontak di luar ruang percakapan (*Profile & Media Bypass*), sistem memberlakukan standar kepatuhan berikut:
+
+#### 1. Ruang Kerja & Klarifikasi Asinkron Pasca-Sesi (*Asynchronous Deliverable Thread*)
+1. **Pemisahan Live Chat vs. Deliverable Q&A**: Ketika durasi obrolan langsung 60 menit habis, ruang percakapan *real-time* otomatis ditutup (*read-only chat history*).
+2. **Pembukaan Jalur Tiket Asinkron**: Untuk Paket Premium (`J-UC11`) dan Paket Pro (`J-UC12, J-UC14`), sistem membuka **Ruang Kerja Asinkron (*Deliverable Thread*)** pada Dasbor Perkara.
+3. **Fungsi Legal Terstruktur**:
+   - **Klarifikasi Fakta Tertinggal**: Advokat dapat mengajukan pertanyaan klarifikasi fakta kepada Klien jika ada data yang kurang saat merumuskan dokumen hukum/rekomendasi.
+   - **Review & Klarifikasi Klien**: Klien dapat meminta klarifikasi atas laporan saran hukum (Paket Premium) atau mengajukan catatan revisi klausul draf (Paket Pro).
+   - **Inline DLP Enforcement**: Seluruh pesan, komentar, dan lampiran pada Ruang Kerja Asinkron **tetap dipindai secara *real-time* oleh DLP Engine** untuk mencegah penyisipan nomor telepon atau ajakan transaksi di luar sistem.
+
+#### 2. Pertahanan 3-Lapisan Sanitasi Profil & Media (*3-Layer Profile & Media Contact Sanitization*)
+1. **Layer 1: Immutable Verified Display Name (`AD/SD-J-09`)**:
+   Nama Tampilan Advokat (**Display Name**) dikunci dan di-generate otomatis dari **KTP & Kartu Advokat Peradi resmi** yang diverifikasi admin. Advokat **TIDAK BISA** menyunting nama mereka menjadi mengandung nomor telepon/kontak (contoh pelanggaran: `"Advokat Budi 08123456789"` dilarang total).
+2. **Layer 2: Pre-Publication Regex & NLP Sanitization pada Deskripsi Profil**:
+   Setiap pembaruan kolom teks profil (Bio, Deskripsi Diri, Pengalaman Kerja, Pencapaian) harus melewati pemindai NLP sebelum dipublikasikan. Jika terdeteksi nomor telepon, kamuflase ejaan angka (*"kosong delapan satu..."*, *"WA"*), email, atau username media sosial, request update **DITOLAK OTOMATIS (`400 Profile Rejected - DLP Contact Violation`)**.
+3. **Layer 3: Optical Character Recognition (OCR) pada Foto Profil & Media**:
+   Setiap unggahan Foto Profil (*Avatar*) atau gambar lampiran diproses melalui **OCR Sandbox Engine**. Jika hasil ekstraksi teks pada gambar mendeteksi nomor telepon, steganografi teks kontak, atau kode QR eksternal, gambar **DITOLAK (`422 Unprocessable Media - Contact Info Detected in Image`)** dan akun dicatat dalam log pengawasan etik.
+
+---
+
 ## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### 2.1 Ringkasan Regulasi Utama Psikologi
