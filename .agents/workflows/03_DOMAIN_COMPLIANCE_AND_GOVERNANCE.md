@@ -55,3 +55,11 @@ Pencairan Rekening Penampungan Sementara (*Escrow*) **DILARANG KERAS** dipicu ha
 2. **Layer 1 - Verified Display Name Lock**: Nama Tampilan Advokat dikunci dari KTP/Kartu Peradi terverifikasi (`AD/SD-J-09`); dilarang menyisipkan nomor HP/kontak.
 3. **Layer 2 - Profile Text NLP Sanitization**: Setiap pembaruan Bio/Deskripsi/Pengalaman dipindai NLP/Regex sebelum tayang; terdeteksi nomor telepon/kontak $\rightarrow$ `400 Profile Rejected`.
 4. **Layer 3 - Media OCR Sandbox Engine**: Foto Profil/Avatar dan gambar lampiran dipindai OCR; terdeteksi teks nomor telepon/steganografi kontak $\rightarrow$ `422 Unprocessable Media`.
+
+---
+
+## 8. Pertahanan Teori Permainan Ekonomi & Analisis Perilaku (*Economic & Behavioral Game Theory*)
+1. **Pengakuan Keterbatasan Filter Teknis (*Corrective Honesty*)**: Filter teks/gambar tidak dapat mencapai akurasi 100% terhadap sandi morse, *cipher*, atau bahasa sandi baru buatan pengguna (*invented slang*).
+2. **Disinsentif Klien (*Zero Escrow Warranty*)**: Klien yang bertransaksi di luar sistem kehilangan 100% jaminan uang kembali (*Money-Back Guarantee*) jika Advokat wanprestasi atau draf cacat hukum.
+3. **Disinsentif Advokat (*Reputational Death*)**: Advokat yang terbukti melakukan penggelapan transaksi eksternal akan di-banned permanen, kehilangan seluruh riwayat ulasan/rating, dan dilaporkan ke Dewan Kehormatan Peradi.
+4. **Behavioral Fraud Detection**: Sistem memantau anomali rasio putus sesi prematur (*high drop-off rate*) dan rasio konversi abnormal untuk mengeskalasi akun mencurigakan ke proses investigasi Admin Backoffice (`AD/SD-J-10`).

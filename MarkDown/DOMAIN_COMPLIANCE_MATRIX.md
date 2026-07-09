@@ -95,6 +95,31 @@ Untuk menutup celah komunikasi pasca-berakhirnya waktu obrolan langsung 60 menit
 
 ---
 
+### 1.6 Batas Kemampuan Filter Teknis & Pertahanan Teori Permainan Ekonomi (*Economic & Behavioral Anti-Evasion Matrix*)
+
+Secara jujur dan realistis (*Corrective Honesty*), tidak ada pemindai teks/gambar (baik Regex, NLP, maupun LLM) yang memiliki tingkat akurasi 100% (*zero false negative*) dalam mendeteksi sandi morse, enkripsi khusus, atau bahasa sandi buatan baru (*invented slang*) yang disepakati pengguna di luar sistem.
+
+Oleh karena itu, untuk menangani upaya penggelapan transaksi ekstrim yang lolos dari pemindai teknis, Justifiqa menerapkan **3 Pilar Pertahanan Teori Permainan Ekonomi & Analisis Perilaku (*Economic & Behavioral Game Theory*)**:
+
+1. **Pilar 1: Disinsentif Klien — Hilangnya Jaminan Perlindungan Escrow (*Zero Escrow Warranty*)**
+   - Klien bertransaksi di dalam Justifiqa karena jaminan uang kembali (*Money-Back Guarantee*) melalui Escrow jika Advokat wanprestasi atau dokumen cacat hukum.
+   - Jika Klien menggunakan sandi rahasia untuk bertransaksi langsung ke rekening pribadi Advokat di luar sistem, Klien menanggung risiko 100% kehilangan uang tanpa hak gugatan atau pengembalian dana dari platform.
+
+2. **Pilar 2: Disinsentif Advokat — Sanksi Pemblokiran Permanen & Pencabutan Reputasi (*Reputational Death*)**
+   - Advokat mitra bergantung pada peringkat algoritmik (*Badge/Rating*) dan riwayat ulasan positif untuk mendapatkan arus klien berkelanjutan.
+   - Jika Advokat terbukti melakukan penggelapan transaksi eksternal (melalui laporan *Whistleblower Button* Klien atau audit rahasia *mystery shopper* Admin):
+     - Akun Advokat **DI-BANNED PERMANEN**, seluruh poin reputasi dan saldo promosi hangus.
+     - Pelanggaran dilaporkan secara resmi ke **Dewan Kehormatan Peradi** sebagai pelanggaran integritas digital.
+   - Secara matematis, mengorbankan reputasi karier jangka panjang demi menghindari biaya platform pada 1 transaksi adalah **keputusan irasional secara ekonomi**.
+
+3. **Pilar 3: Analisis Anomali Perilaku Sesi (*Behavioral Fraud & Anomaly Detection*)**
+   - Sistem memantau pola perilaku transaksi tanpa membaca isi sandi pesan:
+     - **High Drop-Off Anomaly**: Jika seorang Advokat memiliki rasio sesi konsultasi yang diakhiri prematur (< 5 menit) di atas batas normal tanpa menghasilkan deliverable atau pembayaran lanjut.
+     - **Conversion Anomaly**: Sesi konsultasi berulang dengan Klien yang sama tanpa ada konversi layanan Pro/Premium.
+   - Akun dengan skor anomali tinggi otomatis masuk antrean audit investigasi oleh Admin Backoffice (`AD/SD-J-10`).
+
+---
+
 ## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### 2.1 Ringkasan Regulasi Utama Psikologi
