@@ -365,8 +365,15 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
             FE --> Klien : Pertanyaan Klarifikasi Terkirim
             deactivate FE
             note over Mitra, FE : [REPEAT LOOP] Advokat menyusun/memperbarui penjelasan tambahan terlebih dahulu sebelum mengunggah
-        else Klien Menerima Laporan ATAU Melewati SLA 2x24 Jam
-            break [BREAK LOOP] Laporan Diterima / SLA Habis -> Keluar dari Siklus
+        else Klien Menerima Laporan ATAU Kuota 2x Habis ATAU Melewati SLA 2x24 Jam
+            break [BREAK LOOP] Laporan Diterima / Kuota Habis / SLA Habis -> Keluar dari Siklus
+                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+                DB --> BE -- : 200 OK
+                opt [Jika Batas Kuota 2x Habis / SLA Habis]
+                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                    deactivate FE
+                end
                 Klien -> FE ++ : Klik Setujui & Terima Laporan / Auto-Approve SLA
                 FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
                 BE --> FE -- : 200 Approved
@@ -381,14 +388,14 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
 else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
-    loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Meminta Revisi Draf]
+    loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Meminta Revisi Draf & Kuota < 2x]
         Mitra -> FE ++ : Susun/Perbarui & Unggah Dokumen Hukum Final (Drafting v1 / Revisi v2)
         FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
         BE --> FE -- : 201 Created
         FE --> Mitra : Konfirmasi Dokumen Final Diunggah
         deactivate FE
 
-        alt Klien Meminta Revisi Draf Dokumen di Asynchronous Deliverable Thread
+        alt Klien Meminta Revisi Draf Dokumen di Asynchronous Deliverable Thread (Putaran < 2x)
             Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
             FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/revise
             BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
@@ -397,8 +404,15 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
             FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
             deactivate FE
             note over Mitra, FE : [REPEAT LOOP] Advokat menyusun/memperbarui draf revisi klausul terlebih dahulu sebelum mengunggah ulang
-        else Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam
-            break [BREAK LOOP] Dokumen Disetujui / SLA Habis -> Keluar dari Siklus Revisi
+        else Klien Menyetujui Dokumen Final ATAU Kuota 2x Habis ATAU Melewati SLA 3x24 Jam
+            break [BREAK LOOP] Dokumen Disetujui / Kuota Habis / SLA Habis -> Keluar dari Siklus Revisi
+                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+                DB --> BE -- : 200 OK
+                opt [Jika Batas Kuota 2x Habis / SLA Habis]
+                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                    deactivate FE
+                end
                 Klien -> FE ++ : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA
                 FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/approve
                 BE --> FE -- : 200 Approved

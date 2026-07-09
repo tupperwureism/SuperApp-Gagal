@@ -316,8 +316,13 @@ else (Tidak - Konsultasi Premium / Pro)
         :Unggah Dokumen ke Dasbor Ruang Kerja Asinkron;
         |Klien Justifiqa|
         :Review & Verifikasi Laporan di Ruang Kerja Asinkron;
-      repeat while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & SLA 2x24 Jam Belum Habis?) is (Ya - Perlu Penjelasan/Revisi)
+      repeat while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Klarifikasi Terbatas)
       |Backend Independen Justifiqa|
+      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+      if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
+        :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
+      else (Tidak - Disetujui Klien)
+      endif
       :Disetujui Klien ATAU SLA 2x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     else (Tier 3 Pro - Legal Drafting / Opinion)
       repeat
@@ -326,8 +331,13 @@ else (Tidak - Konsultasi Premium / Pro)
         :Unggah Dokumen Hukum Final ke Dasbor Ruang Kerja Asinkron;
         |Klien Justifiqa|
         :Review & Verifikasi Draf Dokumen Hukum;
-      repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & SLA 3x24 Jam Belum Habis?) is (Ya - Perlu Revisi Draf)
+      repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Lanjut Revisi Terbatas)
       |Backend Independen Justifiqa|
+      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+      if (Apakah Kuota Revisi 2x Habis ATAU SLA 3x24 Jam Habis?) then (Ya)
+        :Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis - Draf v3 Final Disetujui Otomatis";
+      else (Tidak - Disetujui Klien)
+      endif
       :Disetujui Klien ATAU SLA 3x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     endif
   endif
