@@ -48,8 +48,13 @@ Sebelum Klien dan Advokat dapat membuka ruang obrolan E2EE (`J-UC03`), kedua bel
 #### 2. Matriks Penegakan Zero-Tolerance Anti-Bypass (2-Tier Enforcement Matrix)
 | Tingkat Pelanggaran | Kondisi Pemicu (DLP Filter) | Tindakan Sistem Otomatis | Sanksi & Eskalasi Hukum |
 | :--- | :--- | :--- | :--- |
-| **Level 1 (Percobaan Pertama — Instant Block & Mask)** | Terdeteksi string kontak (no. HP, WA, email, link luar) atau kalimat ajakan transaksi offline luar sistem | 1. **Pesan diblokir / dicegat secara real-time (*Message Dropped*)** — lawan bicara **TIDAK MENERIMA** nomor atau ajakan tersebut.<br>2. Tampilkan *Red Security Alert* kepada pengirim. | Catatan percobaan pelanggaran pada *Internal Audit Log* Mitra/Klien. |
-| **Level 2 (Percobaan Kedua / Evasion — Instant Freeze & Suspend)** | Pengirim mencoba mengulangi atau mengakali blokir (misal *obfuscation*: "kosong delapan satu dua...") | 1. **Sesi obrolan langsung dibekukan permanen (*Instant Session Freeze*)**.<br>2. Dana Escrow ditahan (*Escrow Hold*). | 1. Eskalasi otomatis ke **Admin Legal Compliance (`J-UC21`)**.<br>2. **Pembekuan Akun Mitra (*Account Suspension*) / Blacklist Klien**. |
+| **Level 2 (Percobaan Kedua / Evasion — Instant Freeze & Suspend)** | Pengirim mencoba mengulangi atau mengakali blokir (misal *obfuscation*: "kosong delapan satu dua...") | 1. **Sesi obrolan langsung dibekukan permanen (*Instant Session Freeze*)**.<br>2. Dana Escrow ditahan (*Escrow Hold*). | 1. Eskalasi otomatis ke **Admin Legal Compliance (`J-UC21`)**.<br>2. **Pembekuan Akun Pelaku (*Account Suspension*) / Blacklist Klien**. |
+
+#### 3. Protokol Atribusi Asimetris & Perlindungan Mitra Jujur (*Asymmetric Attribution & Safe-Harbor Protection*)
+Untuk mencegah ketidakadilan di mana Advokat yang jujur dirugikan atau dijebak oleh Klien nakal yang berinisiatif mengajak bertemu offline liar secara sepihak, sistem menerapkan **Atribusi Subjek Pelanggar (*Actor Attribution Engine*)**:
+1. **Target Sanksi Presisi (100% pada Pengirim Nakal)**: Jika pesan ajakan ilegal dikirim secara sepihak oleh Klien (`sender_role = Klien`), maka sanksi peringatan, pembekuan sesi, dan *blacklist* **hanya dijatuhkan kepada Klien**. Profil Advokat **TIDAK TERKENA STRIKE (*Zero Penalty*)**.
+2. **Kompensasi Penuh untuk Advokat (*Anti-Trap Honorarium Protection*)**: Jika sesi terpaksa dibatalkan/dibekukan oleh sistem akibat pelanggaran Level 2 yang dilakukan Klien, **dana Escrow TETAP DICAIRKAN (*Settled*) 100% kepada Advokat** sebagai kompensasi waktu yang telah diluangkan. Klien kehilangan seluruh hak *refund*.
+3. **Whistleblower Immunity Button**: Advokat dilengkapi fitur **"Laporkan Ajakan Ilegal" (*Flag Unsafe/Bypass Attempt*)**. Jika Advokat melaporkan inisiatif Klien nakal, Advokat mendapat poin kepatuhan/reputasi tambahan dan sesi ditutup secara aman dengan jaminan pembayaran Escrow penuh.
 
 ---
 
