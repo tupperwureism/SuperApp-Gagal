@@ -183,41 +183,10 @@ else (Tidak - Konsultasi Premium / Pro)
   :Klik Konfirmasi Reservasi;
 
   |Backend Independen Justifiqa|
-  :Hitung Biaya Sesuai Tier & Periksa Saldo Virtual Token (Welcome Bonus Rp 100.000 / Non-Cashable);
-  if (Apakah Saldo Virtual Token Mencukupi 100% Tagihan?) then (Ya - Full Virtual Token)
-    :Potong Saldo Virtual Token Klien (Uang-Uangan / Diamond);
-    :Catat Reservasi Berbasis Virtual Token (Tanpa Escrow Tunai Rupiah);
-  else (Tidak - Bayar Penuh / Split Payment)
-    if (Apakah Klien Menggunakan Sebagian Virtual Token?) then (Ya - Split Payment)
-      :Potong Saldo Virtual Token Klien (Potongan Diskon Non-Tunai);
-      :Buat Tagihan Sisa Tunai (Invoice Rupiah) & Kirim ke Payment Gateway;
-    else (Tidak - Bayar 100% Tunai via PG)
-      :Buat Tagihan Penuh (Invoice Rupiah) & Kirim ke Payment Gateway;
-    endif
-    
-    |Payment Gateway|
-    :Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
-    
-    |Klien Justifiqa|
-    :Lakukan Pembayaran Sesuai Nominal Sisa / Penuh;
-    
-    |Payment Gateway|
-    if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
-      |Backend Independen Justifiqa|
-      :Tahan Dana Tunai Pembayaran PG ke Rekening Escrow Sementara;
-    else (Tidak - Gagal / Kadaluwarsa)
-      |Backend Independen Justifiqa|
-      :Kembalikan Saldo Virtual Token Klien (Rollback);
-      :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal";
-      
-      |Klien Justifiqa|
-      if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
-        --> (A)
-        detach
-      else (Tidak)
-        stop
-      endif
-    endif
+  :Jalankan Alur Pembayaran & Penahanan Escrow (Lihat Sub-AD J-UC05);
+  if (Apakah Pembayaran Berhasil / Saldo Token Valid?) then (Ya - PAID / VALID)
+  else (Tidak - Gagal / Batal)
+    stop
   endif
 
   |Backend Independen Justifiqa|
@@ -265,30 +234,13 @@ else (Tidak - Konsultasi Premium / Pro)
       end fork
       
       |Backend Independen Justifiqa|
-      :Pre-Broadcast Inline DLP Interception (~30ms Scan Sebelum Diteruskan ke Lawan Bicara);
-      if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Kontak Pribadi?) then (Ya - Pelanggaran)
-        :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara 0% Melihat);
-        :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
-        if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
-          :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
-          :Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21);
-          stop
-        else (Tidak - Level 1 Block)
-        endif
-      else (Tidak - Lolos DLP / Aman)
+      :Jalankan Pemindai Keamanan Inline DLP & Anti-Bypass Kontak (Lihat Domain Security);
+      if (Apakah Pesan Lolos DLP?) then (Ya - Aman)
         :Broadcast Pesan ke UI Lawan Bicara (Message Delivered);
+      else (Tidak - Pelanggaran / Suspend)
+        :Drop Pesan & Eksekusi Sanksi Pelanggaran (Lihat Domain Security);
       endif
-
-      if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
-        :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
-        if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
-          :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
-          stop
-        else (Tidak - Advokat Membalas)
-          :Lanjutkan (RESUME) Countdown Timer Sesi;
-        endif
-      else (Tidak - Respons Lancar)
-      endif
+      :Pantau SLA Respons Advokat & Auto-Pause Timer jika AFK > 5 Menit;
     repeat while (Waktu Sesi Masih Tersisa & Sesi Belum Diakhiri?) is (Ya - Lanjut Chatting)
     
     |Backend Independen Justifiqa|
