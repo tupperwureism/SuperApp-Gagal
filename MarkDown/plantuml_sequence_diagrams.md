@@ -341,16 +341,16 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             DB --> BE -- : 200 OK
             BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat
             BE --> BE -- : Return Computed Result / State
+            BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+            FE --> Klien : Tampilkan Modal Ulasan & Rating
+            deactivate FE
         end
     end
 end
-BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
-FE --> Klien : Tampilkan Modal Ulasan & Rating
-deactivate FE
 
 alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
     loop [Siklus Klarifikasi Saran Hukum di Asynchronous Deliverable Thread]
-        Mitra -> FE ++ : Unggah Dokumen Laporan Saran Hukum (Client Advice Summary)
+        Mitra -> FE ++ : Susun/Perbarui & Unggah Laporan Saran Hukum (Client Advice Summary)
         FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
         BE --> FE -- : 201 Created
         FE --> Mitra : Konfirmasi Laporan Saran Dirilis
@@ -364,7 +364,7 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
             BE --> FE -- : 200 OK
             FE --> Klien : Pertanyaan Klarifikasi Terkirim
             deactivate FE
-            note over Klien, BE : [REPEAT LOOP] Advokat memberikan jawaban penjelasan tambahan di Async Thread
+            note over Mitra, FE : [REPEAT LOOP] Advokat menyusun/memperbarui penjelasan tambahan terlebih dahulu sebelum mengunggah
         else Klien Menerima Laporan ATAU Melewati SLA 2x24 Jam
             break [BREAK LOOP] Laporan Diterima / SLA Habis -> Keluar dari Siklus
                 Klien -> FE ++ : Klik Setujui & Terima Laporan / Auto-Approve SLA
@@ -377,9 +377,12 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
     end
     BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
     BE --> BE -- : Return Computed Result / State
+    BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+    FE --> Klien : Tampilkan Modal Ulasan & Rating
+    deactivate FE
 else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Meminta Revisi Draf]
-        Mitra -> FE ++ : Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi)
+        Mitra -> FE ++ : Susun/Perbarui & Unggah Dokumen Hukum Final (Drafting v1 / Revisi v2)
         FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
         BE --> FE -- : 201 Created
         FE --> Mitra : Konfirmasi Dokumen Final Diunggah
@@ -393,7 +396,7 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
             BE --> FE -- : 200 OK
             FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
             deactivate FE
-            note over Klien, BE : [REPEAT LOOP] Advokat memproses revisi dan mengunggah draf v2 / terbaru
+            note over Mitra, FE : [REPEAT LOOP] Advokat menyusun/memperbarui draf revisi klausul terlebih dahulu sebelum mengunggah ulang
         else Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam
             break [BREAK LOOP] Dokumen Disetujui / SLA Habis -> Keluar dari Siklus Revisi
                 Klien -> FE ++ : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA
@@ -406,6 +409,9 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     end
     BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
     BE --> BE -- : Return Computed Result / State
+    BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+    FE --> Klien : Tampilkan Modal Ulasan & Rating
+    deactivate FE
 end
 
 deactivate Klien

@@ -309,22 +309,24 @@ else (Tidak - Konsultasi Premium / Pro)
   if (Level Konsultasi = Tier 1 Gratis?) then (Ya - Gratis 15 Menit)
     :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
   else (Tidak - Premium / Pro Berbayar Escrow)
-    if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium IRAC)
+    if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
       repeat
         |Advokat Justifiqa|
-        :Unggah Dokumen IRAC Consultation Note ke Dasbor Klien;
+        :Susun / Perbarui Dokumen Laporan Saran Hukum (Client Advice Summary);
+        :Unggah Dokumen ke Dasbor Ruang Kerja Asinkron;
         |Klien Justifiqa|
-        :Review & Verifikasi Dokumen IRAC Note;
-      repeat while (Apakah Klien Meminta Klarifikasi/Revisi & SLA 2x24 Jam Belum Habis?) is (Ya - Butuh Revisi)
+        :Review & Verifikasi Laporan di Ruang Kerja Asinkron;
+      repeat while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & SLA 2x24 Jam Belum Habis?) is (Ya - Perlu Penjelasan/Revisi)
       |Backend Independen Justifiqa|
       :Disetujui Klien ATAU SLA 2x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     else (Tier 3 Pro - Legal Drafting / Opinion)
       repeat
         |Advokat Justifiqa|
-        :Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi);
+        :Susun / Perbarui Draf Dokumen Hukum Final (Drafting v1 / Revisi v2);
+        :Unggah Dokumen Hukum Final ke Dasbor Ruang Kerja Asinkron;
         |Klien Justifiqa|
         :Review & Verifikasi Draf Dokumen Hukum;
-      repeat while (Apakah Klien Meminta Revisi Draf & SLA 3x24 Jam Belum Habis?) is (Ya - Minta Revisi Draf)
+      repeat while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & SLA 3x24 Jam Belum Habis?) is (Ya - Perlu Revisi Draf)
       |Backend Independen Justifiqa|
       :Disetujui Klien ATAU SLA 3x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     endif
