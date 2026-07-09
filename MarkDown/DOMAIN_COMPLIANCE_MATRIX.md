@@ -78,11 +78,11 @@ Untuk melindungi hak Klien mendapatkan hasil kerja profesional tertulis dan memb
 Untuk menutup celah komunikasi pasca-berakhirnya waktu obrolan langsung 60 menit serta mencegah upaya kebocoran kontak di luar ruang percakapan (*Profile & Media Bypass*), sistem memberlakukan standar kepatuhan berikut:
 
 #### 1. Ruang Kerja & Klarifikasi Asinkron Pasca-Sesi (*Asynchronous Deliverable Thread*)
-1. **Pemisahan Live Chat vs. Deliverable Q&A**: Ketika durasi obrolan langsung 60 menit habis, ruang percakapan *real-time* otomatis ditutup (*read-only chat history*).
-2. **Pembukaan Jalur Tiket Asinkron**: Untuk Paket Premium (`J-UC11`) dan Paket Pro (`J-UC12, J-UC14`), sistem membuka **Ruang Kerja Asinkron (*Deliverable Thread*)** pada Dasbor Perkara.
-3. **Fungsi Legal Terstruktur**:
-   - **Klarifikasi Fakta Tertinggal**: Advokat dapat mengajukan pertanyaan klarifikasi fakta kepada Klien jika ada data yang kurang saat merumuskan dokumen hukum/rekomendasi.
-   - **Review & Klarifikasi Klien**: Klien dapat meminta klarifikasi atas laporan saran hukum (Paket Premium) atau mengajukan catatan revisi klausul draf (Paket Pro).
+1. **Pemisahan Live Chat vs. Deliverable Q&A**: Ketika durasi obrolan langsung 60 menit habis, ruang percakapan *real-time* otomatis ditutup (*read-only chat history*). Panggilan suara/video (*Voice/Video Call*) otomatis dinonaktifkan.
+2. **Pembukaan Jalur Tiket Asinkron**: Untuk Paket Premium (`J-UC11`) dan Paket Pro (`J-UC12, J-UC14`), sistem membuka **Ruang Kerja Asinkron (*Deliverable Thread*)** pada Dasbor Perkara berformat terstruktur seperti sistem komentar/tiket dokumen (*Document Q&A Ticket*).
+3. **Fungsi Legal & Label Terstruktur**:
+   - **Klarifikasi Fakta Tertinggal**: Advokat mengajukan pertanyaan berlabel `[KLARIFIKASI FAKTA]` kepada Klien jika ada data yang kurang saat merumuskan dokumen.
+   - **Review & Klarifikasi Klien**: Klien dapat meminta penjelasan berlabel `[KLARIFIKASI SARAN]` (Paket Premium) atau mengirimkan catatan `[REVISI KLAUSUL]` (Paket Pro).
    - **Inline DLP Enforcement**: Seluruh pesan, komentar, dan lampiran pada Ruang Kerja Asinkron **tetap dipindai secara *real-time* oleh DLP Engine** untuk mencegah penyisipan nomor telepon atau ajakan transaksi di luar sistem.
 
 #### 2. Pertahanan 3-Lapisan Sanitasi Profil & Media (*3-Layer Profile & Media Contact Sanitization*)
