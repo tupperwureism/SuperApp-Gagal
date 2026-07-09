@@ -587,9 +587,13 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         FE -> BE ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}
         BE -> DB ++ : UPDATE advocate_accounts SET status = 'SUSPENDED', catalog = 'UNLISTED'
         DB --> BE -- : 200 OK (Success / Rows Affected)
-        alt Mitra Sedang Dalam Sesi Konsultasi Aktif (IN_PROGRESS)
-            BE -> DB ++ : Tahan Dana Escrow Sesi Aktif (status = 'FROZEN_IN_ESCROW')
-            DB --> BE -- : 200 OK (Graceful Finish Allowed)
+        BE -> DB ++ : SELECT session_id, status FROM consultations WHERE advocate_id = ? AND status = 'IN_PROGRESS'
+        DB --> BE -- : Return Active Consultation State (Rows Found / Empty)
+        alt Mitra Sedang Dalam Sesi Konsultasi Aktif (IN_PROGRESS - Rows > 0)
+            BE -> DB ++ : UPDATE escrow_ledger SET status = 'FROZEN_IN_ESCROW' WHERE session_id = ?
+            DB --> BE -- : 200 OK (Graceful Finish Allowed & Escrow Frozen)
+        else Tidak Ada Sesi Aktif (Idle - Rows == 0)
+            note over BE, DB : [Mitra dalam kondisi Idle, tidak ada sesi konsultasi yang berjalan]
         end
         BE -> DB ++ : Batalkan Reservasi Mendatang & Auto-Refund 100% Dana Klien
         DB --> BE -- : 200 OK (Refund Processed)
