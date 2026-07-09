@@ -243,18 +243,51 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
     end
 end
 
-note over Klien, Mitra : Alur Sesi Konsultasi & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
-Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
-FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
-Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
-FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien, DOM Inverted)
-Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
-Mitra -> Klien : Berikan Analisis & Nasihat Hukum
+alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake)
+    Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
+    FE -> BE ++ : POST /api/v1/consultations/offline/check-in {booking_id, qr_token}
+    BE --> FE : 200 OK (Sesi Offline Tatap Muka Dimulai)
+    FE --> Klien : Tampilkan Status Sesi Berjalan
+    note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
+    Klien -> FE : Pindai QR Code Check-out saat Sesi Selesai
+    FE -> BE : POST /api/v1/consultations/offline/check-out {booking_id}
+else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
+    Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
+    FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+    Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
+    FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien)
+    Klien -> FE : Kirim Pesan Pembuka Perkara
+    FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
+    BE -> BE ++ : Tunggu Balasan Substansial Pertama Advokat (Active Session Trigger)
+    BE --> BE -- : Return Computed Result / State
+    Mitra -> FE : Kirim Balasan Pertama
+    FE -> BE : POST /api/v1/chat/messages {session_id, content}
+    BE -> BE ++ : Mulai Countdown Timer Sesi (Durasi 45-90m - Fair Clock Engine)
+    BE --> BE -- : Return Computed Result / State
 
-Mitra -> FE ++ : Klik Akhiri Sesi Konsultasi
-FE -> BE ++ : POST /api/v1/consultations/end (Sesi ID)
-BE -> BE ++ : Tutup Ruang Chat & Simpan Metadata Transaksi
-BE --> BE -- : Return Computed Result / State
+    loop [Interaksi Dua Arah & Monitoring SLA Balasan]
+        Klien -> Mitra : Pertukaran Pesan Teks / Audio / Video (E2EE Encrypted)
+        
+        alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
+            BE -> BE ++ : Jeda Sementara (PAUSE) Countdown Timer & Kirim Push Alert SLA ke Advokat
+            BE --> BE -- : Return Computed Result / State
+            
+            alt Advokat Tidak Aktif / AFK > 15 Menit
+                BE -> BE ++ : Batalkan Sesi & Aktifkan Tombol Klaim Refund Escrow 100% Klien
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE : Push Alert Sesi Dibatalkan (AFK Abandonment)
+            else Advokat Kembali Membalas Pesan
+                BE -> BE ++ : Lanjutkan (RESUME) Countdown Timer Sesi
+                BE --> BE -- : Return Computed Result / State
+            end
+        end
+    end
+
+    Mitra -> FE : Klik Akhiri Sesi Konsultasi
+    FE -> BE : POST /api/v1/consultations/end (Sesi ID)
+    BE -> BE ++ : Tutup Ruang Chat & Simpan Metadata Transaksi
+    BE --> BE -- : Return Computed Result / State
+end
 BE -> FE : Trigger Rating & Ulasan Modal (J-UC06)
 
 alt Transaksi Menggunakan Uang Tunai PG / Split Payment (Ada Uang Tunai Escrow)

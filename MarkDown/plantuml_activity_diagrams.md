@@ -179,7 +179,7 @@ if (Apakah Level Konsultasi = Gratisan / Legal Triage?) then (Ya - Rp 0)
 else (Tidak - Konsultasi Premium / Pro)
   --> (A)
   |Klien Justifiqa|
-  :Pilih Advokat Sesuai Tier (Reguler / Senior Partner) & Jadwal Sesi;
+  :Pilih Advokat Sesuai Tier, Mode Sesi (Online vs Offline Tatap Muka), & Jadwal Sesi;
   :Klik Konfirmasi Reservasi;
 
   |Backend Independen Justifiqa|
@@ -224,28 +224,63 @@ else (Tidak - Konsultasi Premium / Pro)
   :Ubah Status Reservasi Jadi TERKONFIRMASI;
   :Kirim Pengingat Jadwal ke Advokat & Klien;
   
-  fork
-    |Advokat Justifiqa|
-    :Masuk ke Ruang Konsultasi pada Jadwal yang Ditentukan;
-  fork again
+  if (Apakah Mode Konsultasi = Offline Tatap Muka?) then (Ya - Offline QR Handshake)
     |Klien Justifiqa|
-    :Masuk ke Ruang Chat E2EE pada Jadwal yang Ditentukan;
-  end fork
-  
-  |Backend Independen Justifiqa|
-  :Mulai Countdown Timer Sesi Konsultasi (Durasi 45 - 60 Menit);
-  
-  fork
-    |Advokat Justifiqa|
-    :Memberikan Advice & Analisis Hukum (Interaksi Dua Arah);
-  fork again
+    :Datang ke Kantor Hukum Resmi / Safe Meeting Point Terverifikasi;
+    :Pindai QR Code Check-in milik Advokat;
+    
+    |Backend Independen Justifiqa|
+    :Verifikasi Handshake Kehadiran Fisik & Mulai Sesi Tatap Muka;
+    
+    fork
+      |Advokat Justifiqa|
+      :Memberikan Analisis Hukum Tatap Muka;
+    fork again
+      |Klien Justifiqa|
+      :Mengajukan Pertanyaan & Pembahasan Mendalam;
+    end fork
+    
     |Klien Justifiqa|
-    :Mengajukan Pertanyaan & Diskusi (Interaksi Dua Arah);
-  end fork
-  
+    :Pindai QR Code Check-out saat Sesi Selesai;
+  else (Tidak - Online E2EE Chat Room)
+    fork
+      |Advokat Justifiqa|
+      :Masuk ke Ruang Chat E2EE pada Jadwal yang Ditentukan;
+    fork again
+      |Klien Justifiqa|
+      :Masuk ke Ruang Chat E2EE & Kirim Pesan Pertama;
+    end fork
+    
+    |Backend Independen Justifiqa|
+    :Tunggu Respons Substansial Pertama Advokat (Active Session Trigger);
+    :Mulai Countdown Timer Sesi (Durasi 45 - 90 Menit - Fair Clock Engine);
+    
+    fork
+      |Advokat Justifiqa|
+      :Memberikan Advice & Analisis Hukum;
+    fork again
+      |Klien Justifiqa|
+      :Mengajukan Pertanyaan & Diskusi;
+    end fork
+    
+    |Backend Independen Justifiqa|
+    if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
+      :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
+      if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
+        :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
+        stop
+      else (Tidak - Advokat Membalas)
+        :Lanjutkan (RESUME) Countdown Timer Sesi;
+      endif
+    else (Tidak - Respons Lancar)
+    endif
+    
+    |Backend Independen Justifiqa|
+    :Akhiri Sesi Online & Tutup Ruang Chat E2EE;
+  endif
+
   |Backend Independen Justifiqa|
-  :Akhiri Sesi (Waktu Habis atau Tombol Akhiri Sesi Diklik);
-  :Tutup Ruang Chat & Arsip Log Metadata;
+  :Arsip Log Metadata Transaksi & Sesi;
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
   if (Apakah Transaksi Menggunakan Uang Tunai PG / Split Payment?) then (Ya - Ada Uang Tunai)
     :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
