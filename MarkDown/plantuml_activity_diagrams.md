@@ -530,37 +530,40 @@ stop
 start
 :Selesai Melayani Sesi Konsultasi Hukum;
 :Buka Menu "Catatan Sesi Advokat (IRAC Framework)";
-:Pilih Status Privasi (Internal Advokat atau Bagikan ke Klien);
+:Isi Kolom Issue, Rule, Application, Conclusion;
+:Klik Simpan Catatan IRAC Internal;
 
-if (Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable?) then (Ya - Bagikan & Trigger Escrow)
-  |Backend Independen Justifiqa|
-  :Ekstrak & Kirim Laporan Ringkasan Saran Hukum (Client Advice Summary) ke Klien;
+|Backend Independen Justifiqa|
+:Enkripsi Catatan dengan Field-Level Encryption (AES-256);
+:Simpan di Arsip Perkara Klien Justifiqa (access_level = INTERNAL_ONLY - Work Product Privilege);
+
+if (Apakah Level Konsultasi == Tier 2 Premium?) then (Ya - Butuh Client Advice Summary)
+  |Advokat Justifiqa|
+  :Susun & Rilis Laporan Saran Hukum (Client Advice Summary) ke Dasbor Klien;
   
   |Klien Justifiqa|
-  :Baca Laporan Saran & Rekomendasi Hukum di Dasbor;
+  :Baca Laporan Saran & Rekomendasi Hukum di Ruang Kerja Asinkron;
   
   repeat
-    if (Apakah Klien Meminta Klarifikasi Tambahan Atas Saran Hukum?) then (Ya - Minta Klarifikasi)
-      :Ajukan Pertanyaan Klarifikasi ke Advokat;
+    if (Apakah Klien Mengajukan Tiket [KLARIFIKASI FAKTA] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) then (Ya - Klarifikasi Terbatas)
+      :Kirim Pertanyaan / Tambahan Fakta Baru di Async Thread;
       |Advokat Justifiqa|
-      :Memberikan Jawaban Klarifikasi Tambahan;
+      :Perbarui Internal IRAC Note (I - Issue & A - Application) Berdasarkan Fakta Lengkap Terbaru;
+      :Kirim Balasan Penjelasan / Perbarui Client Advice Summary;
       |Klien Justifiqa|
-    else (Tidak - Klarifikasi Cukup / Menerima Laporan)
+    else (Tidak - Setuju / Kuota Habis / SLA Habis)
     endif
-  repeat while (Apakah Klien Masih Mengajukan Klarifikasi & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Q&A Klarifikasi)
+  repeat while (Apakah Klien Masih Mengajukan Klarifikasi & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Q&A Terbatas)
   
   |Backend Independen Justifiqa|
-  :Laporan Diterima Klien ATAU SLA 2x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
-  :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
-else (Tidak - Catatan Internal Pribadi)
-  |Advokat Justifiqa|
-  :Isi Kolom Issue, Rule, Application, Conclusion;
-  :Klik Simpan Catatan IRAC Internal;
-  
-  |Backend Independen Justifiqa|
-  :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
-  :Simpan di Arsip Perkara Klien Justifiqa;
-  :Kunci Akses Klien (Internal Work Product Privilege);
+  :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED - Cegah Konsultasi Gratis Tanpa Batas);
+  if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
+    :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
+  else (Tidak - Disetujui Klien)
+  endif
+  :Disetujui Klien ATAU SLA Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+else (Tidak - Tier 1 Gratis / Tier 3 Pro)
+  :Catatan IRAC Internal Tersimpan Aman di Rekam Perkara;
 endif
 stop
 @enduml

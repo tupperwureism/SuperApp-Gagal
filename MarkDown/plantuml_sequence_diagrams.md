@@ -662,52 +662,72 @@ actor "Advokat Justifiqa" as Mitra
 participant "Frontend Dasbor Advokat" as FE
 participant "Backend Independen Justifiqa" as BE
 database "Database Justifiqa (Encrypted)" as DB
+actor "Klien Justifiqa" as Klien
 
 activate Mitra
 Mitra -> FE ++ : Buka Form Catatan IRAC & Isi Kolom (Issue, Rule, App, Concl)
 FE -> BE ++ : POST /api/v1/advocate/notes/irac (Session ID, IRAC Payload)
 BE -> BE ++ : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
 BE --> BE -- : Return Computed Result / State
-BE -> DB ++ : Simpan Catatan IRAC ke Rekam Perkara Klien (with privacy_status)
-DB --> BE -- : Success Insert Note
+BE -> DB ++ : Simpan Catatan IRAC (access_level = 'INTERNAL_ONLY')
+DB --> BE -- : Success Insert Note (Work Product Privilege Enforced)
+BE --> FE -- : 201 Created (Catatan Internal Tersimpan)
+FE --> Mitra : Tampilkan Notifikasi Catatan IRAC Berhasil Diarsip
+deactivate FE
 
-alt Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable (CLIENT_SHARED)
-    BE -> DB ++ : UPDATE irac_notes SET access_level = 'SHARED' WHERE id = note_id
-    DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE -> FE ++ : Trigger Push Notification "Laporan Konsultasi Hukum Telah Dibagikan"
-    FE --> Klien : Tampilkan Ringkasan & Rekomendasi Hukum di Dasbor Klien
+alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
+    Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+    BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+    DB --> BE -- : 200 OK
+    BE -> FE ++ : Push Notification "Laporan Saran Hukum Siap Diperiksa"
+    FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
     deactivate FE
-    
-    loop [Siklus Tanya Jawab Klarifikasi Laporan Konsultasi - Tanpa Mengubah IRAC Internal Advokat]
-        alt Klien Meminta Klarifikasi Atas Saran Hukum
-            Klien -> FE : Kirim Pertanyaan Klarifikasi / Tambahan Penjelasan
-            FE -> BE ++ : POST /api/v1/advocate/notes/irac/clarify
+
+    loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
+        alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
+            Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+            BE -> DB ++ : INCREMENT clarification_rounds = clarification_rounds + 1
+            DB --> BE -- : 200 OK
             BE --> FE -- : 200 OK
-            FE --> Klien : Pertanyaan Klarifikasi Terkirim ke Advokat
-            note over Klien, Mitra : [REPEAT LOOP] Advokat memberikan jawaban penjelasan atas saran hukum
-        else Klien Menerima Laporan Konsultasi ATAU SLA 2x24 Jam Habis (Deliverable Accepted)
-            break [BREAK LOOP] Laporan Disetujui / SLA Habis -> Keluar dari Siklus
-                Klien -> FE : Klik Setujui & Terima Laporan Konsultasi
-                FE -> BE ++ : POST /api/v1/advocate/notes/irac/approve
-                BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
-                BE --> BE -- : Return Computed Result / State
-                BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+            FE --> Klien : Pertanyaan Klarifikasi Terkirim
+            deactivate FE
+            
+            Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
+            FE -> BE ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
+            BE -> DB ++ : UPDATE irac_notes SET issue = updated_i, application = updated_a
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Internal IRAC Updated)
+            FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
+            deactivate FE
+            
+            Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/reply
+            BE --> FE -- : 200 OK
+            FE --> Mitra : Jawaban Terkirim
+            deactivate FE
+        else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+            break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
+                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE
                 DB --> BE -- : 200 OK
+                opt [Jika Batas Kuota 2x Putaran / SLA Habis]
+                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                    deactivate FE
+                end
+                Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
+                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+                BE -> BE ++ : Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee 25% & PPh 21)
+                BE --> BE -- : Return Computed Result / State
                 BE --> FE -- : 200 Approved
                 FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
+                deactivate FE
             end
         end
     end
-else Status Privasi == Internal Advokat (INTERNAL_ONLY - Work Product Privilege)
-    BE -> DB ++ : UPDATE irac_notes SET access_level = 'INTERNAL_ONLY' WHERE id = note_id
-    DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE -> BE ++ : Enforce Work Product Privilege (Lock Access from Client Portal)
-    BE --> BE -- : Return Computed Result / State
 end
 
-BE --> FE : 201 Created (Catatan Tersimpan Aman)
-FE --> Mitra : Tampilkan Notifikasi Catatan Berhasil Diarsip
-deactivate BE
 deactivate Mitra
 @enduml
 ```
