@@ -183,47 +183,46 @@ else (Tidak - Konsultasi Premium / Pro)
   :Klik Konfirmasi Reservasi;
 
   |Backend Independen Justifiqa|
-  :Hitung Biaya Sesuai Tier & Periksa Saldo Dompet Promo (Welcome Bonus Rp 100.000);
-if (Apakah Saldo Promo Credit Mencukupi 100% Tagihan?) then (Ya - Full Promo Credit)
-  :Potong Saldo Dompet Promo Klien;
-  :Alokasikan Dana Subsidi Platform ke Rekening Escrow Sementara;
-else (Tidak - Bayar Penuh / Split Payment)
-  if (Apakah Klien Menggunakan Sebagian Promo Credit?) then (Ya - Split Payment)
-    :Potong Saldo Promo Credit Klien (Subsidi Platform);
-    :Buat Tagihan Sisa (Invoice) & Kirim ke Payment Gateway;
-  else (Tidak - Bayar 100% via PG)
-    :Buat Tagihan Penuh (Invoice) & Kirim ke Payment Gateway;
-  endif
-  
-  |Payment Gateway|
-  :Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
-  
-  |Klien Justifiqa|
-  :Lakukan Pembayaran Sesuai Nominal Sisa / Penuh;
-  
-  |Payment Gateway|
-  if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
-    |Backend Independen Justifiqa|
-    :Alokasikan Dana Pembayaran PG ke Rekening Escrow Sementara;
-  else (Tidak - Gagal / Kadaluwarsa)
-    |Backend Independen Justifiqa|
-    :Kembalikan Saldo Promo Credit Klien (Rollback);
-    :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal";
+  :Hitung Biaya Sesuai Tier & Periksa Saldo Virtual Token (Welcome Bonus Rp 100.000 / Non-Cashable);
+  if (Apakah Saldo Virtual Token Mencukupi 100% Tagihan?) then (Ya - Full Virtual Token)
+    :Potong Saldo Virtual Token Klien (Uang-Uangan / Diamond);
+    :Catat Reservasi Berbasis Virtual Token (Tanpa Escrow Tunai Rupiah);
+  else (Tidak - Bayar Penuh / Split Payment)
+    if (Apakah Klien Menggunakan Sebagian Virtual Token?) then (Ya - Split Payment)
+      :Potong Saldo Virtual Token Klien (Potongan Diskon Non-Tunai);
+      :Buat Tagihan Sisa Tunai (Invoice Rupiah) & Kirim ke Payment Gateway;
+    else (Tidak - Bayar 100% Tunai via PG)
+      :Buat Tagihan Penuh (Invoice Rupiah) & Kirim ke Payment Gateway;
+    endif
+    
+    |Payment Gateway|
+    :Tampilkan Pilihan Metode Pembayaran (VA, E-Wallet, CC);
     
     |Klien Justifiqa|
-    if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
-      --> (A)
-      detach
-    else (Tidak)
-      stop
+    :Lakukan Pembayaran Sesuai Nominal Sisa / Penuh;
+    
+    |Payment Gateway|
+    if (Apakah Webhook Status Transaksi PAID / SUCCESS?) then (Ya - PAID)
+      |Backend Independen Justifiqa|
+      :Tahan Dana Tunai Pembayaran PG ke Rekening Escrow Sementara;
+    else (Tidak - Gagal / Kadaluwarsa)
+      |Backend Independen Justifiqa|
+      :Kembalikan Saldo Virtual Token Klien (Rollback);
+      :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal";
+      
+      |Klien Justifiqa|
+      if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
+        --> (A)
+        detach
+      else (Tidak)
+        stop
+      endif
     endif
   endif
-endif
 
-|Backend Independen Justifiqa|
-:Tahan Total Dana Konsultasi di Rekening Escrow Sementara;
-:Ubah Status Reservasi Jadi TERKONFIRMASI;
-:Kirim Pengingat Jadwal ke Advokat & Klien;
+  |Backend Independen Justifiqa|
+  :Ubah Status Reservasi Jadi TERKONFIRMASI;
+  :Kirim Pengingat Jadwal ke Advokat & Klien;
   
   fork
     |Advokat Justifiqa|
@@ -248,7 +247,12 @@ endif
   :Akhiri Sesi (Waktu Habis atau Tombol Akhiri Sesi Diklik);
   :Tutup Ruang Chat & Arsip Log Metadata;
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
-  :Cairkan Dana Escrow ke Saldo Advokat (Potong Fee & PPh 21);
+  if (Apakah Transaksi Menggunakan Uang Tunai PG / Split Payment?) then (Ya - Ada Uang Tunai)
+    :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
+    :Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit);
+  else (Tidak - 100% Virtual Token / Uang-Uangan)
+    :Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit / Reputasi);
+  endif
   stop
 endif
 @enduml

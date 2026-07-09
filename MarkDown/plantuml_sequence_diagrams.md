@@ -184,16 +184,16 @@ alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
     FE --> Klien : Buka Ruang Chat E2EE Langsung (Maks 15 Menit)
     activate Mitra
     BE -> Mitra : Push Notification Sesi Triage Baru (Advokat Muda/Paralegal)
-else Level Konsultasi = Premium / Pro (Berbayar via Promo Credit / PG)
-    BE -> BE ++ : Periksa Saldo Promo Credit Klien (Welcome Bonus Rp100.000)
-    BE --> BE -- : Return Promo Credit Balance
+else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
+    BE -> BE ++ : Periksa Saldo Virtual Token Klien (Welcome Bonus Rp100.000 / Non-Cashable)
+    BE --> BE -- : Return Virtual Token Balance
 
-    alt Saldo Promo Mencukupi 100% Tagihan (Full Promo Credit)
-        BE -> BE ++ : Potong Saldo Promo & Alokasikan Subsidi Platform ke Escrow Sementara
+    alt Saldo Virtual Token Mencukupi 100% Tagihan (Full Virtual Token)
+        BE -> BE ++ : Potong Saldo Virtual Token & Catat Reservasi Non-Tunai (Tanpa Escrow Rupiah)
         BE --> BE -- : Return Computed Result / State
         BE -> BE ++ : Update Booking Status = TERKONFIRMASI
         BE --> BE -- : Return Computed Result / State
-        BE --> FE : 200 OK (Reservasi Terkonfirmasi via Promo Credit)
+        BE --> FE : 200 OK (Reservasi Terkonfirmasi via Virtual Token)
         FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
         activate Mitra
         BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
