@@ -297,7 +297,7 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
                 BE -> BE ++ : Bekukan Sesi Chat Permanen & Tahan Escrow Sementara
                 BE --> BE -- : Return Computed Result / State
-                BE -> BE ++ : Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21)
+                BE -> BE ++ : Generate Security Alert & Eskalasi Insiden ke Antrean Investigasi Admin (J-UC10)
                 BE --> BE -- : Return Computed Result / State
             end
         else Pesan Aman / Valid (Lolos DLP)
@@ -315,6 +315,11 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
                 BE --> BE -- : Return Computed Result / State
                 BE -> FE ++ : Push Alert Sesi Dibatalkan (AFK Abandonment)
                 FE --> Klien : Tampilkan Modal Refund 100%
+                deactivate FE
+                Klien -> FE ++ : Ajukan Laporan Pelanggaran / Klaim Refund (J-UC21)
+                FE -> BE ++ : POST /api/v1/moderation/reports
+                BE --> FE -- : 201 Created
+                FE --> Klien : Konfirmasi Laporan Diterima
                 deactivate FE
             else Advokat Kembali Membalas Pesan
                 BE -> BE ++ : Lanjutkan (RESUME) Countdown Timer Sesi

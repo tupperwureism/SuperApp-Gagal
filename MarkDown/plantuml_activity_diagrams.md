@@ -271,7 +271,7 @@ else (Tidak - Konsultasi Premium / Pro)
         :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
         if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
           :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
-          :Eskalasi Tiket Pelanggaran ke Admin Legal Compliance (J-UC21);
+          :Generate Security Alert & Eskalasi Insiden ke Antrean Investigasi Admin (Lihat AD-J-10);
           stop
         else (Tidak - Level 1 Block)
         endif
@@ -283,6 +283,8 @@ else (Tidak - Konsultasi Premium / Pro)
         :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
         if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
           :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
+          |Klien Justifiqa|
+          :Ajukan Laporan Pelanggaran / Klaim Refund (Lihat AD-J-21 / J-UC21);
           stop
         else (Tidak - Advokat Membalas)
           :Lanjutkan (RESUME) Countdown Timer Sesi;
