@@ -523,22 +523,24 @@ start
 :Pilih Status Privasi (Internal Advokat atau Bagikan ke Klien);
 
 if (Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable?) then (Ya - Bagikan & Trigger Escrow)
+  |Backend Independen Justifiqa|
+  :Ekstrak & Kirim Laporan Ringkasan Saran Hukum (Client Advice Summary) ke Klien;
+  
+  |Klien Justifiqa|
+  :Baca Laporan Saran & Rekomendasi Hukum di Dasbor;
+  
   repeat
-    |Advokat Justifiqa|
-    :Isi / Perbarui Kolom Issue, Rule, Application, Conclusion;
-    :Klik Simpan Catatan IRAC (Versioning v1/v2);
-    
-    |Backend Independen Justifiqa|
-    :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
-    :Simpan di Arsip Perkara Klien Justifiqa;
-    :Kirim Notifikasi Catatan IRAC Baru ke Klien;
-    
-    |Klien Justifiqa|
-    :Baca & Review Ringkasan Catatan IRAC di Dasbor;
-  repeat while (Apakah Klien Meminta Klarifikasi/Revisi & SLA 2x24 Jam Belum Habis?) is (Ya - Minta Revisi IRAC)
+    if (Apakah Klien Meminta Klarifikasi Tambahan Atas Saran Hukum?) then (Ya - Minta Klarifikasi)
+      :Ajukan Pertanyaan Klarifikasi ke Advokat;
+      |Advokat Justifiqa|
+      :Memberikan Jawaban Klarifikasi Tambahan;
+      |Klien Justifiqa|
+    else (Tidak - Klarifikasi Cukup / Menerima Laporan)
+    endif
+  repeat while (Apakah Klien Masih Mengajukan Klarifikasi & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Q&A Klarifikasi)
   
   |Backend Independen Justifiqa|
-  :IRAC Note Disetujui Klien ATAU SLA 2x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
+  :Laporan Diterima Klien ATAU SLA 2x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
   :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
 else (Tidak - Catatan Internal Pribadi)
   |Advokat Justifiqa|

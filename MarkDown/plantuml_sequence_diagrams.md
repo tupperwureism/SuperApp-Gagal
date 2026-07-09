@@ -656,14 +656,14 @@ alt Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable (CLIENT_SHAR
     FE --> Klien : Tampilkan Ringkasan & Rekomendasi Hukum di Dasbor Klien
     deactivate FE
     
-    loop [Siklus Klarifikasi / Revisi Catatan Sesi - Selama Klien Meminta Klarifikasi & SLA Belum Habis]
-        alt Klien Meminta Klarifikasi / Revisi Catatan
-            Klien -> FE : Kirim Permintaan Klarifikasi / Tambahan Penjelasan
+    loop [Siklus Tanya Jawab Klarifikasi Laporan Konsultasi - Tanpa Mengubah IRAC Internal Advokat]
+        alt Klien Meminta Klarifikasi Atas Saran Hukum
+            Klien -> FE : Kirim Pertanyaan Klarifikasi / Tambahan Penjelasan
             FE -> BE ++ : POST /api/v1/advocate/notes/irac/clarify
             BE --> FE -- : 200 OK
-            FE --> Klien : Permintaan Klarifikasi Terkirim ke Advokat
-            note over Klien, BE : [REPEAT LOOP] Advokat memperbarui poin penjelasan / rekomendasi v2
-        else Klien Menyetujui Laporan Konsultasi ATAU SLA 2x24 Jam Habis (Deliverable Approved)
+            FE --> Klien : Pertanyaan Klarifikasi Terkirim ke Advokat
+            note over Klien, Mitra : [REPEAT LOOP] Advokat memberikan jawaban penjelasan atas saran hukum
+        else Klien Menerima Laporan Konsultasi ATAU SLA 2x24 Jam Habis (Deliverable Accepted)
             break [BREAK LOOP] Laporan Disetujui / SLA Habis -> Keluar dari Siklus
                 Klien -> FE : Klik Setujui & Terima Laporan Konsultasi
                 FE -> BE ++ : POST /api/v1/advocate/notes/irac/approve
