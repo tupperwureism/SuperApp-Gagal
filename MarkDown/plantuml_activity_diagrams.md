@@ -302,17 +302,23 @@ else (Tidak - Konsultasi Premium / Pro)
     :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
   else (Tidak - Premium / Pro Berbayar Escrow)
     if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium IRAC)
-      :Tahan Dana Escrow -> Tunggu Unggahan IRAC Consultation Note oleh Advokat;
-      if (IRAC Note Dirilis & Dikonfirmasi Klien / SLA 2x24 Jam?) then (Ya - Release)
-        :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
-      else (Tidak - Sanggah/Revisi)
-      endif
+      repeat
+        |Advokat Justifiqa|
+        :Unggah Dokumen IRAC Consultation Note ke Dasbor Klien;
+        |Klien Justifiqa|
+        :Review & Verifikasi Dokumen IRAC Note;
+      repeat while (Apakah Klien Meminta Klarifikasi/Revisi & SLA 2x24 Jam Belum Habis?) is (Ya - Butuh Revisi)
+      |Backend Independen Justifiqa|
+      :Disetujui Klien ATAU SLA 2x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     else (Tier 3 Pro - Legal Drafting / Opinion)
-      :Tahan Dana Escrow -> Tunggu Unggahan Dokumen Hukum Final oleh Advokat;
-      if (Dokumen Final Disetujui Klien / SLA 3x24 Jam?) then (Ya - Final Approved)
-        :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
-      else (Tidak - Revisi / Mediasi)
-      endif
+      repeat
+        |Advokat Justifiqa|
+        :Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi);
+        |Klien Justifiqa|
+        :Review & Verifikasi Draf Dokumen Hukum;
+      repeat while (Apakah Klien Meminta Revisi Draf & SLA 3x24 Jam Belum Habis?) is (Ya - Minta Revisi Draf)
+      |Backend Independen Justifiqa|
+      :Disetujui Klien ATAU SLA 3x24 Jam Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
     endif
   endif
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);

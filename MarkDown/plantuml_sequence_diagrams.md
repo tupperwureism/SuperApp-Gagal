@@ -339,25 +339,39 @@ alt Level Konsultasi = Tier 1 Gratis (Legal Triage)
     BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit)
     BE --> BE -- : Return Computed Result / State
 else Level Konsultasi = Tier 2 Premium (Deliverable: IRAC Consultation Note)
-    Mitra -> FE ++ : Unggah Dokumen IRAC Consultation Note ke Dasbor Klien
-    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac
-    BE --> FE -- : 201 Created
-    FE --> Mitra : Konfirmasi IRAC Note Dirilis
-    deactivate FE
-    alt Klien Menyetujui IRAC Note ATAU Melewati SLA 2x24 Jam
-        BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
-        BE --> BE -- : Return Computed Result / State
+    loop Siklus Review & Revisi IRAC Note (Hingga Disetujui / SLA 2x24 Jam Habis)
+        Mitra -> FE ++ : Unggah Dokumen IRAC Consultation Note ke Dasbor Klien
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac
+        BE --> FE -- : 201 Created
+        FE --> Mitra : Konfirmasi IRAC Note Dirilis
+        deactivate FE
+        alt Klien Meminta Klarifikasi / Revisi
+            Klien -> FE ++ : Kirim Catatan Revisi IRAC Note
+            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac/revise
+            BE --> FE -- : 200 OK
+            FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+            deactivate FE
+        end
     end
+    BE -> BE ++ : Disetujui Klien ATAU SLA 2x24 Jam -> Cairkan Dana Escrow Tunai ke Advokat
+    BE --> BE -- : Return Computed Result / State
 else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
-    Mitra -> FE ++ : Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi)
-    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
-    BE --> FE -- : 201 Created
-    FE --> Mitra : Konfirmasi Dokumen Final Diunggah
-    deactivate FE
-    alt Klien Menyetujui Dokumen Final (Final Approved) ATAU Melewati SLA 3x24 Jam
-        BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
-        BE --> BE -- : Return Computed Result / State
+    loop Siklus Review & Revisi Dokumen Final (Hingga Final Approved / SLA 3x24 Jam Habis)
+        Mitra -> FE ++ : Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi)
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
+        BE --> FE -- : 201 Created
+        FE --> Mitra : Konfirmasi Dokumen Final Diunggah
+        deactivate FE
+        alt Klien Meminta Revisi Draf
+            Klien -> FE ++ : Kirim Catatan Revisi Draf Dokumen
+            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/revise
+            BE --> FE -- : 200 OK
+            FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+            deactivate FE
+        end
     end
+    BE -> BE ++ : Disetujui Klien ATAU SLA 3x24 Jam -> Cairkan Dana Escrow Tunai ke Advokat
+    BE --> BE -- : Return Computed Result / State
 end
 
 deactivate Klien
