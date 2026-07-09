@@ -355,43 +355,35 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
     FE --> Mitra : Konfirmasi Laporan Saran Dirilis
     deactivate FE
 
-    alt Klien Langsung Menyetujui Laporan Tanpa Menggunakan Ruang Asinkron (Direct Approval)
-        Klien -> FE ++ : Klik Setujui & Terima Laporan
+    loop [Siklus Klarifikasi Saran Hukum - Ulangi Selama Klien Mengajukan Tiket & Kuota < 2x & SLA Belum Habis]
+        Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
+        FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+        BE --> BE -- : Return DLP Decision
+        BE --> FE -- : 200 OK
+        FE --> Klien : Pertanyaan Klarifikasi Terkirim
+        deactivate FE
+        
+        Mitra -> FE ++ : Berikan Jawaban / Perbarui Laporan Saran Hukum
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+        BE --> FE -- : 200 OK
+        FE --> Mitra : Konfirmasi Pembaruan Dirilis
+        deactivate FE
+    end
+
+    alt [Penyelesaian Deliverable] Laporan Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+        Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA Habis / Kuota Habis
         FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+        BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        DB --> BE -- : 200 OK
+        opt [Jika Batas Kuota 2x Habis / SLA Habis]
+            BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+            FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+            deactivate FE
+        end
         BE --> FE -- : 200 Approved
         FE --> Klien : Konfirmasi Laporan Disetujui
         deactivate FE
-    else Klien Mengajukan Tiket [KLARIFIKASI SARAN] di Asynchronous Deliverable Thread
-        loop [Siklus Klarifikasi Saran Hukum - Maksimal 2x Putaran & SLA 2x24 Jam]
-            Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
-            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
-            BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
-            BE --> BE -- : Return DLP Decision
-            BE --> FE -- : 200 OK
-            FE --> Klien : Pertanyaan Klarifikasi Terkirim
-            deactivate FE
-            
-            Mitra -> FE ++ : Berikan Jawaban / Perbarui Laporan Saran Hukum
-            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
-            BE --> FE -- : 200 OK
-            FE --> Mitra : Konfirmasi Pembaruan Dirilis
-            deactivate FE
-
-            alt Klien Menerima Laporan ATAU Kuota 2x Habis ATAU Melewati SLA 2x24 Jam
-                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-                DB --> BE -- : 200 OK
-                opt [Jika Batas Kuota 2x Habis / SLA Habis]
-                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
-                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
-                    deactivate FE
-                end
-                Klien -> FE ++ : Klik Setujui & Terima Laporan / Auto-Approve SLA
-                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
-                BE --> FE -- : 200 Approved
-                FE --> Klien : Konfirmasi Laporan Disetujui
-                deactivate FE
-            end
-        end
     end
     BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
     BE --> BE -- : Return Computed Result / State
@@ -405,43 +397,35 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     FE --> Mitra : Konfirmasi Dokumen Final Diunggah
     deactivate FE
 
-    alt Klien Langsung Menyetujui Draf Dokumen Tanpa Menggunakan Ruang Asinkron (Direct Approval)
-        Klien -> FE ++ : Klik Setujui Dokumen Final (Final Approved)
+    loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
+        Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+        FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/revise
+        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+        BE --> BE -- : Return DLP Decision
+        BE --> FE -- : 200 OK
+        FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+        deactivate FE
+        
+        Mitra -> FE ++ : Perbarui & Unggah Draf Revisi Dokumen (v2 / v3)
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
+        BE --> FE -- : 201 Created
+        FE --> Mitra : Konfirmasi Revisi Diunggah
+        deactivate FE
+    end
+
+    alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 3x24 Jam Habis
+        Klien -> FE ++ : Klik Setujui Dokumen Final / Auto-Approve SLA Habis / Kuota Habis
         FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/approve
+        BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        DB --> BE -- : 200 OK
+        opt [Jika Batas Kuota 2x Habis / SLA Habis]
+            BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+            FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+            deactivate FE
+        end
         BE --> FE -- : 200 Approved
         FE --> Klien : Konfirmasi Dokumen Disetujui
         deactivate FE
-    else Klien Mengajukan Tiket [REVISI KLAUSUL] di Asynchronous Deliverable Thread
-        loop [Siklus Review & Revisi Dokumen Final - Maksimal 2x Putaran & SLA 3x24 Jam]
-            Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
-            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/revise
-            BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
-            BE --> BE -- : Return DLP Decision
-            BE --> FE -- : 200 OK
-            FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
-            deactivate FE
-            
-            Mitra -> FE ++ : Perbarui & Unggah Draf Revisi Dokumen (v2 / v3)
-            FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
-            BE --> FE -- : 201 Created
-            FE --> Mitra : Konfirmasi Revisi Diunggah
-            deactivate FE
-
-            alt Klien Menyetujui Dokumen Final ATAU Kuota 2x Habis ATAU Melewati SLA 3x24 Jam
-                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-                DB --> BE -- : 200 OK
-                opt [Jika Batas Kuota 2x Habis / SLA Habis]
-                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
-                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
-                    deactivate FE
-                end
-                Klien -> FE ++ : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA
-                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/approve
-                BE --> FE -- : 200 Approved
-                FE --> Klien : Konfirmasi Dokumen Disetujui
-                deactivate FE
-            end
-        end
     end
     BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
     BE --> BE -- : Return Computed Result / State
@@ -603,40 +587,38 @@ BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
 FE --> Mitra : Render & Simpan File PDF Bermeterai
 
 activate Klien
-loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi & Kuota < 2x]
-    BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
-    Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
-    FE -> BE ++ : GET /api/v1/documents/{id}/download
-    BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
-    FE --> Klien : Render File PDF Bermeterai
-    
-    alt Klien Meminta Revisi Draf Kontrak di Asynchronous Deliverable Thread (Putaran < 2x)
-        Klien -> FE : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
-        FE -> BE ++ : POST /api/v1/documents/{id}/async-thread/revise
-        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
-        BE --> BE -- : Return DLP Decision
-        BE --> FE -- : 200 OK
-        FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
-        note over Klien, BE : [REPEAT LOOP] Advokat memproses revisi dan mengunggah draf v2/v3
-    else Klien Menyetujui Dokumen Final ATAU Kuota 2x Habis ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
-        break [BREAK LOOP] Dokumen Final Disetujui / Kuota Habis / SLA Habis -> Keluar dari Siklus Revisi
-            BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-            DB --> BE -- : 200 OK
-            opt [Jika Batas Kuota 2x Habis / SLA Habis]
-                BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
-                FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
-                deactivate FE
-            end
-            Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
-            FE -> BE ++ : POST /api/v1/documents/{id}/approve
-            BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
-            BE --> BE -- : Return Computed Result / State
-            BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
-            DB --> BE -- : 200 OK
-            BE --> FE -- : 200 Approved
-            FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
-        end
+BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
+Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
+FE -> BE ++ : GET /api/v1/documents/{id}/download
+BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
+FE --> Klien : Render File PDF Bermeterai
+
+loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
+    Klien -> FE : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+    FE -> BE ++ : POST /api/v1/documents/{id}/async-thread/revise
+    BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+    BE --> BE -- : Return DLP Decision
+    BE --> FE -- : 200 OK
+    FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+    note over Klien, BE : Advokat memproses revisi dan mengunggah draf v2/v3
+end
+
+alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU Melewati SLA 3x24 Jam
+    Klien -> FE : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA Habis / Kuota Habis
+    FE -> BE ++ : POST /api/v1/documents/{id}/approve
+    BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+    DB --> BE -- : 200 OK
+    opt [Jika Batas Kuota 2x Habis / SLA Habis]
+        BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+        FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+        deactivate FE
     end
+    BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+    BE --> BE -- : Return Computed Result / State
+    BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+    DB --> BE -- : 200 OK
+    BE --> FE -- : 200 Approved
+    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
 end
 deactivate Klien
 deactivate Mitra
