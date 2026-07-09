@@ -296,14 +296,26 @@ else (Tidak - Konsultasi Premium / Pro)
   endif
 
   |Backend Independen Justifiqa|
-  :Arsip Log Metadata Transaksi & Sesi;
-  :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
-  if (Apakah Transaksi Menggunakan Uang Tunai PG / Split Payment?) then (Ya - Ada Uang Tunai)
-    :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
-    :Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit);
-  else (Tidak - 100% Virtual Token / Uang-Uangan)
-    :Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit / Reputasi);
+  :Arsip Log Metadata Sesi & Tutup Ruang Chat E2EE;
+  
+  if (Level Konsultasi = Tier 1 Gratis?) then (Ya - Gratis 15 Menit)
+    :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
+  else (Tidak - Premium / Pro Berbayar Escrow)
+    if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium IRAC)
+      :Tahan Dana Escrow -> Tunggu Unggahan IRAC Consultation Note oleh Advokat;
+      if (IRAC Note Dirilis & Dikonfirmasi Klien / SLA 2x24 Jam?) then (Ya - Release)
+        :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
+      else (Tidak - Sanggah/Revisi)
+      endif
+    else (Tier 3 Pro - Legal Drafting / Opinion)
+      :Tahan Dana Escrow -> Tunggu Unggahan Dokumen Hukum Final oleh Advokat;
+      if (Dokumen Final Disetujui Klien / SLA 3x24 Jam?) then (Ya - Final Approved)
+        :Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee & PPh 21);
+      else (Tidak - Revisi / Mediasi)
+      endif
+    endif
   endif
+  :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
   stop
 endif
 @enduml

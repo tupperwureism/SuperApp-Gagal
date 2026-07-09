@@ -61,6 +61,18 @@ Untuk mencegah ketidakadilan di mana Advokat yang jujur dirugikan atau dijebak o
 
 ---
 
+### 1.4 Kepatuhan Pencairan Escrow Berbasis Produk Kerja (*Deliverable-Triggered Escrow Release*)
+
+Untuk melindungi hak Klien mendapatkan hasil kerja profesional tertulis dan memberikan kepastian pencairan bagi Advokat, pencairan Rekening Penampungan Sementara (*Escrow*) **TIDAK TERPICU** oleh habisnya waktu obrolan semata, melainkan tunduk pada **Matriks Deliverable** berikut:
+
+| Tingkat Layanan (*Tier*) | Objek Utama Layanan | Syarat Pemicu Pencairan Escrow (*Release Trigger*) | SLA Auto-Approval (Perlindungan Mitra) |
+| :--- | :--- | :--- | :--- |
+| **Tier 1: Gratis** *(Legal Triage 15 Menit)* | Orientasi & penapisan awal perkara hukum | **Sesi Obrolan Selesai**: Tidak melibatkan uang tunai Rupiah, sistem mengkreditkan Poin/Reputasi Internal kepada Advokat. | Cair langsung (*Instant Reputation Credit*) setelah obrolan ditutup. |
+| **Tier 2: Premium** *(Konsultasi Hukum Mendalam)* | Diagnosis hukum + Catatan Rekomendasi Resmi | **Rilis Catatan IRAC (*IRAC Consultation Note*)**: Escrow **BARU CAIR** setelah Advokat mengunggah dokumen ringkasan resmi (*Issue, Rule, Application, Conclusion*) ke dasbor Klien. | Jika Klien tidak menekan konfirmasi dalam **2x24 jam** sejak IRAC Note dirilis, sistem mencairkan Escrow otomatis (*Auto-Settlement*). |
+| **Tier 3: Pro** *(Legal Drafting & Opinion)* | Produk Dokumen Hukum Final (*Non-Litigation Deliverable*) | **Rilis & Persetujuan Dokumen Final (*Final Document Approved*)**: Escrow **DITAHAN PENUH** dan baru dicairkan setelah Advokat mengunggah draf final (*Kontrak, Legal Opinion bermeterai, atau Somasi*) dan disetujui Klien. | Jika Klien tidak mengajukan revisi dalam **3x24 jam** sejak dokumen diunggah, sistem mencairkan Escrow otomatis (*Auto-Settlement*). |
+
+---
+
 ## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### 2.1 Ringkasan Regulasi Utama Psikologi

@@ -335,14 +335,29 @@ BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
 FE --> Klien : Tampilkan Modal Ulasan & Rating
 deactivate FE
 
-alt Transaksi Menggunakan Uang Tunai PG / Split Payment (Ada Uang Tunai Escrow)
-    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+alt Level Konsultasi = Tier 1 Gratis (Legal Triage)
+    BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit)
     BE --> BE -- : Return Computed Result / State
-    BE -> BE ++ : Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit)
-    BE --> BE -- : Return Computed Result / State
-else Transaksi 100% Virtual Token / Uang-Uangan (Tanpa Escrow Tunai)
-    BE -> BE ++ : Kreditkan Poin/Token Virtual ke Profil Advokat (Non-Cashable Benefit / Reputasi)
-    BE --> BE -- : Return Computed Result / State
+else Level Konsultasi = Tier 2 Premium (Deliverable: IRAC Consultation Note)
+    Mitra -> FE ++ : Unggah Dokumen IRAC Consultation Note ke Dasbor Klien
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/irac
+    BE --> FE -- : 201 Created
+    FE --> Mitra : Konfirmasi IRAC Note Dirilis
+    deactivate FE
+    alt Klien Menyetujui IRAC Note ATAU Melewati SLA 2x24 Jam
+        BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+        BE --> BE -- : Return Computed Result / State
+    end
+else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
+    Mitra -> FE ++ : Unggah Dokumen Hukum Final (Kontrak / Legal Opinion / Somasi)
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
+    BE --> FE -- : 201 Created
+    FE --> Mitra : Konfirmasi Dokumen Final Diunggah
+    deactivate FE
+    alt Klien Menyetujui Dokumen Final (Final Approved) ATAU Melewati SLA 3x24 Jam
+        BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+        BE --> BE -- : Return Computed Result / State
+    end
 end
 
 deactivate Klien

@@ -32,3 +32,18 @@ Untuk mencegah *Platform Leakage* (transaksi di luar sistem) pada Tier Premium &
 ## 4. Akuntansi Terpisah Token Virtual vs. Tunai Escrow (*Dual-Bucket Ledger*)
 1. **Uang Tunai Rupiah via Payment Gateway**: Dicatat di Rekening Escrow Sementara $\rightarrow$ Dicairkan ke Saldo Dompet Tunai Advokat (*Cashable Withdrawal*).
 2. **Token Virtual (*Welcome Bonus / Uang-Uangan*)**: Dicatat di *Virtual Token Ledger* $\rightarrow$ Dikreditkan ke profil Advokat sebagai **Poin/Token Internal Non-Tunai (*Non-Cashable Reputation / In-App Reward*)**.
+
+---
+
+## 5. Pencairan Escrow Berbasis Produk Kerja (*Deliverable-Triggered Escrow Release*)
+Pencairan Rekening Penampungan Sementara (*Escrow*) **DILARANG KERAS** dipicu hanya oleh berakhirnya waktu *timer chat*. Pencairan tunduk pada capaian produk kerja (*deliverable*):
+1. **Tier Gratis (Legal Triage)**: Cairkan poin/reputasi setelah sesi obrolan ditutup.
+2. **Tier Premium (Konsultasi Mendalam)**: Escrow **BARU CAIR** setelah Advokat menerbitkan/mengunggah dokumen **IRAC Consultation Note** (atau SLA auto-approve 2x24 jam).
+3. **Tier Pro (Legal Drafting / Non-Litigation Deliverable)**: Escrow **BARU CAIR** setelah Advokat mengunggah **Dokumen Hukum Final (*Kontrak / Legal Opinion / Somasi*)** dan disetujui oleh Klien (atau SLA auto-approve 3x24 jam).
+
+---
+
+## 6. Pre-Broadcast Inline DLP Interception & Zero-Tolerance Anti-Bypass
+1. **Inline Middleware Scan (~30ms)**: Setiap pesan *chat* masuk ke lapisan *Edge Gateway Backend* dan diverifikasi **SEBELUM** di-broadcast ke *socket* lawan bicara (*Zero Exposure*).
+2. **Level 1 (Drop & Red Alert)**: Jika terdeteksi kontak/ajakan transaksi di luar platform, pesan **langsung dibatalkan (*Message Dropped*)**.
+3. **Level 2 (Instant Freeze)**: Jika pengirim mengulangi percobaan (*evasion attempt*), sistem **langsung membekukan sesi**, menahan Escrow, dan mengeskalasi ke `J-UC21` untuk pembekuan akun pengirim nakal (*Actor Attribution Engine*).
