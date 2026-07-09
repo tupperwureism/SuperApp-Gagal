@@ -402,58 +402,57 @@ start
 :Buka Menu "Generator Draf Hukum / Legal Opinion";
 :Pilih Template Dokumen (Surat Somasi / Perjanjian / LO);
 :Isi Klausul Hukum & Identitas Para Pihak;
-:Simpan & Review Versi Draf (Versioning v1 / Final Review);
-if (Apakah Dokumen Memerlukan Pembubuhan e-Meterai?) then (Ya - Perlu e-Meterai)
-  :Klik Tombol "Finalisasi Dokumen & Bubuhkan e-Meterai Resmi";
-  
-  |Backend Independen Justifiqa|
-  :Kunci Versi Draf (Immutable Final Version v1);
-  
-  repeat
-    :Validasi Saldo Dompet Advokat (Cek Biaya e-Meterai Rp12.000);
-    if (Apakah Saldo Dompet Advokat Cukup?) then (Ya - Saldo Cukup)
-      :Potong Saldo Dompet Advokat;
-      :Kirim Request Stamping ke API Mekari Sign;
-    else (Tidak - Saldo Dompet Kurang / Kosong)
-      |Advokat Justifiqa|
-      :Tampilkan Alert "⚠️ Saldo Dompet Kurang untuk e-Meterai";
-      :Lakukan Top-Up Dompet (Lihat AD-J-22);
-    endif
-  repeat while (Apakah Saldo Sudah Dipotong & Request Disubmit?) is (Belum - Ulangi Cek Saldo)
-  -> Sudah Disubmit ke API;
-
-  |API Mekari Sign (Distributor e-Meterai)|
-  :Validasi Request & Bubuhkan Stempel e-Meterai Peruri;
-  :Sertakan Digital Signature Kriptografi SHA-256;
-  
-  |Backend Independen Justifiqa|
-  :Simpan Dokumen Bersertifikat di WORM Storage;
-else (Tidak - Draf Internal / Tanpa Meterai)
-  |Backend Independen Justifiqa|
-  :Simpan Draf Biasa di Database;
-endif
-
-fork
-  |Backend Independen Justifiqa|
-  :Kirim Konfirmasi Sukses & Tautan Unduh ke Advokat;
-  
+repeat
   |Advokat Justifiqa|
-  :Terima Konfirmasi & Unduh Arsip Dokumen Bermeterai;
-fork again
-  |Backend Independen Justifiqa|
-  :Kirim Notifikasi Dokumen Siap Diperiksa ke Klien;
-  
-  |Klien Justifiqa|
-  :Terima & Unduh Dokumen Hukum (Download Gate);
-  if (Apakah Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam?) then (Ya - Disetujui / Final Approved)
+  :Simpan & Review Versi Draf (Versioning v1/v2/v3);
+  if (Apakah Dokumen Memerlukan Pembubuhan e-Meterai?) then (Ya - Perlu e-Meterai)
+    :Klik Tombol "Finalisasi Dokumen & Bubuhkan e-Meterai Resmi";
+    
     |Backend Independen Justifiqa|
-    :Trigger Deliverable-Triggered Escrow Release (J-UC19);
-    :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
-  else (Tidak - Minta Revisi)
-    |Klien Justifiqa|
-    :Ajukan Catatan Revisi Draf Kontrak ke Advokat;
+    :Kunci Versi Draf (Immutable Final Version);
+    
+    repeat
+      :Validasi Saldo Dompet Advokat (Cek Biaya e-Meterai Rp12.000);
+      if (Apakah Saldo Dompet Advokat Cukup?) then (Ya - Saldo Cukup)
+        :Potong Saldo Dompet Advokat;
+        :Kirim Request Stamping ke API Mekari Sign;
+      else (Tidak - Saldo Dompet Kurang / Kosong)
+        |Advokat Justifiqa|
+        :Tampilkan Alert "⚠️ Saldo Dompet Kurang untuk e-Meterai";
+        :Lakukan Top-Up Dompet (Lihat AD-J-22);
+      endif
+    repeat while (Apakah Saldo Sudah Dipotong & Request Disubmit?) is (Belum - Ulangi Cek Saldo)
+    -> Sudah Disubmit ke API;
+
+    |API Mekari Sign (Distributor e-Meterai)|
+    :Validasi Request & Bubuhkan Stempel e-Meterai Peruri;
+    :Sertakan Digital Signature Kriptografi SHA-256;
+    
+    |Backend Independen Justifiqa|
+    :Simpan Dokumen Bersertifikat di WORM Storage;
+  else (Tidak - Draf Internal / Tanpa Meterai)
+    |Backend Independen Justifiqa|
+    :Simpan Draf Biasa di Database;
   endif
-end fork
+
+  fork
+    |Backend Independen Justifiqa|
+    :Kirim Konfirmasi Sukses & Tautan Unduh ke Advokat;
+    
+    |Advokat Justifiqa|
+    :Terima Konfirmasi & Unduh Arsip Dokumen Bermeterai;
+  fork again
+    |Backend Independen Justifiqa|
+    :Kirim Notifikasi Dokumen Siap Diperiksa ke Klien;
+    
+    |Klien Justifiqa|
+    :Terima & Unduh Dokumen Hukum (Download Gate);
+  end fork
+repeat while (Apakah Klien Meminta Revisi Draf Kontrak?) is (Ya - Butuh Revisi Draf v2/v3)
+
+|Backend Independen Justifiqa|
+:Dokumen Final Disetujui Klien ATAU SLA 3x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
+:Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
 stop
 @enduml
 ```
@@ -521,30 +520,34 @@ stop
 start
 :Selesai Melayani Sesi Konsultasi Hukum;
 :Buka Menu "Catatan Sesi Advokat (IRAC Framework)";
-:Isi Kolom Issue (Rumusan Masalah Hukum Klien);
-:Isi Kolom Rule (Dasar UU / Yurisprudensi yang Berlaku);
-:Isi Kolom Application (Analisis Penerapan Hukum pada Kasus);
-:Isi Kolom Conclusion (Kesimpulan & Saran Langkah Hukum);
 :Pilih Status Privasi (Internal Advokat atau Bagikan ke Klien);
-:Klik Simpan Catatan IRAC;
 
-|Backend Independen Justifiqa|
-:Enkripsi Catatan dengan Field-Level Encryption (AES-256);
-:Simpan di Arsip Perkara Klien Justifiqa;
 if (Status Privasi == Bagikan ke Klien / Tier 2 Premium Deliverable?) then (Ya - Bagikan & Trigger Escrow)
-  :Kirim Notifikasi Catatan IRAC Baru ke Klien;
-  |Klien Justifiqa|
-  :Baca & Review Ringkasan Catatan IRAC di Dasbor;
-  if (Klien Menyetujui IRAC Note ATAU SLA 2x24 Jam Habis?) then (Ya - Disetujui / Auto-Approve)
+  repeat
+    |Advokat Justifiqa|
+    :Isi / Perbarui Kolom Issue, Rule, Application, Conclusion;
+    :Klik Simpan Catatan IRAC (Versioning v1/v2);
+    
     |Backend Independen Justifiqa|
-    :Trigger Deliverable-Triggered Escrow Release (J-UC19);
-    :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
-  else (Tidak - Minta Klarifikasi / Revisi)
+    :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
+    :Simpan di Arsip Perkara Klien Justifiqa;
+    :Kirim Notifikasi Catatan IRAC Baru ke Klien;
+    
     |Klien Justifiqa|
-    :Kirim Permintaan Revisi IRAC Note ke Advokat;
-  endif
-else (Tidak - Catatan Internal Pribadi)
+    :Baca & Review Ringkasan Catatan IRAC di Dasbor;
+  repeat while (Apakah Klien Meminta Klarifikasi/Revisi & SLA 2x24 Jam Belum Habis?) is (Ya - Minta Revisi IRAC)
+  
   |Backend Independen Justifiqa|
+  :IRAC Note Disetujui Klien ATAU SLA 2x24 Jam Habis -> Trigger Deliverable-Triggered Escrow Release (J-UC19);
+  :Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee & PPh 21);
+else (Tidak - Catatan Internal Pribadi)
+  |Advokat Justifiqa|
+  :Isi Kolom Issue, Rule, Application, Conclusion;
+  :Klik Simpan Catatan IRAC Internal;
+  
+  |Backend Independen Justifiqa|
+  :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
+  :Simpan di Arsip Perkara Klien Justifiqa;
   :Kunci Akses Klien (Internal Work Product Privilege);
 endif
 stop

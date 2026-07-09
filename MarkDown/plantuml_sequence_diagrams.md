@@ -547,20 +547,31 @@ BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
 FE --> Mitra : Render & Simpan File PDF Bermeterai
 
 activate Klien
-BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
-Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
-FE -> BE ++ : GET /api/v1/documents/{id}/download
-BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
-FE --> Klien : Render File PDF Bermeterai
-alt Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
-    Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
-    FE -> BE ++ : POST /api/v1/documents/{id}/approve
-    BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
-    BE --> BE -- : Return Computed Result / State
-    BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
-    DB --> BE -- : 200 OK
-    BE --> FE -- : 200 Approved
-    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
+loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Meminta Revisi]
+    BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
+    Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
+    FE -> BE ++ : GET /api/v1/documents/{id}/download
+    BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
+    FE --> Klien : Render File PDF Bermeterai
+    
+    alt Klien Meminta Revisi Draf Kontrak
+        Klien -> FE : Kirim Catatan Revisi Draf
+        FE -> BE ++ : POST /api/v1/documents/{id}/revise
+        BE --> FE -- : 200 OK
+        FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+        note over Klien, BE : [REPEAT LOOP] Advokat memproses revisi dan mengunggah draf v2/v3
+    else Klien Menyetujui Dokumen Final ATAU Melewati SLA 3x24 Jam (Deliverable Approved)
+        break [BREAK LOOP] Dokumen Final Disetujui / SLA Habis -> Keluar dari Siklus Revisi
+            Klien -> FE : Klik Setujui Dokumen Final (Final Approved)
+            FE -> BE ++ : POST /api/v1/documents/{id}/approve
+            BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+            BE --> BE -- : Return Computed Result / State
+            BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 Approved
+            FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
+        end
+    end
 end
 deactivate Klien
 deactivate Mitra
