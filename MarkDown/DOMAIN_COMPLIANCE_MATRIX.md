@@ -35,6 +35,25 @@ Dokumen ini menetapkan matriks kepatuhan regulasi mutlak untuk dua aplikasi mand
 
 ---
 
+### 1.3 Kepatuhan Anti-Bypass, Pre-Chat Agreement (MoU) & DLP Platform Leakage
+
+Untuk melindungi kepastian hukum, hak keistimewaan profesi, perlindungan dana Escrow, serta menjaga keberlangsungan pendapatan platform Justifiqa, setiap transaksi konsultasi tunduk pada protokol kepatuhan berikut:
+
+#### 1. Pre-Chat Clickwrap Agreement (MoU / Terms of Engagement Modal)
+Sebelum Klien dan Advokat dapat membuka ruang obrolan E2EE (`J-UC03`), kedua belah pihak **WAJIB menekan tombol persetujuan eksplisit (*"I Accept This Agreement / Saya Menyetujui Syarat & Ketentuan Konsultasi Hukum Justifiqa"*)** yang mencakup 3 klausul mengikat:
+1. **Larangan Transaksi Off-Platform**: Klien dan Advokat dilarang keras mengalihkan pembicaraan, menyepakati pertemuan offline liar, atau melakukan pembayaran di luar mekanisme resmi Justifiqa (kecuali menggunakan fitur **QR-Code Handshake Offline Consultation** yang dipesan sah via aplikasi).
+2. **Persetujuan DLP Security Scan**: Sepakat bahwa sistem berhak mengoperasikan pemindaian **DLP (*Data Loss Prevention*) Circumvention Filter** pada pertukaran teks/meta untuk mendeteksi pola nomor telepon/kontak pribadi ilegal dan upaya *bypass* tagihan.
+3. **Pembatalan Garansi & Pelepasan Tanggung Jawab (*Liability Disclaimer*)**: Segala bentuk penipuan, malpraktik, atau sengketa yang timbul akibat pertemuan/transaksi di luar platform secara otomatis **membatalkan hak Klaim Refund Escrow 100%** dan membebaskan Justifiqa dari segala tuntutan hukum.
+
+#### 2. Matriks Eskalasi Pelanggaran Platform Leakage (DLP Enforcement Matrix)
+| Tingkat Pelanggaran | Kondisi Pemicu (DLP Filter) | Tindakan Sistem Otomatis | Sanksi & Eskalasi Hukum |
+| :--- | :--- | :--- | :--- |
+| **Strike 1 (Warning)** | Terdeteksi pola nomor telepon luar/ajakan ketemuan offline liar pertama kali | 1. Masking/penyensoran otomatis string kontak.<br>2. Menampilkan *In-Chat Security Warning Banner* kepada Klien & Advokat. | Peringatan tercatat pada profil Advokat (*Internal Audit Log*). |
+| **Strike 2 (Temporary Freeze)** | Mengulangi ajakan *bypass* / bertukar kontak luar setelah peringatan | 1. Sesi obrolan dibekukan sementara (*Chat Freeze*).<br>2. Penahanan sementara dana Escrow pada Rekening Penampungan. | Pembuatan tiket investigasi otomatis ke **Admin Legal Compliance (`J-UC21`)**. |
+| **Strike 3 (Sanction & Suspend)** | Residivis terbukti melakukan pengalihan transaksi luar platform | 1. Penghentian sesi permanen.<br>2. Pembatalan pencairan Escrow ke Advokat (refund ke Klien atau hold sesuai keputusan etik). | **Pembekuan Akun Advokat (Suspension)** & pelaporan ke Komisi Pengawas Etik Mitra Justifiqa. |
+
+---
+
 ## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### 2.1 Ringkasan Regulasi Utama Psikologi
