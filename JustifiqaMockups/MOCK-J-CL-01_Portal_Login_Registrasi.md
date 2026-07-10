@@ -1,10 +1,10 @@
-# MOCK-J-CL-01: Portal Registrasi & Login Klien Hukum Justifiqa
+# MOCK-J-CL-01: Portal Registrasi & Login Klien Hukum Justica
 
 ## 1. METADATA SPESIFIKASI
 | Atribut | Nilai Spesifikasi |
 | :--- | :--- |
 | **ID Mockup** | `MOCK-J-CL-01` |
-| **Nama Halaman** | Portal Registrasi & Autentikasi Klien Hukum Justifiqa |
+| **Nama Halaman** | Portal Registrasi & Autentikasi Klien Hukum Justica |
 | **Aktor Target** | Klien Hukum (*Client*) |
 | **Ref. Use Case** | `J-UC01` (Registrasi Akun Klien), `J-UC02` (Login Autentikasi MFA) |
 | **Ref. Story Backlog** | `ST-J-01` (Registrasi Klien & Consent SHA-256), `ST-J-02` (Login & MFA OTP) |
@@ -17,7 +17,7 @@
 ```plantuml
 @startsalt
 {+
-  {* Justifiqa - Portal Layanan Hukum Keadilan Terverifikasi }
+  {* <b>JUSTICA</b> - Portal Layanan Hukum Keadilan Terverifikasi | [ ☀ Light / ☾ Dark Mode ] }
   --
   {
     === GERBANG MASUK KLIEN HUKUM
