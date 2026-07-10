@@ -247,18 +247,25 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
     end
 end
 
-alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake)
+alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
     Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
     FE -> BE ++ : POST /api/v1/consultations/offline/check-in {booking_id, qr_token}
+    BE -> BE ++ : Mulai Countdown Timer Sesi Offline (60 Menit & Grace Period 120 Menit)
+    BE -->> BE -- : Timer Active
     BE --> FE -- : 200 OK (Sesi Offline Tatap Muka Dimulai)
-    FE --> Klien : Tampilkan Status Sesi Berjalan
+    FE --> Klien : Tampilkan Status Sesi Berjalan & Countdown 60 Menit
     deactivate FE
     note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
-    Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
-    FE -> BE ++ : POST /api/v1/consultations/offline/check-out {booking_id}
-    BE --> FE -- : 200 OK (Check-out Berhasil)
-    FE --> Klien : Tampilkan Ringkasan Sesi Offline
-    deactivate FE
+    alt Normal Check-out (QR Code Dipindai Klien < 120 Menit)
+        Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
+        FE -> BE ++ : POST /api/v1/consultations/offline/check-out {booking_id}
+        BE --> FE -- : 200 OK (Check-out Berhasil)
+        FE --> Klien : Tampilkan Ringkasan Sesi Offline
+        deactivate FE
+    else Fallback Check-out (Lupa Check-out / Grace Period 120 Menit Habis)
+        BE -> BE ++ : Eksekusi Systemic Auto Check-out (AUTO_CHECKOUT_SUCCESS)
+        BE -->> BE -- : Mencegah Escrow Menggantung & Lanjut ke PENDING_DELIVERABLE
+    end
 else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
     FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)

@@ -231,6 +231,7 @@ else (Tidak - Konsultasi Premium / Pro)
     
     |Backend Independen Justifiqa|
     :Verifikasi Handshake Kehadiran Fisik & Mulai Sesi Tatap Muka;
+    :Mulai Countdown Timer Sesi Offline (Durasi Baku 60 Menit - Slot Standard);
     
     fork
       |Advokat Justifiqa|
@@ -240,8 +241,14 @@ else (Tidak - Konsultasi Premium / Pro)
       :Mengajukan Pertanyaan & Pembahasan Mendalam;
     end fork
     
-    |Klien Justifiqa|
-    :Pindai QR Code Check-out saat Sesi Selesai;
+    |Backend Independen Justifiqa|
+    if (Apakah Klien Pindai QR Code Check-out ATAU Waktu Sesi > 120 Menit Sejak Check-in?) then (QR Check-out Manual)
+      |Klien Justifiqa|
+      :Pindai QR Code Check-out saat Sesi Selesai;
+    else (Lupa Check-out - Grace Period 120m Habis)
+      |Backend Independen Justifiqa|
+      :Eksekusi Systemic Auto Check-out (Mencegah Escrow Menggantung);
+    endif
   else (Tidak - Online E2EE Chat Room)
     fork
       |Advokat Justifiqa|
