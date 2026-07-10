@@ -166,6 +166,7 @@ deactivate User
 
 ```plantuml
 @startuml
+skinparam backgroundColor #FFFFFF
 autonumber
 actor "Klien Justifiqa" as Klien
 participant "Frontend Justifiqa App" as FE

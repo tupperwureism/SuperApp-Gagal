@@ -148,6 +148,18 @@ endif
 
 ```plantuml
 @startuml
+skinparam backgroundColor #FFFFFF
+skinparam defaultFontColor #000000
+skinparam activity {
+  BackgroundColor #FEFECE
+  BorderColor #A80036
+  FontColor #000000
+}
+skinparam swimlane {
+  BorderColor #000000
+  TitleFontColor #000000
+}
+
 |Klien Justifiqa|
 start
 :Buka Katalog Advokat & Notaris;
@@ -170,14 +182,16 @@ if (Apakah Level Konsultasi = Gratisan / Legal Triage?) then (Ya - Rp 0)
   |Backend Independen Justifiqa|
   :Akhiri Sesi Triage 15 Menit;
   if (Apakah Klien Membutuhkan Analisis Kasus Lanjutan?) then (Ya - Upgrade Premium/Pro)
-    --> (A)
-    detach
+    |Klien Justifiqa|
+    :Lanjut ke Reservasi Konsultasi Premium / Pro;
   else (Tidak - Selesai)
     :Arahkan Klien ke Modul Ulasan & Rating;
     stop
   endif
 else (Tidak - Konsultasi Premium / Pro)
-  --> (A)
+endif
+
+repeat
   |Klien Justifiqa|
   :Pilih Advokat Sesuai Tier, Mode Sesi (Online vs Offline Tatap Muka), & Jadwal Sesi;
   :Klik Konfirmasi Reservasi;
@@ -209,16 +223,9 @@ else (Tidak - Konsultasi Premium / Pro)
       |Backend Independen Justifiqa|
       :Kembalikan Saldo Virtual Token Klien (Rollback);
       :Batalkan Invoice & Tampilkan Error "Pembayaran Gagal";
-      
-      |Klien Justifiqa|
-      if (Coba Pilih Metode Bayar Lain / Jadwal Ulang?) then (Ya)
-        --> (A)
-        detach
-      else (Tidak)
-        stop
-      endif
     endif
   endif
+repeat while (Pembayaran Gagal & Klien Coba Pilih Metode Bayar Lain?) is (Ya - Coba Ulang)
 
   |Backend Independen Justifiqa|
   :Ubah Status Reservasi Jadi TERKONFIRMASI;
