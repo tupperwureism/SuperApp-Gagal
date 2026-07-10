@@ -62,5 +62,24 @@
 
 ---
 
-## 3. CATATAN ARSITEKTUR TEKNIS
+## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
+| ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
+| :--- | :--- | :--- | :---: | :--- |
+| `PROF-RAD-01`| `Pilihan Tier Layanan`| Radio Selection| Ya | Pilihan tunggal antar Tier 1 (15m), Tier 2 (45m), atau Tier 3 (Drafting + Sesi). |
+| `PROF-RAD-02`| `Metode Pertemuan`    | Radio Selection| Ya | Pilihan `ONLINE_E2EE` atau `OFFLINE_QR_HANDSHAKE`. |
+| `PROF-DAT-01`| `Tanggal Konsultasi`  | Date Picker | Ya | Tanggal valid (tidak boleh masa lalu `date >= today`). |
+| `PROF-SLT-01`| `Pilihan Slot Waktu`  | Slot Grid | Ya | Harus memilih slot dengan status `AVAILABLE`. Slot `FULL` tidak dapat diklik. |
+| `PROF-BTN-01`| `Tombol Checkout`     | Action Button | Ya | Memicu *concurrency lock* di server sebelum masuk ke halaman pembayaran. |
+
+---
+
+## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
+| Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
+| :--- | :--- | :--- | :--- | :--- |
+| `onClick` | Tombol `[ 10:30 - 11:15 ]` | `slot.status == AVAILABLE` | Kunci sementara slot di Redis (Mutex TTL 15 menit), ubah status tombol menjadi *Selected*. | Tetap di `MOCK-J-CL-02B` |
+| `onClick` | Tombol `[ LANJUT CHECKOUT ]`| `slot == SELECTED` & `tier != NULL` | Buat draf transaksi Escrow (`booking_id`), alihkan ke halaman checkout. | -> `MOCK-J-CL-03` (Checkout Escrow) |
+
+---
+
+## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
 1. **Mutex Concurrency Locking:** Saat slot `10:30` dipilih, sistem mengunci slot di Redis selama 15 menit agar tidak terjadi pesanan ganda (*double booking*) saat checkout di `CL-03`.

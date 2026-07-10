@@ -60,5 +60,25 @@
 
 ---
 
-## 3. CATATAN ARSITEKTUR TEKNIS
+## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
+| ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
+| :--- | :--- | :--- | :---: | :--- |
+| `CHK-RAD-01` | `Metode Pembayaran` | Radio Selection| Ya* | Pilihan QRIS, VA, atau Kartu Kredit. *Wajib jika berada di Tab 1 (Escrow). |
+| `CHK-CHK-01` | `Consent Escrow`    | Boolean | Ya | Wajib `true` untuk memproses pembayaran Escrow. |
+| `CHK-IN-01`  | `NIK Pemohon SKTM`  | Numeric | Ya* | 16 Digit numerik (`^[0-9]{16}$`). *Wajib jika mengajukan di Tab 2 (Pro Bono). |
+| `CHK-IN-02`  | `Nomor SKTM`        | String  | Ya* | Nomor resmi surat keterangan tidak mampu kelurahan. |
+| `CHK-UP-01`  | `Unggah Berkas SKTM`| File Binary | Ya* | Format `.pdf`/`.jpg` maksimal 5MB. |
+
+---
+
+## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
+| Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
+| :--- | :--- | :--- | :--- | :--- |
+| `onClick` | Tombol `[ BAYAR SEKARANG ]` | `Consent == true` & `Timer > 0` | Generate Idempotency Key SHA-256, buat tagihan Virtual Account/QRIS. | -> `MOCK-J-CL-03B` (Invoice Resi) |
+| `onClick` | Tombol `[ AJUKAN PRO BONO ]`| Form SKTM lengkap & file valid | Panggil API Kemensos DTKS untuk verifikasi NIK, kirim ke antrean verifikasi admin. | -> `MOCK-J-CL-03B` (Status SKTM) |
+
+---
+
+## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
 1. **Idempotency Key Tracking:** Setiap klik tombol bayar menyertakan header `X-Idempotence-Key: SHA256(user_id + slot_id + timestamp)` untuk mencegah penagihan ganda.
+2. **Kemensos DTKS Verification:** Pengajuan Pro Bono otomatis diperiksa ke database Terpadu Kesejahteraan Sosial sebelum disetujui Admin (`AM-02`).

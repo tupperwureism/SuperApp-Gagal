@@ -53,6 +53,27 @@
 
 ---
 
-## 3. CATATAN ARSITEKTUR TEKNIS
+## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
+| ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
+| :--- | :--- | :--- | :---: | :--- |
+| `DASH-BTN-01`| `Tombol Konsultasi Baru`| Action Button | Ya | Mengalihkan klien ke katalog advokat `MOCK-J-CL-02`. |
+| `DASH-BTN-02`| `Tombol Pro Bono SKTM` | Action Button | Ya | Membuka modal pengajuan bantuan hukum gratis DTKS. |
+| `DASH-TBL-01`| `Tabel Sesi Aktif`     | Data Grid     | Ya | Menampilkan seluruh sesi dengan status `ACTIVE` atau `PENDING_DELIVERABLE`. |
+| `DASH-ACT-01`| `Buka Ruang Chat`      | Action Button | Ya | Terhubung dengan sesi obrolan E2EE `MOCK-J-CL-04` menggunakan session token. |
+| `DASH-ACT-02`| `Lihat Deliverable`    | Action Button | Ya | Terhubung dengan ruang asinkron dokumen e-Meterai `MOCK-J-CL-06`. |
+| `DASH-ACT-03`| `Unduh PDF e-Meterai`  | Download Link | Ya | Unduh berkas ter-stamp Peruri dengan verifikasi tanda tangan SHA-256. |
+
+---
+
+## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
+| Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
+| :--- | :--- | :--- | :--- | :--- |
+| `onClick` | Tombol `[ + MULAI KONSULTASI ]`| Akun `ACTIVE` | Memeriksa kuota & status akun, lalu mengalihkan ke katalog. | -> `MOCK-J-CL-02` (Katalog Advokat) |
+| `onClick` | Tombol `[ BUKA RUANG CHAT ]`   | `session_status == ACTIVE` | Membuka koneksi WebSocket E2EE dengan kunci simetris sesi. | -> `MOCK-J-CL-04` (Chat Room E2EE) |
+| `onClick` | Tombol `[ LIHAT DELIVERABLE ]` | `tier == 3` OR `async == true` | Memuat berkas PDF dan status revisi dokumen asinkron. | -> `MOCK-J-CL-06` (Async Room) |
+
+---
+
+## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
 1. **Real-time Session Status:** Status sesi terhubung langsung ke WebSocket Fair-Clock Timer (`CL-04`).
 2. **Integritas Arsip:** Setiap unduhan PDF divalidasi tanda tangan digital SHA-256 dan e-Meterai Peruri sebelum disajikan ke klien.

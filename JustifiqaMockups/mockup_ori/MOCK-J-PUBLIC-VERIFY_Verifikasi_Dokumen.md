@@ -54,5 +54,24 @@
 
 ---
 
-## 3. CATATAN ARSITEKTUR TEKNIS
-1. **Zero-Leak Privacy:** Halaman ini hanya mengembalikan status keaslian hash (`VALID/INVALID`) dan metadata legalisasi dokumen, **tanpa pernah menampilkan isi teks rahasia** jika penguji tidak memiliki berkas fisiknya.
+## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
+| ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
+| :--- | :--- | :--- | :---: | :--- |
+| `VER-IN-01`  | `Input Hash SHA-256` | String | Ya* | Tepat 64 karakter hex (`^[a-fA-F0-9]{64}$`). *Wajib jika berkas PDF tidak diunggah. |
+| `VER-UP-01`  | `Unggah Berkas PDF` | File Binary | Ya* | Format berkas `.pdf` berukuran maksimal 10MB. Sistem menghitung hash SHA-256 lokal di browser. |
+| `VER-BTN-01` | `Tombol Periksa` | Action Button | Ya | Membaca hash masukan atau file browser, lalu mengirim *read-only query* ke tabel WORM. |
+| `VER-OUT-01` | `Status Keaslian` | Output Field | N/A | Menampilkan `VALIDATED SHA-256` jika tepat cocok 100% atau `TAMPERED DETECTED` jika berbeda 1 bit pun. |
+
+---
+
+## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
+| Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
+| :--- | :--- | :--- | :--- | :--- |
+| `onClick` | Tombol `[ PERIKSA KEASLIAN ]` | `Hash == 64 Hex chars` OR `PDF File loaded` | Hitung/cocokkan hash dengan log immutable WORM Justica & Peruri API. | Tetap di `PUBLIC-VERIFY` (Tampilkan Tabel Hasil) |
+| `onClick` | Tombol `[ < Kembali ke Beranda ]`| Tidak ada | Kembali ke halaman beranda utama Justica. | -> `MOCK-J-GATEWAY-01` |
+
+---
+
+## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+1. **Zero-Leak Public Verification:** Halaman ini hanya mengembalikan status keaslian hash (`VALID/INVALID`) dan metadata penandatanganan, **tanpa pernah menampilkan isi teks materi obrolan hukum** jika penguji tidak memiliki berkas fisiknya.
+2. **Client-Side SHA-256 Hashing:** Saat pengguna mengunggah PDF, proses *hashing* dilakukan di memori browser lokal (*WebCrypto API*) sehingga berkas rahasia tidak dikirim mentah ke server.
