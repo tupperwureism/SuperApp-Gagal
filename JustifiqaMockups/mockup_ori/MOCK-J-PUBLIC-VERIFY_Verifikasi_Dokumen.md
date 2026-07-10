@@ -72,6 +72,20 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Periksa Hash SHA-256 | `POST /api/v2/verify/document-hash` | `{"sha256_hash": "e8f9a0c2b4d6e8f0..."}` | `200 OK: {"valid": true, "issuer": "Dr. Mahendra Kusuma", "sipp": "18293", "issued_at": "2026-07-02T14:30:12Z", "emeterai_serial": "1029384756"}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `404 Not Found` | Hash dokumen tidak terdaftar di WORM | `"DOKUMEN TIDAK TERDAFTAR — Dokumen ini tidak diterbitkan melalui sistem resmi Justica."` | Tampilkan panel merah (*Warning Alert*) dan saran verifikasi fisik ke penerbit. |
+| `409 Conflict`  | Hash berbeda dari versi dokumen asli | `"PERINGATAN MANIPULASI (TAMPERED) — Isi dokumen telah diubah setelah penandatanganan."` | Tampilkan rincian hash asli di server vs hash berkas yang diunggah. |
+| `502 Bad Gateway`| Peruri e-Meterai API Timeout | `"Verifikasi e-Meterai sedang tertunda. Keaslian kriptografi SHA-256 Justica tetap VALID."` | Tampilkan status parsial (Hash Justica = VALID, e-Meterai = PENDING SYNC). |
+
+### Catatan Arsitektur Teknis:
 1. **Zero-Leak Public Verification:** Halaman ini hanya mengembalikan status keaslian hash (`VALID/INVALID`) dan metadata penandatanganan, **tanpa pernah menampilkan isi teks materi obrolan hukum** jika penguji tidak memiliki berkas fisiknya.
 2. **Client-Side SHA-256 Hashing:** Saat pengguna mengunggah PDF, proses *hashing* dilakukan di memori browser lokal (*WebCrypto API*) sehingga berkas rahasia tidak dikirim mentah ke server.

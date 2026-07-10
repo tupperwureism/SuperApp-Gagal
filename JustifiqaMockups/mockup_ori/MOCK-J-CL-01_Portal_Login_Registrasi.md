@@ -89,6 +89,21 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Submit Login MFA | `POST /api/v2/auth/client/login-mfa` | `{"identifier": "klien@domain.com", "password": "hash", "otp_code": "849201", "remember_device": true}` | `200 OK: {"access_token": "jwt...", "refresh_token": "aes...", "user": {"id": "CL-991", "nik_verified": true}}` |
+| Submit Registrasi | `POST /api/v2/auth/client/register` | `{"nik": "3171...", "full_name": "Budi Santoso", "email": "klien@domain.com", "phone": "+62812...", "consent_sha256": "e3b0c4..."}` | `201 Created: {"status": "OTP_SENT", "expires_in_seconds": 300, "channel": "WHATSAPP"}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` | OTP salah atau kedaluwarsa | `"Kode verifikasi MFA tidak tepat atau telah kedaluwarsa."` | Fokus input kembali ke kolom OTP; sisa kuota percobaan dikurangi 1. |
+| `429 Too Many Req` | Salah OTP 5x berturut-turut | `"Akun dikunci sementara demi keamanan. Silakan coba kembali dalam 15 menit."` | Tombol submit dinonaktifkan (disabled) dengan hitung mundur timer penguncian. |
+| `503 Service Unavail`| Dukcapil API Sync Timeout | `"Verifikasi NIK secara otomatis sedang tertunda. Registrasi dilanjutkan dalam mode peninjauan."` | Registrasi masuk antrean `PENDING_KYC` di panel Admin Compliance (`AM-02`). |
+
+### Catatan Arsitektur Teknis:
 1. **SHA-256 Consent Tracking:** Sesuai UU PDP No. 27/2022, setiap centang persetujuan dicatat dengan hash kriptografi `SHA-256(user_id + timestamp + consent_text_version)` ke dalam log WORM.
 2. **MFA Rate Limiting:** Kegagalan OTP 5 kali berturut-turut memicu penguncian akun sementara (15 menit) dan peringatan keamanan SIEM.

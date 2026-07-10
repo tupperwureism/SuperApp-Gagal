@@ -97,6 +97,19 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Filter & Cari Advokat | `GET /api/v2/client/advocates?spec={spec}&tier={tier}&online={bool}` | *Query Params Encoded* | `200 OK: {"advocates": [{"id": "AD-101", "name": "Dr. Mahendra", "sipp_status": "ACTIVE", ...}]}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `404 Not Found` | Filter tidak menghasilkan advokat | `"Tidak ditemukan advokat yang sesuai kriteria pencarian Anda."` | Tombol `[ Reset Filter ]` disorot untuk mengembalikan daftar lengkap. |
+| `429 Too Many Req`| Scraping detection (>60 req/min) | `"Batas permintaan pencarian tercapai demi keamanan direktori."` | Tanda jeda sementara 60 detik sebelum pencarian berikutnya diizinkan. |
+
+### Catatan Arsitektur Teknis:
 1. **SIPP API Integration:** Badge `SIPP MA API: ACTIVE` memverifikasi secara langsung status nomor induk advokat di database Mahkamah Agung.
 2. **Anti-Scraping Protection:** Pencarian katalog dibatasi maksimal 60 kueri per menit per sesi untuk mencegah pencurian data direktori advokat.

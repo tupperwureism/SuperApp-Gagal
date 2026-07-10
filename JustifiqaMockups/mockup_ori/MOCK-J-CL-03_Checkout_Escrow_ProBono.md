@@ -79,6 +79,20 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Checkout Pembayaran Escrow | `POST /api/v2/client/checkout/escrow` | *Header: `X-Idempotence-Key: SHA256(...)`*<br>`{"booking_id": "REQ-202607-003", "payment_method": "QRIS"}` | `201 Created: {"invoice_id": "INV-003", "qris_payload": "0002010102...", "total_amount": 450000}` |
+| Klaim Pro Bono SKTM | `POST /api/v2/client/checkout/probono` | `{"booking_id": "REQ-202607-003", "nik": "3171...", "sktm_number": "SKTM/2026/VII", "file_hash": "a9f8..."}` | `202 Accepted: {"claim_id": "PB-003", "status": "PENDING_KEMENSOS_DTKS"}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `408 Request Timeout`| Waktu kunci slot 15 menit habis sebelum checkout | `"Waktu penguncian slot telah berakhir. Silakan pilih kembali jadwal konsultasi Anda."` | Tombol `BAYAR SEKARANG` dinonaktifkan; tautan kembali ke `CL-02B` disajikan. |
+| `422 Unprocessable`| NIK tidak terdaftar di DTKS Kemensos | `"NIK Anda belum terdaftar dalam Data Terpadu Kesejahteraan Sosial (DTKS). Pengajuan Pro Bono memerlukan peninjauan manual."` | Pengajuan dialihkan ke jalur verifikasi manual Admin (`AM-02`). |
+
+### Catatan Arsitektur Teknis:
 1. **Idempotency Key Tracking:** Setiap klik tombol bayar menyertakan header `X-Idempotence-Key: SHA256(user_id + slot_id + timestamp)` untuk mencegah penagihan ganda.
 2. **Kemensos DTKS Verification:** Pengajuan Pro Bono otomatis diperiksa ke database Terpadu Kesejahteraan Sosial sebelum disetujui Admin (`AM-02`).

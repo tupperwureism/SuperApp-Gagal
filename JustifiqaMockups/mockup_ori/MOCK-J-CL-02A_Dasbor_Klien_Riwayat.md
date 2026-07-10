@@ -74,6 +74,20 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Muat Dasbor & Sesi | `GET /api/v2/client/dashboard-summary` | *Headers: `Authorization: Bearer <jwt>`* | `200 OK: {"active_sessions": [...], "archived_cases": [...], "kyc_status": "VERIFIED"}` |
+| Unduh Dokumen SHA-256 | `GET /api/v2/client/deliverables/{doc_id}/download` | *Headers: `Authorization: Bearer <jwt>`* | `200 OK (Binary stream + Header X-SHA256-Hash: e8f9a0c2...)` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `401 Unauthorized` | Token sesi JWT kedaluwarsa | `"Sesi login Anda telah berakhir. Silakan masuk kembali."` | Pengguna dialihkan otomatis ke `MOCK-J-CL-01` untuk login MFA. |
+| `403 Forbidden`   | Status KYC akun ditangguhkan | `"Akun dalam proses verifikasi administratif. Layanan konsultasi baru sementara ditahan."` | Tombol `+ MULAI KONSULTASI` dinonaktifkan dengan *tooltip* penjelasan. |
+
+### Catatan Arsitektur Teknis:
 1. **Real-time Session Status:** Status sesi terhubung langsung ke WebSocket Fair-Clock Timer (`CL-04`).
 2. **Integritas Arsip:** Setiap unduhan PDF divalidasi tanda tangan digital SHA-256 dan e-Meterai Peruri sebelum disajikan ke klien.

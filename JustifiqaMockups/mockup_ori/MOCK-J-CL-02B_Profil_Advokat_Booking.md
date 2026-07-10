@@ -81,5 +81,18 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Kunci Slot Jadwal | `POST /api/v2/client/booking/lock-slot` | `{"advocate_id": "AD-101", "slot_id": "SLOT-1030", "tier": 2, "meeting_type": "ONLINE_E2EE"}` | `200 OK: {"booking_id": "REQ-202607-003", "lock_expires_in_seconds": 900}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `409 Conflict`  | Slot waktu direbut pengguna lain dalam detik yang sama | `"Maaf, slot waktu ini baru saja dipesan klien lain. Silakan pilih jam lain yang tersedia."` | Slot grid diperbarui secara *real-time* dan slot yang terisi berubah menjadi merah (`FULL`). |
+| `400 Bad Request`| Pilihan tier atau metode belum lengkap | `"Mohon pilih tingkat layanan (Tier) dan metode konsultasi terlebih dahulu."` | Bagian yang belum dipilih ditandai dengan *border outline warning*. |
+
+### Catatan Arsitektur Teknis:
 1. **Mutex Concurrency Locking:** Saat slot `10:30` dipilih, sistem mengunci slot di Redis selama 15 menit agar tidak terjadi pesanan ganda (*double booking*) saat checkout di `CL-03`.

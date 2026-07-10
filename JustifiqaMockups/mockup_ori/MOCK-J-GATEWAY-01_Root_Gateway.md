@@ -82,6 +82,20 @@
 
 ---
 
-## 5. CATATAN ARSITEKTUR TEKNIS & COMPLIANCE HOOKS
+## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
+| Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
+| :--- | :--- | :--- | :--- |
+| Muat Statistik Live | `GET /api/v2/public/platform-stats` | *None (Query Params Optional)* | `200 OK: {"active_advocates": 1420, "dlp_latency_ms": 29.8, "escrow_status": "SECURED"}` |
+| Submit Cari Spesialisasi | `GET /api/v2/advocates/search?q={query}` | *None (URL Encoded Parameter)* | `200 OK: {"total_results": 18, "advocates": [...]}` |
+
+---
+
+## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
+| Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
+| :--- | :--- | :--- | :--- |
+| `429 Too Many Req` | DDOS / Flooding pencarian >100 req/min | `"Aktivitas terlalu tinggi dari jaringan Anda. Mohon tunggu beberapa detik."` | Cloudflare Turnstile / CAPTCHA otomatis dimunculkan. |
+| `500 Internal Error`| Stats Microservice Down | Statistik menampilkan nilai cache terakhir (*Graceful Degraded Mode*). | Sistem menyembunyikan badge live statistik tanpa merusak navigasi utama. |
+
+### Catatan Arsitektur Teknis:
 1. **Subdomain Isolation:** Platform memisahkan arus *Client*, *Advocate*, dan *Admin* pada level DNS & Reverse Proxy untuk mencegah *horizontal privilege escalation*.
 2. **Zero-Trust CSRF Token:** Setiap pengunjung gerbang utama menerima token CSRF sekali pakai sebelum masuk ke formulir autentikasi.
