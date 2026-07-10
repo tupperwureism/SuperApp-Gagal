@@ -1,0 +1,270 @@
+{
+  "app_domain": "JUSTIFIQA",
+  "version": "2.0.0-PHASE3",
+  "mockups": [
+    {
+      "id": "MOCK-J-CL-01",
+      "title": "Portal Registrasi & Login Klien",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC01", "J-UC02"],
+      "story_ref": ["ST-J-01", "ST-J-02"],
+      "summary_logic": "Autentikasi OTP/MFA, pencatatan persetujuan hukum SHA-256, dan validasi status akun aktif vs terbatas."
+    },
+    {
+      "id": "MOCK-J-CL-02",
+      "title": "Katalog Advokat & Direktori Layanan",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC03"],
+      "story_ref": ["ST-J-05"],
+      "summary_logic": "Filter spesialisasi, verifikasi SIPP aktif real-time, filter mode Online vs Offline, dan tarif per Tier."
+    },
+    {
+      "id": "MOCK-J-CL-03",
+      "title": "Checkout Pembayaran Escrow & Pro Bono",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC05", "J-UC15"],
+      "story_ref": ["ST-J-07", "ST-J-13"],
+      "summary_logic": "Pembayaran Escrow timer 15m atau klaim tiket Pro Bono SKTM Rp0 dengan validasi NIK Dukcapil/DTKS."
+    },
+    {
+      "id": "MOCK-J-CL-04",
+      "title": "Ruang Obrolan Hukum Online E2EE",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC04", "J-UC10", "J-UC13"],
+      "story_ref": ["ST-J-08", "ST-J-09", "ST-J-10"],
+      "summary_logic": "Sesi chat E2EE Zero-Knowledge, watermark privilege, Fair-Clock timer (PAUSED if advokat diam >5m), Inline DLP Security."
+    },
+    {
+      "id": "MOCK-J-CL-05",
+      "title": "Check-in & Check-out Konsultasi Offline Resmi",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC03", "J-UC04"],
+      "story_ref": ["ST-J-08B"],
+      "summary_logic": "Pemindai QR dynamic token check-in/out, timer sesi tatap muka 60m, grace period auto check-out 120m."
+    },
+    {
+      "id": "MOCK-J-CL-06",
+      "title": "Ruang Kerja Asinkron Deliverable & Download Gate",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC12", "J-UC14"],
+      "story_ref": ["ST-J-12"],
+      "summary_logic": "Review Legal Opinion/Kontrak ber-e-Meterai SHA-256, kuota revisi maksimal 2 putaran, SLA auto-approve, hard thread lock."
+    },
+    {
+      "id": "MOCK-J-CL-07",
+      "title": "Blocking Modal Rating & Ulasan Advokat",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC06"],
+      "story_ref": ["ST-J-14"],
+      "summary_logic": "Modal blocking bintang 1-5 & review dengan jaminan anonimisasi mutlak nama klien."
+    },
+    {
+      "id": "MOCK-J-CL-08",
+      "title": "Form Whistleblowing & Pelaporan Etik Advokat",
+      "actor": "Klien Hukum",
+      "use_cases": ["J-UC21"],
+      "story_ref": ["ST-J-19"],
+      "summary_logic": "Form pelaporan etik dengan persetujuan lampiran bukti log E2EE ber-hash SHA-256 ke antrean Admin."
+    },
+    {
+      "id": "MOCK-J-AD-01",
+      "title": "Portal Onboarding & Login Advokat",
+      "actor": "Advokat Hukum",
+      "use_cases": ["J-UC07", "J-UC08"],
+      "story_ref": ["ST-J-03", "ST-J-04"],
+      "summary_logic": "Registrasi KTP/BAS/Kartu Peradi AES-256 WORM, login MFA TOTP mandatory, lock 30m pasca 3x gagal."
+    },
+    {
+      "id": "MOCK-J-AD-02",
+      "title": "Dasbor Manajemen Praktik & Pengaturan Jadwal",
+      "actor": "Advokat Hukum",
+      "use_cases": ["J-UC09"],
+      "story_ref": ["ST-J-06"],
+      "summary_logic": "Toggle status online/offline real-time, kalender jam praktik online & kuota offline, pemantauan SLA respons 5m."
+    },
+    {
+      "id": "MOCK-J-AD-03",
+      "title": "Ruang Obrolan Advokat & QR Host Display",
+      "actor": "Advokat Hukum",
+      "use_cases": ["J-UC04", "J-UC10"],
+      "story_ref": ["ST-J-08", "ST-J-08B"],
+      "summary_logic": "Pelayanan chat online E2EE dengan activity pulse atau tampilan dynamic QR token untuk konsultasi tatap muka offline."
+    },
+    {
+      "id": "MOCK-J-AD-04",
+      "title": "Editor Catatan IRAC & Legal Drafting Engine",
+      "actor": "Advokat Hukum",
+      "use_cases": ["J-UC11", "J-UC12", "J-UC14"],
+      "story_ref": ["ST-J-11", "ST-J-12"],
+      "summary_logic": "Penyusunan IRAC 4-Tab AES-256 WORM, drafting dokumen hukum dengan pembubuhan e-Meterai Peruri Rp10.000 & kirim ke Async Thread."
+    },
+    {
+      "id": "MOCK-J-AD-05",
+      "title": "Dasbor Keuangan Escrow, PPh 21 & Pencairan Dana",
+      "actor": "Advokat Hukum",
+      "use_cases": ["J-UC19"],
+      "story_ref": ["ST-J-17"],
+      "summary_logic": "Transparansi saldo Escrow Hold vs Settled, bagi hasil 75%, pemotongan PPh 21 otomatis, verifikasi AML SIPP."
+    },
+    {
+      "id": "MOCK-J-AM-01",
+      "title": "Autentikasi Terisolasi Admin Portal",
+      "actor": "Admin Hukum",
+      "use_cases": ["J-UC20"],
+      "story_ref": ["ST-J-18"],
+      "summary_logic": "IP Whitelisting subdomain terisolasi, login kredensial + 6-digit TOTP Authenticator."
+    },
+    {
+      "id": "MOCK-J-AM-02",
+      "title": "Dasbor Verifikasi Kredensial Advokat & SKTM Pro Bono",
+      "actor": "Admin Hukum",
+      "use_cases": ["J-UC16", "J-UC15"],
+      "story_ref": ["ST-J-15", "ST-J-13"],
+      "summary_logic": "Previewer dokumen WORM anti-download, panggilan cross-check API SIPP MA/Peradi & DTKS Kemensos, aksi Approve/Reject."
+    },
+    {
+      "id": "MOCK-J-AM-03",
+      "title": "Dual-Source Moderation Queue & Due Process Panel",
+      "actor": "Admin Hukum",
+      "use_cases": ["J-UC17", "J-UC21"],
+      "story_ref": ["ST-J-16"],
+      "summary_logic": "Agregasi laporan Klien & alert DLP backend AD-J-03, sistem Warning 1-3, suspend dengan surat resmi SHA-256, appeal window 14 hari."
+    },
+    {
+      "id": "MOCK-J-AM-04",
+      "title": "Pemantauan Keuangan Escrow & Rekonsiliasi Pajak",
+      "actor": "Admin Hukum",
+      "use_cases": ["J-UC18"],
+      "story_ref": ["ST-J-17"],
+      "summary_logic": "Rekonsiliasi transaksi Escrow platform, bukti potong PPh 21, ekspor SHA-256, dan Two-Person Approval untuk penarikan >= Rp 10 Juta."
+    }
+  ],
+  "navigation_transitions": [
+    {
+      "from": "MOCK-J-CL-01",
+      "to": "MOCK-J-CL-02",
+      "trigger_action": "Login Sukses / Registrasi Sukses",
+      "condition": "account_status == ACTIVE",
+      "data_passed": "client_session_token"
+    },
+    {
+      "from": "MOCK-J-CL-02",
+      "to": "MOCK-J-CL-03",
+      "trigger_action": "Klik Pilih Layanan Advokat",
+      "condition": "advocate_status == ONLINE && license == ACTIVE",
+      "data_passed": "advocate_id, tier, consultation_mode"
+    },
+    {
+      "from": "MOCK-J-CL-03",
+      "to": "MOCK-J-CL-04",
+      "trigger_action": "Pembayaran Escrow Sukses || Klaim Tiket Pro Bono Sukses",
+      "condition": "consultation_mode == ONLINE_E2EE",
+      "data_passed": "consultation_session_id, encryption_key_hash"
+    },
+    {
+      "from": "MOCK-J-CL-03",
+      "to": "MOCK-J-CL-05",
+      "trigger_action": "Pembayaran Escrow Sukses",
+      "condition": "consultation_mode == OFFLINE_MEETING",
+      "data_passed": "offline_reservation_id, slot_time"
+    },
+    {
+      "from": "MOCK-J-CL-04",
+      "to": "MOCK-J-CL-06",
+      "trigger_action": "Sesi Chat Selesai (Tier 2/Tier 3 berbayar)",
+      "condition": "requires_deliverable == TRUE",
+      "data_passed": "consultation_session_id, deliverable_thread_id"
+    },
+    {
+      "from": "MOCK-J-CL-04",
+      "to": "MOCK-J-CL-07",
+      "trigger_action": "Sesi Chat Selesai (Tier 1 Gratis || Tier 2/3 Tanpa Dokumen Tambahan)",
+      "condition": "session_status == COMPLETED",
+      "data_passed": "consultation_session_id, advocate_id"
+    },
+    {
+      "from": "MOCK-J-CL-05",
+      "to": "MOCK-J-CL-07",
+      "trigger_action": "QR Check-out Sukses || Systemic Auto Check-out 120m",
+      "condition": "session_status == COMPLETED",
+      "data_passed": "consultation_session_id, advocate_id"
+    },
+    {
+      "from": "MOCK-J-CL-06",
+      "to": "MOCK-J-CL-07",
+      "trigger_action": "Thread Locked (Direct Approve || Quota Habis || SLA Auto-Approve)",
+      "condition": "async_thread_locked == TRUE",
+      "data_passed": "consultation_session_id, advocate_id"
+    },
+    {
+      "from": "MOCK-J-CL-04",
+      "to": "MOCK-J-CL-08",
+      "trigger_action": "Klik Laporkan Pelanggaran Etik / Wanprestasi",
+      "condition": "client_consents_evidence == TRUE",
+      "data_passed": "consultation_session_id, e2ee_transcript_hash"
+    },
+    {
+      "from": "MOCK-J-AD-01",
+      "to": "MOCK-J-AD-02",
+      "trigger_action": "Login TOTP Sukses",
+      "condition": "verification_status == VERIFIED",
+      "data_passed": "advocate_session_token"
+    },
+    {
+      "from": "MOCK-J-AD-02",
+      "to": "MOCK-J-AD-03",
+      "trigger_action": "Terima Permintaan Sesi Masuk || Buka Ruang Praktik",
+      "condition": "advocate_online == TRUE",
+      "data_passed": "consultation_session_id || offline_slot_id"
+    },
+    {
+      "from": "MOCK-J-AD-03",
+      "to": "MOCK-J-AD-04",
+      "trigger_action": "Klik Susun Catatan IRAC / Legal Drafting",
+      "condition": "session_active == TRUE || session_completed == TRUE",
+      "data_passed": "consultation_session_id, irac_note_id"
+    },
+    {
+      "from": "MOCK-J-AD-04",
+      "to": "MOCK-J-CL-06",
+      "trigger_action": "Kirim Draf Legal Opinion / Kontrak Ber-Meterai",
+      "condition": "emeterai_status == STAMPED_SHA256",
+      "data_passed": "deliverable_thread_id, document_hash"
+    },
+    {
+      "from": "MOCK-J-CL-06",
+      "to": "MOCK-J-AD-05",
+      "trigger_action": "Thread Locked -> Escrow Settled",
+      "condition": "async_thread_locked == TRUE",
+      "data_passed": "escrow_payout_amount, pph21_tax_amount"
+    },
+    {
+      "from": "MOCK-J-AM-01",
+      "to": "MOCK-J-AM-02",
+      "trigger_action": "Login Admin TOTP & IP Whitelist Sukses",
+      "condition": "role == COMPLIANCE_ADMIN",
+      "data_passed": "admin_session_token"
+    },
+    {
+      "from": "MOCK-J-CL-08",
+      "to": "MOCK-J-AM-03",
+      "trigger_action": "Pengiriman Laporan Etik Klien (Source 1)",
+      "condition": "ticket_created == TRUE",
+      "data_passed": "report_ticket_id, sha256_evidence"
+    },
+    {
+      "from": "MOCK-J-CL-04",
+      "to": "MOCK-J-AM-03",
+      "trigger_action": "Automated DLP Security Alert >= 2x Evasion (Source 2)",
+      "condition": "dlp_evasion_count >= 2",
+      "data_passed": "dlp_incident_id, session_freeze_flag"
+    },
+    {
+      "from": "MOCK-J-AM-03",
+      "to": "MOCK-J-AD-01",
+      "trigger_action": "Penerbitan Keputusan Suspend Akun",
+      "condition": "due_process_stage == SUSPENDED",
+      "data_passed": "suspension_notice_sha256, appeal_deadline"
+    }
+  ]
+}
