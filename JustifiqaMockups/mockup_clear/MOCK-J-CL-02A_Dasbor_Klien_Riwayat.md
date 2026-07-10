@@ -16,7 +16,7 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> • Platform Hukum Profesional | [ Dasbor Saya ] | [ Cari Advokat ] | [ Pengaturan Akun ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> • Portal Klien Terverifikasi | [ Dasbor Saya ] | [ Cari Advokat ] | [ Pusat Sengketa ] | [ Pengaturan Akun ] | [ ☀ Light / ☾ Dark ] }
   --
   {
     === HALO, BUDI SANTOSO

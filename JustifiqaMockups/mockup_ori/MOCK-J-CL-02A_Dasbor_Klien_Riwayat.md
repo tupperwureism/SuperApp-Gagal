@@ -7,7 +7,7 @@
 | **Nama Halaman** | Dasbor Manajemen Perkara & Sesi Klien (`client.justica.id/dashboard`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
 | **Ref. Use Case** | `J-UC03` (Akses Dasbor & Riwayat Sesi), `J-UC13` (Unduh Berkas e-Meterai) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-01` -> `MOCK-J-CL-02A` -> `MOCK-J-CL-02` (Katalog Advokat), `MOCK-J-CL-04` (Chat Room), `MOCK-J-CL-06` (Async Room), `MOCK-J-CL-03B` (Resi Invoice), `MOCK-J-CL-10` (Pengaturan Akun) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-01` -> `MOCK-J-CL-02A` -> `MOCK-J-CL-02` (Katalog Advokat), `MOCK-J-CL-04` (Chat Room), `MOCK-J-CL-06` (Async Room), `MOCK-J-CL-03B` (Resi Invoice), `MOCK-J-CL-09` (Pusat Sengketa), `MOCK-J-CL-10` (Pengaturan Akun) |
 | **Kepatuhan Keamanan** | Client Session Isolation (RBAC), Fair-Clock State Tracking, WORM Audit Logging, Encrypted Vault Access |
 
 ---
@@ -17,7 +17,7 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> - Portal Klien Terverifikasi | [ Dasbor Saya ] | [ Cari Advokat ] | [ Pengaturan Akun ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> - Portal Klien Terverifikasi | [ Dasbor Saya ] | [ Cari Advokat ] | [ Pusat Sengketa ] | [ Pengaturan Akun ] | [ ☀ / ☾ ] }
   --
   {
     === DASBOR UTAMA MANAJEMEN KONSULTASI & PERKARA HUKUM
@@ -61,8 +61,9 @@
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
 | `DASH-NAV-01`| `Tautan Cari Advokat` | Navigation Link | Ya | Mengalihkan klien langsung ke katalog advokat `MOCK-J-CL-02`. |
-| `DASH-NAV-02`| `Pengaturan Akun`     | Navigation Link | Ya | Membuka halaman manajemen profil & privasi `MOCK-J-CL-10`. |
-| `DASH-NAV-03`| `Toggle Theme Mode`   | Action Button   | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `DASH-NAV-02`| `Pusat Sengketa`      | Navigation Link | Ya | Membuka portal pemantauan dispute & mediasi Escrow `MOCK-J-CL-09`. |
+| `DASH-NAV-03`| `Pengaturan Akun`     | Navigation Link | Ya | Membuka halaman manajemen profil & privasi `MOCK-J-CL-10`. |
+| `DASH-NAV-04`| `Toggle Theme Mode`   | Action Button   | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
 | `DASH-BTN-01`| `Konsultasi Baru`     | Action Button   | Ya | Mengalihkan klien ke katalog advokat `MOCK-J-CL-02`. |
 | `DASH-BTN-02`| `Pro Bono SKTM`       | Action Button   | Ya | Membuka modal pengajuan bantuan hukum gratis DTKS (`MOCK-J-CL-03`). |
 | `DASH-TBL-01`| `Tabel Sesi Aktif`    | Data Grid       | Ya | Menampilkan seluruh sesi dengan status `ACTIVE` atau `PENDING_DELIVERABLE`. |
@@ -83,6 +84,7 @@
 | `onClick` | Tautan `[ Unduh PDF e-Meterai ]`| `status == VALIDATED` | Memicu unduhan binary ber-stamp Peruri resmi. | Unduhan Berkas PDF |
 | `onClick` | Tautan `[ Resi Invoice Escrow ]`| `status == PAID` | Membuka arsip resi pembayaran dan SHA-256 bukti Escrow. | -> `MOCK-J-CL-03B` (Resi Invoice) |
 | `onClick` | Header `[ Cari Advokat ]`      | Akun terautentikasi | Navigasi cepat ke direktori advokat. | -> `MOCK-J-CL-02` |
+| `onClick` | Header `[ Pusat Sengketa ]`    | Akun terautentikasi | Navigasi ke pusat pemantauan dispute & mediasi Escrow. | -> `MOCK-J-CL-09` |
 | `onClick` | Header `[ Pengaturan Akun ]`   | Akun terautentikasi | Navigasi ke pengaturan privasi & keamanan klien. | -> `MOCK-J-CL-10` |
 | `onClick` | Tombol `[ ☀ / ☾ Mode ]`        | Tidak ada | Mengganti kelas CSS tema visual antarmuka. | Tetap di `MOCK-J-CL-02A` |
 

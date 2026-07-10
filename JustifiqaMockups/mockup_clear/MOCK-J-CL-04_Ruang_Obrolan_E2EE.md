@@ -16,7 +16,7 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> • Platform Hukum Profesional | [ Sisa Waktu: 44 Menit 12 Detik ] | [ Akhiri Sesi ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> • Platform Hukum Profesional | [ Dasbor Saya ] | [ Sisa Waktu: 44 Menit 12 Detik ] | [ Akhiri Sesi ] | [ ☀ / ☾ ] }
   --
   {
     === KONSULTASI BERSAMA DR. MAHENDRA KUSUMA, S.H., M.H.

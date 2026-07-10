@@ -64,7 +64,7 @@
 | `DEL-BTN-01` | `Unduh PDF SHA-256`| Action Button| Ya | Mengirimkan berkas binary asli lengkap metadata sertifikat e-Meterai. |
 | `DEL-BTN-02` | `Setujui Dokumen`  | Action Button| Ya | Melepas 100% dana Escrow ke advokat (`PAID_OUT`) dan membuka modal rating `CL-07`. |
 | `DEL-BTN-03` | `Ajukan Revisi`    | Action Button| Ya | Aktif jika `revisions_left > 0`. Membuka formulir masukan catatan revisi. |
-| `DEL-BTN-04` | `Laporan Sengketa` | Action Button| Ya | Mengalihkan klien ke pusat pelaporan masalah kualitas/substansi berkas (`CL-08 + CL-09`). |
+| `DEL-BTN-04` | `Laporan Sengketa` | Action Button| Ya | Mengalihkan klien ke formulir pelaporan masalah kualitas/substansi berkas (`MOCK-J-CL-08`). |
 
 ---
 
@@ -74,7 +74,7 @@
 | `onClick` | Tombol `[ UNDUH DOKUMEN ]` | Berkas ter-stamp e-Meterai | Catat aktivitas pengunduhan ke WORM audit log, unduh berkas PDF. | Tetap di `MOCK-J-CL-06` |
 | `onClick` | Tombol `[ SETUJUI DOKUMEN ]`| Konfirmasi modal `Yes` | Cairkan Escrow ke advokat, ubah status perkara jadi `COMPLETED`. | -> `MOCK-J-CL-07` (Rating Modal) |
 | `onClick` | Tombol `[ AJUKAN REVISI ]` | `revisions_left > 0` | Kirim catatan revisi ke advokat (`AD-04`), kurangi kuota revisi. | Tetap (Status menjadi `IN_REVISION`) |
-| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Review | Membuka pusat pelaporan masalah dan sengketa Escrow. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Review | Membuka pusat pelaporan masalah dan sengketa Escrow. | -> `MOCK-J-CL-08` (Form Whistleblowing & Dispute) |
 | `onClick` | Header `[ Dasbor Saya ]`   | Sesi Klien Aktif | Kembali ke halaman dasbor utama klien. | -> `MOCK-J-CL-02A` |
 | `onClick` | Tombol `[ ☀ / ☾ Mode ]`    | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-06` |
 

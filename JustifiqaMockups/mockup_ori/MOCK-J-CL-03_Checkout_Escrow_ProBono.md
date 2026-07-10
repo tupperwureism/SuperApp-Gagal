@@ -7,7 +7,7 @@
 | **Nama Halaman** | Checkout Pembayaran Rekening Bersama (Escrow) & Pro Bono DTKS (`client.justica.id/checkout`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
 | **Ref. Use Case** | `J-UC06` (Checkout Pembayaran Escrow), `J-UC07` (Pengajuan Bantuan Pro Bono SKTM) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02B` -> `MOCK-J-CL-03` -> `MOCK-J-CL-03B` (Instruksi Pembayaran & Resi), `MOCK-J-CL-02B` (Kembali) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02B` -> `MOCK-J-CL-03` -> `MOCK-J-CL-03B` (Instruksi Pembayaran & Resi), `MOCK-J-CL-02A` (Dasbor Saya), `MOCK-J-CL-02B` (Kembali) |
 | **Kepatuhan Keamanan** | Idempotency Key SHA-256, Zero-Storage PCI-DSS Tokenization, DTKS Kemensos API Verification |
 
 ---
@@ -17,7 +17,7 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> - Checkout Aman Rekening Escrow | [ < Kembali ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> - Checkout Aman Rekening Escrow | [ Dasbor Saya ] | [ < Kembali ] | [ ☀ / ☾ ] }
   --
   {
     === CHECKOUT PEMBAYARAN & PENGAJUAN BANTUAN HUKUM
@@ -66,7 +66,8 @@
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
 | `CHK-NAV-01` | `Tombol Kembali`    | Action Button| Ya | Mengarahkan kembali ke profil advokat `MOCK-J-CL-02B`. |
-| `CHK-NAV-02` | `Toggle Theme Mode` | Action Button| Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `CHK-NAV-02` | `Tombol Dasbor Saya`| Action Button| Ya | Kembali ke dasbor utama klien `MOCK-J-CL-02A`. |
+| `CHK-NAV-03` | `Toggle Theme Mode` | Action Button| Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
 | `CHK-TAB-01` | `Selector Tab Mode` | Tab Control  | Ya | Peralihan antara `TAB_ESCROW` dan `TAB_PROBONO`. |
 | `CHK-RAD-01` | `Metode Pembayaran` | Radio Selection| Ya* | Pilihan QRIS, VA, atau Kartu Kredit. *Wajib jika berada di Tab 1 (Escrow). |
 | `CHK-CHK-01` | `Consent Escrow`    | Boolean | Ya | Wajib `true` untuk memproses pembayaran Escrow. |
@@ -84,6 +85,7 @@
 | `onClick` | Tab `[ Escrow ] / [ Pro Bono ]` | Tidak ada | Mengganti panel aktif antara checkout berbayar atau pengajuan Pro Bono. | Tetap di `MOCK-J-CL-03` |
 | `onClick` | Tombol `[ BAYAR SEKARANG ]` | `Consent == true` & `Timer > 0` | Generate Idempotency Key SHA-256, buat tagihan Virtual Account/QRIS. | -> `MOCK-J-CL-03B` (Invoice Resi) |
 | `onClick` | Tombol `[ AJUKAN PRO BONO ]`| Form SKTM lengkap & file valid | Panggil API Kemensos DTKS untuk verifikasi NIK, kirim ke antrean verifikasi admin. | -> `MOCK-J-CL-03B` (Status SKTM) |
+| `onClick` | Header `[ Dasbor Saya ]`   | Sesi Klien Aktif | Kembali ke halaman dasbor utama klien. | -> `MOCK-J-CL-02A` |
 | `onClick` | Tombol `[ < Kembali ]`     | Tidak ada | Kembali ke halaman booking sebelumnya. | -> `MOCK-J-CL-02B` |
 | `onClick` | Tombol `[ ☀ / ☾ Mode ]`    | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-03` |
 

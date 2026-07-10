@@ -69,7 +69,7 @@
 | `OFF-NAV-01` | `Tautan Dasbor Saya`| Navigation Link | Ya | Kembali ke dasbor utama klien `MOCK-J-CL-02A`. |
 | `OFF-NAV-02` | `Toggle Theme Mode` | Action Button   | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
 | `OFF-BTN-01` | `Tombol Scan QR`    | Camera Action   | Ya | Membuka *video stream* kamera ponsel dengan pemindai token waktu dinamik. |
-| `OFF-BTN-02` | `Laporan Sengketa`  | Action Button   | Ya | Membuka pusat pelaporan sengketa jika terjadi pelanggaran kesepakatan sesi offline (`CL-08 + CL-09`). |
+| `OFF-BTN-02` | `Laporan Sengketa`  | Action Button   | Ya | Membuka formulir pelaporan sengketa jika terjadi pelanggaran kesepakatan sesi offline (`MOCK-J-CL-08`). |
 
 ---
 
@@ -77,7 +77,7 @@
 | Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
 | :--- | :--- | :--- | :--- | :--- |
 | `onClick` | Tombol `[ PINDAI QR CHECK-OUT ]`| `Camera Permission == Granted`| Verifikasi token QR waktu dinamis (<30 detik TTL), lepas kunci Escrow. | -> `MOCK-J-CL-07` (Rating Modal) |
-| `onClick` | Tombol `[ Laporan Sengketa ]`   | Sesi Offline Aktif | Mengalihkan ke formulir Whistleblowing & Dispute Monitoring. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Tombol `[ Laporan Sengketa ]`   | Sesi Offline Aktif | Mengalihkan ke formulir Whistleblowing & Dispute Monitoring. | -> `MOCK-J-CL-08` (Form Whistleblowing & Dispute) |
 | `onClick` | Header `[ Dasbor Saya ]`        | Sesi Klien Aktif | Kembali ke halaman dasbor utama klien. | -> `MOCK-J-CL-02A` |
 | `onClick` | Tombol `[ ☀ / ☾ Mode ]`         | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-05` |
 

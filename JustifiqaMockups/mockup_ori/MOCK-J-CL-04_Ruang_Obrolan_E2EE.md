@@ -7,7 +7,7 @@
 | **Nama Halaman** | Ruang Konsultasi Hukum Enkripsi Ujung-ke-Ujung (`client.justica.id/room/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi & Advokat Berlisensi SIPP |
 | **Ref. Use Case** | `J-UC09` (Konsultasi E2EE Chat/Call), `J-UC10` (Fair-Clock Timer Control), `J-UC11` (Inline DLP Protection) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-04` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa/Dispute) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-04` -> `MOCK-J-CL-02A` (Dasbor Saya), `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa/Dispute) |
 | **Kepatuhan Keamanan** | Client-Side Signal AES-GCM Enkripsi, Zero-Storage Server Relay, Inline Regex DLP Scanner, WebRTC SRTP Call |
 
 ---
@@ -17,7 +17,7 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> - Ruang Konsultasi Aman E2EE | [ < Akhiri Sesi ] | [ Sesi Aktif: Fair-Clock 44:12 ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> - Ruang Konsultasi Aman E2EE | [ Dasbor Saya ] | [ < Akhiri Sesi ] | [ Sesi Aktif: Fair-Clock 44:12 ] | [ ☀ / ☾ ] }
   --
   {
     === SESI KONSULTASI HUKUM TERENKRIPSI (E2EE — ZERO SERVER KNOWLEDGE)
@@ -68,6 +68,7 @@
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
 | `CHAT-NAV-01`| `Toggle Theme Mode` | Action Button | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `CHAT-NAV-02`| `Tombol Dasbor Saya`| Action Button | Ya | Kembali sementara ke halaman dasbor utama klien `MOCK-J-CL-02A` tanpa mengakhiri sesi. |
 | `CHAT-BTN-03`| `Akhiri Sesi`       | Action Button | Ya | Memicu terminasi *handshake* kunci sesi dan pembukaan modal rating `CL-07`. |
 | `CHAT-BTN-02`| `Pause Fair-Clock`  | Action Button | Ya | Meminta jeda sementara penghitungan waktu (maksimal 2 kali per sesi). |
 | `CHAT-BTN-05`| `Unggah Dokumen`    | Action Button | Ya | Berkas dienkripsi lokal di browser sebelum diunggah ke *ephemeral vault*. |
@@ -86,7 +87,8 @@
 | `onClick` | Tombol `[ Panggilan Suara ]`| Handshake E2EE sukses | Inisiasi negosiasi WebRTC SRTP dengan advokat mitra. | Sesi WebRTC Terbuka |
 | `onClick` | Tombol `[ PAUSE TIMER ]`    | `pause_count < 2` | Hentikan sementara detak timer di server sinkronisasi NTP. | Tetap (Status `PAUSED`) |
 | `onClick` | Tombol `[ AKHIRI SESI ]`    | Konfirmasi modal | Tutup WebSocket, hapus kunci dekripsi sesi dari RAM browser. | -> `MOCK-J-CL-07` (Rating Modal) |
-| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Berakhir | Membuka formulir pelaporan masalah etika/teknis sesi konsultasi. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Berakhir | Membuka formulir pelaporan masalah etika/teknis sesi konsultasi. | -> `MOCK-J-CL-08` (Form Whistleblowing & Dispute) |
+| `onClick` | Header `[ Dasbor Saya ]`    | Sesi Aktif | Kembali ke halaman dasbor utama klien tanpa mengakhiri koneksi E2EE. | -> `MOCK-J-CL-02A` |
 | `onClick` | Tombol `[ ☀ / ☾ Mode ]`     | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-04` |
 
 ---

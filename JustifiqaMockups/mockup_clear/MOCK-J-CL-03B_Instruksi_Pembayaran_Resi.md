@@ -51,6 +51,9 @@
   {
     ! <color:green><b>PEMBAYARAN DITERIMA:</b></color>
     [  <b>MASUK KE RUANG KONSULTASI SEKARANG</b>  ]
+    --
+    ! <color:blue><b>PRO BONO SKTM DISETUJUI (Rp 0):</b></color>
+    [  <b>MASUK KE RUANG PRO BONO SEKARANG</b>  ]
   }
 }
 @endsalt
