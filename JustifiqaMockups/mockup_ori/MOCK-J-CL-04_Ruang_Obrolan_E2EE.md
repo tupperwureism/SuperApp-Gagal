@@ -1,14 +1,14 @@
-# MOCK-J-CL-04 [ORI]: Ruang Obrolan Hukum Online E2EE Justica
+# MOCK-J-CL-04 [ORI]: Ruang Obrolan Hukum Online E2EE (Fair-Clock & Inline DLP) Justica
 
 ## 1. METADATA SPESIFIKASI (ENGINEERING EDITION)
 | Atribut | Nilai Spesifikasi |
 | :--- | :--- |
 | **ID Mockup** | `MOCK-J-CL-04` |
-| **Nama Halaman** | Ruang Obrolan Hukum Terenkripsi E2EE (`client.justica.id/room/REQ-202607-003`) |
-| **Aktor Target** | Klien Hukum Terverifikasi (*Client*) & Advokat Mitra |
-| **Ref. Use Case** | `J-UC04` (Konsultasi Real-Time E2EE), `J-UC10` (Fair-Clock Timer & Inline DLP) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-04` -> `MOCK-J-CL-06` (Async Room Deliverable), `MOCK-J-CL-07` (Rating Modal) |
-| **Kepatuhan Keamanan** | WebRTC/WebSocket E2EE (AES-GCM-256), Inline DLP Masking (<30ms latency), Fair-Clock Timer |
+| **Nama Halaman** | Ruang Konsultasi Hukum Enkripsi Ujung-ke-Ujung (`client.justica.id/room/{id}`) |
+| **Aktor Target** | Klien Hukum Terverifikasi & Advokat Berlisensi SIPP |
+| **Ref. Use Case** | `J-UC09` (Konsultasi E2EE Chat/Call), `J-UC10` (Fair-Clock Timer Control), `J-UC11` (Inline DLP Protection) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-04` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa/Dispute) |
+| **Kepatuhan Keamanan** | Client-Side Signal AES-GCM Enkripsi, Zero-Storage Server Relay, Inline Regex DLP Scanner, WebRTC SRTP Call |
 
 ---
 
@@ -20,36 +20,43 @@
   {* <b>JUSTICA</b> - Ruang Konsultasi Aman E2EE | [ < Akhiri Sesi ] | [ Sesi Aktif: Fair-Clock 44:12 ] | [ ☀ / ☾ ] }
   --
   {
-    === RUANG KONSULTASI HUKUM TERENKRIPSI E2EE
-    "Mitra Advokat: Dr. Mahendra Kusuma, S.H., M.H. (SIPP MA Verified) • Escrow: HELD Rp 450.000"
+    === SESI KONSULTASI HUKUM TERENKRIPSI (E2EE — ZERO SERVER KNOWLEDGE)
+    "Percakapan dilindungi enkripsi AES-GCM 256-Bit. Server Justica tidak dapat membaca atau mendekripsi isi pesan Anda."
   }
   --
   {
-    {
-      <b>TIMELINE CHAT E2EE (ZERO-KNOWLEDGE SERVER RELAY)</b>
-      --
-      [10:30 WIB] <b>Sistem Justica:</b> Sesi konsultasi 45 menit resmi dimulai. Perlindungan DLP Aktif.
-      [10:31 WIB] <b>Dr. Mahendra:</b> Selamat pagi Pak Budi. Silakan ceritakan kronologi sengketa kontrak Anda.
-      [10:33 WIB] <b>Budi Santoso (Anda):</b> Pagi Pak. Pihak vendor melanggar pasal 12 kontrak kerja sama kami.
-      [10:35 WIB] <b>Budi Santoso (Anda):</b> Ini nomor rekening vendor yang bermasalah: <color:orange><b>[MASKED_BANK_ACCOUNT_DLP]</b></color>
-      [10:36 WIB] <b>Sistem DLP Inline (~29ms):</b> Data sensitif finansial disensor otomatis untuk melindungi privasi Anda.
-    } | {
-      <b>PANEL STATUS FAIR-CLOCK & INFORMASI KASUS</b>
-      --
-      Status Timer     | <b>BERJALAN (ACTIVE)</b>
-      Sisa Waktu Resmi | <b>44 Menit 12 Detik</b>
-      Status Escrow    | <b>HELD (100% Aman)</b>
-      --
-      [  <b>MINTA JEDA WAKTU (PAUSE TIMER)</b>  ]
-      --
-      <b>BERKAS PERKARA TERUNGGAH:</b>
-      • Kontrak_NDA_2026.pdf (SHA-256 Verified)
-      [  <b>UNGGAH DOKUMEN BARU</b>  ]
+    {#
+      <b>Informasi Advokat Mitra</b> | <b>Status Enkripsi & Kunci Sesi</b> | <b>Waktu Tersedia (Fair-Clock)</b>
+      {
+        Dr. Mahendra Kusuma, S.H., M.H.
+        SIPP MA: ACTIVE (VERIFIED)
+      } | {
+        Fingerprint Kunci: `8F:90:A2:C4:...`
+        Inline DLP Guard: <color:green><b>ACTIVE</b></color>
+      } | {
+        Sisa Waktu: <b>44:12 / 45:00 Menit</b>
+        [  <b>MINTA JEDA WAKTU (PAUSE TIMER)</b>  ]
+      }
     }
   }
   --
   {
-    Ketik pesan konsultasi terenkripsi...               | [  <b>KIRIM PESAN E2EE</b>  ] | [ Panggilan Suara / Video ]
+    <b>RIWAYAT OBROLAN E2EE & PROTEKSI DATA PRIBADI (DLP)</b>
+    --
+    {
+      [10:30] <b>Klien:</b> Selamat pagi Pak Advokat, saya ingin konsultasi perjanjian NDA.
+      [10:31] <b>Dr. Mahendra:</b> Selamat pagi, siap. Silakan lampirkan draf klausul kerahasiaannya.
+      --
+      ! <color:red><b>SISTEM DLP JUSTICA (BLOCKED PRIVATE DATA):</b></color>
+      "Anda mencoba mengirimkan nomor kartu kredit/CVV. Demi keamanan finansial Anda, pesan ini telah disensor otomatis oleh engine DLP."
+    }
+  }
+  --
+  {
+    [  <b>UNGGAH DOKUMEN BARU (PDF/DOCX MAX 15MB E2EE)</b>  ]
+    --
+    Ketik pesan konsultasi hukum Anda di sini... | "Klausul pasal 4 berbunyi..."
+    [  <b>KIRIM PESAN E2EE</b>  ] | [ Panggilan Suara / Video ] | [ Laporan Sengketa Sesi ]
   }
 }
 @endsalt
@@ -60,37 +67,43 @@
 ## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
-| `CHAT-MSG-01`| `Input Pesan Chat` | String | Ya | Maksimal 2000 karakter, melewati pemeriksaan *Inline DLP Scanner* sebelum enkripsi. |
-| `CHAT-TMR-01`| `Fair-Clock Timer` | Synchronized Clock| Ya | Sinkronisasi detik dengan *server authoritative clock* melalui WebSocket. |
-| `CHAT-BTN-01`| `Kirim Pesan E2EE` | Action Button | Ya | Enkripsi *client-side AES-GCM-256* menggunakan *shared secret key* sesi. |
-| `CHAT-BTN-02`| `Pause Timer`      | Action Button | Ya | Meminta persetujuan jeda waktu (*mutual pause*) kepada advokat mitra. |
-| `CHAT-BTN-03`| `Akhiri Sesi`      | Action Button | Ya | Memicu penyelesaian sesi resmi dan menampilkan modal rating `MOCK-J-CL-07`. |
+| `CHAT-NAV-01`| `Toggle Theme Mode` | Action Button | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `CHAT-BTN-03`| `Akhiri Sesi`       | Action Button | Ya | Memicu terminasi *handshake* kunci sesi dan pembukaan modal rating `CL-07`. |
+| `CHAT-BTN-02`| `Pause Fair-Clock`  | Action Button | Ya | Meminta jeda sementara penghitungan waktu (maksimal 2 kali per sesi). |
+| `CHAT-BTN-05`| `Unggah Dokumen`    | Action Button | Ya | Berkas dienkripsi lokal di browser sebelum diunggah ke *ephemeral vault*. |
+| `CHAT-MSG-01`| `Input Pesan Obrolan`| String Text  | Ya | Diberlakukan pemindaian DLP Regex sebelum dikirim melalui WebSocket E2EE. |
+| `CHAT-BTN-01`| `Kirim Pesan`       | Action Button | Ya | Memicu enkripsi AES-GCM lokal dengan kunci publik advokat. |
+| `CHAT-BTN-04`| `Panggilan WebRTC`  | Action Button | Ya | Membuka saluran komunikasi suara/video terenkripsi SRTP (*Peer-to-Peer*). |
+| `CHAT-BTN-06`| `Laporan Sengketa`  | Action Button | Ya | Mengalihkan klien ke pusat pelaporan masalah dan pemantauan sengketa (`CL-08 + CL-09`). |
 
 ---
 
 ## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
 | Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
 | :--- | :--- | :--- | :--- | :--- |
-| `onSubmit`| `Input Pesan Chat` | `msg.length > 0` | Pemindaian DLP <30ms, enkripsi AES-GCM-256, kirim via WebSocket relay. | Tetap di `MOCK-J-CL-04` |
-| `onClick` | Tombol `[ MINTA JEDA ]`| `Timer.status == RUNNING` | Mengirim sinyal `PAUSE_REQUEST` ke advokat. Jika disetujui, timer berhenti sementara. | Tetap di `MOCK-J-CL-04` |
-| `onClick` | Tombol `[ Akhiri Sesi ]`| Konfirmasi modal `Yes` | Menutup sesi WebSocket, memindahkan status Escrow ke `READY_RELEASE`, buka rating. | -> `MOCK-J-CL-07` (Rating Modal) |
+| `onClick` | Tombol `[ KIRIM PESAN ]`    | `Input != Empty` & DLP Lolos | Enkripsi pesan di memori browser, kirim *ciphertext* via WebSocket. | Tetap di `MOCK-J-CL-04` |
+| `onClick` | Tombol `[ UNGGAH DOKUMEN ]` | `File size <= 15MB` | Enkripsi binary berkas dengan AES-GCM, unggah *chunked stream*. | Tetap di `MOCK-J-CL-04` |
+| `onClick` | Tombol `[ Panggilan Suara ]`| Handshake E2EE sukses | Inisiasi negosiasi WebRTC SRTP dengan advokat mitra. | Sesi WebRTC Terbuka |
+| `onClick` | Tombol `[ PAUSE TIMER ]`    | `pause_count < 2` | Hentikan sementara detak timer di server sinkronisasi NTP. | Tetap (Status `PAUSED`) |
+| `onClick` | Tombol `[ AKHIRI SESI ]`    | Konfirmasi modal | Tutup WebSocket, hapus kunci dekripsi sesi dari RAM browser. | -> `MOCK-J-CL-07` (Rating Modal) |
+| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Berakhir | Membuka formulir pelaporan masalah etika/teknis sesi konsultasi. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Tombol `[ ☀ / ☾ Mode ]`     | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-04` |
 
 ---
 
 ## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
 | Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
 | :--- | :--- | :--- | :--- |
-| Kirim Pesan E2EE | `WSS /ws/v2/chat/REQ-202607-003` | `{"type": "MESSAGE", "ciphertext_aes": "9a8b...", "dlp_scanned": true}` | `{"event": "MSG_ACK", "timestamp": "10:35:12Z"}` |
-| Sinkronisasi Fair-Clock| `GET /api/v2/room/REQ-202607-003/timer` | *Headers: `Authorization: Bearer <jwt>`* | `200 OK: {"remaining_seconds": 2652, "state": "RUNNING"}` |
+| Kirim Pesan Terenkripsi | `POST /api/v2/chat/send-ciphertext` | `{"session_id": "ROOM-091", "ciphertext": "base64...", "iv": "hex...", "tag": "hex..."}` | `200 OK: {"delivered": true, "server_timestamp": "2026-07-10T10:31:00Z"}` |
 
 ---
 
 ## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
 | Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
 | :--- | :--- | :--- | :--- |
-| `1006 WS Closed` | Koneksi WebSocket terputus sewaktu-waktu | `"Koneksi jaringan terputus sementara. Menghubungkan kembali ke ruang obrolan..."` | *Auto-reconnect exponential backoff*; timer Fair-Clock otomatis dijeda (*auto-pause*). |
-| `400 DLP Blocked`| Teks mengandung informasi terlarang/berbahaya | `"Pesan dicegah sistem karena mengandung nomor kartu kredit/rekening yang tidak sah."` | Pesan disensor lokal dan tidak dikirim ke relai server. |
+| `DLP_VIOLATION_ERR` | Klien mengetik data sensitif (PAN Kartu, CVV, OTP) | `"Pesan dicegah: Mengandung data finansial sensitif yang dilindungi kebijakan Justica."` | Pesan dibatalkan sebelum proses enkripsi dan tidak pernah terkirim. |
+| `1008 WS Closed`    | Koneksi terputus karena gangguan jaringan | `"Koneksi aman terputus. Menghubungkan ulang ke ruang E2EE..."` | *Auto-reconnect* dengan mekanisme *exponential backoff*. |
 
 ### Catatan Arsitektur Teknis:
-1. **Inline DLP Latency:** Scanner Data Loss Prevention bekerja di level *web worker* browser dengan latensi <30 milidetik sebelum pesan dienkripsi.
-2. **Fair-Clock Protocol:** Waktu tidak berkurang saat terjadi gangguan koneksi jaringan pada klien atau advokat.
+1. **Zero-Storage Relay:** Server Justica hanya bertindak sebagai pipa transmisi (*relay pipe*) pesan terenkripsi dan tidak memiliki kunci privat untuk membaca riwayat konsultasi klien.
+2. **Inline Client-Side DLP:** Pemindaian Data Loss Prevention (DLP) dilakukan secara lokal di browser sebelum pesan dienkripsi untuk melindungi klien dari kebocoran data pribadi yang tidak disengaja.

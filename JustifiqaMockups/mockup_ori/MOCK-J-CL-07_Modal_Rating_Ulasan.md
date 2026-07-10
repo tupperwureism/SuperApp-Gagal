@@ -4,11 +4,11 @@
 | Atribut | Nilai Spesifikasi |
 | :--- | :--- |
 | **ID Mockup** | `MOCK-J-CL-07` |
-| **Nama Halaman** | Blocking Modal Evaluasi & Ulasan Kinerja Advokat (`client.justica.id/feedback/REQ-003`) |
-| **Aktor Target** | Klien Hukum Terverifikasi (*Client*) |
-| **Ref. Use Case** | `J-UC16` (Penilaian Kinerja & Ulasan Kualitas Advokat) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-04` / `CL-05` / `CL-06` -> `MOCK-J-CL-07` -> `MOCK-J-CL-02A` (Dasbor Utama Klien) |
-| **Kepatuhan Keamanan** | Verified Client Feedback Only (Anti-Review Manipulation), SHA-256 Feedback Hash |
+| **Nama Halaman** | Modal Wajib Penilaian Mutu & Ulasan Layanan Advokat (`client.justica.id/feedback/{session_id}`) |
+| **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
+| **Ref. Use Case** | `J-UC11` (Penilaian Mutu Layanan), `J-UC13` (Pelepasan Akhir Escrow) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-04` / `MOCK-J-CL-05` / `MOCK-J-CL-06` -> `MOCK-J-CL-07` -> `MOCK-J-CL-02A` (Dasbor Saya) |
+| **Kepatuhan Keamanan** | WORM Quality Audit Trail, Anonymous Feedback Option, Anti-Spam NLP Filter |
 
 ---
 
@@ -17,34 +17,39 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> - Portal Klien Terverifikasi | [ ☀ Light / ☾ Dark Mode ] }
+  {* <b>JUSTICA</b> - Penilaian Mutu Layanan Advokat | [ ☀ Light / ☾ Dark Mode ] }
   --
   {
-    === EVALUASI & PENILAIAN KUALITAS LAYANAN ADVOKAT
-    "Sesi konsultasi Anda bersama Dr. Mahendra Kusuma, S.H., M.H. telah selesai. Berikan penilaian Anda."
+    === PENILAIAN & ULASAN KONSULTASI HUKUM TERVERIFIKASI
+    "Ulasan Anda membantu menjaga standar kualitas advokat berlisensi Mahkamah Agung di platform Justica."
   }
   --
   {
-    <b>1. PENILAIAN BINTANG KESELURUHAN (*OVERALL RATING*)</b>
-    --
-    Pilih Penilaian Anda:
-    () ★ 1 Buruk | () ★ 2 Kurang | () ★ 3 Cukup | () ★ 4 Baik | (*) ★ 5 Sangat Memuaskan
+    {#
+      <b>Advokat yang Dinilai</b> | <b>Detail Sesi Konsultasi Selesai</b>
+      Dr. Mahendra Kusuma, S.H., M.H. | Konsultasi Hukum Tier 2 (45 Menit — E2EE)
+      SIPP PERADI #18293              | ID Perkara: #REQ-202607-001
+    }
   }
   --
   {
-    <b>2. ASPEK PENILAIAN PROFESIONALISME</b>
+    <b>1. BERIKAN PENILAIAN BINTANG (KEPUASAN KESELURUHAN)</b>
+    () ★☆☆☆☆ (1 - Sangat Buruk)
+    () ★★☆☆☆ (2 - Kurang)
+    () ★★★☆☆ (3 - Cukup)
+    () ★★★★☆ (4 - Baik)
+    (*) ★★★★★ (5 - Sangat Memuaskan & Profesional)
     --
-    [X] Kejelasan Solusi & Pendapat Hukum
-    [X] Ketepatan Waktu & Responsivitas
-    [X] Etika & Kesopanan Advokat
-  }
-  --
-  {
-    <b>3. ULASAN TERTULIS (PUBLIK ATAU ANONYMOUS)</b>
+    <b>2. ASPEK KEUNGGULAN ADVOKAT (PILIH SEMUA YANG SESUAI)</b>
+    [X] Penjelasan Hukum Mudah Dipahami
+    [X] Respons Cepat & Tepat Waktu (Fair-Clock Compliant)
+    [X] Solusi Praktis & Dapat Diterapkan
+    [ ] Biaya & Estimasi Transparan
     --
-    Tuliskan pengalaman konsultasi Anda (Max 500 karakter)... | "Dr. Mahendra sangat profesional dan penjelasan hukumnya sangat terstruktur."
+    <b>3. TULISKAN ULASAN PENGALAMAN ANDA (OPSIONAL)</b>
+    "Advokat sangat profesional, langsung menjelaskan landasan pasal hukum perjanjian dengan sangat jelas."
     --
-    [X] Sembunyikan nama saya pada katalog publik (Tampilkan sebagai Klien Terverifikasi #8921)
+    [X] Sembunyikan nama saya dari publik (*Anonymous Review — Identitas terverifikasi hanya di server internal*)
   }
   --
   {
@@ -59,33 +64,38 @@
 ## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
-| `RAT-RAD-01` | `Penilaian Bintang`| Radio Integer | Ya | Nilai integer dari 1 sampai 5. |
-| `RAT-CHK-01` | `Aspek Penilaian`  | Checkbox Group| Tidak| Pilihan multi-aspek keunggulan advokat. |
-| `RAT-TXT-01` | `Ulasan Tertulis`  | Text Area     | Tidak| Maksimal 500 karakter dengan sanitasi XSS. |
-| `RAT-CHK-02` | `Ulasan Anonymous` | Boolean       | Tidak| Nilai default `false`. Jika `true`, nama klien disamarkan pada tampilan publik. |
-| `RAT-BTN-01` | `Kirim Penilaian`  | Action Button | Ya   | Merekam ulasan terverifikasi dan mengalkulasi ulang nilai rata-rata advokat. |
+| `RAT-NAV-01`| `Toggle Theme Mode` | Action Button | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `RAT-RAD-01`| `Penilaian Bintang` | Radio 1-5  | Ya | Nilai integer `1 <= rating <= 5`. |
+| `RAT-CHK-01`| `Aspek Keunggulan`  | Checkbox   | Tidak | Pilihan ganda kriteria profesionalitas advokat. |
+| `RAT-TXT-01`| `Ulasan Tertulis`   | Textarea   | Tidak | Sanitasi HTML/XSS, maksimal 1.000 karakter, disaring filter NLP anti-spam. |
+| `RAT-CHK-02`| `Anonymous Review`  | Boolean    | Tidak | Nilai default `false`. Jika `true`, nama di halaman profil publik disamarkan menjadi `"Klien Terverifikasi"`. |
+| `RAT-BTN-01`| `Kirim Penilaian`   | Action Button | Ya | Merekam penilaian ke database reputasi advokat dan mengalihkan ke dasbor. |
+| `RAT-BTN-02`| `Lewati Sementara`  | Action Button | Ya | Menunda penilaian selama 24 jam dan langsung mengembalikan ke dasbor klien `MOCK-J-CL-02A`. |
 
 ---
 
 ## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
 | Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
 | :--- | :--- | :--- | :--- | :--- |
-| `onClick` | Tombol `[ KIRIM PENILAIAN ]`| `Rating >= 1` | Simpan ulasan ke database, perbarui rating advokat, tutup modal. | -> `MOCK-J-CL-02A` (Dasbor Klien) |
-| `onClick` | Tombol `[ LEWATI SEMENTARA ]`| Tidak ada | Menutup modal sementara (akan muncul lagi saat sesi berikutnya selesai). | -> `MOCK-J-CL-02A` (Dasbor Klien) |
+| `onClick` | Tombol `[ KIRIM PENILAIAN ]`| `Rating >= 1` | Simpan ulasan ke WORM Audit Trail, hitung ulang skor rata-rata advokat. | -> `MOCK-J-CL-02A` (Dasbor Saya) |
+| `onClick` | Tombol `[ LEWATI SEMENTARA ]`| Tidak ada | Tunda modal penilaian selama 24 jam dan kembali ke dasbor utama. | -> `MOCK-J-CL-02A` (Dasbor Saya) |
+| `onClick` | Tombol `[ ☀ / ☾ Mode ]`     | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-07` |
 
 ---
 
 ## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
 | Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
 | :--- | :--- | :--- | :--- |
-| Submit Rating | `POST /api/v2/client/feedback/REQ-003` | `{"rating": 5, "aspects": ["CLEAR_SOLUTION", "PUNCTUAL"], "comment": "Sangat profesional", "anonymous": false}` | `201 Created: {"status": "FEEDBACK_RECORDED", "new_advocate_avg_rating": 4.91}` |
+| Submit Rating & Review | `POST /api/v2/client/feedback/submit` | `{"session_id": "ROOM-091", "rating": 5, "tags": ["CLEAR_EXPLANATION"], "review": "Advokat profesional...", "is_anonymous": true}` | `201 Created: {"status": "RECORDED", "advocate_new_rating": 4.91}` |
 
 ---
 
 ## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
 | Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
 | :--- | :--- | :--- | :--- |
-| `400 Bad Request`| Mengklik tombol kirim tanpa memilih bintang | `"Mohon pilih penilaian bintang (1-5) terlebih dahulu sebelum mengirim."` | Sorot bagian bintang dengan animasi getar (*shake animation*). |
+| `400 Bad Content` | Ulasan mengandung kata kasar atau fitnah | `"Ulasan tidak dapat diterbitkan karena melanggar pedoman komunitas hukum Justica."` | Klien diminta memperbaiki redaksi ulasan sebelum mengirimkan kembali. |
+| `409 Duplicate`   | Klien sudah menilai sesi yang sama sebelumnya | `"Sesi ini telah menerima penilaian resmi dari Anda sebelumnya."` | Modal ditutup secara otomatis dan dialihkan ke dasbor. |
 
 ### Catatan Arsitektur Teknis:
-1. **Verified Client Feedback Only:** Hanya klien yang telah menyelesaiakan sesi Escrow (`COMPLETED`) yang memiliki hak akses untuk memberikan ulasan.
+1. **Immutable Rating Audit:** Penilaian bintang yang masuk tidak dapat diubah atau dihapus secara sepihak oleh advokat maupun admin tanpa putusan sidang etik resmi.
+2. **Verified Client Tag:** Sistem hanya mengizinkan klien yang benar-benar telah menyelesaikan transaksi Escrow (`COMPLETED`) untuk meninggalkan ulasan (*anti-fake reviews*).

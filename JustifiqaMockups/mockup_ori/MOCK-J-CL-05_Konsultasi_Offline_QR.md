@@ -1,14 +1,14 @@
-# MOCK-J-CL-05 [ORI]: Check-in & Check-out Konsultasi Offline Resmi Justica
+# MOCK-J-CL-05 [ORI]: Check-in/out Konsultasi Offline Resmi (Dynamic QR Scan) Justica
 
 ## 1. METADATA SPESIFIKASI (ENGINEERING EDITION)
 | Atribut | Nilai Spesifikasi |
 | :--- | :--- |
 | **ID Mockup** | `MOCK-J-CL-05` |
-| **Nama Halaman** | Handshake Konsultasi Offline Dynamic QR (`client.justica.id/offline-handshake`) |
-| **Aktor Target** | Klien Hukum Terverifikasi (*Client*) |
-| **Ref. Use Case** | `J-UC06` (Konsultasi Offline Resmi Tatap Muka), `J-UC11` (Dynamic QR Handshake Check-in/out) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-05` -> `MOCK-J-CL-07` (Modal Rating Setelah Check-out) |
-| **Kepatuhan Keamanan** | TOTP-Based Rotating Dynamic QR (TTL 30s), Geo-Fencing Proximity Check, HMAC-SHA256 Sign |
+| **Nama Halaman** | Check-in & Check-out Tatap Muka Resmi ber-QR (`client.justica.id/offline-handshake`) |
+| **Aktor Target** | Klien Hukum Terverifikasi & Advokat Berlisensi SIPP |
+| **Ref. Use Case** | `J-UC10` (Verifikasi Pertemuan Tatap Muka via QR Cryptographic Handshake) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-05` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa) |
+| **Kepatuhan Keamanan** | Dynamic Time-Based QR Token (TTL 30s), Geofencing Office Verification, Escrow Release Guard |
 
 ---
 
@@ -17,33 +17,45 @@
 ```plantuml
 @startsalt
 {+
-  {* <b>JUSTICA</b> - Portal Klien | [ Dasbor Saya ] | [ Status QR: SECURED TOTP ] | [ ☀ / ☾ ] }
+  {* <b>JUSTICA</b> - Check-in Tatap Muka Resmi | [ Dasbor Saya ] | [ ☀ / ☾ ] }
   --
   {
-    === HANDSHAKE RESMI KONSULTASI TATAP MUKA (OFFLINE)
-    "Tunjukkan Kode QR ini kepada Advokat Mitra saat Anda tiba di kantor hukum untuk memulai sesi."
+    === HANDSHAKE KONSULTASI OFFLINE TATAP MUKA BER-QR
+    "Pastikan Anda melakukan pemindaian QR resmi di kantor advokat untuk mencatat waktu mulai dan selesai sesi secara sah."
   }
   --
   {
-    <b>1. KODE QR CHECK-IN DINAMIS KLIEN (BERGANTI SETIAP 30 DETIK)</b>
-    --
-    {
-      [   DYNAMIC QR CODE   ]
-      [  (HMAC-SHA256 SIGN) ]
-      "Kedaluwarsa dalam: <b>18 Detik</b>"
-    } | {
-      Advokat Tujuan    | "Dr. Mahendra Kusuma, S.H., M.H."
-      Lokasi Kantor     | "Gedung Equity Tower Lt. 24, SCBD Jakarta"
-      Jadwal Resmi      | "10 Juli 2026 — Pukul 14:00 WIB"
-      Status Handshake  | <b>MENUNGGU PEMINDAIAN ADVOKAT (PENDING CHECK-IN)</b>
+    {#
+      <b>Informasi Sesi Tatap Muka</b> | <b>Status & Lokasi Terverifikasi</b>
+      {
+        Advokat: Dr. Mahendra Kusuma, S.H.
+        Lokasi: Kantor Hukum Mahendra & Partners
+        Jadwal: 10 Juli 2026 (14:00 - 14:45 WIB)
+      } | {
+        Status Handshake: <color:green><b>CHECK-IN BERHASIL (14:02 WIB)</b></color>
+        Sisa Waktu Sesi: <b>38:15 Menit</b>
+        Geofence Accuracy: Validated (12m Radius)
+      }
     }
   }
   --
   {
-    <b>2. KONFIRMASI CHECK-OUT & SELESAI SESI TATAP MUKA</b>
-    "Setelah sesi konsultasi tatap muka selesai, pindai QR dari Advokat atau tekan tombol konfirmasi selesai."
+    <b>PINDAI QR CHECK-OUT DARI ADVOKAT UNTUK SELESAIKAN SESI</b>
     --
-    [  <b>PINDAI QR CHECK-OUT DARI ADVOKAT</b>  ] | [ Laporan Masalah / Sengketa Sesi ]
+    {
+      [   CAMERA VIEWFINDER SCANNER   ]
+      Arahkan kamera ke QR Code Check-out
+      yang ditampilkan oleh Advokat.
+    } |
+    {
+      ! <color:blue><b>PERHATIAN KLIEN:</b></color>
+      Pemindaian QR Check-out merupakan konfirmasi
+      resmi bahwa sesi konsultasi telah selesai dan
+      mengizinkan pencairan dana Escrow ke advokat.
+      --
+      [  <b>PINDAI QR CHECK-OUT SEKARANG</b>  ]
+      [  Laporan Masalah / Sengketa Sesi  ]
+    }
   }
 }
 @endsalt
@@ -54,33 +66,36 @@
 ## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
-| `OFF-QR-01`  | `Dynamic QR Image` | Base64 PNG | Ya | Berisi payload JWT tersandi `HMAC-SHA256(booking_id + timestamp)` rotasi tiap 30s. |
-| `OFF-TMR-01` | `Countdown QR`     | Integer    | Ya | Hitung mundur 30 detik sebelum *auto-refresh* QR token baru. |
-| `OFF-BTN-01` | `Pindai QR Check-out`| Action     | Ya | Mengaktifkan kamera HTML5 untuk memindai QR akhir sesi dari layar advokat (`AD-03`). |
+| `OFF-NAV-01` | `Tautan Dasbor Saya`| Navigation Link | Ya | Kembali ke dasbor utama klien `MOCK-J-CL-02A`. |
+| `OFF-NAV-02` | `Toggle Theme Mode` | Action Button   | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
+| `OFF-BTN-01` | `Tombol Scan QR`    | Camera Action   | Ya | Membuka *video stream* kamera ponsel dengan pemindai token waktu dinamik. |
+| `OFF-BTN-02` | `Laporan Sengketa`  | Action Button   | Ya | Membuka pusat pelaporan sengketa jika terjadi pelanggaran kesepakatan sesi offline (`CL-08 + CL-09`). |
 
 ---
 
 ## 4. MATRIKS EVENT HANDLER & TRANSISI LOGIKA
 | Event Trigger | Komponen UI | Kondisi Guard (*Pre-Condition*) | Aksi Sistem (*System Response*) | Transisi Layar (*Target*) |
 | :--- | :--- | :--- | :--- | :--- |
-| `onInterval`  | `Countdown QR`     | `Timer == 0` | Request token QR dinamis baru dari server, me-render ulang gambar QR. | Tetap di `MOCK-J-CL-05` |
-| `onScanSuccess`| Pemindai QR Check-out| HMAC Valid & Geo-Fence Match | Mencatat penyelesaian sesi offline, melepas Escrow ke advokat. | -> `MOCK-J-CL-07` (Rating Modal) |
+| `onClick` | Tombol `[ PINDAI QR CHECK-OUT ]`| `Camera Permission == Granted`| Verifikasi token QR waktu dinamis (<30 detik TTL), lepas kunci Escrow. | -> `MOCK-J-CL-07` (Rating Modal) |
+| `onClick` | Tombol `[ Laporan Sengketa ]`   | Sesi Offline Aktif | Mengalihkan ke formulir Whistleblowing & Dispute Monitoring. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Header `[ Dasbor Saya ]`        | Sesi Klien Aktif | Kembali ke halaman dasbor utama klien. | -> `MOCK-J-CL-02A` |
+| `onClick` | Tombol `[ ☀ / ☾ Mode ]`         | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-05` |
 
 ---
 
 ## 5. KONTRAK INTEGRASI API & DATA BINDING (*API BINDING CONTRACT*)
 | Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
 | :--- | :--- | :--- | :--- |
-| Refresh QR Token | `GET /api/v2/client/handshake/token?booking_id=REQ-003` | *Headers: `Authorization: Bearer <jwt>`* | `200 OK: {"qr_token": "eyJhbG...", "expires_in": 30}` |
-| Submit Check-out Scan| `POST /api/v2/client/handshake/checkout` | `{"booking_id": "REQ-003", "advocate_qr_token": "eyJ...", "client_coords": {"lat": -6.22, "lng": 106.80}}` | `200 OK: {"handshake_status": "COMPLETED", "escrow_released": true}` |
+| Kirim Handshake QR | `POST /api/v2/offline-session/handshake` | `{"session_id": "OFF-102", "qr_token": "TOTP...", "geo_lat": -6.208, "geo_lng": 106.845}` | `200 OK: {"handshake_status": "COMPLETED", "escrow_payout": "AUTHORIZED"}` |
 
 ---
 
 ## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
 | Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
 | :--- | :--- | :--- | :--- |
-| `401 Expired QR`  | Advokat memindai QR yang sudah lewat 30 detik | `"Kode QR telah kedaluwarsa. Sistem menyajikan kode QR baru secara otomatis."` | Gambar QR diperbarui secara instan tanpa perlu memuat ulang halaman. |
-| `403 Geo Mismatch`| Jarak koordinat GPS klien dan kantor advokat >500m | `"Verifikasi lokasi tidak cocok. Pastikan fitur GPS diaktifkan di lokasi kantor advokat."` | Tampilkan panduan mengaktifkan izin geolokasi perangkat browser. |
+| `400 Token Expired`| QR Code Advokat kedaluwarsa (>30s) | `"QR Code kedaluwarsa. Minta advokat memperbarui tampilan QR di layar mereka."` | Advokat memindai atau me-refresh QR TOTP baru. |
+| `403 Location Mismatch`| Koordinat GPS klien jauh dari kantor advokat | `"Lokasi Anda berada di luar radius kantor advokat terdaftar."` | Verifikasi geolokasi ulang atau penandatanganan konfirmasi manual darurat. |
 
 ### Catatan Arsitektur Teknis:
-1. **Anti-Fraud QR Handshake:** Rotasi 30 detik mencegah tangkapan layar (*screenshot*) disalahgunakan oleh pihak yang tidak hadir secara fisik.
+1. **Time-Based Cryptographic QR:** Token QR yang ditampilkan advokat diperbarui setiap 30 detik untuk mencegah manipulasi atau tangkapan layar (*anti-replay attack*).
+2. **Escrow Safeguard:** Dana Escrow tetap ditahan oleh platform Justica jika pemindaian QR Check-out belum terjadi atau jika ada laporan sengketa aktif.

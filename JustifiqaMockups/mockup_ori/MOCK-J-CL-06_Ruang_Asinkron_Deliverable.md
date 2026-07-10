@@ -4,11 +4,11 @@
 | Atribut | Nilai Spesifikasi |
 | :--- | :--- |
 | **ID Mockup** | `MOCK-J-CL-06` |
-| **Nama Halaman** | Ruang Kerja Penyusunan Dokumen & Download Gate (`client.justica.id/deliverable/REQ-002`) |
-| **Aktor Target** | Klien Hukum Terverifikasi (*Client*) |
-| **Ref. Use Case** | `J-UC12` (Penyerahan & Unduh Deliverable e-Meterai SHA-256), `J-UC13` (Sistem Garansi Revisi) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-06` -> `MOCK-J-CL-07` (Modal Rating Setelah Penyetujuan) |
-| **Kepatuhan Keamanan** | SHA-256 Integrity Hash Check, e-Meterai Peruri Stamp API, WORM Download Audit Record |
+| **Nama Halaman** | Portal Penyerahan Berkas Hukum Asinkron & e-Meterai (`client.justica.id/deliverable/{id}`) |
+| **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
+| **Ref. Use Case** | `J-UC12` (Verifikasi & Persetujuan Berkas Deliverable), `J-UC13` (Unduh Dokumen Resmi e-Meterai) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-06` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa) |
+| **Kepatuhan Keamanan** | Peruri e-Meterai KMS Integration, SHA-256 Digital Signature Verify, Escrow Hold/Release Gate |
 
 ---
 
@@ -20,34 +20,34 @@
   {* <b>JUSTICA</b> - Ruang Kerja Asinkron | [ Dasbor Saya ] | [ ☀ Light / ☾ Dark Mode ] }
   --
   {
-    === RUANG KERJA DOKUMEN HUKUM & PENYELESAIAN PERKARA
-    "Advokat Mitra: Anita Wulandari, S.H., M.H. • Sisa Kuota Garansi Revisi: 2 dari 2 Kali"
+    === RUANG SERAH TERIMA BERKAS HUKUM & LEGAL OPINION RESMI
+    "Periksa dokumen hukum yang telah disusun oleh Advokat. Anda dapat mengajukan revisi atau menyetujuinya untuk melepas dana Escrow."
   }
   --
   {
-    <b>1. STATUS PENYUSUNAN DOKUMEN HUKUM (*DELIVERABLE*)</b>
-    --
-    Judul Dokumen     | "Pendapat Hukum (*Legal Opinion*) & Draf Perjanjian Kerja Sama"
-    Status Terkini    | <b>SIAP DIUNDUH & DIVERIFIKASI (SIAP E-METERAI RESMI)</b>
-    Hash SHA-256 Asli | "a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f01234"
-    Nomor e-Meterai   | "PERURI-1029384756 (Legalisasi 100% Sah)"
-  }
-  --
-  {
-    <b>2. PRATAYANG DOKUMEN & PENGAJUAN REVISI</b>
-    --
-    {
-      [   PDF PRATAYANG DOKUMEN   ]
-      "Menampilkan 12 halaman lengkap berbubuhi e-Meterai & Tanda Tangan Digital"
-    } | {
-      [  <b>UNDUH DOKUMEN LENGKAP PDF (SHA-256)</b>  ]
-      --
-      Apakah dokumen sudah sesuai kebutuhan Anda?
-      [  <b>SETUJUI DOKUMEN & SELESAIKAN PERKARA</b>  ]
-      --
-      Atau ajukan perbaikan (Sisa Garansi: 2x):
-      [  <b>AJUKAN REVISI DOKUMEN (GRATIS)</b>  ]
+    {#
+      <b>Informasi Berkas Deliverable</b> | <b>Metadata Kepatuhan Hukum SHA-256</b>
+      {
+        Judul Dokumen     | "Pendapat Hukum (*Legal Opinion*) & Draf Perjanjian Kerja Sama"
+        Status Terkini    | <b>SIAP DIUNDUH & DIVERIFIKASI (SIAP E-METERAI RESMI)</b>
+        Hash SHA-256 Asli | "a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f01234"
+        Nomor e-Meterai   | "PERURI-1029384756 (Legalisasi 100% Sah)"
+      } | {
+        Sisa Kuota Revisi : <b>2 Kali Pengajuan Gratis</b>
+        Batas Waktu Review: <b>72 Jam Sebelum Auto-Approve</b>
+        [ <b>PERIKSA KEASLIAN HASH</b> ]
+      }
     }
+  }
+  --
+  {
+    <b>PRATAYANG DOKUMEN HUKUM (READ-ONLY INLINE VIEW)</b>
+    [   PDF PRATAYANG DOKUMEN   ]
+    --
+    [  <b>UNDUH DOKUMEN LENGKAP PDF (SHA-256)</b>  ]
+    [  <b>SETUJUI DOKUMEN & SELESAIKAN PERKARA</b>  ]
+    [  <b>AJUKAN REVISI DOKUMEN (GRATIS)</b>  ]
+    [  Laporan Masalah / Sengketa Berkas  ]
   }
 }
 @endsalt
@@ -58,10 +58,13 @@
 ## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
+| `DEL-NAV-01` | `Tautan Dasbor Saya`| Navigation Link | Ya | Kembali ke dasbor utama klien `MOCK-J-CL-02A`. |
+| `DEL-NAV-02` | `Toggle Theme Mode` | Action Button   | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
 | `DEL-PRE-01` | `Pratayang PDF`    | Binary View | Ya | Menampilkan berkas dengan *watermark* sebelum persetujuan akhir. |
 | `DEL-BTN-01` | `Unduh PDF SHA-256`| Action Button| Ya | Mengirimkan berkas binary asli lengkap metadata sertifikat e-Meterai. |
 | `DEL-BTN-02` | `Setujui Dokumen`  | Action Button| Ya | Melepas 100% dana Escrow ke advokat (`PAID_OUT`) dan membuka modal rating `CL-07`. |
 | `DEL-BTN-03` | `Ajukan Revisi`    | Action Button| Ya | Aktif jika `revisions_left > 0`. Membuka formulir masukan catatan revisi. |
+| `DEL-BTN-04` | `Laporan Sengketa` | Action Button| Ya | Mengalihkan klien ke pusat pelaporan masalah kualitas/substansi berkas (`CL-08 + CL-09`). |
 
 ---
 
@@ -71,6 +74,9 @@
 | `onClick` | Tombol `[ UNDUH DOKUMEN ]` | Berkas ter-stamp e-Meterai | Catat aktivitas pengunduhan ke WORM audit log, unduh berkas PDF. | Tetap di `MOCK-J-CL-06` |
 | `onClick` | Tombol `[ SETUJUI DOKUMEN ]`| Konfirmasi modal `Yes` | Cairkan Escrow ke advokat, ubah status perkara jadi `COMPLETED`. | -> `MOCK-J-CL-07` (Rating Modal) |
 | `onClick` | Tombol `[ AJUKAN REVISI ]` | `revisions_left > 0` | Kirim catatan revisi ke advokat (`AD-04`), kurangi kuota revisi. | Tetap (Status menjadi `IN_REVISION`) |
+| `onClick` | Tombol `[ Laporan Sengketa ]`| Sesi Aktif / Review | Membuka pusat pelaporan masalah dan sengketa Escrow. | -> `MOCK-J-CL-08 + CL-09` |
+| `onClick` | Header `[ Dasbor Saya ]`   | Sesi Klien Aktif | Kembali ke halaman dasbor utama klien. | -> `MOCK-J-CL-02A` |
+| `onClick` | Tombol `[ ☀ / ☾ Mode ]`    | Tidak ada | Mengganti tema visual antarmuka Light/Dark Mode. | Tetap di `MOCK-J-CL-06` |
 
 ---
 
@@ -78,14 +84,15 @@
 | Aksi UI | HTTP Method & Endpoint | Payload Request JSON | Struktur Response JSON |
 | :--- | :--- | :--- | :--- |
 | Setujui Deliverable | `POST /api/v2/client/deliverables/REQ-002/approve` | `{"consent_final": true, "client_sha256": "a2c4e6..."}` | `200 OK: {"case_status": "COMPLETED", "escrow_payout": "TRIGGERED"}` |
-| Ajukan Revisi | `POST /api/v2/client/deliverables/REQ-002/revise` | `{"revision_notes": "Mohon perbaikan pasal 4 terkait masa garansi..."}` | `200 OK: {"status": "REVISION_REQUESTED", "revisions_left": 1}` |
 
 ---
 
 ## 6. MATRIKS PENANGANAN ERROR & CATATAN ARSITEKTUR TEKNIS
 | Kode HTTP / Error | Skenario Pemicu Kegagalan | Pesan UI ke Pengguna (*User-Facing Message*) | Mekanisme Pemulihan / Fallback |
 | :--- | :--- | :--- | :--- |
-| `403 Quota Exceeded`| Mengajukan revisi saat kuota revisi sudah habis (0) | `"Batas garansi revisi gratis telah habis. Revisi tambahan memerlukan pesanan baru."` | Tombol `AJUKAN REVISI` dinonaktifkan dengan panduan add-on. |
+| `400 Revision Exceeded`| Kuota revisi gratis habis (`revisions_left == 0`) | `"Kuota revisi gratis telah habis. Silakan setujui dokumen atau pesan sesi penambahan revisi."` | Tombol revisi dinonaktifkan dengan opsi pengajuan add-on. |
+| `409 Integrity Mismatch`| Hash berkas di server berbeda dari WORM | `"Peringatan: Berkas rusak atau mengalami perubahan tidak sah."` | Pengunduhan diblokir otomatis untuk mencegah distribusi dokumen cacat hukum. |
 
 ### Catatan Arsitektur Teknis:
-1. **e-Meterai Peruri Stamp API:** Dokumen hukum yang diunduh dari halaman ini adalah dokumen yang telah dibubuhi meterai elektronik sah dari Peruri.
+1. **e-Meterai KMS Integration:** Penandatanganan meterai elektronik dilakukan via *Key Management Service* Peruri yang disinkronkan ke dalam berkas PDF asli.
+2. **Escrow Sign-off Gate:** Rekening Escrow otomatis tertahan sampai tombol `[ SETUJUI DOKUMEN ]` ditekan oleh klien atau setelah melewati batas waktu otomatis 72 jam tanpa keberatan.

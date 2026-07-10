@@ -7,7 +7,7 @@
 | **Nama Halaman** | Portal Verifikasi Keaslian Dokumen Hukum & e-Meterai (`verify.justica.id`) |
 | **Aktor Target** | Pihak Ketiga Publik (Hakim, Notaris, Instansi Pemerintah, Auditor, HRD) |
 | **Ref. Use Case** | `J-UC12` (Verifikasi Deliverable), `J-UC14` (Pemeriksaan Hash SHA-256 Dokumen) |
-| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-PUBLIC-VERIFY` |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-PUBLIC-VERIFY` -> `MOCK-J-GATEWAY-01` (Kembali ke Beranda) |
 | **Kepatuhan Keamanan** | Anonymous Public Read-Only Endpoint, Rate Limiting (20 req/min/IP), WORM Immutable Cross-Check |
 
 ---
@@ -57,6 +57,8 @@
 ## 3. KAMUS DATA & ELEMEN UI (DATA FIELD DICTIONARY)
 | ID Elemen | Nama Komponen UI | Tipe Data | Wajib? | Aturan Validasi Logis & Batasan Kepatuhan |
 | :--- | :--- | :--- | :---: | :--- |
+| `VER-BTN-02` | `Kembali ke Beranda`| Action Button | Ya | Mengarahkan kembali ke halaman utama `MOCK-J-GATEWAY-01`. |
+| `VER-NAV-01` | `Toggle Theme Mode` | Action Button | Ya | Mengubah tema visual antarmuka Light/Dark Mode di local storage. |
 | `VER-IN-01`  | `Input Hash SHA-256` | String | Ya* | Tepat 64 karakter hex (`^[a-fA-F0-9]{64}$`). *Wajib jika berkas PDF tidak diunggah. |
 | `VER-UP-01`  | `Unggah Berkas PDF` | File Binary | Ya* | Format berkas `.pdf` berukuran maksimal 10MB. Sistem menghitung hash SHA-256 lokal di browser. |
 | `VER-BTN-01` | `Tombol Periksa` | Action Button | Ya | Membaca hash masukan atau file browser, lalu mengirim *read-only query* ke tabel WORM. |
@@ -69,6 +71,7 @@
 | :--- | :--- | :--- | :--- | :--- |
 | `onClick` | Tombol `[ PERIKSA KEASLIAN ]` | `Hash == 64 Hex chars` OR `PDF File loaded` | Hitung/cocokkan hash dengan log immutable WORM Justica & Peruri API. | Tetap di `PUBLIC-VERIFY` (Tampilkan Tabel Hasil) |
 | `onClick` | Tombol `[ < Kembali ke Beranda ]`| Tidak ada | Kembali ke halaman beranda utama Justica. | -> `MOCK-J-GATEWAY-01` |
+| `onClick` | Tombol `[ ☀ / ☾ ]` | Tidak ada | Mengganti kelas CSS tema dan menyimpan preferensi ke localStorage. | Tetap di `MOCK-J-PUBLIC-VERIFY` |
 
 ---
 
