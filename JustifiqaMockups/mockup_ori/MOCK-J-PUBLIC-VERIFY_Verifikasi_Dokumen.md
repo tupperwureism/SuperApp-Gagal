@@ -1,0 +1,58 @@
+# MOCK-J-PUBLIC-VERIFY [ORI]: Portal Publik Verifikasi Keaslian Dokumen SHA-256 Justica
+
+## 1. METADATA SPESIFIKASI (ENGINEERING EDITION)
+| Atribut | Nilai Spesifikasi |
+| :--- | :--- |
+| **ID Mockup** | `MOCK-J-PUBLIC-VERIFY` |
+| **Nama Halaman** | Portal Verifikasi Keaslian Dokumen Hukum & e-Meterai (`verify.justica.id`) |
+| **Aktor Target** | Pihak Ketiga Publik (Hakim, Notaris, Instansi Pemerintah, Auditor, HRD) |
+| **Ref. Use Case** | `J-UC12` (Verifikasi Deliverable), `J-UC14` (Pemeriksaan Hash SHA-256 Dokumen) |
+| **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-PUBLIC-VERIFY` |
+| **Kepatuhan Keamanan** | Anonymous Public Read-Only Endpoint, Rate Limiting (20 req/min/IP), WORM Immutable Cross-Check |
+
+---
+
+## 2. DIAGRAM WIREFRAME LOGIS (PLANTUML SALT)
+
+```plantuml
+@startsalt
+{+
+  {* <b>JUSTICA</b> - Portal Verifikasi Dokumen Hukum | [ < Kembali ke Beranda ] | [ ☀ / ☾ ] }
+  --
+  {
+    === VERIFIKASI INTEGRITAS DOKUMEN HUKUM & e-METERAI SHA-256
+    "Periksa keaslian dan keabsahan dokumen pendapat hukum (*Legal Opinion*) atau kontrak ber-e-Meterai yang diterbitkan melalui platform Justica."
+  }
+  --
+  {
+    <b>MASUKKAN KODE VERIFIKASI / HASH SHA-256 DOKUMEN</b>
+    --
+    Nomor Seri Dokumen / Hash SHA-256 | "e8f9a0c2b4d6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8"
+    Atau Unggah Berkas PDF Asli     | [ Pilih Dokumen PDF (Max 10MB) untuk verifikasi otomatis... ]
+    --
+    [  <b>PERIKSA KEASLIAN DOKUMEN SEKARANG</b>  ]
+  }
+  --
+  {
+    <b>HASIL PEMERIKSAAN INTEGRITAS DOKUMEN (RESMI & TERVERIFIKASI)</b>
+    --
+    {#
+      <b>Parameter Verifikasi</b> | <b>Nilai Terpindai pada Database WORM Justica</b> | <b>Status Kepatuhan</b>
+      Status Keaslian | <b>DOKUMEN ASLI — TIDAK ADA PERUBAHAN ISI (0 BIT MODIFIED)</b> | [ <b>VALIDATED SHA-256</b> ]
+      Penerbit / Advokat | Dr. Mahendra Kusuma, S.H., M.H. (SIPP PERADI #18293) | [ <b>ADVOKAT BERLISENSI MA</b> ]
+      Tanggal Diterbitkan | 02 Juli 2026 — 14:30:12 WIB | [ <b>RECORDED ON WORM</b> ]
+      Status e-Meterai | e-Meterai Peruri Resmi Rp10.000 (Nomor Seri: 1029384756) | [ <b>PERURI API VALID</b> ]
+    }
+  }
+  --
+  {
+    © 2026 JUSTICA Legal Platform • Verifikasi ini bersifat publik tanpa menampilkan rahasia materi obrolan klien.
+  }
+}
+@endsalt
+```
+
+---
+
+## 3. CATATAN ARSITEKTUR TEKNIS
+1. **Zero-Leak Privacy:** Halaman ini hanya mengembalikan status keaslian hash (`VALID/INVALID`) dan metadata legalisasi dokumen, **tanpa pernah menampilkan isi teks rahasia** jika penguji tidak memiliki berkas fisiknya.
