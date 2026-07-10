@@ -161,6 +161,11 @@ skinparam swimlane {
 }
 
 |Klien Justifiqa|
+|Backend Independen Justifiqa|
+|Advokat Justifiqa|
+|Payment Gateway|
+
+|Klien Justifiqa|
 start
 :Buka Katalog Advokat & Notaris;
 :Filter Spesialisasi & Pilih Level Konsultasi (Gratis / Premium / Pro);
@@ -171,13 +176,10 @@ if (Apakah Level Konsultasi = Gratisan / Legal Triage?) then (Ya - Rp 0)
   :Buka Ruang Chat E2EE Langsung (Tanpa Invoice / Escrow);
   :Mulai Countdown Timer Triage (Maks 15 Menit Text Chat);
   
-  fork
-    |Advokat Justifiqa|
-    :Memberikan Jawaban Dasar / Orientasi Hukum;
-  fork again
-    |Klien Justifiqa|
-    :Mengajukan Pertanyaan Dasar / Ringan;
-  end fork
+  |Klien Justifiqa|
+  :Mengajukan Pertanyaan Dasar / Ringan;
+  |Advokat Justifiqa|
+  :Memberikan Jawaban Dasar / Orientasi Hukum;
   
   |Backend Independen Justifiqa|
   :Akhiri Sesi Triage 15 Menit;
@@ -227,143 +229,133 @@ repeat
   endif
 repeat while (Pembayaran Gagal & Klien Coba Pilih Metode Bayar Lain?) is (Ya - Coba Ulang)
 
-  |Backend Independen Justifiqa|
-  :Ubah Status Reservasi Jadi TERKONFIRMASI;
-  :Kirim Pengingat Jadwal ke Advokat & Klien;
+|Backend Independen Justifiqa|
+:Ubah Status Reservasi Jadi TERKONFIRMASI;
+:Kirim Pengingat Jadwal ke Advokat & Klien;
+
+if (Apakah Mode Konsultasi = Offline Tatap Muka?) then (Ya - Offline QR Handshake)
+  |Klien Justifiqa|
+  :Datang ke Kantor Hukum Resmi / Safe Meeting Point Terverifikasi;
+  :Pindai QR Code Check-in milik Advokat;
   
-  if (Apakah Mode Konsultasi = Offline Tatap Muka?) then (Ya - Offline QR Handshake)
+  |Backend Independen Justifiqa|
+  :Verifikasi Handshake Kehadiran Fisik & Mulai Sesi Tatap Muka;
+  :Mulai Countdown Timer Sesi Offline (Durasi Baku 60 Menit - Slot Standard);
+  
+  |Klien Justifiqa|
+  :Mengajukan Pertanyaan & Pembahasan Mendalam;
+  |Advokat Justifiqa|
+  :Memberikan Analisis Hukum Tatap Muka;
+  
+  |Backend Independen Justifiqa|
+  if (Apakah Klien Pindai QR Code Check-out ATAU Waktu Sesi > 120 Menit Sejak Check-in?) then (QR Check-out Manual)
     |Klien Justifiqa|
-    :Datang ke Kantor Hukum Resmi / Safe Meeting Point Terverifikasi;
-    :Pindai QR Code Check-in milik Advokat;
-    
+    :Pindai QR Code Check-out saat Sesi Selesai;
+  else (Lupa Check-out - Grace Period 120m Habis)
     |Backend Independen Justifiqa|
-    :Verifikasi Handshake Kehadiran Fisik & Mulai Sesi Tatap Muka;
-    :Mulai Countdown Timer Sesi Offline (Durasi Baku 60 Menit - Slot Standard);
-    
-    fork
-      |Advokat Justifiqa|
-      :Memberikan Analisis Hukum Tatap Muka;
-    fork again
-      |Klien Justifiqa|
-      :Mengajukan Pertanyaan & Pembahasan Mendalam;
-    end fork
-    
-    |Backend Independen Justifiqa|
-    if (Apakah Klien Pindai QR Code Check-out ATAU Waktu Sesi > 120 Menit Sejak Check-in?) then (QR Check-out Manual)
-      |Klien Justifiqa|
-      :Pindai QR Code Check-out saat Sesi Selesai;
-    else (Lupa Check-out - Grace Period 120m Habis)
-      |Backend Independen Justifiqa|
-      :Eksekusi Systemic Auto Check-out (Mencegah Escrow Menggantung);
-    endif
-  else (Tidak - Online E2EE Chat Room)
-    fork
-      |Advokat Justifiqa|
-      :Masuk ke Ruang Chat E2EE pada Jadwal yang Ditentukan;
-    fork again
-      |Klien Justifiqa|
-      :Masuk ke Ruang Chat E2EE & Kirim Pesan Pertama;
-    end fork
-    
-    |Backend Independen Justifiqa|
-    :Tunggu Respons Substansial Pertama Advokat (Active Session Trigger);
-    :Mulai Countdown Timer Sesi (Durasi 45 - 90 Menit - Fair Clock Engine);
-    
-    repeat
-      fork
-        |Advokat Justifiqa|
-        :Kirim Pesan Teks / Audio / Video (Advice Hukum);
-      fork again
-        |Klien Justifiqa|
-        :Kirim Pesan Teks / Audio / Video (Pertanyaan / Diskusi);
-      end fork
-      
-      |Backend Independen Justifiqa|
-      :Pre-Broadcast Inline DLP Interception (~30ms Scan Sebelum Diteruskan ke Lawan Bicara);
-      if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Kontak Pribadi?) then (Ya - Pelanggaran)
-        :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara 0% Melihat);
-        :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
-        if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
-          :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
-          :Generate Security Alert & Eskalasi Insiden ke Antrean Investigasi Admin (Lihat AD-J-10);
-          stop
-        else (Tidak - Level 1 Block)
-        endif
-      else (Tidak - Lolos DLP / Aman)
-        :Broadcast Pesan ke UI Lawan Bicara (Message Delivered);
-      endif
-
-      if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
-        :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
-        if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
-          :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
-          |Klien Justifiqa|
-          :Ajukan Laporan Pelanggaran / Klaim Refund (Lihat AD-J-21 / J-UC21);
-          stop
-        else (Tidak - Advokat Membalas)
-          :Lanjutkan (RESUME) Countdown Timer Sesi;
-        endif
-      else (Tidak - Respons Lancar)
-      endif
-    repeat while (Waktu Sesi Masih Tersisa & Sesi Belum Diakhiri?) is (Ya - Lanjut Chatting)
-    
-    |Backend Independen Justifiqa|
-    :Akhiri Waktu Live Chat 60 Menit & Kunci Ruang Chat E2EE (Read-Only History);
-    :Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled);
-    if (Apakah Paket Sesi = Tier 2 Premium atau Tier 3 Pro?) then (Ya - Butuh Deliverable)
-      :Ubah Status Perkara Jadi PENDING_DELIVERABLE;
-      :Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread) di Dasbor Perkara;
-      :Aktifkan Sistem Tiket Komentar Terstruktur [KLARIFIKASI FAKTA] / [REVISI KLAUSUL];
-    else (Tidak - Tier 1 Gratis Pro Bono)
-      :Sesi Selesai (CLOSED) & Kreditkan Poin Reputasi ke Advokat;
-    endif
+    :Eksekusi Systemic Auto Check-out (Mencegah Escrow Menggantung);
   endif
-
-  |Backend Independen Justifiqa|
-  :Arsip Log Metadata Sesi & Tutup Ruang Chat E2EE;
+else (Tidak - Online E2EE Chat Room)
+  |Advokat Justifiqa|
+  :Masuk ke Ruang Chat E2EE pada Jadwal yang Ditentukan;
+  |Klien Justifiqa|
+  :Masuk ke Ruang Chat E2EE & Kirim Pesan Pertama;
   
-  if (Level Konsultasi = Tier 1 Gratis?) then (Ya - Gratis 15 Menit)
-    :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
-  else (Tidak - Premium / Pro Berbayar Escrow)
-    if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
-      |Advokat Justifiqa|
-      :Susun Dokumen Laporan Saran Hukum (Client Advice Summary v1);
-      :Unggah Laporan ke Dasbor Klien;
-      |Klien Justifiqa|
-      :Review Laporan Saran Hukum di Dasbor;
-      while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
-        |Klien Justifiqa|
-        :Kirim Pertanyaan Klarifikasi Terbatas;
-        |Advokat Justifiqa|
-        :Berikan Jawaban Penjelasan / Perbarui Laporan;
-        |Klien Justifiqa|
-        :Review Jawaban / Laporan Pembaruan;
-      endwhile (Tidak - Laporan Disetujui / Kuota Habis / SLA Habis)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
-    else (Tier 3 Pro - Legal Drafting / Opinion)
-      |Advokat Justifiqa|
-      :Susun Draf Dokumen Hukum Final (Drafting v1);
-      :Unggah Draf Dokumen ke Dasbor Klien;
-      |Klien Justifiqa|
-      :Review Draf Dokumen Hukum di Dasbor;
-      while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
-        |Klien Justifiqa|
-        :Kirim Catatan Revisi Klausul Terbatas;
-        |Advokat Justifiqa|
-        :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
-        |Klien Justifiqa|
-        :Review Draf Revisi Terbaru;
-      endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+  |Backend Independen Justifiqa|
+  :Tunggu Respons Substansial Pertama Advokat (Active Session Trigger);
+  :Mulai Countdown Timer Sesi (Durasi 45 - 90 Menit - Fair Clock Engine);
+  
+  repeat
+    |Klien Justifiqa|
+    :Kirim Pesan Teks / Audio / Video (Pertanyaan / Diskusi);
+    |Advokat Justifiqa|
+    :Kirim Pesan Teks / Audio / Video (Advice Hukum);
+    
+    |Backend Independen Justifiqa|
+    :Pre-Broadcast Inline DLP Interception (~30ms Scan Sebelum Diteruskan ke Lawan Bicara);
+    if (Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Kontak Pribadi?) then (Ya - Pelanggaran)
+      :Blokir & Cegat Pesan secara Real-Time (Message Dropped - Lawan Bicara 0% Melihat);
+      :Kirim Peringatan Keras Keamanan ke Pengirim & Catat Log Percobaan Pelanggaran;
+      if (Apakah Percobaan Berulang >= 2x / Evasion?) then (Ya - Instant Freeze & Suspend)
+        :Bekukan Sesi Obrolan Permanen & Tahan Dana Escrow Sementara;
+        :Generate Security Alert & Eskalasi Insiden ke Antrean Investigasi Admin (Lihat AD-J-10);
+        stop
+      else (Tidak - Level 1 Block)
+      endif
+    else (Tidak - Lolos DLP / Aman)
+      :Broadcast Pesan ke UI Lawan Bicara (Message Delivered);
     endif
+
+    if (Apakah Advokat Diam / Tidak Merespons > 5 Menit?) then (Ya - Auto-Pause)
+      :Jeda Sementara (PAUSE) Countdown Timer Sesi & Kirim SLA Alert ke Advokat;
+      if (Apakah Advokat Tidak Aktif / AFK > 15 Menit?) then (Ya - AFK Abandonment)
+        :Aktifkan Hak Klaim Refund Escrow 100% untuk Klien;
+        |Klien Justifiqa|
+        :Ajukan Laporan Pelanggaran / Klaim Refund (Lihat AD-J-21 / J-UC21);
+        stop
+      else (Tidak - Advokat Membalas)
+        :Lanjutkan (RESUME) Countdown Timer Sesi;
+      endif
+    else (Tidak - Respons Lancar)
+    endif
+  repeat while (Waktu Sesi Masih Tersisa & Sesi Belum Diakhiri?) is (Ya - Lanjut Chatting)
+  
+  |Backend Independen Justifiqa|
+  :Akhiri Waktu Live Chat 60 Menit & Kunci Ruang Chat E2EE (Read-Only History);
+  :Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled);
+  if (Apakah Paket Sesi = Tier 2 Premium atau Tier 3 Pro?) then (Ya - Butuh Deliverable)
+    :Ubah Status Perkara Jadi PENDING_DELIVERABLE;
+    :Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread) di Dasbor Perkara;
+    :Aktifkan Sistem Tiket Komentar Terstruktur [KLARIFIKASI FAKTA] / [REVISI KLAUSUL];
+  else (Tidak - Tier 1 Gratis Pro Bono)
+    :Sesi Selesai (CLOSED) & Kreditkan Poin Reputasi ke Advokat;
   endif
-  :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
-  stop
 endif
+
+|Backend Independen Justifiqa|
+:Arsip Log Metadata Sesi & Tutup Ruang Chat E2EE;
+
+if (Level Konsultasi = Tier 1 Gratis?) then (Ya - Gratis 15 Menit)
+  :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
+else (Tidak - Premium / Pro Berbayar Escrow)
+  if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
+    |Advokat Justifiqa|
+    :Susun Dokumen Laporan Saran Hukum (Client Advice Summary v1);
+    :Unggah Laporan ke Dasbor Klien;
+    |Klien Justifiqa|
+    :Review Laporan Saran Hukum di Dasbor;
+    while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
+      |Klien Justifiqa|
+      :Kirim Pertanyaan Klarifikasi Terbatas;
+      |Advokat Justifiqa|
+      :Berikan Jawaban Penjelasan / Perbarui Laporan;
+      |Klien Justifiqa|
+      :Review Jawaban / Laporan Pembaruan;
+    endwhile (Tidak - Laporan Disetujui / Kuota Habis / SLA Habis)
+    |Backend Independen Justifiqa|
+    :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+    :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+  else (Tier 3 Pro - Legal Drafting / Opinion)
+    |Advokat Justifiqa|
+    :Susun Draf Dokumen Hukum Final (Drafting v1);
+    :Unggah Draf Dokumen ke Dasbor Klien;
+    |Klien Justifiqa|
+    :Review Draf Dokumen Hukum di Dasbor;
+    while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
+      |Klien Justifiqa|
+      :Kirim Catatan Revisi Klausul Terbatas;
+      |Advokat Justifiqa|
+      :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
+      |Klien Justifiqa|
+      :Review Draf Revisi Terbaru;
+    endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
+    |Backend Independen Justifiqa|
+    :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+    :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+  endif
+endif
+:Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
+stop
 @enduml
 ```
 
