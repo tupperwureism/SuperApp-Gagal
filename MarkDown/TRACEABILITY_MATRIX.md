@@ -33,6 +33,7 @@ Dokumen ini memetakan pelacakan penuh (*end-to-end traceability*) dari level **U
 | **J-UC02** | Login Akun Klien Justifiqa | Klien Hukum | AD-J-02 | SD-J-02 | **ST-J-02** | UU PDP Pasal 46, Security | MFA OTP, TLS 1.3, Due Process Lock Check |
 | **J-UC03** | Memilih & Memfilter Katalog Advokat | Klien Hukum | AD-J-03 | SD-J-03 | **ST-J-05** | UU 18/2003 Advokat | Filter SIPP Peradi Aktif, Geo-location Radius |
 | **J-UC04** | Melakukan Konsultasi Hukum E2EE | Klien & Advokat | AD-J-03 | SD-J-03 | **ST-J-08** | UU 18/2003 (Privilege) | E2EE Zero-Knowledge, Watermark Privileged, Timer Lock |
+| **J-UC03, J-UC04** | Melakukan Konsultasi Offline Resmi | Klien & Advokat | AD-J-03 | SD-J-03 | **ST-J-08B** | UU 18/2003 (Privilege), Escrow | Dual QR Handshake, Standard Timer 60m, Systemic Auto Check-out 120m |
 | **J-UC05** | Membayar Biaya Konsultasi Escrow | Klien Hukum | AD-J-03 | SD-J-03 | **ST-J-07** | PSAK 71, Keuangan | Payment Gateway Idempotent, Escrow Platform Hold |
 | **J-UC06** | Memberikan Ulasan & Rating Advokat | Klien Hukum | AD-J-13 | SD-J-13 | **ST-J-14** | UU PDP, Kode Etik Peradi | Blocking Modal, **Anonimisasi Total Nama Klien** |
 | **J-UC07** | Registrasi Akun Advokat / Notaris | Advokat/Notaris | AD-J-01 | SD-J-01 | **ST-J-03** | UU 18/2003, Peradi | Upload Kredensial AES-256, WORM Storage, Anti-Duplikasi |
@@ -61,6 +62,7 @@ Dokumen ini memetakan pelacakan penuh (*end-to-end traceability*) dari level **U
 | **Q-UC02** | Login Akun Klien Qualifa | Klien Psikologi | AD-Q-02 | SD-Q-02 | **ST-Q-02** | UU PDP Pasal 46 | MFA OTP, TLS 1.3, Cek Status Suspend Etik |
 | **Q-UC03** | Memilih & Memfilter Katalog Psikolog | Klien Psikologi | AD-Q-03 | SD-Q-03 | **ST-Q-05** | Kode Etik HIMPSI | Filter STR Klinis / SIPP HIMPSI Aktif, Tarif Real-time |
 | **Q-UC04** | Melakukan Konseling Klinis E2EE | Klien & Psikolog | AD-Q-03 | SD-Q-03 | **ST-Q-08** | UU 18/2014, HIMPSI | Ruang Terapi E2EE, Timer Auto-Close, Watermark Rahasia |
+| **Q-UC03, Q-UC04** | Melakukan Konsultasi Offline Resmi | Klien & Psikolog | AD-Q-03 | SD-Q-03 | **ST-Q-08B** | UU 18/2014, HIMPSI | Dual QR Handshake, Standard Timer 60m, Systemic Auto Check-out 120m |
 | **Q-UC05** | Membayar Biaya Konseling Klinis | Klien Psikologi | AD-Q-04 | SD-Q-03 | **ST-Q-07** | PSAK 71, Keuangan | Payment Gateway Idempotent, Rekening Penampungan |
 | **Q-UC06** | Memberikan Ulasan & Rating Psikolog | Klien Psikologi | AD-Q-05 | SD-Q-10 | **ST-Q-14** | Kode Etik HIMPSI | Blocking Modal, **Clinical Evaluation Alert if <= 2 Bintang** |
 | **Q-UC07** | Registrasi Akun Psikolog Klinis | Psikolog Klinis | AD-Q-01 | SD-Q-01 | **ST-Q-03** | HIMPSI, Kemenkes | Upload STR Klinis & Kartu HIMPSI AES-256, WORM |
