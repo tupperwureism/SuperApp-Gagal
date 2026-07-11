@@ -2,7 +2,7 @@
 
 Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Sequence Diagram pada dua aplikasi mandiri yang **100% terisolasi dan berdiri sendiri (*Siloed Architecture*)**: **Justifiqa** (Domain Hukum) dan **Qualifa** (Domain Psikologi).
 
-Seluruh diagram menerapkan standar arsitektur terdekopel **Boundary-Control-Entity (BCE) 5-Lifeline Supremacy**:
+Seluruh diagram menerapkan standar arsitektur terdekopel **Boundary-Control-Entity (BCE) 5-Lifeline Supremacy** dan dipetakan **1-to-1 100% dengan Activity Diagram**:
 1. **Actor**: Pengguna / Pemicu eksternal.
 2. **Boundary Client (`B_FE`)**: Frontend SPA/Mobile App (menangani interaksi UI & client-side DLP regex).
 3. **Boundary Server (`B_BE`)**: API Controller / Gateway (`POST/GET /api/v2/...`, memverifikasi auth JWT, validasi skema JSON DTO, dan mengembalikan HTTP Status Code presisi).
@@ -23,7 +23,7 @@ Penomoran diagram telah distandarisasi untuk mencerminkan arsitektur terisolasi 
 
 ## BAGIAN I: SEQUENCE DIAGRAMS - APLIKASI MANDIRI JUSTIFIQA (DOMAIN HUKUM)
 ### SD-J-01: Registrasi Akun Klien & Advokat (J-UC01, J-UC07)
-*Sequence diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-01).*
 
 ```plantuml
 @startuml
@@ -92,7 +92,7 @@ deactivate User
 ```
 
 ### SD-J-02: Login Akun Klien & Advokat (J-UC02, J-UC08)
-*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) berbasis 5-Lifeline BCE.*
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-02).*
 
 ```plantuml
 @startuml
@@ -155,7 +155,7 @@ deactivate User
 ```
 
 ### SD-J-03: Konsultasi Hukum & Pembayaran Escrow (J-UC03, J-UC04, J-UC05, J-UC10)
-*Sequence diagram alur pemesanan konsultasi hukum, pembayaran Escrow Rekening Bersama, dan pemantauan SLA Fair-Clock berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pemesanan konsultasi hukum, percabangan Legal Triage Gratis 15 Menit vs Konsultasi Premium/Pro (Virtual Token / Split Payment / Escrow Tunai), dan pemantauan SLA Fair-Clock berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-03).*
 
 ```plantuml
 @startuml
@@ -163,47 +163,82 @@ autonumber
 actor "Klien Justifiqa" as User
 participant "Frontend Justifiqa (Boundary Client)" as B_FE
 participant "ConsultationController (Boundary Server)" as B_BE
-participant "Escrow & ChatService (Control)" as C_Svc
+participant "ConsultationService (Control)" as C_Svc
 database "ConsultationLedger & WORM (Entity)" as E_DB
 participant "Midtrans Escrow Gateway" as Pay
 
 activate User
-User -> B_FE ++ : Pilih Advokat & Klik Buat Sesi Konsultasi
-B_FE -> B_BE ++ : POST /api/v2/consultation/book (BookingDTO)
-B_BE -> C_Svc ++ : createEscrowBooking(clientJwt, advocateId, slotId)
-C_Svc -> E_DB ++ : checkAdvocateAvailability(advocateId, slotId)
-E_DB --> C_Svc -- : SlotStatus(AVAILABLE)
-C_Svc -> Pay ++ : createPaymentTransaction(orderId, amount)
-Pay --> C_Svc -- : PaymentInstructionDTO(vaNumber, expiryTime)
-C_Svc -> E_DB ++ : saveEscrowTransaction(PENDING_PAYMENT, sha256Ref)
-E_DB --> C_Svc -- : LedgerSavedOK
-C_Svc --> B_BE -- : BookingResponseDTO(orderId, vaNumber)
-B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
-B_FE --> User : Tampilkan Instruksi Pembayaran & Countdown Timer
+User -> B_FE ++ : Buka Katalog Advokat & Pilih Level Konsultasi (Gratis / Premium / Pro)
 
-User -> Pay : Lakukan Pembayaran VA / QRIS Escrow
-Pay -> B_BE ++ : POST /api/v2/webhooks/midtrans (PaymentNotification)
-B_BE -> B_BE : Verifikasi Signature HMAC-SHA512 Webhook
-B_BE -> C_Svc ++ : handleEscrowPaidNotification(orderId)
-C_Svc -> E_DB ++ : updateEscrowStatus(PAID, freezeFunds=true)
-E_DB --> C_Svc -- : EscrowFrozenOK
-C_Svc -> C_Svc : initiateFairClockSlaMonitor(orderId)
-C_Svc --> B_BE -- : WebhookProcessedOK
-B_BE --> Pay -- : HTTP 200 OK
+alt Level Konsultasi = Gratisan / Legal Triage 15 Menit (Rp 0)
+    B_FE -> B_BE ++ : POST /api/v2/consultation/book-triage (TriageDTO)
+    B_BE -> C_Svc ++ : createTriageSession(clientJwt)
+    C_Svc -> E_DB ++ : allocateTriageAdvocate()
+    E_DB --> C_Svc -- : AdvocateAllocated(SUCCESS)
+    C_Svc -> E_DB ++ : saveOrderLedger(orderId, amount=0, status=TRIAGE_ACTIVE)
+    E_DB --> C_Svc -- : OrderSavedOK
+    C_Svc --> B_BE -- : TriageSessionDTO(orderId, roomId)
+    B_BE --> B_FE -- : 201 Created (JSON {orderId, roomId, status: "TRIAGE_ACTIVE"})
+    B_FE --> User : Buka Ruang Chat E2EE Triage (Countdown Maks 15 Menit)
 
-B_FE -> B_BE ++ : GET /api/v2/consultation/status/{orderId}
-B_BE -> C_Svc ++ : getConsultationStatus(orderId)
-C_Svc -> E_DB ++ : findOrder(orderId)
-E_DB --> C_Svc -- : OrderEntity(PAID)
-C_Svc --> B_BE -- : StatusDTO(PAID, roomId)
-B_BE --> B_FE -- : 200 OK (JSON {status: "PAID", roomId})
-B_FE --> User : Buka Ruang Obrolan Hukum E2EE (MOCK-J-CL-04)
+    opt Klien Membutuhkan Analisis Kasus Lanjutan pasca-Triage
+        User -> B_FE : Klik Upgrade ke Sesi Konsultasi Premium / Pro
+        B_FE -> B_BE ++ : POST /api/v2/consultation/upgrade (UpgradeDTO)
+        B_BE -> C_Svc ++ : initiateUpgradeOrder(orderId, newTier)
+        C_Svc --> B_BE -- : UpgradeOrderResultDTO(newOrderId)
+        B_BE --> B_FE -- : 200 OK (JSON {newOrderId})
+    end
+
+else Level Konsultasi = Konsultasi Premium / Pro Berbayar
+    User -> B_FE : Pilih Advokat, Tier, & Slot Jadwal Praktik
+    B_FE -> B_BE ++ : POST /api/v2/consultation/book (BookingDTO)
+    B_BE -> C_Svc ++ : calculateConsultationFeeAndTokens(clientJwt, advocateId, tier)
+    C_Svc -> E_DB ++ : getWalletBalance(userId)
+    E_DB --> C_Svc -- : WalletBalance(virtualTokens, welcomeBonus)
+
+    alt Saldo Virtual Token Mencukupi 100% Tagihan
+        C_Svc -> E_DB ++ : deductVirtualTokens(userId, totalFee)
+        E_DB --> C_Svc -- : DeductedOK
+        C_Svc -> E_DB ++ : saveEscrowTransaction(PAID_BY_VIRTUAL_TOKEN, amount=0)
+        E_DB --> C_Svc -- : LedgerSavedOK
+        C_Svc -> C_Svc : initiateFairClockSlaMonitor(orderId)
+        C_Svc --> B_BE : BookingResponseDTO(orderId, status="PAID")
+        B_BE --> B_FE : 201 Created (JSON {orderId, status: "PAID"})
+        B_FE --> User : Langsung Buka Ruang Obrolan Hukum E2EE (MOCK-J-CL-04)
+    else Tagihan Membutuhkan Pembayaran Tunai Rupiah (Split Payment / Full Cash)
+        C_Svc -> Pay ++ : createPaymentTransaction(orderId, cashAmountNeeded)
+        Pay --> C_Svc -- : PaymentInstructionDTO(vaNumber, expiryTime)
+        C_Svc -> E_DB ++ : saveEscrowTransaction(PENDING_PAYMENT, sha256Ref)
+        E_DB --> C_Svc -- : LedgerSavedOK
+        C_Svc --> B_BE -- : BookingResponseDTO(orderId, vaNumber, status="PENDING")
+        B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
+        B_FE --> User : Tampilkan Instruksi Pembayaran VA / QRIS & Countdown Timer
+
+        User -> Pay : Lakukan Pembayaran VA / QRIS Escrow
+        Pay -> B_BE ++ : POST /api/v2/webhooks/midtrans (PaymentNotification)
+        B_BE -> B_BE : Verifikasi Signature HMAC-SHA512 Webhook
+        B_BE -> C_Svc ++ : handleEscrowPaidNotification(orderId)
+        C_Svc -> E_DB ++ : updateEscrowStatus(PAID, freezeFunds=true)
+        E_DB --> C_Svc -- : EscrowFrozenOK
+        C_Svc -> C_Svc : initiateFairClockSlaMonitor(orderId)
+        C_Svc --> B_BE -- : WebhookProcessedOK
+        B_BE --> Pay -- : HTTP 200 OK
+
+        B_FE -> B_BE ++ : GET /api/v2/consultation/status/{orderId}
+        B_BE -> C_Svc ++ : getConsultationStatus(orderId)
+        C_Svc -> E_DB ++ : findOrder(orderId)
+        E_DB --> C_Svc -- : OrderEntity(PAID)
+        C_Svc --> B_BE -- : StatusDTO(PAID, roomId)
+        B_BE --> B_FE -- : 200 OK (JSON {status: "PAID", roomId})
+        B_FE --> User : Buka Ruang Obrolan Hukum E2EE (MOCK-J-CL-04)
+    end
+end
 deactivate User
 @enduml
 ```
 
 ### SD-J-04: Mengatur Status Ketersediaan Praktik Advokat (J-UC09)
-*Sequence diagram alur pengaturan slot sesi konsultasi, kuota Pro Bono, dan penjadwalan kalender Advokat berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pengaturan slot sesi konsultasi, pengecekan bentrok jadwal, dan validasi kuota harian Advokat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-04).*
 
 ```plantuml
 @startuml
@@ -242,7 +277,7 @@ deactivate User
 ```
 
 ### SD-J-05: Mengunggah Berkas Perkara E2EE Zero-Knowledge (J-UC13)
-*Sequence diagram alur pengunggahan dokumen berkas perkara klien terenkripsi AES-GCM lokal di browser berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pengunggahan dokumen berkas perkara klien terenkripsi AES-GCM lokal di browser berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-05).*
 
 ```plantuml
 @startuml
@@ -256,23 +291,28 @@ database "DocumentVault & WORM Ledger (Entity)" as E_DB
 activate User
 User -> B_FE ++ : Pilih File Berkas Perkara (.pdf/.docx) & Klik Unggah
 B_FE -> B_FE : Validasi Ukuran File (<= 15MB) & Enkripsi Lokal AES-GCM 256-Bit
-B_FE -> B_BE ++ : POST /api/v2/documents/upload-encrypted (EncryptedChunkPayload)
-B_BE -> B_BE : Validasi Header JWT & Ciphertext Stream
-B_BE -> C_Svc ++ : storeEncryptedDocument(userId, roomId, cipherBlob, clientSha256)
-C_Svc -> C_Svc : Verifikasi SHA-256 Checksum Ciphertext
-C_Svc -> E_DB ++ : saveEncryptedObject(objectKey, cipherBlob)
-E_DB --> C_Svc -- : ObjectStoredOK
-C_Svc -> E_DB ++ : appendWormAuditLog(docId, clientSha256, timestamp)
-E_DB --> C_Svc -- : WormAuditSavedOK
-C_Svc --> B_BE -- : DocumentUploadDTO(docId, sha256Ref)
-B_BE --> B_FE -- : 201 Created (JSON {docId, status: "ENCRYPTED_STORED"})
-B_FE --> User : Tampilkan Lencana Verifikasi SHA-256 pada Berkas
+
+alt Ukuran File > 15MB atau Format Tidak Didukung
+    B_FE --> User : Tampilkan Error "Ukuran File Melebihi Batas / Format Salah"
+else File Valid & Berhasil Dienkripsi Lokal
+    B_FE -> B_BE ++ : POST /api/v2/documents/upload-encrypted (EncryptedChunkPayload)
+    B_BE -> B_BE : Validasi Header JWT & Ciphertext Stream
+    B_BE -> C_Svc ++ : storeEncryptedDocument(userId, roomId, cipherBlob, clientSha256)
+    C_Svc -> C_Svc : Verifikasi SHA-256 Checksum Ciphertext
+    C_Svc -> E_DB ++ : saveEncryptedObject(objectKey, cipherBlob)
+    E_DB --> C_Svc -- : ObjectStoredOK
+    C_Svc -> E_DB ++ : appendWormAuditLog(docId, clientSha256, timestamp)
+    E_DB --> C_Svc -- : WormAuditSavedOK
+    C_Svc --> B_BE -- : DocumentUploadDTO(docId, sha256Ref)
+    B_BE --> B_FE -- : 201 Created (JSON {docId, status: "ENCRYPTED_STORED"})
+    B_FE --> User : Tampilkan Lencana Verifikasi SHA-256 pada Berkas
+end
 deactivate User
 @enduml
 ```
 
 ### SD-J-06: Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai KMS (J-UC12, J-UC14)
-*Sequence diagram alur penyusunan draf hukum, pembubuhan e-Meterai KMS Peruri, dan verifikasi persetujuan klien berbasis 5-Lifeline BCE.*
+*Sequence diagram alur penyusunan draf hukum, pembubuhan e-Meterai KMS Peruri, dan verifikasi persetujuan klien berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-06).*
 
 ```plantuml
 @startuml
@@ -305,13 +345,34 @@ else Pembubuhan e-Meterai Sukses
     C_Svc --> B_BE -- : SignDeliverableResultDTO(docId, stampSerialHash)
     B_BE --> B_FE -- : 201 Created (JSON {docId, status: "SIGNED_STAMPED"})
     B_FE --> User : Tampilkan Dokumen Ber-Meterai & SHA-256 Lencana
+
+    loop [Siklus Review & Revisi Draf Kontrak (Maks 2x Revisi Klien)]
+        User -> B_FE : Klien Memeriksa Dokumen (Setuju / Minta Revisi)
+        alt Klien Mengajukan Revisi (< 2x Kuota)
+            B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/revise (RevisionNoteDTO)
+            B_BE -> C_Svc ++ : processRevisionRequest(docId, note)
+            C_Svc -> E_DB ++ : updateDocumentStatus(REVISION_REQUESTED)
+            E_DB --> C_Svc -- : UpdatedOK
+            C_Svc --> B_BE -- : RevisionACK
+            B_BE --> B_FE -- : 200 OK
+            B_FE --> User : Kirim Notifikasi Perbaikan ke Advokat
+        else Klien Menyetujui Dokumen Final
+            B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/approve
+            B_BE -> C_Svc ++ : finalizeDocumentAndUnlockPayout(docId)
+            C_Svc -> E_DB ++ : updateDocumentStatus(FINAL_APPROVED_WORM)
+            E_DB --> C_Svc -- : FinalizedOK
+            C_Svc --> B_BE -- : ApproveACK
+            B_BE --> B_FE -- : 200 OK
+            B_FE --> User : Dokumen Resmi Final & Pencairan Escrow Diaktifkan
+        end
+    end
 end
 deactivate User
 @enduml
 ```
 
 ### SD-J-07: Konsultasi Pro Bono SKTM (J-UC15)
-*Sequence diagram alur verifikasi NIK DTKS Kemensos dan pembukaan sesi konsultasi Pro Bono Rp 0 bersubsidi penuh berbasis 5-Lifeline BCE.*
+*Sequence diagram alur verifikasi NIK DTKS Kemensos dan pembukaan sesi konsultasi Pro Bono Rp 0 bersubsidi penuh berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-07).*
 
 ```plantuml
 @startuml
@@ -349,7 +410,7 @@ deactivate User
 ```
 
 ### SD-J-08: Membuat Catatan Sesi IRAC Note Advokat (J-UC11)
-*Sequence diagram alur pencatatan opini hukum terstruktur IRAC (Issue, Rule, Analysis, Conclusion) oleh Advokat berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pencatatan opini hukum terstruktur IRAC (Issue, Rule, Analysis, Conclusion) oleh Advokat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-08).*
 
 ```plantuml
 @startuml
@@ -378,7 +439,7 @@ deactivate User
 ```
 
 ### SD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
-*Sequence diagram alur audit berkas lisensi Advokat oleh Admin & pemeriksaan otomatis SIPP MA berbasis 5-Lifeline BCE.*
+*Sequence diagram alur audit berkas lisensi Advokat oleh Admin & pemeriksaan otomatis SIPP MA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-09).*
 
 ```plantuml
 @startuml
@@ -418,7 +479,7 @@ deactivate User
 ```
 
 ### SD-J-10: Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
-*Sequence diagram alur investigasi pelanggaran DLP/Etik dan penangguhan akun bersanksi berbasis 5-Lifeline BCE.*
+*Sequence diagram alur investigasi pelanggaran DLP/Etik dan penangguhan akun bersanksi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-10).*
 
 ```plantuml
 @startuml
@@ -434,20 +495,29 @@ User -> B_FE ++ : Buka Laporan Investigasi Fraud & Klik Suspend Akun
 B_FE -> B_BE ++ : POST /api/v2/admin/moderation/suspend (SuspendAccountDTO)
 B_BE -> B_BE : Validasi Otorisasi Admin Komite Etik
 B_BE -> C_Svc ++ : enforceAccountSuspension(targetUserId, reason, evidenceHash)
-C_Svc -> E_DB ++ : updateAccountStatus(targetUserId, SUSPENDED)
-E_DB --> C_Svc -- : AccountSuspendedOK
-C_Svc -> C_Svc : freezeActiveEscrowAndSessions(targetUserId)
-C_Svc -> E_DB ++ : recordImmutableSanctionWorm(targetUserId, reason, evidenceHash)
-E_DB --> C_Svc -- : WormSanctionRecordedOK
-C_Svc --> B_BE -- : ModerationResultDTO(status: "SUSPENDED")
-B_BE --> B_FE -- : 200 OK (JSON {status: "SUSPENDED", wormHash})
-B_FE --> User : Tampilkan Konfirmasi Akun Ditangguhkan & Rekam WORM Audit
+
+alt Laporan Fraud Terbukti Sah & Melanggar Ketentuan
+    C_Svc -> E_DB ++ : updateAccountStatus(targetUserId, SUSPENDED)
+    E_DB --> C_Svc -- : AccountSuspendedOK
+    C_Svc -> C_Svc : freezeActiveEscrowAndSessions(targetUserId)
+    C_Svc -> E_DB ++ : recordImmutableSanctionWorm(targetUserId, reason, evidenceHash)
+    E_DB --> C_Svc -- : WormSanctionRecordedOK
+    C_Svc --> B_BE : ModerationResultDTO(status: "SUSPENDED")
+    B_BE --> B_FE : 200 OK (JSON {status: "SUSPENDED", wormHash})
+    B_FE --> User : Tampilkan Konfirmasi Akun Ditangguhkan & Rekam WORM Audit
+else Bukti Tidak Mencukupi (Laporan Palsu / Dismiss)
+    C_Svc -> E_DB ++ : recordDismissedInvestigation(targetUserId, reason)
+    E_DB --> C_Svc -- : LoggedOK
+    C_Svc --> B_BE -- : ModerationResultDTO(status: "DISMISSED")
+    B_BE --> B_FE -- : 200 OK (JSON {status: "DISMISSED"})
+    B_FE --> User : Tampilkan Status Investigasi Ditutup
+end
 deactivate User
 @enduml
 ```
 
 ### SD-J-11: Pencairan Dana Escrow & Perhitungan PPh 21 Advokat (J-UC19)
-*Sequence diagram alur penyelesaian sesi konsultasi, pemotongan PPh 21 otomatis, dan pencairan honor ke rekening Advokat berbasis 5-Lifeline BCE.*
+*Sequence diagram alur penyelesaian sesi konsultasi, pemotongan PPh 21 otomatis, dan pencairan honor ke rekening Advokat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-11).*
 
 ```plantuml
 @startuml
@@ -488,7 +558,7 @@ deactivate User
 ```
 
 ### SD-J-12: Memantau Laporan Keuangan Escrow & Audit WORM (J-UC18)
-*Sequence diagram alur ekspor laporan audit finansial transparan berbasis kriptografi WORM SHA-256 berbasis 5-Lifeline BCE.*
+*Sequence diagram alur ekspor laporan audit finansial transparan berbasis kriptografi WORM SHA-256 berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-12).*
 
 ```plantuml
 @startuml
@@ -515,7 +585,7 @@ deactivate User
 ```
 
 ### SD-J-13: Memberikan Ulasan & Rating Advokat (J-UC06)
-*Sequence diagram alur pemberian ulasan pasca-sesi konsultasi hukum berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pemberian ulasan pasca-sesi konsultasi hukum berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-13).*
 
 ```plantuml
 @startuml
@@ -552,10 +622,10 @@ deactivate User
 ```
 
 ### SD-J-14: [DILEBUR KE DALAM SD-J-06]
-*Catatan Arsitektur:* Alur finalisasi dokumen bermeterai telah dilebur secara utuh ke dalam **SD-J-06** untuk menjamin atomisitas pengesahan e-Meterai KMS Peruri dan penyerahan berkas akhir ke klien.
+*Catatan Arsitektur:* Alur finalisasi dokumen bermeterai telah dilebur secara utuh ke dalam **SD-J-06** (Sinkron 1-to-1 dengan AD-J-14).
 
 ### SD-J-21: Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
-*Sequence diagram alur pelaporan whistleblowing / sengketa etika konsultasi hukum berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pelaporan whistleblowing / sengketa etika konsultasi hukum berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-21).*
 
 ```plantuml
 @startuml
@@ -585,7 +655,7 @@ deactivate User
 ```
 
 ### SD-J-22: Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
-*Sequence diagram alur penambahan saldo dompet Advokat untuk pembelian meterai/fitur premium berbasis 5-Lifeline BCE.*
+*Sequence diagram alur penambahan saldo dompet Advokat untuk pembelian meterai/fitur premium berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-22).*
 
 ```plantuml
 @startuml
@@ -621,7 +691,7 @@ deactivate User
 ```
 
 ### SD-J-20: Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
-*Sequence diagram alur login aman Multi-Factor Authentication berbasis TOTP Authenticator untuk Admin Justifiqa berbasis 5-Lifeline BCE.*
+*Sequence diagram alur login aman Multi-Factor Authentication berbasis TOTP Authenticator untuk Admin Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-20).*
 
 ```plantuml
 @startuml
@@ -674,7 +744,7 @@ deactivate User
 ## BAGIAN II: SEQUENCE DIAGRAMS - APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### SD-Q-01: Registrasi Akun Klien & Psikolog Klinis (Q-UC01, Q-UC07)
-*Sequence diagram alur pendaftaran akun Klien Klinis dan Psikolog Klinis (verifikasi STR HIMPSI / SATUSEHAT) berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pendaftaran akun Klien Klinis dan Psikolog Klinis (verifikasi STR HIMPSI / SATUSEHAT) berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-01).*
 
 ```plantuml
 @startuml
@@ -715,11 +785,18 @@ else Skema Valid
         else Jenis Akun = Psikolog Klinis
             C_Svc -> Ext ++ : verifyStrHimpsi(strNumber)
             Ext --> C_Svc -- : StrVerificationStatus
-            C_Svc -> E_DB ++ : saveAccount(PsychologistEntity, PENDING_VERIFICATION)
-            E_DB --> C_Svc -- : SavedOK
-            C_Svc --> B_BE -- : RegisterResult(PENDING_VERIFICATION)
-            B_BE --> B_FE -- : 201 Created (JSON {status: "PENDING_VERIFICATION"})
-            B_FE --> User : Tampilkan Pesan Audit STR 1x24 Jam
+
+            alt STR Tidak Valid / Kedaluwarsa di SATUSEHAT
+                C_Svc --> B_BE : StrInvalidException
+                B_BE --> B_FE : 422 Unprocessable Entity (STR Tidak Terdaftar)
+                B_FE --> User : Tampilkan Error STR Tidak Valid
+            else STR Sah & Terverifikasi
+                C_Svc -> E_DB ++ : saveAccount(PsychologistEntity, PENDING_VERIFICATION)
+                E_DB --> C_Svc -- : SavedOK
+                C_Svc --> B_BE -- : RegisterResult(PENDING_VERIFICATION)
+                B_BE --> B_FE -- : 201 Created (JSON {status: "PENDING_VERIFICATION"})
+                B_FE --> User : Tampilkan Pesan Audit STR 1x24 Jam
+            end
         end
     end
 end
@@ -728,7 +805,7 @@ deactivate User
 ```
 
 ### SD-Q-02: Login Akun Klien & Psikolog Klinis (Q-UC02, Q-UC08)
-*Sequence diagram alur login independen Qualifa dengan verifikasi MFA berbasis 5-Lifeline BCE.*
+*Sequence diagram alur login independen Qualifa dengan verifikasi MFA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-02).*
 
 ```plantuml
 @startuml
@@ -772,7 +849,7 @@ deactivate User
 ```
 
 ### SD-Q-03: Sesi Konseling Klinis & Pembayaran (Q-UC03, Q-UC04, Q-UC05, Q-UC10)
-*Sequence diagram alur pemesanan konseling klinis, pembayaran Escrow, dan pembukaan ruang obrolan E2EE berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pemesanan konseling klinis, percabangan Sesi Crisis 119 Gratis vs Konseling Berbayar (Escrow/Voucher), dan pembukaan ruang obrolan E2EE berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-03).*
 
 ```plantuml
 @startuml
@@ -780,35 +857,49 @@ autonumber
 actor "Klien Qualifa" as User
 participant "Frontend Qualifa (Boundary Client)" as B_FE
 participant "CounselingController (Boundary Server)" as B_BE
-participant "CounselingEscrowService (Control)" as C_Svc
+participant "CounselingService (Control)" as C_Svc
 database "QualifaLedger & WORM (Entity)" as E_DB
 participant "Payment Gateway" as Pay
 
 activate User
-User -> B_FE ++ : Pilih Psikolog & Jadwal Konseling
-B_FE -> B_BE ++ : POST /api/v2/counseling/book (CounselingBookDTO)
-B_BE -> C_Svc ++ : createCounselingOrder(clientJwt, psychId, slotId)
-C_Svc -> Pay ++ : createVaPayment(orderId, amount)
-Pay --> C_Svc -- : PaymentInstruction(vaNumber)
-C_Svc -> E_DB ++ : saveOrderLedger(orderId, PENDING)
-E_DB --> C_Svc -- : LedgerSavedOK
-C_Svc --> B_BE -- : BookResponse(orderId, vaNumber)
-B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
-B_FE --> User : Tampilkan Instruksi Pembayaran Konseling
+User -> B_FE ++ : Buka Katalog Psikolog & Pilih Mode Konseling
 
-User -> Pay : Lakukan Pembayaran VA
-Pay -> B_BE ++ : POST /api/v2/webhooks/qualifa-payment (Notification)
-B_BE -> C_Svc ++ : confirmPaymentWebhook(orderId)
-C_Svc -> E_DB ++ : updateOrderStatus(PAID)
-E_DB --> C_Svc -- : UpdatedOK
-C_Svc --> B_BE -- : WebhookACK
-B_BE --> Pay -- : HTTP 200 OK
+alt Mode = Crisis Counseling Darurat 119 (Gratis Subsidi Rp 0)
+    B_FE -> B_BE ++ : POST /api/v2/counseling/book-crisis
+    B_BE -> C_Svc ++ : createCrisisSession(clientJwt)
+    C_Svc -> E_DB ++ : allocateOnCallPsychologist()
+    E_DB --> C_Svc -- : PsychAllocated(SUCCESS)
+    C_Svc -> E_DB ++ : saveOrderLedger(orderId, amount=0, status=CRISIS_ACTIVE)
+    E_DB --> C_Svc -- : OrderSavedOK
+    C_Svc --> B_BE -- : CrisisSessionDTO(orderId, roomId)
+    B_BE --> B_FE -- : 201 Created (JSON {orderId, roomId, crisis: true})
+    B_FE --> User : Langsung Buka Ruang Obrolan Crisis 119 E2EE
+else Mode = Konseling Klinis Berjadwal / Premium
+    User -> B_FE : Pilih Psikolog & Jadwal Konseling
+    B_FE -> B_BE ++ : POST /api/v2/counseling/book (CounselingBookDTO)
+    B_BE -> C_Svc ++ : createCounselingOrder(clientJwt, psychId, slotId)
+    C_Svc -> Pay ++ : createVaPayment(orderId, amount)
+    Pay --> C_Svc -- : PaymentInstruction(vaNumber)
+    C_Svc -> E_DB ++ : saveOrderLedger(orderId, PENDING)
+    E_DB --> C_Svc -- : LedgerSavedOK
+    C_Svc --> B_BE -- : BookResponse(orderId, vaNumber)
+    B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
+    B_FE --> User : Tampilkan Instruksi Pembayaran Konseling
+
+    User -> Pay : Lakukan Pembayaran VA
+    Pay -> B_BE ++ : POST /api/v2/webhooks/qualifa-payment (Notification)
+    B_BE -> C_Svc ++ : confirmPaymentWebhook(orderId)
+    C_Svc -> E_DB ++ : updateOrderStatus(PAID)
+    E_DB --> C_Svc -- : UpdatedOK
+    C_Svc --> B_BE -- : WebhookACK
+    B_BE --> Pay -- : HTTP 200 OK
+end
 deactivate User
 @enduml
 ```
 
 ### SD-Q-04: Mengatur Status Ketersediaan & Buffer 30 Mnt (Q-UC09)
-*Sequence diagram alur penjadwalan sesi psikolog dengan penegakan buffer waktu pemulihan mental minimal 30 menit antar-sesi berbasis 5-Lifeline BCE.*
+*Sequence diagram alur penjadwalan sesi psikolog dengan penegakan buffer waktu pemulihan mental minimal 30 menit antar-sesi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-04).*
 
 ```plantuml
 @startuml
@@ -840,7 +931,7 @@ deactivate User
 ```
 
 ### SD-Q-05: Mengisi Jurnal Mood Tracker Harian Proactive Alert (Q-UC13)
-*Sequence diagram alur pencatatan suasana hati (Mood Tracker) dengan peringatan dini otomatis berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pencatatan suasana hati (Mood Tracker) dengan peringatan dini otomatis berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-05).*
 
 ```plantuml
 @startuml
@@ -874,7 +965,7 @@ deactivate User
 ```
 
 ### SD-Q-06: Mengakses Streaming Audio Meditasi & Relaksasi (Q-UC14)
-*Sequence diagram alur pemutaran konten relaksasi audio berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pemutaran konten relaksasi audio berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-06).*
 
 ```plantuml
 @startuml
@@ -899,7 +990,7 @@ deactivate User
 ```
 
 ### SD-Q-07: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119 (Q-UC15)
-*Sequence diagram alur pengisian skrining kesehatan mental DASS-21 dan eskalasi tombol darurat berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pengisian skrining kesehatan mental DASS-21 dan eskalasi tombol darurat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-07).*
 
 ```plantuml
 @startuml
@@ -932,7 +1023,7 @@ deactivate User
 ```
 
 ### SD-Q-08: Membuat Catatan Terapi DAP Note & Worksheet CCBT (Q-UC11, Q-UC12)
-*Sequence diagram alur pencatatan medis klinis DAP (Data, Assessment, Plan) secara terenkripsi berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pencatatan medis klinis DAP (Data, Assessment, Plan) secara terenkripsi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-08).*
 
 ```plantuml
 @startuml
@@ -959,7 +1050,7 @@ deactivate User
 ```
 
 ### SD-Q-09: Verifikasi STR/HIMPSI & Moderasi Komite Etik Admin Qualifa (Q-UC16, Q-UC17)
-*Sequence diagram alur verifikasi kredensial psikolog klinis oleh Admin berbasis 5-Lifeline BCE.*
+*Sequence diagram alur verifikasi kredensial psikolog klinis oleh Admin berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-09).*
 
 ```plantuml
 @startuml
@@ -996,7 +1087,7 @@ deactivate User
 ```
 
 ### SD-Q-10: Pencairan Honor Psikolog & Perhitungan PPh 21 (Q-UC19)
-*Sequence diagram alur pencairan honor konseling pasca-sesi ke rekening psikolog berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pencairan honor konseling pasca-sesi ke rekening psikolog berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-10).*
 
 ```plantuml
 @startuml
@@ -1024,7 +1115,7 @@ deactivate User
 ```
 
 ### SD-Q-11: Memantau Laporan Keuangan Qualifa & Audit WORM (Q-UC18)
-*Sequence diagram alur pemeriksaan laporan keuangan & integritas hash WORM pada Qualifa berbasis 5-Lifeline BCE.*
+*Sequence diagram alur pemeriksaan laporan keuangan & integritas hash WORM pada Qualifa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-11).*
 
 ```plantuml
 @startuml
@@ -1049,7 +1140,7 @@ deactivate User
 ```
 
 ### SD-Q-20: Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
-*Sequence diagram alur login portal backoffice Admin Qualifa dengan otentikasi ganda TOTP berbasis 5-Lifeline BCE.*
+*Sequence diagram alur login portal backoffice Admin Qualifa dengan otentikasi ganda TOTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-20).*
 
 ```plantuml
 @startuml
