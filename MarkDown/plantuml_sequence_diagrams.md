@@ -1,15 +1,6 @@
-# Kumpulan Kode PlantUML: Sequence Diagrams - Component-Level 5-Lifeline BCE Architecture (Justifiqa & Qualifa)
+# Kumpulan Kode PlantUML: Sequence Diagrams - 100% Siloed Architecture (Justifiqa & Qualifa)
 
-Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Sequence Diagram pada dua aplikasi mandiri yang **100% terisolasi dan berdiri sendiri (*Siloed Architecture*)**: **Justifiqa** (Domain Hukum) dan **Qualifa** (Domain Psikologi).
-
-Seluruh diagram menerapkan standar arsitektur terdekopel **Boundary-Control-Entity (BCE) 5-Lifeline Supremacy** dan dipetakan **1-to-1 100% dengan Activity Diagram (termasuk seluruh cabang putusan if/else, pemeriksaan DLP, dan perulangan loop)**:
-1. **Actor**: Pengguna / Pemicu eksternal.
-2. **Boundary Client (`B_FE`)**: Frontend SPA/Mobile App (menangani interaksi UI & client-side DLP regex).
-3. **Boundary Server (`B_BE`)**: API Controller / Gateway (`POST/GET /api/v2/...`, memverifikasi auth JWT, validasi skema JSON DTO, dan mengembalikan HTTP Status Code presisi).
-4. **Control (`C_Svc`)**: Domain Application Service / Orchestrator (otak logika bisnis, kalkulasi SLA Fair-Clock, verifikasi SIPP/STR, KMS e-Meterai, inline DLP scanning, dan arbitrase Escrow).
-5. **Entity (`E_DB`)**: Persistent Storage & Immutable Ledger (PostgreSQL DB + WORM SHA-256 Vault).
-
-Penomoran diagram telah distandarisasi untuk mencerminkan arsitektur terisolasi dan bersesuaian 1-to-1 dengan Activity Diagram: **`SD-J-xx`** untuk Justifiqa dan **`SD-Q-xx`** untuk Qualifa.
+Dokumen ini berisi kumpulan kode PlantUML untuk seluruh Sequence Diagram pada dua aplikasi mandiri yang **100% terisolasi dan berdiri sendiri (*Siloed Architecture*)**: **Justifiqa** (Domain Hukum) dan **Qualifa** (Domain Psikologi). Penomoran diagram telah distandarisasi untuk mencerminkan arsitektur terisolasi dan bersesuaian 1-to-1 dengan Activity Diagram: **`SD-J-xx`** untuk Justifiqa dan **`SD-Q-xx`** untuk Qualifa.
 
 ---
 
@@ -22,1500 +13,1895 @@ Penomoran diagram telah distandarisasi untuk mencerminkan arsitektur terisolasi 
 ---
 
 ## BAGIAN I: SEQUENCE DIAGRAMS - APLIKASI MANDIRI JUSTIFIQA (DOMAIN HUKUM)
+
 ### SD-J-01: Registrasi Akun Klien & Advokat (J-UC01, J-UC07)
-*Sequence diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-01).*
+*Sequence diagram alur pendaftaran akun mandiri Klien (verifikasi NIK Dukcapil) dan Advokat/Notaris (verifikasi SIPP Peradi) di platform Justifiqa dengan eksekusi aktif lengkap pada sisi User (actor) dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
 actor "Pengguna (Klien/Advokat)" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "API Controller (Boundary Server)" as B_BE
-participant "Auth & KYC Service (Control)" as C_Svc
-database "Database & WORM Ledger (Entity)" as E_DB
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
 participant "API Dukcapil / Peradi" as Ext
 
 activate User
-User -> B_FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
-B_FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
+User -> FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
+FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
 loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
-    User -> B_FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
-    B_FE -> B_BE ++ : POST /api/v2/auth/register (RegisterDTO & Files)
-    B_BE -> B_BE : Validasi Skema JSON & Ukuran File (< 5MB)
+    User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
+    FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
-    alt Format & Ukuran File Tidak Valid
-        B_BE --> B_FE : 400 Bad Request / 422 Unprocessable Entity
-        B_FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
-        note over User, B_FE : [REPEAT LOOP: Pengguna memperbaiki format file]
+    alt Format & Ukuran File Tidak Valid (Maks 5MB, PDF/JPG)
+        BE --> FE : 400 Bad Request / 422 Unprocessable Entity (Invalid File Format or Size Limit)
+        FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
+        note over User, FE : [REPEAT LOOP: Pengguna memperbaiki format file dan mengirim ulang ke baris awal loop]
     else Format & Ukuran File Valid
-        B_BE -> C_Svc ++ : registerAccount(RegisterDTO)
-        C_Svc -> E_DB ++ : checkAccountUniqueness(email, phone, nik)
-        E_DB --> C_Svc -- : AccountUniquenessStatus
+        BE -> DB ++ : Check Existing Email/No HP/NIK
+        DB --> BE -- : Status Uniqueness Result
 
         alt Email / No HP / NIK Sudah Terdaftar
-            C_Svc --> B_BE : AccountConflictException
-            B_BE --> B_FE : 409 Conflict (Akun Sudah Terdaftar)
-            B_FE --> User : Tampilkan Error "Email/No HP/NIK Sudah Terdaftar"
-            note over User, B_FE : [REPEAT LOOP: Pengguna mengganti kredensial]
+            BE --> FE : 409 Conflict (Akun Sudah Terdaftar)
+            FE --> User : Tampilkan Error "Email/No HP/NIK Sudah Terdaftar" & Instruksi Perbaikan
+            note over User, FE : [REPEAT LOOP: Pengguna mengganti kredensial dan mengirim ulang ke baris awal loop]
         else Kredensial Baru & Unik
             alt Jenis Akun = Klien (Pencari Keadilan)
-                C_Svc -> Ext ++ : verifyNikDukcapil(nik, nama, tglLahir)
-                Ext --> C_Svc -- : NikVerificationResult
-
+                BE -> Ext ++ : Verify NIK & KK to API Dukcapil
+                Ext --> BE -- : Return NIK Validation Status
+                
                 alt NIK Tidak Valid / Tidak Cocok di Dukcapil
-                    C_Svc --> B_BE : InvalidNikException
-                    B_BE --> B_FE : 422 Unprocessable Entity (NIK Tidak Terdaftar/Cocok)
-                    B_FE --> User : Tampilkan Error "NIK Tidak Valid / Tidak Cocok"
-                    note over User, B_FE : [REPEAT LOOP: Pengguna memperbaiki NIK]
+                    BE --> FE : 422 Unprocessable Entity (NIK Tidak Terdaftar / Tidak Cocok di Dukcapil)
+                    FE --> User : Tampilkan Error "NIK Tidak Valid / Tidak Cocok"
+                    note over User, FE : [REPEAT LOOP: Pengguna memperbaiki NIK dan mengirim ulang ke baris awal loop]
                 else NIK Valid & Cocok
-                    C_Svc -> E_DB ++ : saveAccount(ClientEntity, Status: AKTIF)
-                    E_DB --> C_Svc -- : AccountCreatedResult
-                    C_Svc --> B_BE -- : RegisterResponseDTO(SUCCESS, userId)
-                    B_BE --> B_FE -- : 201 Created (JSON {status: "SUCCESS"})
-                    B_FE --> User : Arahkan ke Halaman Login Justifiqa
-                    note over User, B_BE : [BREAK LOOP: NIK Valid & Akun Klien Berhasil Dibuat]
+                    BE -> DB ++ : Insert Klien (Status: AKTIF)
+                    DB --> BE -- : Success DB Insert
+                    BE --> FE : 201 Created (Registrasi Sukses)
+                    FE --> User : Arahkan ke Halaman Login Justifiqa
+                    note over User, BE : [BREAK LOOP: NIK Valid & Akun Klien Berhasil Dibuat]
                 end
             else Jenis Akun = Advokat / Notaris
-                C_Svc -> E_DB ++ : saveAccount(AdvocateEntity, Status: PENDING_VERIFICATION)
-                E_DB --> C_Svc -- : AdvocateCreatedResult
-                C_Svc -> C_Svc : dispatchAdminAuditQueue(sippNumber)
-                C_Svc --> B_BE -- : RegisterResponseDTO(PENDING_VERIFICATION)
-                B_BE --> B_FE -- : 201 Created (JSON {status: "PENDING_VERIFICATION"})
-                B_FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
-                note over User, B_BE : [BREAK LOOP: Akun Advokat Berhasil Disimpan PENDING_VERIFICATION]
+                BE -> DB ++ : Insert Advokat (Status: PENDING_VERIFICATION)
+                DB --> BE -- : Success DB Insert
+                BE -> BE ++ : Add to Admin Audit Queue (Verifikasi SIPP/Peradi)
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE : 201 Created (Menunggu Verifikasi Admin)
+                FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
+                note over User, BE : [BREAK LOOP: Akun Advokat Berhasil Disimpan PENDING_VERIFICATION]
             end
         end
     end
 end
+deactivate BE
+deactivate FE
 deactivate User
 @enduml
 ```
 
+---
+
 ### SD-J-02: Login Akun Klien & Advokat (J-UC02, J-UC08)
-*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) dan pengiriman ulang OTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-02).*
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) dengan spesifikasi eksekusi aktif lengkap pada sisi User (actor) dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
 actor "Pengguna Justifiqa" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "AuthController (Boundary Server)" as B_BE
-participant "AuthenticationService (Control)" as C_Svc
-database "UserRepository & WORM (Entity)" as E_DB
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
 participant "SMS / Email Gateway" as SMS
 
 activate User
-User -> B_FE ++ : Buka Halaman Login & Input Email/Password
-B_FE -> B_BE ++ : POST /api/v2/auth/login (LoginDTO)
-B_BE -> B_BE : Validasi Skema Input DTO
-B_BE -> C_Svc ++ : authenticateCredentials(email, password)
-C_Svc -> E_DB ++ : findByEmail(email)
-E_DB --> C_Svc -- : UserEntity
+loop [Maksimal 3x Percobaan Input Kredensial Login]
+    User -> FE : Masukkan Email/No HP & Password
+    FE -> BE ++ : POST /api/v1/auth/login (Credentials)
 
-alt Akun Tidak Ditemukan atau Password Salah
-    C_Svc --> B_BE : UnauthorizedCredentialsException
-    B_BE --> B_FE : 401 Unauthorized (Invalid Email or Password)
-    B_FE --> User : Tampilkan Error "Kredensial Tidak Valid"
-else Akun Ditemukan & Password Valid
-    alt Status Akun = SUSPENDED / PENDING_VERIFICATION
-        C_Svc --> B_BE : AccountInactiveException(reason)
-        B_BE --> B_FE : 403 Forbidden (Akun Ditangguhkan / Belum Diverifikasi)
-        B_FE --> User : Tampilkan Status Akun & Alasan Penangguhan
-    else Status Akun = AKTIF
-        C_Svc -> C_Svc : generateOtpChallenge()
-        C_Svc -> SMS ++ : sendOtpSmsOrEmail(target, otpCode)
-        SMS --> C_Svc -- : DeliveryReceipt(OK)
-        C_Svc --> B_BE -- : MfaChallengeDTO(challengeId)
-        B_BE --> B_FE -- : 200 OK (JSON {mfaRequired: true, challengeId})
-        B_FE --> User : Tampilkan Modal Input OTP 2FA
+    BE -> DB ++ : Query User by Email/No HP
+    DB --> BE -- : Return User Record & Password Hash
 
-        loop [Maksimal 3x Percobaan Input OTP]
-            opt Minta Kirim Ulang OTP
-                User -> B_FE : Klik Kirim Ulang OTP
-                B_FE -> B_BE ++ : POST /api/v2/auth/resend-otp (challengeId)
-                B_BE -> C_Svc ++ : resendOtpChallenge(challengeId)
-                C_Svc -> SMS ++ : sendOtpSmsOrEmail(target, newOtpCode)
-                SMS --> C_Svc -- : DeliveryReceipt(OK)
-                C_Svc --> B_BE -- : ResendACK
-                B_BE --> B_FE -- : 200 OK
-                B_FE --> User : OTP Baru Terkirim
+    alt Kredensial Tidak Cocok
+        BE --> FE : 401 Unauthorized (Kredensial Salah)
+        FE --> User : Tampilkan Error Email/No HP atau Password Salah
+        note over User, FE : [REPEAT LOOP: Pengguna memasukkan kembali kredensial ke baris awal loop]
+    else Kredensial Cocok
+        BE --> FE : 200 OK (Credentials Verified)
+        note over User, BE : [BREAK LOOP: Kredensial Cocok Lanjut ke Langkah MFA / OTP]
+    end
+end
+
+alt Status Akun = SUSPENDED (Due Process Legal)
+    BE --> FE : 403 Forbidden (Akun Diblokir Sementara)
+    FE --> User : Tampilkan Error Akun Dalam Pemeriksaan
+else Status Akun = AKTIF
+    BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
+    BE --> BE -- : Return Computed Result / State
+    BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
+    SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
+    BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+    FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
+    note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
+    
+    loop [Maksimal 3x Percobaan Verifikasi OTP]
+        User -> FE : Masukkan Kode OTP 6-Digit (Atau Klik Resend OTP)
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
+        
+        alt OTP Valid & Belum Expire
+            BE -> DB ++ : UPDATE users SET last_login = NOW()
+            DB --> BE -- : 200 OK (Success / 1 Row Updated)
+            BE -> BE ++ : Generate & Sign JWT Session Token Justifiqa
+            BE --> BE -- : Return Signed JWT String
+            BE --> FE : 200 OK (JWT Token, User Profile)
+            FE --> User : Masuk ke Dasbor Utama Justifiqa
+            note over User, BE : [BREAK LOOP: Sesi Valid Lanjut ke Dasbor]
+        else OTP Salah / Kadaluarsa
+            BE --> FE : 400 Bad Request (OTP Invalid / Expired)
+            FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
+            
+            opt [Pengguna Meminta Kirim Ulang OTP / Resend OTP]
+                User -> FE : Klik Tombol Resend OTP
+                FE -> BE : POST /api/v1/auth/resend-otp (User ID, Channel)
+                BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
+                BE --> BE -- : Return Computed Result / State
+                BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, New OTP)
+                SMS --> BE -- : 200 OK (New OTP Sent Successfully)
+                BE --> FE : 200 OK (New OTP Sent)
+                FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
             end
-
-            User -> B_FE : Input Kode OTP 6-Digit
-            B_FE -> B_BE ++ : POST /api/v2/auth/verify-mfa (MfaVerifyDTO)
-            B_BE -> C_Svc ++ : verifyMfaChallenge(challengeId, otpCode)
-
-            alt Kode OTP Salah / Kadaluarsa
-                C_Svc --> B_BE : InvalidOtpException
-                B_BE --> B_FE : 400 Bad Request / 401 Unauthorized
-                B_FE --> User : Tampilkan Error "Kode OTP Salah/Kadaluarsa"
-            else Kode OTP Valid
-                C_Svc -> C_Svc : generateAccessAndRefreshTokens(UserEntity)
-                C_Svc -> E_DB ++ : recordLoginAuditLog(userId, ip, timestamp)
-                E_DB --> C_Svc -- : AuditLoggedOK
-                C_Svc --> B_BE -- : AuthTokenDTO(accessToken, refreshToken, role)
-                B_BE --> B_FE -- : 200 OK (JSON {accessToken, role})
-                B_FE --> User : Arahkan ke Dasbor Utama (Klien/Advokat)
-                note over User, B_BE : [BREAK LOOP: Login & Verifikasi MFA Sukses]
-            end
+            note over User, FE : [REPEAT LOOP: Pengguna memasukkan kode OTP baru ke baris awal loop]
         end
     end
 end
+deactivate BE
+deactivate FE
 deactivate User
 @enduml
 ```
+
+---
 
 ### SD-J-03: Konsultasi Hukum & Pembayaran Escrow (J-UC03, J-UC04, J-UC05, J-UC10)
-*Sequence diagram alur pemesanan konsultasi hukum, percabangan Legal Triage Gratis 15 Menit vs Konsultasi Premium/Pro (Virtual Token / Split Payment / Escrow Tunai), pemeriksaan DLP 30ms, dan pemantauan SLA Fair-Clock berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-03).*
+*Sequence diagram reservasi, pembayaran escrow yang ditahan sistem Justifiqa, pelaksanaan sesi chat E2EE, hingga pelepasan dana setelah sesi selesai dengan spesifikasi eksekusi aktif lengkap pada sisi Klien, Advokat (Mitra), dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Justifiqa" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "ConsultationController (Boundary Server)" as B_BE
-participant "ConsultationService (Control)" as C_Svc
-database "ConsultationLedger & WORM (Entity)" as E_DB
-participant "Midtrans Escrow Gateway" as Pay
+actor "Klien Justifiqa" as Klien
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "Payment Gateway" as PG
+actor "Advokat Justifiqa" as Mitra
 
-activate User
-User -> B_FE ++ : Buka Katalog Advokat & Pilih Level Konsultasi (Gratis / Premium / Pro)
+activate Klien
+activate Mitra
+Klien -> FE ++ : Pilih Level Konsultasi (Gratis / Premium / Pro), Advokat, & Slot
+FE -> BE ++ : POST /api/v1/consultations/book (tier, advocate_id, slot, use_promo=true)
 
-alt Level Konsultasi = Gratisan / Legal Triage 15 Menit (Rp 0)
-    B_FE -> B_BE ++ : POST /api/v2/consultation/book-triage (TriageDTO)
-    B_BE -> C_Svc ++ : createTriageSession(clientJwt)
-    C_Svc -> E_DB ++ : allocateTriageAdvocate()
-    E_DB --> C_Svc -- : AdvocateAllocated(SUCCESS)
-    C_Svc -> E_DB ++ : saveOrderLedger(orderId, amount=0, status=TRIAGE_ACTIVE)
-    E_DB --> C_Svc -- : OrderSavedOK
-    C_Svc --> B_BE -- : TriageSessionDTO(orderId, roomId)
-    B_BE --> B_FE -- : 201 Created (JSON {orderId, roomId, status: "TRIAGE_ACTIVE"})
-    B_FE --> User : Buka Ruang Chat E2EE Triage (Countdown Maks 15 Menit)
+alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
+    BE -> BE ++ : Create Triage Session (fee = Rp0, duration = 15m, no_escrow)
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (Sesi Triage Gratis Terkonfirmasi)
+    FE --> Klien : Buka Ruang Chat E2EE Langsung (Maks 15 Menit)
+    BE -> Mitra : Push Notification Sesi Triage Baru (Advokat Muda/Paralegal)
+else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
+    BE -> BE ++ : Periksa Saldo Virtual Token Klien (Welcome Bonus Rp100.000 / Non-Cashable)
+    BE --> BE -- : Return Virtual Token Balance
 
-    opt Klien Membutuhkan Analisis Kasus Lanjutan pasca-Triage
-        User -> B_FE : Klik Upgrade ke Sesi Konsultasi Premium / Pro
-        B_FE -> B_BE ++ : POST /api/v2/consultation/upgrade (UpgradeDTO)
-        B_BE -> C_Svc ++ : initiateUpgradeOrder(orderId, newTier)
-        C_Svc --> B_BE -- : UpgradeOrderResultDTO(newOrderId)
-        B_BE --> B_FE -- : 200 OK (JSON {newOrderId})
-    end
-
-else Level Konsultasi = Konsultasi Premium / Pro Berbayar
-    User -> B_FE : Pilih Advokat, Tier, Mode (Online/Offline Tatap Muka), & Jadwal
-    B_FE -> B_BE ++ : POST /api/v2/consultation/book (BookingDTO)
-    B_BE -> C_Svc ++ : calculateConsultationFeeAndTokens(clientJwt, advocateId, tier)
-    C_Svc -> E_DB ++ : getWalletBalance(userId)
-    E_DB --> C_Svc -- : WalletBalance(virtualTokens, welcomeBonus)
-
-    alt Saldo Virtual Token Mencukupi 100% Tagihan
-        C_Svc -> E_DB ++ : deductVirtualTokens(userId, totalFee)
-        E_DB --> C_Svc -- : DeductedOK
-        C_Svc -> E_DB ++ : saveEscrowTransaction(PAID_BY_VIRTUAL_TOKEN, amount=0)
-        E_DB --> C_Svc -- : LedgerSavedOK
-        C_Svc -> C_Svc : initiateFairClockSlaMonitor(orderId)
-        C_Svc --> B_BE : BookingResponseDTO(orderId, status="PAID")
-        B_BE --> B_FE : 201 Created (JSON {orderId, status: "PAID"})
-        B_FE --> User : Langsung Buka Ruang Obrolan Hukum E2EE (MOCK-J-CL-04)
-    else Tagihan Membutuhkan Pembayaran Tunai Rupiah (Split Payment / Full Cash)
-        C_Svc -> Pay ++ : createPaymentTransaction(orderId, cashAmountNeeded)
-        Pay --> C_Svc -- : PaymentInstructionDTO(vaNumber, expiryTime)
-        C_Svc -> E_DB ++ : saveEscrowTransaction(PENDING_PAYMENT, sha256Ref)
-        E_DB --> C_Svc -- : LedgerSavedOK
-        C_Svc --> B_BE -- : BookingResponseDTO(orderId, vaNumber, status="PENDING")
-        B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
-        B_FE --> User : Tampilkan Instruksi Pembayaran VA / QRIS & Countdown Timer
-
-        User -> Pay : Lakukan Pembayaran VA / QRIS Escrow
-        Pay -> B_BE ++ : POST /api/v2/webhooks/midtrans (PaymentNotification)
-        B_BE -> B_BE : Verifikasi Signature HMAC-SHA512 Webhook
-        B_BE -> C_Svc ++ : handleEscrowPaidNotification(orderId)
-
-        alt Webhook Status Transaksi PAID / SUCCESS
-            C_Svc -> E_DB ++ : updateEscrowStatus(PAID, freezeFunds=true)
-            E_DB --> C_Svc -- : EscrowFrozenOK
-            C_Svc -> C_Svc : initiateFairClockSlaMonitor(orderId)
-            C_Svc --> B_BE : WebhookProcessedOK
-            B_BE --> Pay : HTTP 200 OK
-        else Webhook Status Transaksi Gagal / Kadaluwarsa
-            C_Svc -> E_DB ++ : rollbackVirtualTokensAndCancelOrder(orderId)
-            E_DB --> C_Svc -- : RollbackOK
-            C_Svc --> B_BE -- : WebhookFailedACK
-            B_BE --> Pay -- : HTTP 200 OK
+    alt Saldo Virtual Token Mencukupi 100% Tagihan (Full Virtual Token)
+        BE -> BE ++ : Potong Saldo Virtual Token & Catat Reservasi Non-Tunai (Tanpa Escrow Rupiah)
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+        BE --> BE -- : Return Computed Result / State
+        BE --> FE -- : 200 OK (Reservasi Terkonfirmasi via Virtual Token)
+        FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
+        BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+    else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
+        opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
+            BE -> BE ++ : Potong Saldo Promo Klien (Subsidi Platform)
+            BE --> BE -- : Return Computed Result / State
         end
+        BE -> PG ++ : Create Payment Invoice untuk Nominal Sisa / Penuh
+        PG --> BE -- : Return Invoice URL & VA Number
+        BE --> FE -- : Return Billing Detail (Nominal Sisa / Penuh)
+        FE --> Klien : Tampilkan Halaman Pembayaran PG
 
-        B_FE -> B_BE ++ : GET /api/v2/consultation/status/{orderId}
-        B_BE -> C_Svc ++ : getConsultationStatus(orderId)
-        C_Svc -> E_DB ++ : findOrder(orderId)
-        E_DB --> C_Svc -- : OrderEntity(PAID)
-        C_Svc --> B_BE -- : StatusDTO(PAID, roomId)
-        B_BE --> B_FE -- : 200 OK (JSON {status: "PAID", roomId})
-        B_FE --> User : Masuk ke Pelaksanaan Konsultasi
+        loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+            Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
 
-        alt Mode Konsultasi = Offline Tatap Muka
-            User -> B_FE : Pindai QR Code Check-In milik Advokat
-            B_FE -> B_BE ++ : POST /api/v2/consultation/offline/checkin (QrDTO)
-            B_BE -> C_Svc ++ : verifyOfflineCheckin(orderId, qrPayload)
-            C_Svc -> E_DB ++ : updateSessionStatus(OFFLINE_IN_PROGRESS)
-            E_DB --> C_Svc -- : UpdatedOK
-            C_Svc --> B_BE -- : CheckinACK
-            B_BE --> B_FE -- : 200 OK
-
-            alt Klien Pindai QR Check-Out Manual
-                User -> B_FE : Pindai QR Check-Out Saat Sesi Selesai
-                B_FE -> B_BE ++ : POST /api/v2/consultation/offline/checkout
-                B_BE -> C_Svc ++ : completeOfflineSession(orderId)
-                C_Svc --> B_BE -- : CheckoutACK
-                B_BE --> B_FE -- : 200 OK
-            else Waktu > 120 Menit Sejak Check-In (Lupa Check-Out)
-                C_Svc -> E_DB ++ : executeSystemicAutoCheckout(orderId)
-                E_DB --> C_Svc -- : AutoCheckoutOK
-            end
-        else Mode Konsultasi = Online E2EE Chat Room
-            loop [Siklus Chatting & Pemantauan SLA Fair-Clock]
-                User -> B_FE : Kirim Pesan Teks / Audio / Dokumen
-                B_FE -> B_BE ++ : POST /api/v2/consultation/messages (MessageDTO)
-                B_BE -> C_Svc ++ : inspectInlineDlpAndBroadcast(orderId, msgPayload)
-
-                alt Terdeteksi Ajakan Ketemuan Offline Ilegal / Tukar Kontak Pribadi
-                    C_Svc -> E_DB ++ : recordDlpViolationAttempt(userId, orderId)
-                    E_DB --> C_Svc -- : ViolationRecordedOK
-
-                    alt Percobaan Berulang >= 2x (Evasion)
-                        C_Svc -> E_DB ++ : freezeSessionAndSuspendAccount(userId, orderId)
-                        E_DB --> C_Svc -- : FrozenOK
-                        C_Svc --> B_BE : DlpActionDTO(status: "INSTANT_SUSPEND_ESCROW_FROZEN")
-                        B_BE --> B_FE : 403 Forbidden (Sesi Dibekukan Permanen)
-                        B_FE --> User : Tampilkan Peringatan Pelanggaran Etik Keras
-                    else Percobaan Pertama (Level 1 Drop)
-                        C_Svc --> B_BE : DlpActionDTO(status: "MESSAGE_DROPPED")
-                        B_BE --> B_FE : 422 Unprocessable Entity (Pesan Ditolak DLP)
-                        B_FE --> User : Tampilkan Peringatan Larangan Tukar Kontak Pribadi
-                    end
-                else Pesan Lolos DLP (~30ms Scan)
-                    C_Svc -> E_DB ++ : appendEncryptedMessageHistory(orderId, msgPayload)
-                    E_DB --> C_Svc -- : MessageSavedOK
-                    C_Svc --> B_BE -- : MessageBroadcastACK
-                    B_BE --> B_FE -- : 200 OK
+            alt Webhook Status Transaksi = PAID / SUCCESS
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+                BE -> BE ++ : Tahan Dana Pembayaran PG ke Rekening Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Sukses
+                FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
+                deactivate FE
+                BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+                note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
+            else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+                PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+                BE -> BE ++ : Rollback Saldo Promo Credit Klien & Cancel Invoice
+                BE --> BE -- : Return Computed Result / State
+                BE --> PG -- : 200 OK (Webhook Processed)
+                deactivate PG
+                BE -> FE ++ : Push Notification Pembayaran Gagal / Kadaluwarsa
+                FE --> Klien : Tampilkan Error Pembayaran Gagal
+                deactivate FE
+            
+                opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+                    Klien -> FE ++ : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+                    FE -> BE ++ : POST /api/v1/consultations/retry-payment (Booking ID, New Method)
+                    BE -> PG ++ : Create New Payment Invoice & VA Number
+                    PG --> BE -- : Return New Invoice URL & VA Number
+                    BE --> FE -- : 200 OK (New Billing Detail Rp250.000 + Fee)
+                    FE --> Klien : Tampilkan Halaman Pembayaran Baru
+                    deactivate FE
                 end
-
-                alt Advokat Tidak Merespons > 5 Menit (Auto-Pause)
-                    C_Svc -> C_Svc : pauseCountdownTimerAndAlertAdvocate(orderId)
-                    alt Advokat Tidak Aktif / AFK > 15 Menit (Abandonment)
-                        C_Svc -> E_DB ++ : enableClientRefundClaim100(orderId)
-                        E_DB --> C_Svc -- : RefundEnabledOK
-                    end
-                end
+                note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
             end
         end
     end
 end
-deactivate User
+
+alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
+    Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
+    FE -> BE ++ : POST /api/v1/consultations/offline/check-in {booking_id, qr_token}
+    BE -> BE ++ : Mulai Countdown Timer Sesi Offline (60 Menit & Grace Period 120 Menit)
+    BE -->> BE -- : Timer Active
+    BE --> FE -- : 200 OK (Sesi Offline Tatap Muka Dimulai)
+    FE --> Klien : Tampilkan Status Sesi Berjalan & Countdown 60 Menit
+    deactivate FE
+    note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
+    alt Normal Check-out (QR Code Dipindai Klien < 120 Menit)
+        Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
+        FE -> BE ++ : POST /api/v1/consultations/offline/check-out {booking_id}
+        BE --> FE -- : 200 OK (Check-out Berhasil)
+        FE --> Klien : Tampilkan Ringkasan Sesi Offline
+        deactivate FE
+    else Fallback Check-out (Lupa Check-out / Grace Period 120 Menit Habis)
+        BE -> BE ++ : Eksekusi Systemic Auto Check-out (AUTO_CHECKOUT_SUCCESS)
+        BE -->> BE -- : Mencegah Escrow Menggantung & Lanjut ke PENDING_DELIVERABLE
+    end
+else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
+    Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
+    FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+    deactivate FE
+    Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
+    FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien)
+    deactivate FE
+    Klien -> FE ++ : Kirim Pesan Pembuka Perkara
+    FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
+    BE -> BE ++ : Tunggu Balasan Substansial Pertama Advokat (Active Session Trigger)
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (Message Sent & Clock Active)
+    FE --> Klien : Tampilkan Chat Status Active
+    deactivate FE
+    Mitra -> FE ++ : Kirim Balasan Pertama
+    FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
+    BE -> BE ++ : Mulai Countdown Timer Sesi (Durasi 45-90m - Fair Clock Engine)
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (Timer Berdetak)
+    FE --> Mitra : Tampilkan Timer Sesi Aktif
+    deactivate FE
+
+    loop [Interaksi Dua Arah, DLP Circumvention Filter & Monitoring SLA Balasan]
+        Klien -> FE ++ : Kirim Pesan Teks / Audio / Video
+        FE -> BE ++ : POST /api/v1/chat/messages {session_id, content}
+        BE -> BE ++ : DLP Engine Scan (Deteksi Pola Bypass Offline / Kontak Pribadi)
+        BE --> BE -- : Return DLP Scan Decision
+
+        alt DLP Terdeteksi Ajakan Ketemuan Offline Ilegal / Bypass Platform (Level 1)
+            BE -> BE ++ : Drop Message Secara Real-Time (Pesan Tidak Diteruskan ke Lawan Bicara)
+            BE --> BE -- : Return Computed Result / State
+            BE --> FE -- : 403 Forbidden / Red Security Alert
+            FE --> Klien : Tampilkan Peringatan Keras Pengiriman Kontak Pribadi Ditolak
+            deactivate FE
+
+            opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
+                BE -> BE ++ : Bekukan Sesi Chat Permanen & Tahan Escrow Sementara
+                BE --> BE -- : Return Computed Result / State
+                BE -> BE ++ : Generate Security Alert & Eskalasi Insiden ke Antrean Investigasi Admin (J-UC10)
+                BE --> BE -- : Return Computed Result / State
+            end
+        else Pesan Aman / Valid (Lolos DLP)
+            BE --> FE -- : 200 OK (Message Delivered)
+            FE --> Mitra : Tampilkan Pesan Chat
+            deactivate FE
+        end
+        
+        alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
+            BE -> BE ++ : Jeda Sementara (PAUSE) Countdown Timer & Kirim Push Alert SLA ke Advokat
+            BE --> BE -- : Return Computed Result / State
+            
+            alt Advokat Tidak Aktif / AFK > 15 Menit
+                BE -> BE ++ : Batalkan Sesi & Aktifkan Tombol Klaim Refund Escrow 100% Klien
+                BE --> BE -- : Return Computed Result / State
+                BE -> FE ++ : Push Alert Sesi Dibatalkan (AFK Abandonment)
+                FE --> Klien : Tampilkan Modal Refund 100%
+                deactivate FE
+                Klien -> FE ++ : Ajukan Laporan Pelanggaran / Klaim Refund (J-UC21)
+                FE -> BE ++ : POST /api/v1/moderation/reports
+                BE --> FE -- : 201 Created
+                FE --> Klien : Konfirmasi Laporan Diterima
+                deactivate FE
+            else Advokat Kembali Membalas Pesan
+                BE -> BE ++ : Lanjutkan (RESUME) Countdown Timer Sesi
+                BE --> BE -- : Return Computed Result / State
+            end
+        end
+    end
+
+    alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
+        BE -> BE ++ : Akhiri Live Chat & Kunci Ruang Chat E2EE (Read-Only History)
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled)
+        BE --> BE -- : Return Computed Result / State
+        
+        alt Paket Sesi == Tier 2 Premium atau Tier 3 Pro (Deliverable Required)
+            BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+            DB --> BE -- : 200 OK
+            BE -> FE ++ : Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread)
+            FE --> Mitra : Tampilkan Antarmuka Tiket Komentar [KLARIFIKASI FAKTA] / [REVISI KLAUSUL]
+            deactivate FE
+            FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
+        else Paket Sesi == Tier 1 Gratis (Legal Triage Pro Bono)
+            BE -> DB ++ : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = session_id
+            DB --> BE -- : 200 OK
+            BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat
+            BE --> BE -- : Return Computed Result / State
+            BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+            FE --> Klien : Tampilkan Modal Ulasan & Rating
+            deactivate FE
+        end
+    end
+end
+
+alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
+    Mitra -> FE ++ : Susun & Unggah Laporan Saran Hukum (Client Advice Summary v1)
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+    BE --> FE -- : 201 Created
+    FE --> Mitra : Konfirmasi Laporan Saran Dirilis
+    deactivate FE
+
+    loop [Siklus Klarifikasi Saran Hukum - Ulangi Selama Klien Mengajukan Tiket & Kuota < 2x & SLA Belum Habis]
+        Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
+        FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+        BE --> BE -- : Return DLP Decision
+        BE --> FE -- : 200 OK
+        FE --> Klien : Pertanyaan Klarifikasi Terkirim
+        deactivate FE
+        
+        Mitra -> FE ++ : Berikan Jawaban / Perbarui Laporan Saran Hukum
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+        BE --> FE -- : 200 OK
+        FE --> Mitra : Konfirmasi Pembaruan Dirilis
+        deactivate FE
+    end
+
+    alt [Penyelesaian Deliverable] Laporan Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+        Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA Habis / Kuota Habis
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+        BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        DB --> BE -- : 200 OK
+        opt [Jika Batas Kuota 2x Habis / SLA Habis]
+            BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+            FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+            deactivate FE
+        end
+        BE --> FE -- : 200 Approved
+        FE --> Klien : Konfirmasi Laporan Disetujui
+        deactivate FE
+    end
+    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+    BE --> BE -- : Return Computed Result / State
+    BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+    FE --> Klien : Tampilkan Modal Ulasan & Rating
+    deactivate FE
+else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
+    Mitra -> FE ++ : Susun & Unggah Dokumen Hukum Final (Drafting v1)
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
+    BE --> FE -- : 201 Created
+    FE --> Mitra : Konfirmasi Dokumen Final Diunggah
+    deactivate FE
+
+    loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
+        Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+        FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/revise
+        BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+        BE --> BE -- : Return DLP Decision
+        BE --> FE -- : 200 OK
+        FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+        deactivate FE
+        
+        Mitra -> FE ++ : Perbarui & Unggah Draf Revisi Dokumen (v2 / v3)
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final
+        BE --> FE -- : 201 Created
+        FE --> Mitra : Konfirmasi Revisi Diunggah
+        deactivate FE
+    end
+
+    alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 3x24 Jam Habis
+        Klien -> FE ++ : Klik Setujui Dokumen Final / Auto-Approve SLA Habis / Kuota Habis
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/final/approve
+        BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        DB --> BE -- : 200 OK
+        opt [Jika Batas Kuota 2x Habis / SLA Habis]
+            BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+            FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+            deactivate FE
+        end
+        BE --> FE -- : 200 Approved
+        FE --> Klien : Konfirmasi Dokumen Disetujui
+        deactivate FE
+    end
+    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Saldo Dompet Advokat (Potong Fee 25% & PPh 21)
+    BE --> BE -- : Return Computed Result / State
+    BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
+    FE --> Klien : Tampilkan Modal Ulasan & Rating
+    deactivate FE
+end
+
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-J-04: Mengatur Status Ketersediaan Praktik Advokat (J-UC09)
-*Sequence diagram alur pengaturan slot sesi konsultasi, pengecekan bentrok jadwal, dan validasi kuota harian Advokat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-04).*
+*Sequence diagram pengaturan ketersediaan slot kalender praktik dan deteksi konflik jadwal otomatis (tanpa toggle manual) dengan spesifikasi eksekusi aktif lengkap pada sisi Advokat (Mitra) dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Advokat Mitra" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "AdvocateScheduleController (Boundary Server)" as B_BE
-participant "AdvocateScheduleService (Control)" as C_Svc
-database "ScheduleLedger & WORM (Entity)" as E_DB
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
 
-activate User
-loop [Atur & Simpan Slot Jadwal Ketersediaan Praktik]
-    User -> B_FE ++ : Buka Kalender & Pilih Slot Waktu Praktik
-    B_FE -> B_BE ++ : POST /api/v2/advocate/schedule/slots (ScheduleSlotDTO)
-    B_BE -> B_BE : Validasi Skema & Token JWT Advokat
-    B_BE -> C_Svc ++ : createOrUpdateScheduleSlot(advocateId, slotsDTO)
+activate Mitra
+loop [Percobaan Pengaturan Slot Kalender hingga Tidak Ada Konflik]
+    Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
+    FE -> BE ++ : PUT /api/v1/advocate/calendar (Status: OPEN_SLOT)
 
-    alt Slot Waktu Bertabrakan dengan Jadwal Sidang / Sesi Eksisting
-        C_Svc --> B_BE : SlotOverlapException
-        B_BE --> B_FE : 409 Conflict (Jadwal Bentrok)
-        B_FE --> User : Tampilkan Peringatan Jadwal Bentrok
-        alt Ingin Atur Kembali Slot Jadwal Lain?
-            note over User, B_FE : [REPEAT LOOP: Pilih slot waktu lain yang tersedia]
-        end
-    else Batas Maksimal Kuota Harian Terlampaui (> 8 Sesi/Hari)
-        C_Svc --> B_BE : DailyQuotaExceededException
-        B_BE --> B_FE : 422 Unprocessable Entity (Batas Kuota Harian Tercapai)
-        B_FE --> User : Tampilkan Pesan Kuota Penuh
-    else Slot Valid & Kuota Tersedia
-        C_Svc -> E_DB ++ : saveScheduleSlots(advocateId, slotsDTO)
-        E_DB --> C_Svc -- : SlotsSavedOK
-        C_Svc -> E_DB ++ : logScheduleChangeAudit(advocateId, timestamp)
-        E_DB --> C_Svc -- : AuditLoggedOK
-        C_Svc --> B_BE -- : ScheduleUpdateResultDTO(SUCCESS)
-        B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
-        B_FE --> User : Tampilkan Konfirmasi Kalender Terperbarui
-        note over User, B_BE : [BREAK LOOP: Jadwal Praktik Berhasil Disimpan]
+    BE -> DB ++ : Check Active Booking & Konflik Jadwal (SD-J-04)
+    DB --> BE -- : Return Booking Schedule & Active Session State
+
+    alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
+        BE --> FE : 409 Conflict (Jadwal Bentrok / Sesi Aktif)
+        FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
+        note over Mitra, FE : [REPEAT LOOP: Mitra sesuaikan jam operasional & simpan kembali ke baris awal loop]
+    else Slot Jadwal Aman (200 OK)
+        BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
+        DB --> BE -- : Success Update
+        BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
+        FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Menerima Klien
+        note over Mitra, BE : [BREAK LOOP: Jadwal Kalender Berhasil Diperbarui & Aktif]
     end
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-J-05: Mengunggah Berkas Perkara E2EE Zero-Knowledge (J-UC13)
-*Sequence diagram alur pengunggahan dokumen berkas perkara klien terenkripsi AES-GCM lokal di browser berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-05).*
+*Sequence diagram pengunggahan bukti perkara yang dienkripsi sebelum meninggalkan perangkat klien agar tidak dapat dibaca oleh server maupun pihak ketiga dengan spesifikasi eksekusi aktif lengkap pada sisi Klien, Advokat, dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien / Advokat" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "DocumentVaultController (Boundary Server)" as B_BE
-participant "EncryptedVaultService (Control)" as C_Svc
-database "DocumentVault & WORM Ledger (Entity)" as E_DB
+actor "Klien Justifiqa" as Klien
+participant "Sistem Klien (Local E2EE Engine)" as LocK
+participant "Backend Independen Justifiqa" as BE
+database "WORM Hash Storage" as WORM
+participant "Sistem Advokat (Local E2EE Engine)" as LocM
+actor "Advokat Justifiqa" as Mitra
 
-activate User
-User -> B_FE ++ : Pilih File Berkas Perkara (.pdf/.docx) & Klik Unggah
-B_FE -> B_FE : Validasi Ukuran File (<= 15MB) & Enkripsi Lokal AES-GCM 256-Bit
+activate Klien
+Klien -> LocK ++ : Pilih Berkas Bukti Perkara (PDF/JPG)
+LocK -> LocK ++ : Enkripsi File Lokal dengan Session Key (Zero-Knowledge)
+deactivate LocK
+LocK -> BE ++ : POST /api/v1/chat/upload-secure (Encrypted Blob, SHA-256 Hash)
+BE -> WORM ++ : Simpan Blob Terenkripsi & Hash Integritas
+WORM --> BE -- : Storage Confirmation
+BE --> LocM ++ : Kirim Webhook Notification File Baru Diunggah
+activate Mitra
+LocM --> Mitra : Notifikasi Berkas Baru Tersedia
+deactivate LocM
+deactivate BE
+deactivate LocK
 
-alt Ukuran File > 15MB atau Format Tidak Didukung
-    B_FE --> User : Tampilkan Error "Ukuran File Melebihi Batas / Format Salah"
-else File Valid & Berhasil Dienkripsi Lokal
-    B_FE -> B_BE ++ : POST /api/v2/documents/upload-encrypted (EncryptedChunkPayload)
-    B_BE -> B_BE : Validasi Header JWT & Ciphertext Stream
-    B_BE -> C_Svc ++ : storeEncryptedDocument(userId, roomId, cipherBlob, clientSha256)
-    C_Svc -> C_Svc : Verifikasi SHA-256 Checksum Ciphertext
-    C_Svc -> E_DB ++ : saveEncryptedObject(objectKey, cipherBlob)
-    E_DB --> C_Svc -- : ObjectStoredOK
-    C_Svc -> E_DB ++ : appendWormAuditLog(docId, clientSha256, timestamp)
-    E_DB --> C_Svc -- : WormAuditSavedOK
-    C_Svc --> B_BE -- : DocumentUploadDTO(docId, sha256Ref)
-    B_BE --> B_FE -- : 201 Created (JSON {docId, status: "ENCRYPTED_STORED"})
-    B_FE --> User : Tampilkan Lencana Verifikasi SHA-256 pada Berkas
-end
-deactivate User
+Mitra -> LocM ++ : Klik Unduh Bukti Perkara
+LocM -> BE ++ : GET /api/v1/chat/download-secure (File ID)
+BE --> LocM -- : Return Encrypted Blob
+LocM -> LocM ++ : Dekripsi Lokal dengan Session Key
+deactivate LocM
+LocM --> Mitra : Tampilkan Dokumen Utuh untuk Ditelusuri
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
 
-### SD-J-06: Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai KMS (J-UC12, J-UC14)
-*Sequence diagram alur penyusunan draf hukum, pembubuhan e-Meterai KMS Peruri, dan verifikasi persetujuan klien berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-06).*
+---
+
+### SD-J-06: Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai (J-UC12, J-UC14)
+*Sequence diagram pembuatan opini hukum/kontrak oleh advokat serta finalisasi pembubuhan e-Meterai resmi Peruri yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan spesifikasi eksekusi aktif lengkap pada sisi Advokat, Klien, dan sistem.*
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-06 - Membuat & Memfinalisasi Draf Kontrak Hukum Bermeterai (J-UC12, J-UC14)
 autonumber
-actor "Advokat Mitra" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "DeliverableController (Boundary Server)" as B_BE
-participant "DeliverableKmsSigningService (Control)" as C_Svc
-database "DocumentLedger & WORM (Entity)" as E_DB
-participant "Peruri KMS API" as KMS
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Workstation" as FE
+participant "Backend Justifiqa" as BE
+participant "API Mekari Sign" as Peruri
+database "Database & WORM" as DB
+actor "Klien Justifiqa" as Klien
 
-activate User
-User -> B_FE ++ : Unggah Draf Opini Hukum & Input PIN KMS 6-Digit
-alt Dokumen Memerlukan Pembubuhan e-Meterai Resmi
-    B_FE -> B_BE ++ : POST /api/v2/advocate/deliverables/sign-and-upload (SignDeliverableDTO)
-    B_BE -> B_BE : Validasi Skema DTO & PIN Format
-    B_BE -> C_Svc ++ : signAndStampDeliverable(advocateId, documentPdf, kmsPin)
+activate Mitra
+Mitra -> FE ++ : Buat Draf Legal Opinion / Kontrak & Pilih e-Meterai
+FE -> BE ++ : POST /api/v1/legal-docs/generate (Payload, Stamping Req)
+BE -> DB ++ : Simpan Draf Versi Awal (v1)
+DB --> BE -- : Draf Saved
+deactivate BE
+deactivate FE
 
-    alt Saldo Dompet Advokat Tidak Cukup untuk Biaya Meterai
-        C_Svc --> B_BE : InsufficientWalletBalanceException
-        B_BE --> B_FE : 402 Payment Required
-        B_FE --> User : Tampilkan Instruksi Top-Up Dompet (SD-J-22)
-    else Saldo Dompet Cukup & PIN Valid
-        C_Svc -> KMS ++ : verifyPinAndApplyEmeterai(documentPdf, kmsPin)
-        KMS --> C_Svc -- : StampedPdfDocument & StampSerialHash
-
-        alt PIN KMS Tidak Valid / Kuota e-Meterai Habis
-            C_Svc --> B_BE : KmsSigningFailedException
-            B_BE --> B_FE : 422 Unprocessable Entity / 403 Forbidden
-            B_FE --> User : Tampilkan Error Pembubuhan e-Meterai Gagal
-        else Pembubuhan e-Meterai Sukses
-            C_Svc -> C_Svc : computeSha256Fingerprint(StampedPdfDocument)
-            C_Svc -> E_DB ++ : saveDeliverableDocument(docId, StampedPdfDocument, sha256Fingerprint)
-            E_DB --> C_Svc -- : DocumentSavedOK
-            C_Svc -> E_DB ++ : unlockClientReviewGate(orderId, docId)
-            E_DB --> C_Svc -- : ReviewGateUnlockedOK
-            C_Svc --> B_BE -- : SignDeliverableResultDTO(docId, stampSerialHash)
-            B_BE --> B_FE -- : 201 Created (JSON {docId, status: "SIGNED_STAMPED"})
-            B_FE --> User : Tampilkan Dokumen Ber-Meterai & SHA-256 Lencana
-
-            loop [Siklus Review & Revisi Draf Kontrak (Maks 2x Revisi Klien)]
-                User -> B_FE : Klien Memeriksa Dokumen (Setuju / Minta Revisi)
-                alt Klien Mengajukan Revisi (< 2x Kuota)
-                    B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/revise (RevisionNoteDTO)
-                    B_BE -> C_Svc ++ : processRevisionRequest(docId, note)
-                    C_Svc -> E_DB ++ : updateDocumentStatus(REVISION_REQUESTED)
-                    E_DB --> C_Svc -- : UpdatedOK
-                    C_Svc --> B_BE -- : RevisionACK
-                    B_BE --> B_FE -- : 200 OK
-                    B_FE --> User : Kirim Notifikasi Perbaikan ke Advokat
-                else Klien Menyetujui Dokumen Final
-                    B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/approve
-                    B_BE -> C_Svc ++ : finalizeDocumentAndUnlockPayout(docId)
-                    C_Svc -> E_DB ++ : updateDocumentStatus(FINAL_APPROVED_WORM)
-                    E_DB --> C_Svc -- : FinalizedOK
-                    C_Svc --> B_BE -- : ApproveACK
-                    B_BE --> B_FE -- : 200 OK
-                    B_FE --> User : Dokumen Resmi Final & Pencairan Escrow Diaktifkan
-                end
-            end
+alt Pembubuhan e-Meterai Peruri = TRUE
+    Mitra -> FE ++ : Klik "Finalisasi Dokumen & Bubuhkan e-Meterai Resmi"
+    FE -> BE ++ : POST /api/v1/drafts/{id}/finalize-stamp
+    
+    loop Cek Saldo Dompet Advokat (Biaya Rp12.000)
+        BE -> DB ++ : SELECT balance FROM advocate_wallets WHERE advocate_id = {id}
+        DB --> BE -- : Return Balance
+        
+        alt Saldo Dompet Tidak Mencukupi (Balance < Rp12.000)
+            BE --> FE : 402 Payment Required (Saldo Dompet Kurang)
+            FE --> Mitra : Tampilkan Alert "⚠️ Saldo Dompet Kurang untuk e-Meterai"
+            Mitra -> FE : Lakukan Top-Up Dompet (Lihat SD-J-22)
+            note right of Mitra : Advokat menjalankan alur SD-J-22 (Top-Up).
+Jika sukses/gagal/batal, kontrol kembali
+untuk mengulang pengecekan saldo di atas.
+        else Saldo Dompet Mencukupi
+            BE -> DB ++ : UPDATE advocate_wallets SET balance = balance - 12000
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> DB ++ : UPDATE drafts SET status = 'IMMUTABLE_FINAL'
+            DB --> BE -- : 200 OK (Success / Rows Affected)
         end
     end
-else Dokumen Opini Hukum Biasa (Tanpa e-Meterai)
-    B_FE -> B_BE ++ : POST /api/v2/advocate/deliverables/upload-standard
-    B_BE -> C_Svc ++ : saveStandardDeliverable(advocateId, documentPdf)
-    C_Svc -> E_DB ++ : saveDeliverableDocument(docId, documentPdf)
-    E_DB --> C_Svc -- : SavedOK
-    C_Svc --> B_BE -- : UploadResult(docId)
-    B_BE --> B_FE -- : 201 Created
-    B_FE --> User : Tampilkan Dokumen Terkirim
+    
+    BE -> Peruri ++ : POST /api/v1/emeterai/stamp (PDF Payload & SHA-256 Hash)
+    Peruri -> Peruri ++ : Validasi Request & Bubuhkan Serial Number e-Meterai
+    Peruri --> Peruri -- : 200 OK (Serial Number e-Meterai Rilis)
+    Peruri --> BE -- : Return Stamped Document & Certificate SHA-256 Hash
+    BE -> DB ++ : Simpan Dokumen Bersertifikat Resmi ke WORM Storage
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+else Tanpa e-Meterai (Draf Internal / Standar)
+    BE -> DB ++ : Simpan Dokumen Hukum Standar
+    DB --> BE -- : 200 OK (Success / Rows Affected)
 end
-deactivate User
+
+DB --> BE : Save Confirmed
+BE --> FE : 200 OK (Dokumen Final Siap)
+FE --> Mitra : Tampilkan Konfirmasi Sukses & Tautan Unduh
+deactivate BE
+
+Mitra -> FE ++ : Unduh Arsip Dokumen Bermeterai
+FE -> BE ++ : GET /api/v1/documents/{id}/download
+BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
+FE --> Mitra : Render & Simpan File PDF Bermeterai
+
+activate Klien
+BE -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
+Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
+FE -> BE ++ : GET /api/v1/documents/{id}/download
+BE --> FE -- : Return File PDF Resmi & SHA-256 Proof
+FE --> Klien : Render File PDF Bermeterai
+
+loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
+    Klien -> FE : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
+    FE -> BE ++ : POST /api/v1/documents/{id}/async-thread/revise
+    BE -> BE ++ : Inline DLP Scan pada Komentar Asinkron
+    BE --> BE -- : Return DLP Decision
+    BE --> FE -- : 200 OK
+    FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+    note over Klien, BE : Advokat memproses revisi dan mengunggah draf v2/v3
+end
+
+alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU Melewati SLA 3x24 Jam
+    Klien -> FE : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA Habis / Kuota Habis
+    FE -> BE ++ : POST /api/v1/documents/{id}/approve
+    BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+    DB --> BE -- : 200 OK
+    opt [Jika Batas Kuota 2x Habis / SLA Habis]
+        BE -> FE ++ : Tampilkan Prompt "Batas Kuota Revisi Sesi Ini Habis"
+        FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+        deactivate FE
+    end
+    BE -> BE ++ : Trigger Deliverable-Triggered Escrow Release (J-UC19)
+    BE --> BE -- : Return Computed Result / State
+    BE -> DB ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+    DB --> BE -- : 200 OK
+    BE --> FE -- : 200 Approved
+    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
+end
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-J-07: Konsultasi Pro Bono SKTM (J-UC15)
-*Sequence diagram alur verifikasi NIK DTKS Kemensos dan pembukaan sesi konsultasi Pro Bono Rp 0 bersubsidi penuh berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-07).*
+*Sequence diagram pengajuan bantuan hukum cuma-cuma (Pro Bono) melalui verifikasi Surat Keterangan Tidak Mampu (SKTM) Dukcapil dengan spesifikasi eksekusi aktif lengkap pada sisi Klien, Advokat, dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Pro Bono" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "ProBonoController (Boundary Server)" as B_BE
-participant "ProBonoVerificationService (Control)" as C_Svc
-database "ConsultationLedger & WORM (Entity)" as E_DB
-participant "API Kemensos DTKS" as Kemensos
+actor "Klien Justifiqa" as Klien
+participant "Frontend Justifiqa App" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "API Dukcapil / Dinsos" as Ext
+actor "Advokat Pro Bono Mitra" as Mitra
 
-activate User
-User -> B_FE ++ : Pilih Konsultasi Pro Bono & Masukkan NIK / Nomor SKTM
-B_FE -> B_BE ++ : POST /api/v2/consultation/pro-bono-verify (ProBonoDTO)
-B_BE -> B_BE : Validasi Skema Request NIK
-B_BE -> C_Svc ++ : verifyProBonoEligibility(clientJwt, nik, sktmNumber)
-C_Svc -> Kemensos ++ : verifyDtksStatus(nik)
-Kemensos --> C_Svc -- : DtksVerificationResult
+activate Klien
+loop [Percobaan Pengajuan Pro Bono & Pemilihan Advokat hingga Diterima]
+    Klien -> FE ++ : Ajukan Pro Bono, Unggah SKTM & Pilih Advokat di Katalog
+    FE -> BE ++ : POST /api/v1/pro-bono/apply (SKTM Blob, KTP, AdvocateID)
+    BE -> Ext ++ : Verify Keabsahan Nomor SKTM & NIK
+    Ext --> BE -- : Return SKTM Verification Status
 
-alt NIK Tidak Terdaftar di DTKS / SKTM Tidak Memenuhi Syarat
-    C_Svc --> B_BE : ProBonoIneligibleException
-    B_BE --> B_FE : 403 Forbidden (Tidak Memenuhi Syarat Pro Bono SKTM)
-    B_FE --> User : Tampilkan Error & Opsi Konsultasi Escrow Berbayar
-    alt Ingin Pilih Ulang Advokat / Slot Lain?
-        User -> B_FE : Kembali ke Katalog Reguler Justifiqa
-    end
-else NIK Terverifikasi DTKS (Subsidi Penuh Rp 0)
-    alt Advokat Menerima Reservasi Pro Bono
-        C_Svc -> E_DB ++ : allocateProBonoSlot(advocateId, clientJwt)
-        E_DB --> C_Svc -- : SlotAllocatedOK
-        C_Svc -> E_DB ++ : createConsultationOrder(orderId, amount=0, status=SUBSIDIZED_PROBONO)
-        E_DB --> C_Svc -- : OrderSavedOK
-        C_Svc --> B_BE -- : ProBonoOrderDTO(orderId, status: "SUBSIDIZED")
-        B_BE --> B_FE -- : 201 Created (JSON {orderId, subsidized: true})
-        B_FE --> User : Langsung Masuk ke Ruang Obrolan Hukum Pro Bono E2EE
-    else Advokat Menolak / Kuota Pro Bono Penuh
-        C_Svc --> B_BE : QuotaFullException
-        B_BE --> B_FE : 409 Conflict (Kuota Pro Bono Penuh)
-        B_FE --> User : Tampilkan Rekomendasi Advokat Pro Bono Lainnya
+    alt SKTM Tidak Valid / Tidak Terverifikasi di Dukcapil/Dinsos
+        BE --> FE : 422 Unprocessable Entity (SKTM Tidak Terverifikasi)
+        FE --> Klien : Tampilkan Alasan Penolakan & Opsi Beralih ke Konsultasi Berbayar Reguler / Perbaiki Berkas
+        note over Klien, FE : [REPEAT LOOP: Klien memperbaiki SKTM atau beralih ke katalog reguler]
+    else SKTM Sah & Terverifikasi
+        BE -> BE ++ : Approve SKTM & Buat Invoice Rp0 (Gratis)
+        BE --> BE -- : Return Computed Result / State
+        BE -> Mitra ++ : Request Reservasi Konsultasi Pro Bono Rp0
+        
+        alt Advokat Menerima Penugasan Pro Bono
+            Mitra --> BE : 200 OK (Terima Reservasi Pro Bono)
+            BE --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
+            FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis (J-UC04)
+            note over Klien, Mitra : [BREAK LOOP: SKTM Sah & Advokat Menerima Sesi Pro Bono]
+        else Advokat Berhalangan / Menolak Reservasi
+            Mitra --> BE : 409 Conflict / 422 Unprocessable Entity (Advokat Berhalangan)
+            BE --> FE : 409 Conflict (Slot Advokat Penuh / Ditolak)
+            FE --> Klien : Tampilkan Notifikasi Penolakan & Instruksi Pilih Ulang Advokat
+            note over Klien, FE : [REPEAT LOOP: Klien memilih ulang advokat / slot waktu di katalog pro bono]
+        end
     end
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-J-08: Membuat Catatan Sesi IRAC Note Advokat (J-UC11)
-*Sequence diagram alur pencatatan opini hukum terstruktur IRAC (Issue, Rule, Application, Conclusion), siklus klarifikasi klien pada Tier 2 Premium, dan penguncian rekam medis hukum berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-08).*
+*Sequence diagram pembuatan catatan terstruktur metode IRAC (Issue, Rule, Application, Conclusion) oleh advokat dengan spesifikasi eksekusi aktif lengkap pada sisi Advokat dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Advokat Mitra" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "IracNoteController (Boundary Server)" as B_BE
-participant "LegalNoteService (Control)" as C_Svc
-database "CaseNoteVault & WORM (Entity)" as E_DB
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa (Encrypted)" as DB
+actor "Klien Justifiqa" as Klien
 
-activate User
-User -> B_FE ++ : Lengkapi Form Catatan IRAC & Klik Simpan
-B_FE -> B_BE ++ : POST /api/v2/advocate/notes/irac (IracNoteDTO)
-B_BE -> B_BE : Validasi Skema JSON IRAC (issue, rule, application, conclusion)
-B_BE -> C_Svc ++ : saveIracNote(advocateId, consultationId, iracDTO)
-C_Svc -> E_DB ++ : saveNoteEntity(consultationId, iracPayload, encrypted=true)
-E_DB --> C_Svc -- : NoteSavedOK
+activate Mitra
+Mitra -> FE ++ : Buka Form Catatan IRAC & Isi Kolom (Issue, Rule, App, Concl)
+FE -> BE ++ : POST /api/v1/advocate/notes/irac (Session ID, IRAC Payload)
+BE -> BE ++ : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
+BE --> BE -- : Return Computed Result / State
+BE -> DB ++ : Simpan Catatan IRAC (access_level = 'INTERNAL_ONLY')
+DB --> BE -- : Success Insert Note (Work Product Privilege Enforced)
+BE --> FE -- : 201 Created (Catatan Internal Tersimpan)
+FE --> Mitra : Tampilkan Notifikasi Catatan IRAC Berhasil Diarsip
+deactivate FE
 
-alt Level Konsultasi == Tier 2 Premium (Butuh Client Advice Summary)
-    C_Svc -> E_DB ++ : generateClientAdviceSummary(consultationId)
-    E_DB --> C_Svc -- : SummaryGeneratedOK
-    C_Svc --> B_BE : IracNoteResultDTO(noteId, status="SUMMARY_RELEASED")
-    B_BE --> B_FE : 201 Created (JSON {noteId, clientSummaryAvailable: true})
-    B_FE --> User : Tampilkan Konfirmasi & Rilis Laporan Saran Hukum ke Klien
+alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
+    Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
+    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+    BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+    DB --> BE -- : 200 OK
+    BE -> FE ++ : Push Notification "Laporan Saran Hukum Siap Diperiksa"
+    FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
+    deactivate FE
 
-    loop [Siklus Klarifikasi Fakta Klien (Maks 2x Putaran & SLA < 2x24 Jam)]
-        alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] & Kuota Tersedia
-            B_FE -> B_BE ++ : POST /api/v2/consultation/clarification (ClarificationDTO)
-            B_BE -> C_Svc ++ : handleClarificationRequest(consultationId, dto)
-            C_Svc -> E_DB ++ : updateClarificationRound(consultationId, +1)
-            E_DB --> C_Svc -- : RoundUpdatedOK
-            C_Svc --> B_BE -- : ClarificationACK
-            B_BE --> B_FE -- : 200 OK
-            B_FE --> User : Notifikasi Klien Meminta Klarifikasi Tambahan
-            User -> B_FE : Perbarui Catatan IRAC & Balas Klarifikasi
-        else Kuota Habis (2x) ATAU SLA 2x24 Jam Habis ATAU Klien Setuju
-            B_FE -> B_BE ++ : POST /api/v2/consultation/lock-thread
-            B_BE -> C_Svc ++ : lockAsyncWorkspaceAndDisburse(consultationId)
-            C_Svc -> E_DB ++ : lockThreadPermanent(status: "THREAD_LOCKED")
-            E_DB --> C_Svc -- : ThreadLockedOK
-            C_Svc -> E_DB ++ : triggerEscrowDisbursement(consultationId)
-            E_DB --> C_Svc -- : DisbursedOK
-            C_Svc --> B_BE -- : LockResultDTO(status: "LOCKED_DISBURSED")
-            B_BE --> B_FE -- : 200 OK
-            B_FE --> User : Ruang Asinkron Dikunci Permanen & Honor Cair
-        end
-    end
-else Level Konsultasi == Tier 1 Gratis / Tier 3 Pro
-    C_Svc -> E_DB ++ : appendAuditTrail(noteId, sha256Fingerprint)
-    E_DB --> C_Svc -- : AuditLoggedOK
-    C_Svc --> B_BE -- : IracNoteResultDTO(noteId, status="SAVED_INTERNAL")
-    B_BE --> B_FE -- : 201 Created (JSON {noteId, status: "SAVED_INTERNAL"})
-    B_FE --> User : Tampilkan Konfirmasi Catatan IRAC Internal Tersimpan
-end
-deactivate User
-@enduml
-```
-
-### SD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
-*Sequence diagram alur audit berkas lisensi Advokat oleh Admin, pemindaian DLP Steganografi Gambar, & pemeriksaan otomatis SIPP MA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-09).*
-
-```plantuml
-@startuml
-autonumber
-actor "Advokat / Admin Verifikator" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "AdvocateAuditController (Boundary Server)" as B_BE
-participant "AdvocateProfileSanitizerService (Control)" as C_Svc
-database "AdvocateRepository & WORM (Entity)" as E_DB
-participant "API SIPP Mahkamah Agung" as SIPP
-
-activate User
-User -> B_FE ++ : Perbarui Profil / Unggah Kredensial SIPP Advokat
-B_FE -> B_BE ++ : POST /api/v2/advocate/profile/update (ProfileUpdateDTO)
-
-alt Perbaruan Melibatkan Foto Profil / Avatar
-    B_BE -> C_Svc ++ : scanImageForSteganographyAndContactInfo(imageFile)
-    alt Terdeteksi Nomor HP / Steganografi Kontak di Gambar
-        C_Svc --> B_BE : DlpImageViolationException
-        B_BE --> B_FE : 422 Unprocessable Entity (Foto Mengandung Kontak Pribadi)
-        B_FE --> User : Tampilkan Peringatan Larangan Kontak di Foto
-    else Gambar Bersih dari Steganografi
-        C_Svc --> B_BE : ImageCleanACK
-    end
-end
-
-alt Perbaruan Melibatkan Teks Deskripsi / Biodata
-    B_BE -> C_Svc : scanTextForPhoneEmailSocialMedia(bioText)
-    alt Terdeteksi Pola Nomor HP / Email / Sosmed di Teks
-        C_Svc --> B_BE : DlpTextViolationException
-        B_BE --> B_FE : 422 Unprocessable Entity (Teks Mengandung Kontak Pribadi)
-        B_FE --> User : Tampilkan Error Sanitasi Teks
-    else Teks Bersih & Valid
-        C_Svc --> B_BE : TextCleanACK
-    end
-end
-
-B_BE -> C_Svc : executeSippAudit(advocateId, sippNumber)
-C_Svc -> SIPP ++ : verifySippRegistration(sippNumber)
-SIPP --> C_Svc -- : SippStatusResult
-
-alt SIPP Tidak Terdaftar / Expired / Dalam Sanksi Etik
-    C_Svc -> E_DB ++ : updateAdvocateStatus(advocateId, REJECTED, reason)
-    E_DB --> C_Svc -- : StatusUpdatedOK
-    C_Svc --> B_BE : AdvocateAuditRejectedDTO(reason)
-    B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
-    B_FE --> User : Tampilkan Keputusan Penolakan & Kirim Email ke Advokat
-else SIPP Valid & Berkas Lengkap
-    C_Svc -> E_DB ++ : updateAdvocateStatus(advocateId, VERIFIED_ACTIVE)
-    E_DB --> C_Svc -- : StatusUpdatedOK
-    C_Svc -> E_DB ++ : appendKycAuditLog(advocateId, adminId, timestamp)
-    E_DB --> C_Svc -- : AuditLoggedOK
-    C_Svc --> B_BE -- : AdvocateAuditSuccessDTO(advocateId)
-    B_BE --> B_FE -- : 200 OK (JSON {status: "VERIFIED_ACTIVE"})
-    B_FE --> User : Tampilkan Lencana Terverifikasi pada Profil Advokat
-end
-deactivate User
-@enduml
-```
-
-### SD-J-10: Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
-*Sequence diagram alur investigasi pelanggaran DLP/Etik, pemeriksaan tingkat keparahan, sanggahan banding Advokat, dan penangguhan akun berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-10).*
-
-```plantuml
-@startuml
-autonumber
-actor "Admin Komite Etik Justifiqa" as User
-participant "Frontend Admin Portal (Boundary Client)" as B_FE
-participant "ModerationController (Boundary Server)" as B_BE
-participant "ModerationAndFraudService (Control)" as C_Svc
-database "AccountLedger & WORM Audit (Entity)" as E_DB
-
-activate User
-User -> B_FE ++ : Buka Laporan Investigasi Fraud & Klik Suspend Akun
-B_FE -> B_BE ++ : POST /api/v2/admin/moderation/suspend (SuspendAccountDTO)
-B_BE -> B_BE : Validasi Otorisasi Admin Komite Etik
-B_BE -> C_Svc ++ : enforceAccountSuspension(targetUserId, reason, evidenceHash)
-
-alt Bukti Permulaan Sah & Skor Anomali Kritis Terverifikasi
-    alt Tergolong Pelanggaran Berat / Kritis (Penggelapan / Kontak Pribadi Berulang)
-        alt Mitra Sedang Dalam Sesi Konsultasi Aktif
-            C_Svc -> C_Svc : freezeActiveEscrowAndSessions(targetUserId)
-        end
-        C_Svc -> E_DB ++ : updateAccountStatus(targetUserId, SUSPENDED)
-        E_DB --> C_Svc -- : AccountSuspendedOK
-        C_Svc -> E_DB ++ : recordImmutableSanctionWorm(targetUserId, reason, evidenceHash)
-        E_DB --> C_Svc -- : WormSanctionRecordedOK
-
-        alt Mitra Mengajukan Berkas Sanggahan / Banding
-            C_Svc -> E_DB ++ : submitAppealReview(targetUserId, appealDocs)
-            E_DB --> C_Svc -- : AppealFiledOK
-            alt Terbukti Bersalah Melanggar Etik / Penggelapan Transaksi
-                C_Svc -> E_DB ++ : confirmPermanentSuspension(targetUserId)
-                E_DB --> C_Svc -- : PermanentSuspendOK
-            else Banding Diterima & Tidak Terbukti
-                C_Svc -> E_DB ++ : restoreAccountStatus(targetUserId, ACTIVE)
-                E_DB --> C_Svc -- : RestoredOK
+    loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
+        alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
+            Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+            BE -> DB ++ : INCREMENT clarification_rounds = clarification_rounds + 1
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK
+            FE --> Klien : Pertanyaan Klarifikasi Terkirim
+            deactivate FE
+            
+            Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
+            FE -> BE ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
+            BE -> DB ++ : UPDATE irac_notes SET issue = updated_i, application = updated_a
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Internal IRAC Updated)
+            FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
+            deactivate FE
+            
+            Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
+            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/reply
+            BE --> FE -- : 200 OK
+            FE --> Mitra : Jawaban Terkirim
+            deactivate FE
+        else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+            break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
+                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE
+                DB --> BE -- : 200 OK
+                opt [Jika Batas Kuota 2x Putaran / SLA Habis]
+                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                    deactivate FE
+                end
+                Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
+                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+                BE -> BE ++ : Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee 25% & PPh 21)
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE -- : 200 Approved
+                FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
+                deactivate FE
             end
         end
-
-        C_Svc --> B_BE : ModerationResultDTO(status: "SUSPENDED")
-        B_BE --> B_FE : 200 OK (JSON {status: "SUSPENDED", wormHash})
-        B_FE --> User : Tampilkan Konfirmasi Akun Ditangguhkan & Rekam WORM Audit
-    else Pelanggaran Ringan (Peringatan Surat Tertulis SP1)
-        C_Svc -> E_DB ++ : issueFormalWarningLetter(targetUserId, reason)
-        E_DB --> C_Svc -- : WarningIssuedOK
-        C_Svc --> B_BE : ModerationResultDTO(status: "WARNING_ISSUED")
-        B_BE --> B_FE : 200 OK (JSON {status: "WARNING_ISSUED"})
-        B_FE --> User : Tampilkan Konfirmasi Surat Peringatan SP1 Dikirim
     end
-else Bukti Tidak Mencukupi (Laporan Palsu / Dismiss)
-    C_Svc -> E_DB ++ : recordDismissedInvestigation(targetUserId, reason)
-    E_DB --> C_Svc -- : LoggedOK
-    C_Svc --> B_BE -- : ModerationResultDTO(status: "DISMISSED")
-    B_BE --> B_FE -- : 200 OK (JSON {status: "DISMISSED"})
-    B_FE --> User : Tampilkan Status Investigasi Ditutup
 end
-deactivate User
+
+deactivate Mitra
 @enduml
 ```
+
+---
+
+### SD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
+*Sequence diagram audit verifikasi keabsahan lisensi profesi Peradi serta pertahanan 3-Lapisan sanitasi profil/media anti-bypass kontak pribadi dengan spesifikasi eksekusi aktif lengkap pada sisi Admin, Advokat (actor), dan sistem.*
+
+```plantuml
+@startuml
+autonumber
+actor "Admin Justifiqa" as Admin
+participant "Panel Admin Justifiqa" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+participant "Pangkalan Data MA / Peradi" as Peradi
+actor "Advokat Pendaftar" as Mitra
+
+activate Admin
+Admin -> FE ++ : Buka Antrean Audit Advokat Baru
+FE -> BE ++ : GET /api/v1/admin/audits/advocates (Pending List)
+BE --> FE -- : Return Dokumen SIPP, KTP, & Peradi
+FE --> Admin : Tampilkan Dokumen Kredensial Advokat
+Admin -> Peradi ++ : Verifikasi Keabsahan Nomor SIPP & Berita Acara Sumpah
+Peradi --> Admin : Hasil Verifikasi Status Advokat
+
+alt Kredensial Palsu / Kadaluarsa
+    Admin -> FE : Klik Tolak Kredensial & Isi Alasan
+    FE -> BE ++ : POST /api/v1/admin/audits/reject (Advocate ID)
+    BE -> DB ++ : UPDATE users SET status = 'REJECTED' WHERE id = advocate_id
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+activate Mitra
+    BE -> Mitra ++ : Kirim Email Alasan Penolakan Akun
+    Mitra --> BE : Terima Notifikasi
+    BE --> FE -- : 200 OK (Status Rejected)
+    FE --> Admin : Notifikasi Penolakan Berhasil Dikirim
+else Kredensial Sah & Aktif
+    Admin -> FE : Klik Setujui Kredensial
+    FE -> BE ++ : POST /api/v1/admin/audits/approve (Advocate ID)
+    BE -> DB ++ : UPDATE users SET status = 'VERIFIED', display_name = verified_ktp_name, name_locked = TRUE WHERE id = advocate_id
+    DB --> BE -- : 200 OK (Layer 1: Immutable Display Name Locked)
+    BE -> Mitra ++ : Kirim Email Akun Aktif Siap Praktik
+    Mitra --> BE : Terima Notifikasi
+    BE --> FE -- : 200 OK (Status Approved)
+    FE --> Admin : Notifikasi Persetujuan Berhasil Dikirim
+end
+deactivate Admin
+
+alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile DLP)
+    alt Unggah Foto Profil / Avatar (Layer 3: Media OCR Sandbox)
+        Mitra -> FE ++ : Unggah File Foto Profil Baru
+        FE -> BE ++ : POST /api/v1/advocate/profile/avatar
+        BE -> BE ++ : Eksekusi OCR Sandbox Engine (Tesseract/Vision OCR)
+        BE --> BE -- : Return Extracted Image Text
+        alt Terdeteksi Nomor HP / Steganografi Kontak di Foto
+            BE --> FE : 422 Unprocessable Media (Contact Info Detected in Image)
+            FE --> Mitra : Tampilkan Error "Foto Profil Mengandung Kontak Dilarang"
+        else Gambar Bersih / Lolos OCR
+            BE -> DB ++ : UPDATE advocate_profiles SET avatar_url = url WHERE id = advocate_id
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Avatar Terverifikasi)
+            FE --> Mitra : Tampilkan Foto Profil Baru
+            deactivate FE
+        end
+    else Perbarui Teks Bio / Deskripsi Diri (Layer 2: Pre-Publication NLP Scan)
+        Mitra -> FE ++ : Simpan Pembaruan Bio & Pengalaman Kerja
+        FE -> BE ++ : PUT /api/v1/advocate/profile {bio, experience}
+        BE -> BE ++ : Eksekusi NLP Contact & Regex Bypass Scanner
+        BE --> BE -- : Return Scan Decision
+        alt Terdeteksi Nomor HP / Email / Sosmed di Teks Bio
+            BE --> FE : 400 Bad Request (Profile Rejected - DLP Contact Violation)
+            FE --> Mitra : Tampilkan Error "Teks Profil Mengandung Kontak Pribadi"
+        else Teks Bersih / Lolos NLP
+            BE -> DB ++ : UPDATE advocate_profiles SET bio = content WHERE id = advocate_id
+            DB --> BE -- : 200 OK
+            BE --> FE -- : 200 OK (Profil Diperbarui)
+            FE --> Mitra : Konfirmasi Profil Berhasil Dipublikasikan
+            deactivate FE
+        end
+    end
+end
+deactivate Mitra
+@enduml
+```
+
+---
+
+### SD-J-10: Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
+*Sequence diagram penanganan laporan pelanggaran kode etik, investigasi Due Process of Law, deteksi fraud perilaku (e.g. drop-off < 5 menit), pengajuan sanggahan, dan putusan akhir akun advokat (Reputational Death).*
+
+```plantuml
+@startuml
+title Sequence Diagram: SD-J-10 - Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
+autonumber
+actor "Admin Justifiqa" as Admin
+participant "Panel Admin Justifiqa" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+database "WORM Hash Storage" as WORM
+actor "Advokat Terlapor" as Mitra
+
+activate Admin
+Admin -> FE ++ : Buka Antrean Investigasi Moderasi (Menerima Laporan Klien J-UC21 ATAU Security Alert DLP Backend)
+FE -> BE ++ : GET /api/v1/admin/moderation/reports
+BE --> FE -- : Return Daftar Laporan & Bukti WORM SHA-256 / Log Anomali
+FE --> Admin : Tampilkan Daftar Laporan & Bukti SHA-256
+Admin -> FE : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal / Skor Anomali
+
+alt Bukti Permulaan Tidak Sah / Laporan Palsu (SHA-256 Invalid)
+    Admin -> FE : Klik Tolak & Arsip Laporan (Clear / Dismiss)
+    FE -> BE ++ : POST /api/v1/admin/moderation/dismiss {report_id}
+    BE -> DB ++ : UPDATE moderation_reports SET status = 'DISMISSED'
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE --> FE -- : 200 OK (Laporan Diabaikan)
+    FE --> Admin : Tampilkan Status Laporan Tidak Terbukti (Clear)
+else Bukti Permulaan Sah & Terverifikasi SHA-256
+    alt Pelanggaran Ringan / Administratif (Tanpa Suspend Akun)
+        Admin -> FE : Klik Terbitkan Peringatan Tertulis / Pembinaan
+        FE -> BE ++ : POST /api/v1/admin/moderation/warning {advocate_id, reason}
+        par Catat Surat Teguran ke WORM Storage
+            BE -> WORM ++ : Catat Surat Peringatan Tertulis ke WORM Storage
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+        else Kirim Notifikasi & Surat ke Advokat
+            activate Mitra
+            BE -> Mitra : Kirim Email & Push Notifikasi Surat Peringatan
+            Mitra --> BE : Menerima & Membaca Surat Peringatan Tertulis
+            deactivate Mitra
+        end
+        BE --> FE -- : 200 OK (Warning Issued)
+        FE --> Admin : Tampilkan Status Peringatan Terkirim
+    else Pelanggaran Berat / Kritis (Due Process Suspend)
+        Admin -> FE : Klik "🛑 Suspend Akun & Kirim Panggilan Klarifikasi"
+        FE -> BE ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}
+        BE -> DB ++ : UPDATE advocate_accounts SET status = 'SUSPENDED', catalog = 'UNLISTED'
+        DB --> BE -- : 200 OK (Success / Rows Affected)
+        BE -> DB ++ : SELECT session_id, status FROM consultations WHERE advocate_id = ? AND status = 'IN_PROGRESS'
+        DB --> BE -- : Return Active Consultation State (Rows Found / Empty)
+        alt Mitra Sedang Dalam Sesi Konsultasi Aktif (IN_PROGRESS - Rows > 0)
+            BE -> DB ++ : UPDATE escrow_ledger SET status = 'FROZEN_IN_ESCROW' WHERE session_id = ?
+            DB --> BE -- : 200 OK (Graceful Finish Allowed & Escrow Frozen)
+        else Tidak Ada Sesi Aktif (Idle - Rows == 0)
+            note over BE, DB : [Mitra dalam kondisi Idle, tidak ada sesi konsultasi yang berjalan]
+        end
+        BE -> DB ++ : Batalkan Reservasi Mendatang & Auto-Refund 100% Dana Klien
+        DB --> BE -- : 200 OK (Refund Processed)
+        BE -> WORM ++ : Generate & Simpan Surat Panggilan (Stempel Hash SHA-256)
+        WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+        BE -> DB ++ : Aktifkan Timer Countdown Masa Sanggah 14 Hari Kerja
+        DB --> BE -- : 200 OK (Success / Rows Affected)
+        BE --> FE -- : 200 OK (Status Suspended & Surat Panggilan Terkirim)
+        FE --> Admin : Tampilkan Konfirmasi Suspend & Timer 14 Hari
+        
+        activate Mitra
+        BE -> Mitra : Kirim Email, SMS, & Push Notifikasi Panggilan Klarifikasi
+        Mitra -> BE ++ : GET /api/v1/advokat/moderation/status
+        BE --> Mitra -- : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
+        
+        alt Advokat Mengajukan Berkas Sanggahan (Dalam Masa 14 Hari)
+            Mitra -> BE ++ : POST /api/v1/advokat/moderation/appeal (Defense Doc PDF)
+            BE -> WORM ++ : Simpan Berkas Pembelaan & Stempel WORM Hash
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE -> FE : Notifikasi Ada Bukti Sanggahan Baru Masuk
+            BE --> Mitra -- : 200 OK (Sanggahan Diterima)
+        else Tidak Mengajukan Sanggahan / Timer 14 Hari Habis (Putusan Verstek)
+            BE -> DB ++ : UPDATE moderation_cases SET defense_status = 'NO_DEFENSE_VERSTEK'
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> FE : Notifikasi Masa Sanggah Habis (Siap Putusan Verstek)
+        end
+        
+        Admin -> FE : Review Berkas & Input Putusan Akhir Sidang Etik
+        alt Terbukti Bersalah (Sanksi Reputational Death & Pemecatan Permanen)
+            FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'GUILTY'}
+            BE -> DB ++ : UPDATE users SET status = 'REVOKED', reputation_score = 0 WHERE id = advocate_id
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> WORM ++ : Generate & Simpan SK Pemecatan (Hash SHA-256)
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE -> BE ++ : Kirim Laporan Pelanggaran Integritas Digital ke Dewan Kehormatan Peradi
+            BE --> BE -- : Return Report Confirmation
+            BE --> FE -- : 200 OK (Verdict & External Report Executed)
+            FE --> Admin : Tampilkan Status Pemecatan Permanen & Dilaporkan ke Peradi
+            BE -> Mitra : Kirim Email SK Pemecatan Permanen & Pemberitahuan Laporan Peradi
+        else Tidak Terbukti / Rehabilitasi (Unsuspend)
+            FE -> BE ++ : POST /api/v1/admin/moderation/verdict {verdict: 'REHABILITATED'}
+            BE -> DB ++ : Pulihkan Status Akun = VERIFIED / AKTIF
+            DB --> BE -- : 200 OK (Success / Rows Affected)
+            BE -> WORM ++ : Generate & Simpan Surat Rehabilitasi (Hash SHA-256)
+            WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+            BE --> FE -- : 200 OK (Account Rehabilitated)
+            FE --> Admin : Tampilkan Status Rehabilitasi Berhasil
+            BE -> Mitra : Kirim Email Pemulihan Akun & Pembukaan Katalog
+        end
+    end
+end
+deactivate FE
+deactivate Admin
+deactivate Mitra
+@enduml
+```
+
+---
 
 ### SD-J-11: Pencairan Dana Escrow & Perhitungan PPh 21 Advokat (J-UC19)
-*Sequence diagram alur penyelesaian sesi konsultasi, pemotongan PPh 21 otomatis, dan pencairan honor ke rekening Advokat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-11).*
+*Sequence diagram penarikan dana honorarium advokat dari dompet digital ke rekening bank pribadi, pemotongan pajak PPh 21 otomatis, dan auto-rollback jika transfer gagal dengan spesifikasi eksekusi aktif lengkap pada sisi Advokat dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Sistem / Advokat Mitra" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "PayoutController (Boundary Server)" as B_BE
-participant "PayoutAndTaxService (Control)" as C_Svc
-database "FinancialLedger & WORM (Entity)" as E_DB
-participant "Bank Payout Gateway" as Bank
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dasbor Advokat" as FE
+participant "Backend Independen Justifiqa" as BE
+participant "Payment Gateway Disbursement" as PG
+database "WORM Hash Storage" as WORM
 
-activate User
-User -> B_FE ++ : Minta Pencairan Honor Konsultasi Selesai
-B_FE -> B_BE ++ : POST /api/v2/advocate/payout/request (PayoutRequestDTO)
-B_BE -> B_BE : Validasi Token JWT & Sesi Konsultasi Selesai
-B_BE -> C_Svc ++ : executeEscrowDisbursement(consultationId, advocateId)
-C_Svc -> E_DB ++ : findOrderAndEscrowBalance(consultationId)
-E_DB --> C_Svc -- : EscrowBalanceEntity(status: COMPLETED)
+activate Mitra
+Mitra -> FE ++ : Ajukan Pencairan Dana (Withdrawal) ke Rekening Bank
+FE -> BE ++ : POST /api/v1/advocate/payouts/withdraw (Amount, Bank Acc)
 
-alt Sesi Dalam Sengketa / Belum Disetujui Klien
-    C_Svc --> B_BE : EscrowFrozenUnderDisputeException
-    B_BE --> B_FE : 409 Conflict (Dana Ditahan dalam Investigasi Dispute)
-    B_FE --> User : Tampilkan Pesan Dana Escrow Ditahan
-else Sesi Selesai Sah & Tidak Ada Sengketa
-    C_Svc -> C_Svc : calculatePph21TaxAndPlatformFee(grossAmount)
-    C_Svc -> Bank ++ : transferDisbursement(advocateBankAccount, netAmount)
-    Bank --> C_Svc -- : TransferReceipt(status)
+BE -> BE ++ : Validasi Saldo Tunai Available (Hanya Escrow Tunai yang Sudah Release dari Deliverable Approved - Excl. Token Virtual) & Hitung PPh 21
+BE --> BE -- : Return Computed Result / State
+BE -> PG ++ : POST /api/disbursement/transfer (Net Amount, Bank Detail)
 
-    alt Status Webhook PG / Transfer Bank = SUCCESS
-        C_Svc -> E_DB ++ : updateLedgerStatus(SETTLED_DISBURSED, trxRef)
-        E_DB --> C_Svc -- : LedgerUpdatedOK
-        C_Svc -> E_DB ++ : generateTaxWithholdingSlip(advocateId, pph21Amount)
-        E_DB --> C_Svc -- : TaxSlipGeneratedOK
-        C_Svc --> B_BE : PayoutResultDTO(SUCCESS, netAmount, trxRef)
-        B_BE --> B_FE : 200 OK (JSON {status: "DISBURSED", trxRef})
-        B_FE --> User : Tampilkan Konfirmasi Pencairan & Bukti Potong PPh 21
-    else Transfer Bank Gagal / Ditolak Jaringan
-        C_Svc -> E_DB ++ : rollbackPayoutQueue(consultationId)
-        E_DB --> C_Svc -- : RollbackOK
-        C_Svc --> B_BE -- : PayoutResultDTO(FAILED)
-        B_BE --> B_FE -- : 502 Bad Gateway (Transfer Gagal)
-        B_FE --> User : Tampilkan Error Transfer Gagal & Coba Lagi Nanti
-    end
+alt Webhook Transfer SUCCESS
+    PG --> BE : Webhook SUCCESS (Status: SUCCESS, BankRefNumber)
+    BE -> BE ++ : Kurangi Saldo Available Advokat & Terbitkan Bukti Potong PPh 21
+    BE --> BE -- : Return Computed Result / State
+    BE -> WORM ++ : Simpan SHA-256 Hash Log Transaksi & Audit PPh 21
+    WORM --> BE -- : Hash Written Permanently
+    BE --> FE : 200 OK (Pencairan Berhasil Diproses)
+    FE --> Mitra : Tampilkan Resi Transfer & Bukti Potong Pajak
+else Webhook Transfer FAILED / REJECTED
+    PG --> BE -- : Webhook FAILED (Status: FAILED, ErrorCode: "INVALID_ACCOUNT" | "BANK_OFFLINE")
+    BE -> BE ++ : Rollback Saldo Available Advokat (Saldo Kembali Utuh)
+    BE --> BE -- : Return Computed Result / State
+    BE -> WORM ++ : Simpan SHA-256 Hash Log Kegagalan Transfer
+    WORM --> BE -- : Hash Written Permanently
+    BE --> FE : 400 Bad Request (Transfer Gagal / Ditolak Bank)
+    FE --> Mitra : Tampilkan Error: "Transfer Gagal [ErrorCode]. Saldo telah dikembalikan ke dompet Anda."
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-J-12: Memantau Laporan Keuangan Escrow & Audit WORM (J-UC18)
-*Sequence diagram alur ekspor laporan audit finansial transparan berbasis kriptografi WORM SHA-256 berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-12).*
+*Sequence diagram pengawasan buku besar escrow, verifikasi bagi hasil platform (25%/75%), dan eksport bukti pajak PPh 21 ber-hash WORM SHA-256 oleh Admin Justifiqa dengan spesifikasi eksekusi aktif lengkap pada sisi Admin dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Admin Auditor Justifiqa" as User
-participant "Frontend Admin Portal (Boundary Client)" as B_FE
-participant "AuditReportController (Boundary Server)" as B_BE
-participant "WormAuditReportingService (Control)" as C_Svc
-database "WormFinancialVault (Entity)" as E_DB
+actor "Admin Justifiqa" as Admin
+participant "Portal Backoffice Admin" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+database "WORM Hash Storage" as WORM
 
-activate User
-User -> B_FE ++ : Pilih Rentang Waktu & Klik Ekspor Laporan WORM
-B_FE -> B_BE ++ : GET /api/v2/admin/audit/financial-worm?startDate=X&endDate=Y
-B_BE -> B_BE : Validasi Token JWT RBAC Auditor Keuangan
-B_BE -> C_Svc ++ : generateImmutableFinancialReport(startDate, endDate)
-C_Svc -> E_DB ++ : queryWormAuditLedger(startDate, endDate)
-E_DB --> C_Svc -- : WormAuditLedgerRecords
-C_Svc -> C_Svc : verifyChainOfTrustSha256(WormAuditLedgerRecords)
-C_Svc --> B_BE -- : FinancialWormReportDTO(records, sha256RootHash)
-B_BE --> B_FE -- : 200 OK (JSON {reportData, sha256RootHash})
-B_FE --> User : Tampilkan Laporan Keuangan & Verifikasi Root Hash WORM
+activate Admin
+Admin -> FE ++ : Buka Modul Keuangan & Buku Besar Escrow
+FE -> BE ++ : GET /api/v1/admin/finance/escrow-ledger?startDate=X&endDate=Y
+BE -> DB ++ : Query Rekapitulasi Saldo & Bagi Hasil (25%/75%)
+DB --> BE -- : Return Financial Records
+BE -> WORM ++ : Validasi Integritas Hash SHA-256 Transaksi
+WORM --> BE -- : Return Hash Validation Status
+BE --> FE -- : 200 OK (Data Ledger & Status Hash Valid)
+FE --> Admin : Tampilkan Tabel Laporan Keuangan Escrow & PPh 21
 
-opt Auditor Melakukan Tindak Lanjut Investigasi Laporan WORM
-    User -> B_FE : Flag Transaksi Anomali untuk Investigasi Komite Etik
-    B_FE -> B_BE ++ : POST /api/v2/admin/audit/flag-anomaly (AnomalyFlagDTO)
-    B_BE -> C_Svc ++ : escalateToEthicCommittee(AnomalyFlagDTO)
-    C_Svc --> B_BE -- : FlagACK
-    B_BE --> B_FE -- : 200 OK
+opt Unduh Bukti Rekap PPh 21 & Hash Audit
+    Admin -> FE ++ : Klik Unduh Laporan Rekap PPh 21
+    FE -> BE ++ : GET /api/v1/admin/finance/export-tax-report
+    BE -> BE ++ : Generate Dokumen PDF/Excel dengan Digital Signature SHA-256
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (File Export Ready)
+    FE --> Admin : Download File Laporan Rekapitulasi Pajak
 end
-deactivate User
+deactivate Admin
 @enduml
 ```
+
+---
 
 ### SD-J-13: Memberikan Ulasan & Rating Advokat (J-UC06)
-*Sequence diagram alur pemberian ulasan, percabangan anonimasi nama klien, dan moderasi otomatis jika rating <= 2 bintang berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-13).*
+*Sequence diagram pemberian penilaian pasca-sesi konsultasi dengan proteksi privasi anonimisasi nama publik sesuai UU PDP dan kalkulasi agregat rating otomatis dengan spesifikasi eksekusi aktif lengkap pada sisi Klien dan sistem.*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Justifiqa" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "RatingController (Boundary Server)" as B_BE
-participant "AdvocateRatingService (Control)" as C_Svc
-database "RatingAndReviewRepository (Entity)" as E_DB
+actor "Klien Justifiqa" as Klien
+participant "Frontend Justifiqa" as FE
+participant "Backend Justifiqa" as BE
+database "Database Justifiqa" as DB
 
-activate User
-User -> B_FE ++ : Isi Bintang Rating (1-5) & Ulasan Kinerja Advokat
-alt Pengguna Aktifkan Anonimasi Nama Publik
-    B_FE -> B_FE : Masking Nama Klien Jadi "Klien Terverifikasi #XXXX"
+activate Klien
+Klien -> FE ++ : Buka Form Ulasan (Pilih Skor Bintang 1-5 & Tulis Ulasan)
+alt Aktifkan Toggle Anonimasi UU PDP
+    Klien -> FE : Centang Toggle "Anonimkan Nama Saya di Publik"
+else Profil Asli
+    Klien -> FE : Biarkan Toggle Non-Aktif
 end
-B_FE -> B_FE : Client-Side Regex DLP Scanner (Sanitasi Identitas Pribadi)
-B_FE -> B_BE ++ : POST /api/v2/consultation/reviews (ReviewDTO)
-B_BE -> B_BE : Validasi Skema Rating (1-5) & JWT Klien
-B_BE -> C_Svc ++ : submitConsultationReview(clientJwt, orderId, reviewDTO)
-C_Svc -> E_DB ++ : checkExistingReview(orderId)
-E_DB --> C_Svc -- : ReviewExistenceStatus
+Klien -> FE : Klik Kirim Penilaian
+FE -> BE ++ : POST /api/v1/reviews/submit {sessId, rating, comment, isAnonymous}
+BE -> DB ++ : SELECT status FROM sessions WHERE id = sessId
+DB --> BE -- : status = DONE, review_status = NONE
 
-alt Ulasan Sudah Pernah Diberikan untuk Sesi Ini
-    C_Svc --> B_BE : DuplicateReviewException
-    B_BE --> B_FE : 409 Conflict (Ulasan Sudah Ada)
-    B_FE --> User : Tampilkan Peringatan Ulasan Sudah Direkam
-else Sesi Sah & Ulasan Baru
-    C_Svc -> E_DB ++ : saveReview(orderId, advocateId, stars, sanitizedComment, isAnonymous)
-    E_DB --> C_Svc -- : ReviewSavedOK
-    C_Svc -> C_Svc : recalculateAdvocateAverageRating(advocateId)
-
-    alt Rating Agregat / Bintang Sesi <= 2 Bintang (Pelanggaran SLA/Etik)
-        C_Svc -> E_DB ++ : triggerAutomaticQualityAuditQueue(orderId, advocateId)
-        E_DB --> C_Svc -- : QualityQueueTriggeredOK
+alt Sesi Valid & Belum Direview
+    alt isAnonymous == true
+        BE -> BE ++ : Masking Nama Profil (Misal: K****n)
+        BE --> BE -- : Return Computed Result / State
+    else isAnonymous == false
+        BE -> BE ++ : Gunakan Nama Profil Asli
+        BE --> BE -- : Return Computed Result / State
     end
-
-    C_Svc --> B_BE -- : ReviewResultDTO(SUCCESS)
-    B_BE --> B_FE -- : 201 Created (JSON {status: "REVIEW_SAVED"})
-    B_FE --> User : Tampilkan Konfirmasi Terima Kasih Atas Ulasan
+    BE -> DB ++ : INSERT INTO reviews (sessId, advokatId, rating, comment, display_name)
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE -> DB ++ : UPDATE advokat_profiles SET aggregate_rating = calc_new_rating() WHERE id = advokatId
+    DB --> BE -- : Save Success
+    
+    opt Rating Agregat <= 2 Bintang
+        BE -> BE ++ : Generate Internal Quality Alert untuk Advokat (Tanpa AML Overkill)
+        BE --> BE -- : Return Computed Result / State
+    end
+    
+    BE --> FE : 201 Created (Review Submitted)
+    FE --> Klien : Tampilkan Pesan Konfirmasi "Terima Kasih atas Ulasan Anda"
+else Sesi Tidak Valid / Duplikat Review
+    BE --> FE : 400 Bad Request (Session Invalid or Already Reviewed)
+    FE --> Klien : Tampilkan Pesan Error "Sesi Tidak Valid / Sudah Diberi Ulasan"
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Klien
 @enduml
 ```
+
+---
 
 ### SD-J-14: [DILEBUR KE DALAM SD-J-06]
-*Catatan Arsitektur:* Alur finalisasi dokumen bermeterai telah dilebur secara utuh ke dalam **SD-J-06** (Sinkron 1-to-1 dengan AD-J-14).
+*Catatan: Skenario J-UC14 (Pembubuhan e-Meterai Peruri) telah ditiadakan sebagai diagram mandiri dan dilebur seutuhnya ke dalam **SD-J-06 (J-UC12, J-UC14)** sebagai alur kerja terpadu perumusan dan finalisasi dokumen bermeterai yang difasilitasi platform (*Platform-Facilitated Stamping*) dengan pemotongan saldo dompet advokat.*
 
 ### SD-J-21: Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
-*Sequence diagram alur pelaporan whistleblowing / sengketa etika konsultasi hukum berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-21).*
+*Sequence diagram pengajuan laporan dugaan pelanggaran kode etik, kerahasiaan, atau wanprestasi advokat oleh klien beserta lampiran barang bukti digital terverifikasi SHA-256.*
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-21 - Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
 autonumber
-actor "Klien Whistleblower" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "DisputeController (Boundary Server)" as B_BE
-participant "DisputeResolutionService (Control)" as C_Svc
-database "DisputeVault & WORM Ledger (Entity)" as E_DB
+actor "Klien Justifiqa" as Klien
+participant "Frontend Klien" as FE
+participant "Backend Independen Justifiqa" as BE
+database "Database Justifiqa" as DB
+database "WORM Hash Storage" as WORM
 
-activate User
-User -> B_FE ++ : Lengkapi Form Pelaporan Sengketa/Etik & Unggah Bukti
-B_FE -> B_BE ++ : POST /api/v2/disputes/report (DisputeReportDTO)
-B_BE -> B_BE : Validasi Skema & Lampiran Bukti
-B_BE -> C_Svc ++ : fileDisputeReport(clientJwt, orderId, disputeDTO)
-C_Svc -> E_DB ++ : freezeEscrowFunds(orderId, reason="DISPUTE_FILED")
-E_DB --> C_Svc -- : EscrowFrozenOK
-C_Svc -> E_DB ++ : saveDisputeReport(disputeId, payload, status: UNDER_INVESTIGATION)
-E_DB --> C_Svc -- : DisputeSavedOK
-C_Svc -> E_DB ++ : recordImmutableWormLog(disputeId, sha256Proof)
-E_DB --> C_Svc -- : WormLogRecordedOK
-C_Svc --> B_BE -- : DisputeReportResultDTO(disputeId, status: "UNDER_INVESTIGATION")
-B_BE --> B_FE -- : 201 Created (JSON {disputeId, status: "UNDER_INVESTIGATION"})
-B_FE --> User : Arahkan ke Pusat Pemantauan Dispute (MOCK-J-CL-09)
-deactivate User
+activate Klien
+Klien -> FE ++ : Buka Profil Advokat / Riwayat Sesi & Klik "Laporkan Pelanggaran"
+FE --> Klien : Tampilkan Form Whistleblowing & Pilihan Kategori Pelanggaran
+Klien -> FE : Pilih Kategori Pelanggaran & Isi Kronologi Kejadian
+
+alt Klien Melampirkan Bukti Transkrip E2EE / Dokumen Pendukung
+    Klien -> FE : Unggah File Ekspor Transkrip E2EE / Bukti PDF
+    FE -> BE ++ : POST /api/v1/client/reports/verify-evidence {file}
+    BE -> BE ++ : Verifikasi Kriptografi & Compute Hash SHA-256 Bukti
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK {evidence_hash: SHA-256, verified: true}
+    FE --> Klien : Tampilkan Bukti Terlampir & Hash SHA-256 Valid
+else Klien Tidak Melampirkan Bukti Pendukung
+    FE --> Klien : Tampilkan Peringatan "Laporan Tanpa Bukti Sah Berisiko Ditolak Saat Triage"
+end
+
+Klien -> FE : Centang Pernyataan Kebenaran Laporan & Klik "Kirim Laporan"
+FE -> BE ++ : POST /api/v1/client/reports/advokat {advocate_id, category, description, evidence_hash}
+BE -> DB ++ : INSERT INTO moderation_reports (client_id, advocate_id, category, status: 'PENDING_TRIAGE')
+DB --> BE -- : Report Ticket Created
+BE -> WORM ++ : Catat Hash SHA-256 Tiket Laporan ke WORM Storage
+WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
+BE -> DB ++ : Teruskan Tiket Laporan ke Antrean Investigasi Admin Legal (`AD-J-10`)
+DB --> BE -- : Queue Updated
+BE --> FE -- : 201 Created {ticket_id, status: 'PENDING_TRIAGE'}
+FE --> Klien : Tampilkan Konfirmasi Laporan Diterima & Nomor Tiket Investigasi
+deactivate FE
+deactivate Klien
 @enduml
 ```
+
+---
 
 ### SD-J-22: Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
-*Sequence diagram alur penambahan saldo dompet Advokat untuk pembelian meterai/fitur premium berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-22).*
+*Sequence diagram pengisian saldo dompet digital advokat melalui Payment Gateway (Snap / QRIS / VA) untuk membayar layanan berbayar platform tanpa potongan pajak PPh 21 dengan spesifikasi eksekusi aktif lengkap pada sisi Advokat dan sistem.*
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-22 - Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
 autonumber
-actor "Advokat Mitra" as User
-participant "Frontend Justifiqa (Boundary Client)" as B_FE
-participant "WalletController (Boundary Server)" as B_BE
-participant "AdvocateWalletService (Control)" as C_Svc
-database "WalletLedger (Entity)" as E_DB
-participant "Payment Gateway" as Pay
+actor "Advokat Justifiqa" as Mitra
+participant "Frontend Dompet" as FE
+participant "Backend Justifiqa" as BE
+participant "Payment Gateway" as PG
+database "Database (`advocate_wallets`)" as DB
 
-activate User
-User -> B_FE ++ : Pilih Nominal Top-Up & Metode Pembayaran
-B_FE -> B_BE ++ : POST /api/v2/advocate/wallet/topup (TopUpDTO)
-B_BE -> C_Svc ++ : initiateTopUpTransaction(advocateId, amount)
-C_Svc -> Pay ++ : createPaymentVA(orderId, amount)
-Pay --> C_Svc -- : PaymentInstructionDTO(vaNumber)
-C_Svc -> E_DB ++ : createPendingTopUpLedger(orderId, amount)
-E_DB --> C_Svc -- : LedgerCreatedOK
-C_Svc --> B_BE -- : TopUpResponseDTO(orderId, vaNumber)
-B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
-B_FE --> User : Tampilkan Instruksi VA Pembayaran Top-Up
+activate Mitra
+Mitra -> FE ++ : Buka Dasbor Dompet & Pilih Menu "Top-Up Saldo"
+FE --> Mitra : Tampilkan Pilihan Nominal (Rp12k / Rp50k / Rp100k)
+Mitra -> FE : Pilih Nominal & Klik "Buat Tagihan Pembayaran"
+FE -> BE ++ : POST /api/v1/advocates/wallet/topup {amount}
 
-User -> Pay : Lakukan Pembayaran VA
-Pay -> B_BE ++ : POST /api/v2/webhooks/wallet-topup (PaymentNotification)
-B_BE -> C_Svc ++ : processTopUpWebhook(orderId)
+BE -> DB ++ : INSERT INTO wallet_transactions (advocate_id, amount, status: 'PENDING')
+DB --> BE -- : Transaction ID Created
+BE -> PG ++ : POST /v1/payment-gateway/snap-token {order_id, amount, customer_details}
+PG --> BE -- : 200 OK {snap_token, redirect_url, qris_string}
+BE --> FE -- : 201 Created {snap_token, order_id}
+FE --> Mitra : Tampilkan Halaman Pembayaran (Snap Checkout UI)
 
-alt Pembayaran Top-Up Sukses Diterima (PAID / SETTLED)
-    C_Svc -> E_DB ++ : updateWalletBalance(advocateId, +amount, status: PAID)
-    E_DB --> C_Svc -- : WalletBalanceUpdatedOK
-    C_Svc --> B_BE : WebhookACK(200 OK)
-    B_BE --> Pay : HTTP 200 OK
-else Pembayaran Kadaluarsa / Gagal
-    C_Svc -> E_DB ++ : cancelPendingTopUpLedger(orderId)
-    E_DB --> C_Svc -- : CancelledOK
-    C_Svc --> B_BE -- : WebhookACK(200 OK)
-    B_BE --> Pay -- : HTTP 200 OK
+Mitra -> PG ++ : Selesaikan Pembayaran via M-Banking / E-Wallet Eksternal
+PG --> Mitra -- : Tampilkan Status Pembayaran / Redirect ke Aplikasi Dompet
+
+alt Pembayaran Sukses Diterima Payment Gateway
+    PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'PAID', signature}
+    BE -> BE ++ : Verifikasi Kriptografi HMAC-SHA512 Webhook Signature
+    BE --> BE -- : Return Computed Result / State
+    BE -> DB ++ : UPDATE wallet_transactions SET status = 'PAID', paid_at = NOW() WHERE order_id = order_id
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE -> DB ++ : UPDATE advocate_wallets SET balance = balance + amount WHERE advocate_id = advocate_id
+    DB --> BE -- : Balance Updated
+    BE --> PG -- : 200 OK (Webhook Received)
+    
+    BE -> FE : Push Notification / SSE "Saldo Dompet Berhasil Ditambahkan"
+    FE --> Mitra : Tampilkan Resi Top-Up & Update Saldo Dompet Aktif
+else Pembayaran Kedaluwarsa / Dibatalkan (Expired / Cancelled)
+    PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'EXPIRED'}
+    BE -> DB ++ : UPDATE wallet_transactions SET status = 'CANCELLED' WHERE order_id = order_id
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE --> PG -- : 200 OK (Webhook Received)
+    
+    BE -> FE : Push Notification / SSE "Tagihan Top-Up Kedaluwarsa"
+    FE --> Mitra : Tampilkan Status Tagihan Kedaluwarsa
 end
-deactivate User
+deactivate Mitra
 @enduml
 ```
 
+---
+
 ### SD-J-20: Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
-*Sequence diagram alur login aman Multi-Factor Authentication berbasis TOTP Authenticator dan validasi IP Address Whitelist untuk Admin Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-20).*
+*Sequence diagram alur autentikasi tingkat lanjut untuk Admin Justifiqa melalui portal backoffice terisolasi (`admin.justifiqa.com`) dengan IP Whitelisting, verifikasi kredensial internal, dan otentikasi ganda TOTP Authenticator dengan spesifikasi eksekusi aktif lengkap pada sisi Admin dan sistem.*
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-20 - Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
 autonumber
-actor "Admin Backoffice" as User
-participant "Admin Portal UI (Boundary Client)" as B_FE
-participant "AdminAuthController (Boundary Server)" as B_BE
-participant "AdminAuthService (Control)" as C_Svc
-database "AdminAccountVault & WORM (Entity)" as E_DB
+actor "Admin Justifiqa" as Admin
+participant "Portal Backoffice (`admin.justifiqa.com`)" as FE
+participant "IAM Gateway Justifiqa" as IAM
+database "IAM Database Justifiqa" as DB
+database "WORM Audit Storage Justifiqa" as WORM
 
-activate User
-User -> B_FE ++ : Masukkan Email & Password Admin
-B_FE -> B_BE ++ : POST /api/v2/admin/auth/login (AdminLoginDTO)
+activate Admin
+Admin -> FE ++ : Buka URL Portal Backoffice via VPN/ZTNA
+FE -> IAM ++ : Verifikasi IP Address Pengakses (IP Whitelist Check)
+IAM -> IAM ++ : Evaluasi IP terhadap Ruleset SOC Justifiqa
+IAM --> IAM -- : 200 OK (Token / State Verified)
 
-alt Apakah IP Address Terdaftar di Whitelist Justifiqa
-    B_BE -> C_Svc ++ : verifyAdminCredentials(email, password)
-    C_Svc -> E_DB ++ : findAdminByEmail(email)
-    E_DB --> C_Svc -- : AdminEntity
-
-    alt Kredensial Salah / Akun Terkunci
-        C_Svc --> B_BE : InvalidAdminAuthException
-        B_BE --> B_FE : 401 Unauthorized
-        B_FE --> User : Tampilkan Error Login Admin
-    else Kredensial Valid
-        alt Status Akun Admin Terkunci sementara karena Gagal 5x
-            C_Svc --> B_BE : AccountLockedException
-            B_BE --> B_FE : 403 Forbidden (Akun Admin Terkunci Sementara)
-            B_FE --> User : Tampilkan Pesan Hubungi Super Admin
-        else Akun Admin Sah & Aktif
-            C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
-            B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
-            B_FE --> User : Tampilkan Input Kode TOTP 6-Digit (Google Authenticator)
-
-            loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
-                User -> B_FE : Input Kode TOTP 6-Digit
-                B_FE -> B_BE ++ : POST /api/v2/admin/auth/verify-totp (TotpDTO)
-                B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
-
-                alt Kode TOTP Salah
-                    C_Svc --> B_BE : InvalidTotpException
-                    B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
-                    B_FE --> User : Tampilkan Error Kode TOTP
-                else Kode TOTP Sah
-                    C_Svc -> E_DB ++ : recordAdminAccessLogWorm(adminId, ip, timestamp)
-                    E_DB --> C_Svc -- : AccessLoggedOK
-                    C_Svc --> B_BE -- : AdminSessionDTO(accessToken, permissions)
-                    B_BE --> B_FE -- : 200 OK (JSON {accessToken, permissions})
-                    B_FE --> User : Masuk ke Dasbor Admin Kepatuhan / Command Center
-                    note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
+alt IP Address Tidak Terdaftar (Unauthorized IP)
+    IAM -> WORM ++ : Catat Peringatan SOC Keamanan Kritis (Unauthorized IP)
+    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+    IAM --> FE : 403 Forbidden (Access Denied)
+    FE --> Admin : Blokir Akses & Tampilkan Halaman Error 403
+else IP Address Terdaftar di Whitelist
+    IAM --> FE -- : 200 OK (Allow Form Login)
+    FE --> Admin : Tampilkan Form Login Backoffice Hukum
+    
+    loop [Maksimal 3x Percobaan Input Kredensial Login Backoffice]
+        Admin -> FE : Submit Email & Password Internal Justifiqa
+        FE -> IAM ++ : POST /api/v1/admin/auth/login (Credentials)
+        IAM -> DB ++ : Query Kredensial & Status Akun Admin Justifiqa
+        DB --> IAM -- : Return User Data & Password Hash
+        
+        alt Kredensial Tidak Valid / Akun Terkunci
+            IAM -> WORM ++ : Catat Percobaan Login Gagal (Failed Attempt)
+            WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+            IAM --> FE : 401 Unauthorized (Kredensial Salah)
+            FE --> Admin : Tampilkan Error "Kredensial Tidak Valid"
+            note over Admin, FE : [REPEAT LOOP: Admin mengulangi input kredensial ke baris awal loop]
+        else Kredensial Valid
+            IAM --> FE -- : 200 OK (Require TOTP 2FA Verification)
+            FE --> Admin : Tampilkan Permintaan Kode TOTP 2FA
+            note over Admin, IAM : [BREAK LOOP: Kredensial Valid Lanjut ke Verifikasi TOTP 2FA]
+            
+            loop [Maksimal 3x Percobaan Verifikasi Kode TOTP 2FA]
+                Admin -> FE : Input 6 Digit Kode dari Aplikasi Authenticator
+                FE -> IAM ++ : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
+                IAM -> IAM ++ : Verifikasi Algoritma TOTP (Time-step Check)
+                IAM --> IAM -- : 200 OK (Token / State Verified)
+                
+                alt Kode TOTP Salah / Kadaluarsa
+                    IAM -> WORM ++ : Catat Anomali Kegagalan TOTP SOC Justifiqa
+                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+                    IAM --> FE : 401 Unauthorized (TOTP Invalid)
+                    FE --> Admin : Tampilkan Error "Kode TOTP Tidak Valid"
+                    note over Admin, FE : [REPEAT LOOP: Admin memasukkan ulang kode TOTP ke baris awal loop]
+                else Kode TOTP Valid
+                    IAM -> IAM ++ : Generate Cryptographic JWT Session Token
+                    IAM --> IAM -- : 200 OK (Token / State Verified)
+                    IAM -> WORM ++ : Catat Log Autentikasi Sukses (Timestamp, IP, Role)
+                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+                    IAM --> FE -- : 200 OK (Return JWT Token & Admin Profile)
+                    FE --> Admin : Redirect ke Dasbor Admin Utama Justifiqa (`SCR-JST-07`)
+                    note over Admin, IAM : [BREAK LOOP: TOTP Valid Lanjut ke Dasbor Admin Utama]
                 end
             end
         end
     end
-else IP Address Tidak Terdaftar di Whitelist Backoffice
-    B_BE --> B_FE : 403 Forbidden (IP Address Not Whitelisted)
-    B_FE --> User : Tampilkan Error Akses Ditolak dari Luar Jaringan Aman
 end
-deactivate User
+deactivate FE
+deactivate Admin
 @enduml
 ```
-
 
 ---
 
 ## BAGIAN II: SEQUENCE DIAGRAMS - APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
 
 ### SD-Q-01: Registrasi Akun Klien & Psikolog Klinis (Q-UC01, Q-UC07)
-*Sequence diagram alur pendaftaran akun Klien Klinis dan Psikolog Klinis (verifikasi STR HIMPSI / SATUSEHAT) berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-01).*
+*Sequence diagram alur pendaftaran akun mandiri Klien dan Psikolog Klinis (verifikasi STR & SIPP HIMPSI) di platform Qualifa dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
 actor "Pengguna (Klien/Psikolog)" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "QualifaAuthController (Boundary Server)" as B_BE
-participant "QualifaKycService (Control)" as C_Svc
-database "QualifaDB & WORM Ledger (Entity)" as E_DB
-participant "API SATUSEHAT / HIMPSI" as Ext
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
 
 activate User
-User -> B_FE ++ : Buka Registrasi Qualifa & Pilih Jenis Akun
-B_FE --> User : Tampilkan Formulir Registrasi Klien/Psikolog
-loop [Maksimal 3x Percobaan Registrasi & Pengecekan STR/NIK]
-    User -> B_FE : Lengkapi Data & Unggah STR/Sertifikat HIMPSI
-    B_FE -> B_BE ++ : POST /api/v2/auth/register (QualifaRegisterDTO)
-    B_BE -> B_BE : Validasi Skema JSON & Ukuran Berkas
+User -> FE ++ : Buka Halaman Registrasi Qualifa & Pilih Jenis Akun
+FE --> User : Tampilkan Formulir Registrasi Spesifik Qualifa
+loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
+    User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (STR/HIMPSI)
+    FE -> BE ++ : POST /api/v1/auth/register (Payload & Files)
 
-    alt Kredensial Tidak Lengkap / Format Salah
-        B_BE --> B_FE : 400 Bad Request
-        B_FE --> User : Tampilkan Error Validasi
-    else Skema Valid
-        B_BE -> C_Svc ++ : registerQualifaUser(RegisterDTO)
-        C_Svc -> E_DB ++ : checkUniqueness(email, phone)
-        E_DB --> C_Svc -- : UniquenessStatus
+    alt Format & Ukuran File Tidak Valid (Maks 5MB, PDF/JPG)
+        BE --> FE : 400 Bad Request / 422 Unprocessable Entity (Invalid File Format or Size Limit)
+        FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
+        note over User, FE : [REPEAT LOOP: Pengguna memperbaiki format file dan mengirim ulang ke baris awal loop]
+    else Format & Ukuran File Valid
+        BE -> DB ++ : Check Existing Email/No HP
+        DB --> BE -- : Status Uniqueness Result
 
-        alt Akun Sudah Ada
-            C_Svc --> B_BE : AccountConflictException
-            B_BE --> B_FE : 409 Conflict
-            B_FE --> User : Tampilkan Error Akun Sudah Terdaftar
-        else Kredensial Unik
-            alt Jenis Akun = Klien Konseling
-                C_Svc -> E_DB ++ : saveAccount(ClientEntity, AKTIF)
-                E_DB --> C_Svc -- : SavedOK
-                C_Svc --> B_BE -- : RegisterResult(SUCCESS)
-                B_BE --> B_FE -- : 201 Created (JSON {status: "SUCCESS"})
-                B_FE --> User : Arahkan ke Login Qualifa
-                note over User, B_BE : [BREAK LOOP: Registrasi Klien Sukses]
+        alt Email / No HP Sudah Terdaftar
+            BE --> FE : 409 Conflict (Akun Sudah Terdaftar)
+            FE --> User : Tampilkan Error "Email/No HP Sudah Terdaftar" & Instruksi Perbaikan
+            note over User, FE : [REPEAT LOOP: Pengguna mengganti kredensial dan mengirim ulang ke baris awal loop]
+        else Kredensial Baru & Unik
+            alt Jenis Akun = Klien (Pasien/User)
+                BE -> DB ++ : Insert Klien (Status: AKTIF)
+                DB --> BE -- : Success DB Insert
+                BE --> FE : 201 Created (Registrasi Sukses)
+                FE --> User : Arahkan ke Halaman Login Qualifa
+                note over User, BE : [BREAK LOOP: Akun Klien Berhasil Dibuat AKTIF]
             else Jenis Akun = Psikolog Klinis
-                C_Svc -> Ext ++ : verifyStrHimpsi(strNumber)
-                Ext --> C_Svc -- : StrVerificationStatus
-
-                alt STR Tidak Valid / Kedaluwarsa di SATUSEHAT
-                    C_Svc --> B_BE : StrInvalidException
-                    B_BE --> B_FE : 422 Unprocessable Entity (STR Tidak Terdaftar)
-                    B_FE --> User : Tampilkan Error STR Tidak Valid
-                else STR Sah & Terverifikasi
-                    C_Svc -> E_DB ++ : saveAccount(PsychologistEntity, PENDING_VERIFICATION)
-                    E_DB --> C_Svc -- : SavedOK
-                    C_Svc --> B_BE -- : RegisterResult(PENDING_VERIFICATION)
-                    B_BE --> B_FE -- : 201 Created (JSON {status: "PENDING_VERIFICATION"})
-                    B_FE --> User : Tampilkan Pesan Audit STR 1x24 Jam
-                    note over User, B_BE : [BREAK LOOP: Akun Psikolog Disimpan PENDING]
-                end
+                BE -> DB ++ : Insert Psikolog (Status: PENDING_VERIFICATION)
+                DB --> BE -- : Success DB Insert
+                BE -> BE ++ : Add to Admin Audit Queue (Verifikasi STR HIMPSI)
+                BE --> BE -- : Return Computed Result / State
+                BE --> FE : 201 Created (Menunggu Verifikasi Etik)
+                FE --> User : Tampilkan Pesan "Menunggu Verifikasi Etik 1x24 Jam"
+                note over User, BE : [BREAK LOOP: Akun Psikolog Berhasil Disimpan PENDING_VERIFICATION]
             end
         end
     end
 end
+deactivate BE
+deactivate FE
 deactivate User
 @enduml
 ```
 
+---
+
 ### SD-Q-02: Login Akun Klien & Psikolog Klinis (Q-UC02, Q-UC08)
-*Sequence diagram alur login independen Qualifa dengan verifikasi MFA dan opsi pengiriman ulang OTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-02).*
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
 actor "Pengguna Qualifa" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "QualifaAuthController (Boundary Server)" as B_BE
-participant "QualifaAuthService (Control)" as C_Svc
-database "QualifaUserRepository (Entity)" as E_DB
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
 participant "SMS / Email Gateway" as SMS
 
 activate User
-User -> B_FE ++ : Masukkan Email & Password
-B_FE -> B_BE ++ : POST /api/v2/auth/login (LoginDTO)
-B_BE -> C_Svc ++ : authenticateUser(email, password)
-C_Svc -> E_DB ++ : findByEmail(email)
-E_DB --> C_Svc -- : UserEntity
+loop [Maksimal 3x Percobaan Input Kredensial Login]
+    User -> FE : Masukkan Email/No HP & Password
+    FE -> BE ++ : POST /api/v1/auth/login (Credentials)
 
-alt Password Salah / Akun Tidak Ditemukan
-    C_Svc --> B_BE : UnauthorizedException
-    B_BE --> B_FE : 401 Unauthorized
-    B_FE --> User : Tampilkan Error Login
-else Akun Valid & Aktif
-    alt Status Akun Ditangguhkan Komite Etik / Belum Terverifikasi
-        C_Svc --> B_BE : AccountInactiveException(reason)
-        B_BE --> B_FE : 403 Forbidden
-        B_FE --> User : Tampilkan Pesan Akun Belum Aktif / Ditangguhkan
-    else Status Akun AKTIF
-        C_Svc -> SMS ++ : sendOtp2FA(userPhone, otpCode)
-        SMS --> C_Svc -- : SentOK
-        C_Svc --> B_BE -- : MfaChallenge(challengeId)
-        B_BE --> B_FE -- : 200 OK (JSON {mfaRequired: true, challengeId})
-        B_FE --> User : Tampilkan Modal Input OTP 2FA
+    BE -> DB ++ : Query User by Email/No HP
+    DB --> BE -- : Return User Record & Password Hash
 
-        loop [Maksimal 3x Percobaan Input OTP]
-            opt Minta Kirim Ulang OTP
-                User -> B_FE : Klik Kirim Ulang OTP
-                B_FE -> B_BE ++ : POST /api/v2/auth/resend-otp (challengeId)
-                B_BE -> C_Svc ++ : resendOtpChallenge(challengeId)
-                C_Svc -> SMS ++ : sendOtp2FA(userPhone, newOtpCode)
-                SMS --> C_Svc -- : DeliveryReceipt(OK)
-                C_Svc --> B_BE -- : ResendACK
-                B_BE --> B_FE -- : 200 OK
-                B_FE --> User : OTP Baru Terkirim
+    alt Kredensial Tidak Cocok
+        BE --> FE : 401 Unauthorized (Kredensial Salah)
+        FE --> User : Tampilkan Error Email/No HP atau Password Salah
+        note over User, FE : [REPEAT LOOP: Pengguna memasukkan kembali kredensial ke baris awal loop]
+    else Kredensial Cocok
+        BE --> FE : 200 OK (Credentials Verified)
+        note over User, BE : [BREAK LOOP: Kredensial Cocok Lanjut ke Langkah MFA / OTP]
+    end
+end
+
+alt Status Akun = SUSPENDED (Komite Etik)
+    BE --> FE : 403 Forbidden (Akun Suspended oleh Komite Etik)
+    FE --> User : Tampilkan Error Akun Dalam Investigasi Etik
+else Status Akun = AKTIF
+    BE -> BE ++ : Generate OTP 6-Digit (Expire 5 Menit)
+    BE --> BE -- : Return Computed Result / State
+    BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, OTP Code)
+    SMS --> BE -- : 200 OK (OTP Sent / Queued Successfully)
+    BE --> FE : 200 OK (OTP Sent, Waiting Verification)
+    FE --> User : Tampilkan Layar Input OTP & Instruksi Cek SMS
+    note over User, SMS : Pengguna mengecek perangkat & menerima pesan OTP
+    
+    loop [Maksimal 3x Percobaan Verifikasi OTP]
+        User -> FE : Masukkan Kode OTP 6-Digit (Atau Klik Resend OTP)
+        FE -> BE : POST /api/v1/auth/verify-otp (User ID, OTP)
+        
+        alt OTP Valid & Belum Expire
+            BE -> DB ++ : UPDATE users SET last_login = NOW()
+            DB --> BE -- : 200 OK (Success / 1 Row Updated)
+            BE -> BE ++ : Generate & Sign JWT Session Token Qualifa
+            BE --> BE -- : Return Signed JWT String
+            BE --> FE : 200 OK (JWT Token, User Profile)
+            FE --> User : Masuk ke Dasbor Utama Qualifa
+            note over User, BE : [BREAK LOOP: Sesi Valid Lanjut ke Dasbor]
+        else OTP Salah / Kadaluarsa
+            BE --> FE : 400 Bad Request (OTP Invalid)
+            FE --> User : Tampilkan Error & Opsi Kirim Ulang OTP
+            
+            opt [Pengguna Meminta Kirim Ulang OTP / Resend OTP]
+                User -> FE : Klik Tombol Resend OTP
+                FE -> BE : POST /api/v1/auth/resend-otp (User ID, Channel)
+                BE -> BE ++ : Generate OTP 6-Digit Baru (Expire 5 Menit)
+                BE --> BE -- : Return Computed Result / State
+                BE -> SMS ++ : POST /api/v1/notification/send-otp (Contact, New OTP)
+                SMS --> BE -- : 200 OK (New OTP Sent Successfully)
+                BE --> FE : 200 OK (New OTP Sent)
+                FE --> User : Tampilkan Notifikasi OTP Baru Telah Dikirim
             end
-
-            User -> B_FE : Input Kode OTP 6-Digit
-            B_FE -> B_BE ++ : POST /api/v2/auth/verify-mfa (VerifyDTO)
-            B_BE -> C_Svc ++ : verifyOtp(challengeId, otpCode)
-
-            alt Kode OTP Salah / Kedaluwarsa
-                C_Svc --> B_BE : InvalidOtpException
-                B_BE --> B_FE : 400 Bad Request
-                B_FE --> User : Tampilkan Error Kode OTP Salah
-            else Kode OTP Valid
-                C_Svc -> E_DB ++ : logSessionAccess(userId)
-                E_DB --> C_Svc -- : AccessLoggedOK
-                C_Svc --> B_BE -- : SessionTokens(accessToken)
-                B_BE --> B_FE -- : 200 OK (JSON {accessToken})
-                B_FE --> User : Masuk ke Dasbor Qualifa
-                note over User, B_BE : [BREAK LOOP: Login Qualifa Berhasil]
-            end
+            note over User, FE : [REPEAT LOOP: Pengguna memasukkan kode OTP baru ke baris awal loop]
         end
     end
 end
+deactivate BE
+deactivate FE
 deactivate User
 @enduml
 ```
+
+---
 
 ### SD-Q-03: Sesi Konseling Klinis & Pembayaran (Q-UC03, Q-UC04, Q-UC05, Q-UC10)
-*Sequence diagram alur pemesanan konseling klinis, percabangan Sesi Crisis 119 Gratis vs Konseling Berbayar (Escrow/Voucher), dan pembukaan ruang obrolan E2EE berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-03).*
+*Sequence diagram reservasi psikolog, pembayaran konseling, pelaksanaan sesi terapi (chat/audio/video), dan penyelesaian sesi dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Qualifa" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "CounselingController (Boundary Server)" as B_BE
-participant "CounselingService (Control)" as C_Svc
-database "QualifaLedger & WORM (Entity)" as E_DB
-participant "Payment Gateway" as Pay
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Payment Gateway" as PG
+actor "Psikolog Klinis Qualifa" as Mitra
 
-activate User
-User -> B_FE ++ : Buka Katalog Psikolog & Pilih Mode Konseling
+activate Klien
+Klien -> FE ++ : Pilih Psikolog, Jadwal Sesi Terapi, & Klik Reservasi
+FE -> BE ++ : POST /api/v1/counseling/book (Psikolog ID, Slot)
+BE -> PG ++ : Create Payment Invoice & Virtual Account
+PG --> BE -- : Return Invoice URL & VA Number
+BE --> FE : Return Billing Detail (Rp300.000 + Fee)
+FE --> Klien : Tampilkan Halaman Pembayaran
+deactivate BE
 
-alt Mode = Crisis Counseling Darurat 119 (Gratis Subsidi Rp 0)
-    B_FE -> B_BE ++ : POST /api/v2/counseling/book-crisis
-    B_BE -> C_Svc ++ : createCrisisSession(clientJwt)
-    C_Svc -> E_DB ++ : allocateOnCallPsychologist()
-    E_DB --> C_Svc -- : PsychAllocated(SUCCESS)
-    C_Svc -> E_DB ++ : saveOrderLedger(orderId, amount=0, status=CRISIS_ACTIVE)
-    E_DB --> C_Svc -- : OrderSavedOK
-    C_Svc --> B_BE -- : CrisisSessionDTO(orderId, roomId)
-    B_BE --> B_FE -- : 201 Created (JSON {orderId, roomId, crisis: true})
-    B_FE --> User : Langsung Buka Ruang Obrolan Crisis 119 E2EE
-else Mode = Konseling Klinis Berjadwal / Premium
-    User -> B_FE : Pilih Psikolog & Jadwal Konseling
-    B_FE -> B_BE ++ : POST /api/v2/counseling/book (CounselingBookDTO)
-    B_BE -> C_Svc ++ : createCounselingOrder(clientJwt, psychId, slotId)
-    C_Svc -> Pay ++ : createVaPayment(orderId, amount)
-    Pay --> C_Svc -- : PaymentInstruction(vaNumber)
-    C_Svc -> E_DB ++ : saveOrderLedger(orderId, PENDING)
-    E_DB --> C_Svc -- : LedgerSavedOK
-    C_Svc --> B_BE -- : BookResponse(orderId, vaNumber)
-    B_BE --> B_FE -- : 201 Created (JSON {orderId, vaNumber})
-    B_FE --> User : Tampilkan Instruksi Pembayaran Konseling
+loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
+    Klien -> PG : Lakukan Pembayaran via Bank Transfer / E-Wallet
 
-    User -> Pay : Lakukan Pembayaran VA
-    Pay -> B_BE ++ : POST /api/v2/webhooks/qualifa-payment (Notification)
-    B_BE -> C_Svc ++ : confirmPaymentWebhook(orderId)
-
-    alt Webhook Status Transaksi PAID / SUCCESS
-        C_Svc -> E_DB ++ : updateOrderStatus(PAID)
-        E_DB --> C_Svc -- : UpdatedOK
-        C_Svc --> B_BE : WebhookACK(200 OK)
-        B_BE --> Pay : HTTP 200 OK
-        B_FE --> User : Pembayaran Berhasil & Ruang E2EE Terbuka
-    else Webhook Status Transaksi Gagal / Kadaluwarsa
-        C_Svc -> E_DB ++ : cancelOrderAndReleaseSlot(orderId)
-        E_DB --> C_Svc -- : CancelledOK
-        C_Svc --> B_BE -- : WebhookACK(200 OK)
-        B_BE --> Pay -- : HTTP 200 OK
-        B_FE --> User : Tampilkan Error Pembayaran Gagal & Opsi Ganti Metode Bayar
+    alt Webhook Status Transaksi = PAID / SUCCESS
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment PAID)
+        BE -> BE ++ : Tahan Dana di Rekening Sementara Qualifa
+        BE --> BE -- : Return Computed Result / State
+        BE -> BE ++ : Update Booking Status = TERKONFIRMASI
+        BE --> BE -- : Return Computed Result / State
+        activate Mitra
+        BE -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+        deactivate BE
+        PG --> Klien : 200 OK (Payment Status Verified)
+        note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konseling]
+        
+        note over Klien, Mitra : Sesi Konseling Klinis Dimulai Sesuai Waktu Reservasi
+    else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
+        PG -> BE ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
+        BE -> BE ++ : Batalkan Invoice & Update Booking Status = CANCELLED
+        BE --> BE -- : Return Computed Result / State
+        BE --> PG -- : 200 OK (Webhook Processed)
+        PG --> Klien : 402 Payment Required / 400 Payment Failed
+        
+        opt [Pengguna Meminta Bayar Ulang / Ganti Metode Pembayaran]
+            Klien -> FE : Pilih Ulang Metode Pembayaran / Ganti Jadwal
+            FE -> BE : POST /api/v1/counseling/retry-payment (Booking ID, New Method)
+            BE -> PG ++ : Create New Payment Invoice & VA Number
+            PG --> BE -- : Return New Invoice URL & VA Number
+            BE --> FE : 200 OK (New Billing Detail Rp300.000 + Fee)
+            FE --> Klien : Tampilkan Halaman Pembayaran Baru
+        end
+        note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
     end
 end
-deactivate User
+
+note over Klien, Mitra : Alur Sesi Konseling & Pencairan Dana (Hanya berjalan jika Webhook PAID / SUCCESS)
+Klien -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=klien)
+FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Psikolog)
+Mitra -> FE ++ : Masuk Ruang Konseling E2EE Qualifa (?role=mitra)
+FE --> Mitra : Render Partner Viewpoint (.user=Psikolog di kanan, Topbar=Klien, DOM Inverted)
+Klien -> Mitra : Sesi Konseling Teks / Audio / Video Call (E2EE)
+Mitra -> Klien : Berikan Intervensi Klinis & Dukungan Psikologis
+
+Mitra -> FE ++ : Klik Akhiri Sesi Konseling
+FE -> BE ++ : POST /api/v1/counseling/end (Sesi ID)
+BE -> BE ++ : Tutup Ruang Terapi & Simpan Metadata Sesi
+BE --> BE -- : Return Computed Result / State
+BE -> FE : Trigger Rating & Ulasan Modal (Q-UC06)
+BE -> BE ++ : Cairkan Honor Sesi ke Saldo Psikolog (Potong Fee 20% & PPh 21)
+BE --> BE -- : Return Computed Result / State
+deactivate BE
+deactivate FE
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-Q-04: Mengatur Status Ketersediaan & Buffer 30 Mnt (Q-UC09)
-*Sequence diagram alur penjadwalan sesi psikolog dengan penegakan buffer waktu pemulihan mental minimal 30 menit antar-sesi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-04).*
+*Sequence diagram pengaturan jadwal praktik psikolog dengan aturan wajib jeda istirahat emosional (buffer rule) 30 menit antar sesi dan tanpa toggle manual, dilengkapi spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Psikolog Klinis" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "PsychScheduleController (Boundary Server)" as B_BE
-participant "PsychScheduleService (Control)" as C_Svc
-database "QualifaScheduleLedger (Entity)" as E_DB
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
 
-activate User
-loop [Atur & Simpan Slot Jadwal dengan Buffer Pemulihan 30 Menit]
-    User -> B_FE ++ : Atur Slot Sesi & Simpan Jadwal Praktik
-    B_FE -> B_BE ++ : POST /api/v2/psychologist/schedule/slots (SlotsDTO)
-    B_BE -> C_Svc ++ : saveScheduleWithRecoveryBuffer(psychId, slotsDTO)
+activate Mitra
+loop [Percobaan Pengaturan Slot Kalender hingga Memenuhi Buffer Rule 30 Mnt]
+    Mitra -> FE ++ : Buka Pengaturan Jadwal & Atur Ketersediaan Slot Kalender
+    FE -> BE ++ : PUT /api/v1/psychologist/calendar (Status: OPEN_SLOT)
 
-    alt Jarak Antar-Sesi < 30 Menit (Pelanggaran Buffer Mental Health) / Bentrok
-        C_Svc --> B_BE : RecoveryBufferViolationException
-        B_BE --> B_FE : 422 Unprocessable Entity (Jeda Minimal 30 Menit Wajib)
-        B_FE --> User : Tampilkan Error Wajib Menyediakan Jeda 30 Menit Antar-Sesi
-        alt Ingin Atur Kembali Slot Jadwal Lain?
-            note over User, B_FE : [REPEAT LOOP: Sesuaikan slot dengan jeda minimal 30 menit]
-        end
-    else Jadwal & Buffer Valid
-        C_Svc -> E_DB ++ : updateScheduleSlots(psychId, slotsDTO)
-        E_DB --> C_Svc -- : SavedOK
-        C_Svc --> B_BE -- : ScheduleResult(SUCCESS)
-        B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
-        B_FE --> User : Tampilkan Konfirmasi Jadwal Terperbarui
-        note over User, B_BE : [BREAK LOOP: Jadwal Psikolog Berhasil Disimpan]
+    BE -> DB ++ : Check Riwayat Sesi Terakhir & Jadwal Berikutnya
+    DB --> BE -- : Return Last Session End Time & Active Schedule
+
+    alt Ada Reservasi Bentrok ATAU Jeda Istirahat < 30 Menit (Pelanggaran Kode Etik Buffer Rule)
+        BE --> FE : 409 Conflict / 422 Unprocessable Entity (Schedule Conflict or Buffer Rule Violation)
+        FE --> Mitra : Tampilkan Peringatan "Slot Bentrok atau Melanggar Wajib Jeda Istirahat 30 Menit"
+        note over Mitra, FE : [REPEAT LOOP: Mitra sesuaikan jam operasional & simpan kembali ke baris awal loop]
+    else Slot Valid & Jeda Waktu Memenuhi Syarat (> 30 Menit)
+        BE -> DB ++ : Update Status Kalender = AVAILABLE / OPEN_SLOT
+        DB --> BE -- : Success Update
+        BE --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
+        FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Konseling
+        note over Mitra, BE : [BREAK LOOP: Jadwal Kalender Berhasil Diperbarui & Memenuhi Buffer Rule]
     end
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-Q-05: Mengisi Jurnal Mood Tracker Harian Proactive Alert (Q-UC13)
-*Sequence diagram alur pencatatan suasana hati (Mood Tracker) dengan peringatan dini otomatis berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-05).*
+*Sequence diagram pengisian jurnal emosi harian yang dilengkapi sistem pendeteksi risiko penurunan kesehatan mental otomatis dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Qualifa" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "MoodTrackerController (Boundary Server)" as B_BE
-participant "MoodAssessmentService (Control)" as C_Svc
-database "MoodLedger & AlertQueue (Entity)" as E_DB
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Wellness Alert Engine" as Alert
 
-activate User
-User -> B_FE ++ : Pilih Skor Mood (1-5) & Tulis Jurnal Harian
-B_FE -> B_BE ++ : POST /api/v2/mood/tracker (MoodEntryDTO)
-B_BE -> C_Svc ++ : recordDailyMood(clientJwt, moodScore, journalText)
-C_Svc -> E_DB ++ : saveMoodEntry(userId, score, text, timestamp)
-E_DB --> C_Svc -- : EntrySavedOK
+activate Klien
+Klien -> FE ++ : Pilih Emotikon Emosi, Pemicu, & Tulis Jurnal Harian
+FE -> BE ++ : POST /api/v1/wellness/mood-tracker (Mood Score, Notes)
+BE -> DB ++ : Simpan Catatan Jurnal & Update Riwayat Emosi
+DB --> BE -- : Return Last 7 Days Mood Trend
 
-alt Terdeteksi Tren Sedih/Cemas Ekstrem Selama 3-5 Hari Beruntun (Crisis Trigger)
-    C_Svc -> E_DB ++ : dispatchCrisisAlertQueue(userId)
-    E_DB --> C_Svc -- : AlertQueuedOK
-    C_Svc --> B_BE : MoodResult(SAVED_WITH_CRISIS_RECOMMENDATION)
-    B_BE --> B_FE : 201 Created (JSON {status: "SAVED", triggerCrisisButton: true})
-    B_FE --> User : Tampilkan Rekomendasi Bantuan Darurat 119 / Konseling Segera
-else Mood Normal / Stabil (Score > 2)
-    C_Svc --> B_BE -- : MoodResult(SAVED_NORMAL)
-    B_BE --> B_FE -- : 201 Created (JSON {status: "SAVED"})
-    B_FE --> User : Tampilkan Grafik Mood Tracker Harian
+BE -> BE ++ : Analisis Tren Emosi 7 Hari Terakhir
+BE --> BE -- : Return Computed Result / State
+alt Terdeteksi Tren Sedih / Cemas Ekstrem 5 Hari Beruntun
+    BE -> Alert ++ : Trigger Proactive Wellness Alert
+    Alert -> Alert ++ : Generate Rekomendasi Psikoedukasi & Bantuan Klinis
+    Alert --> Alert -- : 200 OK (Service Response / Executed)
+    Alert --> FE : Push Alert pop-up & Bantuan Konseling Prioritas
+    Alert --> BE -- : 200 OK (Service Response / Executed)
+    FE --> Klien : Munculkan Peringatan Lembut & Saran Konseling
+else Tren Emosi Stabil / Normal
+    BE --> FE : 200 OK (Jurnal Berhasil Disimpan)
+    FE --> Klien : Perbarui Grafik Mood di Dasbor Klien
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Klien
 @enduml
 ```
+
+---
 
 ### SD-Q-06: Mengakses Streaming Audio Meditasi & Relaksasi (Q-UC14)
-*Sequence diagram alur pemutaran konten relaksasi audio berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-06).*
+*Sequence diagram pemutaran trek audio terapi relaksasi dengan penyesuaian kualitas bitrate adaptif dan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Qualifa" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "AudioStreamController (Boundary Server)" as B_BE
-participant "RelaxationMediaService (Control)" as C_Svc
-database "MediaLibraryVault (Entity)" as E_DB
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Media CDN Server" as CDN
+database "Database Qualifa" as DB
 
-activate User
-User -> B_FE ++ : Pilih Trek Meditasi Audio & Klik Putar
-B_FE -> B_BE ++ : GET /api/v2/wellness/audio/{trackId}/stream
-B_BE -> C_Svc ++ : authorizeAudioStream(userJwt, trackId)
-C_Svc -> E_DB ++ : getTrackSignedUrl(trackId)
-E_DB --> C_Svc -- : SignedAudioStreamUrl
-C_Svc --> B_BE -- : AudioStreamDTO(url, duration)
-B_BE --> B_FE -- : 200 OK (JSON {streamUrl})
+activate Klien
+Klien -> FE ++ : Buka Menu Relaksasi & Pilih Trek Audio Meditasi
+FE -> BE ++ : GET /api/v1/wellness/meditation/stream (Track ID, Bandwidth)
+BE -> BE ++ : Evaluate Client Bandwidth & Network Speed
+BE --> BE -- : Return Computed Result / State
 
-alt Koneksi Cepat / Wi-Fi Stabil
-    B_FE -> B_FE : Putar Streaming Kualitas Audio Lossless / High Quality 320kbps
+alt Koneksi Cepat / Wi-Fi
+    BE -> CDN ++ : Request High Quality Audio URL (320 kbps)
+    CDN --> BE -- : Return CDN Secure Stream URL (HQ)
 else Koneksi Seluler / Lambat
-    B_FE -> B_FE : Putar Streaming Adaptive Bitrate AAC 96kbps
+    BE -> CDN ++ : Request Adaptive Smooth Audio URL (128 kbps)
+    CDN --> BE -- : Return CDN Secure Stream URL (Smooth)
 end
 
-B_FE --> User : Mulai Pemutaran Streaming Audio Meditasi
-deactivate User
+BE -> DB ++ : Log Exercise Activity Start
+DB --> BE -- : 200 OK (Success / Rows Affected)
+BE --> FE -- : 200 OK (Stream URL)
+FE -> CDN ++ : Start Audio Streaming
+FE --> Klien : Putar Audio Meditasi & Tampilkan Timer Relaksasi
+CDN --> FE -- : 200 OK (Service Response / Executed)
+deactivate Klien
 @enduml
 ```
+
+---
 
 ### SD-Q-07: Mengisi Asesmen DASS-21 & Protokol Crisis Button 119 (Q-UC15)
-*Sequence diagram alur pengisian skrining kesehatan mental DASS-21 dan eskalasi tombol darurat berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-07).*
+*Sequence diagram pengisian tes stres klinis DASS-21 yang memicu protokol kedaruratan bunuh diri/krisis 119 jika skor berada pada tingkat bahaya ekstrem dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Klien Qualifa" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "AssessmentController (Boundary Server)" as B_BE
-participant "Dass21EvaluationService (Control)" as C_Svc
-database "ClinicalAssessmentVault (Entity)" as E_DB
+actor "Klien Qualifa" as Klien
+participant "Frontend Qualifa App" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Emergency Crisis System" as Crisis
 
-activate User
-User -> B_FE ++ : Lengkapi 21 Pertanyaan DASS-21 & Kirim
-B_FE -> B_BE ++ : POST /api/v2/assessments/dass21 (DassAnswersDTO)
-B_BE -> C_Svc ++ : evaluateDassScore(clientJwt, answers)
-C_Svc -> C_Svc : Hitung Skor Depresi, Kecemasan, & Stres
-C_Svc -> E_DB ++ : saveAssessmentResult(userId, scoreMap, severity)
-E_DB --> C_Svc -- : AssessmentSavedOK
+activate Klien
+Klien -> FE ++ : Isi 21 Pertanyaan Asesmen DASS-21 & Submit
+FE -> BE ++ : POST /api/v1/assessment/dass21 (Responses Array)
+BE -> BE ++ : Hitung Skor Sub-Skala Depresi, Anxiety, & Stress
+BE --> BE -- : Return Computed Result / State
+BE -> DB ++ : Simpan Hasil Skor Asesmen di Profil Klinis Klien
+DB --> BE -- : 200 OK (Success / Rows Affected)
 
-alt Tingkat Keparahan Masuk Kategori SEVERE / EXTREMELY SEVERE / RISK OF SELF-HARM
-    C_Svc --> B_BE : DassResultDTO(scoreMap, severity="SEVERE", enableCrisis119=true)
-    B_BE --> B_FE : 201 Created (JSON {severity: "SEVERE", trigger119: true})
-    B_FE --> User : Tampilkan Tombol Darurat Crisis 119 & Hotline Kesehatan Mental
-else Tingkat Keparahan = MILD / MODERATE / NORMAL
-    C_Svc --> B_BE -- : DassResultDTO(scoreMap, severity="MODERATE")
-    B_BE --> B_FE -- : 201 Created (JSON {severity: "MODERATE"})
-    B_FE --> User : Tampilkan Laporan Hasil Asesmen DASS-21
+alt Skor Depresi / Anxiety = EXTREME (Risk of Self-Harm)
+    BE -> Crisis ++ : Trigger Emergency 119 Crisis Protocol (User ID)
+    Crisis -> Crisis ++ : Notify Registered Emergency Family Contact
+    Crisis --> Crisis -- : 200 OK (Service Response / Executed)
+    Crisis --> BE -- : Protocol Triggered Successfully
+    BE --> FE : 200 OK (Result: EXTREME, Trigger Red Alert)
+    FE --> Klien : Tampilkan Layar Darurat Merah & Tombol Hotline Krisis 119
+else Skor Normal / Sedang / Ringan
+    BE --> FE : 200 OK (Result: Normal/Moderate, Education Suggestions)
+    FE --> Klien : Tampilkan Hasil Asesmen & Saran Artikel Kesehatan Mental
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Klien
 @enduml
 ```
+
+---
 
 ### SD-Q-08: Membuat Catatan Terapi DAP Note & Worksheet CCBT (Q-UC11, Q-UC12)
-*Sequence diagram alur pencatatan medis klinis DAP (Data, Assessment, Plan) secara terenkripsi dan penugasan lembar kerja CCBT berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-08).*
+*Sequence diagram pembuatan catatan klinis metode DAP (Data, Assessment, Plan) dan penugasan lembar kerja terapi perilaku kognitif (CCBT) dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Psikolog Klinis" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "ClinicalNoteController (Boundary Server)" as B_BE
-participant "DapNoteService (Control)" as C_Svc
-database "MedicalRecordVault & WORM (Entity)" as E_DB
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa (Encrypted)" as DB
+actor "Klien Qualifa" as Klien
 
-activate User
-User -> B_FE ++ : Lengkapi Catatan Medis DAP & Klik Simpan
-B_FE -> B_BE ++ : POST /api/v2/psychologist/notes/dap (DapNoteDTO)
-B_BE -> C_Svc ++ : saveEncryptedDapNote(psychId, sessionId, dapDTO)
-C_Svc -> E_DB ++ : storeClinicalNote(sessionId, dapPayload, encrypted=true)
-E_DB --> C_Svc -- : NoteStoredOK
+activate Mitra
+Mitra -> FE ++ : Buat Catatan DAP Note & Pilih Tugas Worksheet CCBT
+FE -> BE ++ : POST /api/v1/psychologist/clinical-notes (Sesi ID, DAP Payload)
+BE -> BE ++ : Enkripsi Catatan Klinis dengan Field-Level Encryption
+BE --> BE -- : Return Computed Result / State
+BE -> DB ++ : Simpan Catatan DAP Note di Arsip Rahasia Klien
+DB --> BE -- : Save Confirmed
 
-opt Perlu Berikan Tugas Terapi CCBT (Worksheet) ke Klien Pasca-Sesi
-    C_Svc -> E_DB ++ : assignCcbtWorksheet(sessionId, ccbtTemplateId)
-    E_DB --> C_Svc -- : WorksheetAssignedOK
+alt Psikolog Memberikan Tugas CCBT Worksheet
+    Mitra -> FE : Assign Worksheet (Thought Record / Behavioral Activation)
+    FE -> BE : POST /api/v1/counseling/ccbt/assign (Sesi ID, Template ID)
+    BE -> DB ++ : Simpan Tugas di Dasbor Klien
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+activate Klien
+    BE -> Klien ++ : Kirim Push Notification Tugas CCBT Baru
+    BE --> FE : 201 Created (Tugas Terkirim ke Klien)
+else Tanpa Tugas CCBT
+    BE --> FE : 201 Created (Catatan DAP Note Tersimpan)
 end
 
-C_Svc -> E_DB ++ : appendClinicalAuditWorm(noteId, sha256Ref)
-E_DB --> C_Svc -- : WormLoggedOK
-C_Svc --> B_BE -- : DapNoteResult(status: "SAVED_ENCRYPTED")
-B_BE --> B_FE -- : 201 Created (JSON {status: "SAVED_ENCRYPTED"})
-B_FE --> User : Tampilkan Konfirmasi Catatan Klinis Tersimpan & Tugas CCBT Terkirim
-deactivate User
+FE --> Mitra : Tampilkan Konfirmasi Sukses Pengarsipan Klinis
+deactivate BE
+deactivate Klien
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-Q-09: Verifikasi STR/HIMPSI & Moderasi Komite Etik Admin Qualifa (Q-UC16, Q-UC17)
-*Sequence diagram alur verifikasi kredensial psikolog klinis & pemeriksaan pelanggaran etika/malpraktik oleh Admin berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-09).*
+*Sequence diagram audit keabsahan surat tanda registrasi psikolog klinis serta penanganan laporan kode etik dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Admin Etik Qualifa" as User
-participant "Admin Portal Qualifa (Boundary Client)" as B_FE
-participant "PsychAuditController (Boundary Server)" as B_BE
-participant "QualifaAuditService (Control)" as C_Svc
-database "PsychologistRepository (Entity)" as E_DB
-participant "API SATUSEHAT / HIMPSI" as Ext
+actor "Admin Qualifa" as Admin
+participant "Panel Admin Qualifa" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+participant "Pangkalan Data HIMPSI / STR" as HIMPSI
+actor "Psikolog Terlapor / Pendaftar" as Mitra
 
-activate User
-User -> B_FE ++ : Periksa Berkas Psikolog & Klik Verifikasi STR
-B_FE -> B_BE ++ : POST /api/v2/admin/psychologist/verify (AuditDecisionDTO)
-B_BE -> C_Svc ++ : verifyPsychologistCredential(psychId, strNumber)
-C_Svc -> Ext ++ : checkStrValidity(strNumber)
-Ext --> C_Svc -- : StrStatus
+activate Admin
+Admin -> FE ++ : Buka Antrean Verifikasi Psikolog Baru
+FE -> BE ++ : GET /api/v1/admin/audits/psychologists (Pending List)
+BE --> FE -- : Return Dokumen STR, SIPP, & Kartu HIMPSI
+FE --> Admin : Tampilkan Dokumen STR & HIMPSI
+Admin -> HIMPSI ++ : Cek Keabsahan STR & Status Keanggotaan HIMPSI
+HIMPSI --> Admin : Hasil Verifikasi Status STR
 
-alt Kredensial Sah & STR Masih Berlaku
-    alt Ada Laporan Pelanggaran Kode Etik / Malpraktik
-        C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED, reason)
-        E_DB --> C_Svc -- : UpdatedOK
-        C_Svc --> B_BE : AuditResult(REJECTED)
-        B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
-        B_FE --> User : Tampilkan Keputusan Ditolak karena Pelanggaran Etik
-    else Kredensial Sah, STR Berlaku, & Bersih dari Pelanggaran Etik
-        C_Svc -> E_DB ++ : updatePsychStatus(psychId, VERIFIED_ACTIVE)
-        E_DB --> C_Svc -- : UpdatedOK
-        C_Svc --> B_BE -- : AuditResult(VERIFIED_ACTIVE)
-        B_BE --> B_FE -- : 200 OK (JSON {status: "VERIFIED_ACTIVE"})
-        B_FE --> User : Tampilkan Lencana Terverifikasi pada Profil Psikolog
-    end
-else Kredensial Tidak Sah / STR Tidak Masih Berlaku di SATUSEHAT
-    C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED, reason)
-    E_DB --> C_Svc -- : UpdatedOK
-    C_Svc --> B_BE : AuditResult(REJECTED)
-    B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
-    B_FE --> User : Tampilkan Keputusan Ditolak karena STR Tidak Sah
+alt STR Tidak Sah / Kadaluarsa
+    Admin -> FE ++ : Tolak Verifikasi & Isi Alasan
+    FE -> BE ++ : POST /api/v1/admin/audits/reject (Psychologist ID)
+    BE -> DB ++ : Update Status = REJECTED
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+activate Mitra
+    BE -> Mitra ++ : Kirim Email Alasan Penolakan Kredensial
+    BE --> FE : 200 OK (Status Rejected)
+    FE --> Admin : Notifikasi Penolakan Terkirim
+else STR Sah & Aktif
+    Admin -> FE : Setujui Verifikasi
+    FE -> BE : POST /api/v1/admin/audits/approve (Psychologist ID)
+    BE -> DB ++ : Update Status = AKTIF / VERIFIED
+    DB --> BE -- : 200 OK (Success / Rows Affected)
+    BE -> Mitra ++ : Kirim Email Selamat Datang & Panduan Etik
+    BE --> FE : 200 OK (Status Approved)
+    FE --> Admin : Notifikasi Persetujuan Terkirim
+    deactivate BE
 end
-deactivate User
+
+note over Admin, Mitra : Alur Pemeriksaan Pelanggaran Kode Etik / Malpraktik
+Admin -> FE ++ : Proses Laporan Pelanggaran Etik & Klik Suspend
+FE -> BE ++ : POST /api/v1/admin/ethics/suspend (Psychologist ID, Reason)
+BE -> DB ++ : Update Status Akun = SUSPENDED (Investigasi Etik)
+DB --> BE -- : 200 OK (Success / Rows Affected)
+BE -> Mitra ++ : Kirim Surat Panggilan Klarifikasi Komite Etik Qualifa
+BE --> FE -- : 200 OK (Account Suspended & Panggilan Terkirim)
+FE --> Admin : Tampilkan Konfirmasi Suspend
+deactivate Admin
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-Q-10: Pencairan Honor Psikolog & Perhitungan PPh 21 (Q-UC19)
-*Sequence diagram alur pencairan honor konseling pasca-sesi ke rekening psikolog berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-10).*
+*Sequence diagram penarikan honor sesi konseling klinis oleh psikolog dari dompet digital ke rekening bank, pemotongan pajak PPh 21 otomatis, dan auto-rollback jika transfer gagal dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Psikolog Klinis" as User
-participant "Frontend Qualifa (Boundary Client)" as B_FE
-participant "QualifaPayoutController (Boundary Server)" as B_BE
-participant "QualifaPayoutService (Control)" as C_Svc
-database "FinancialLedger (Entity)" as E_DB
-participant "Bank Gateway" as Bank
+actor "Psikolog Klinis" as Mitra
+participant "Frontend Dasbor Psikolog" as FE
+participant "Backend Independen Qualifa" as BE
+participant "Payment Gateway Disbursement" as PG
+database "WORM Hash Storage" as WORM
 
-activate User
-User -> B_FE ++ : Ajukan Pencairan Honor Konseling
-B_FE -> B_BE ++ : POST /api/v2/psychologist/payout/request (PayoutRequestDTO)
-B_BE -> C_Svc ++ : processPsychologistDisbursement(psychId, counselingId)
-C_Svc -> Bank ++ : transferFunds(bankAccount, netAmount)
-Bank --> C_Svc -- : TransferReceipt(status)
+activate Mitra
+Mitra -> FE ++ : Ajukan Pencairan Honor Sesi ke Rekening Bank
+FE -> BE ++ : POST /api/v1/psychologist/payouts/withdraw (Amount, Bank Acc)
 
-alt Status Transfer Bank / Webhook Pencairan = SUCCESS
-    C_Svc -> E_DB ++ : updateLedgerDisbursed(counselingId, trxRef)
-    E_DB --> C_Svc -- : UpdatedOK
-    C_Svc --> B_BE : PayoutSuccessDTO(trxRef)
-    B_BE --> B_FE : 200 OK (JSON {status: "DISBURSED", trxRef})
-    B_FE --> User : Tampilkan Konfirmasi Transfer & Slip Potong PPh 21
-else Transfer Bank Gagal / Ditolak
-    C_Svc -> E_DB ++ : rollbackPayoutStatus(counselingId)
-    E_DB --> C_Svc -- : RollbackOK
-    C_Svc --> B_BE -- : PayoutFailureDTO
-    B_BE --> B_FE -- : 502 Bad Gateway
-    B_FE --> User : Tampilkan Error Pencairan Gagal
+BE -> BE ++ : Validasi Saldo Honor & Hitung Potongan Pajak PPh 21
+BE --> BE -- : Return Computed Result / State
+BE -> PG ++ : POST /api/disbursement/transfer (Net Amount, Bank Detail)
+
+alt Webhook Transfer SUCCESS
+    PG --> BE : Webhook SUCCESS (Status: SUCCESS, BankRefNumber)
+    BE -> BE ++ : Kurangi Saldo Available Psikolog & Terbitkan Bukti Potong PPh 21
+    BE --> BE -- : Return Computed Result / State
+    BE -> WORM ++ : Simpan SHA-256 Hash Log Transaksi & Audit PPh 21
+    WORM --> BE -- : Hash Written Permanently
+    BE --> FE : 200 OK (Pencairan Honor Berhasil Diproses)
+    FE --> Mitra : Tampilkan Resi Transfer & Detail Potongan Pajak
+else Webhook Transfer FAILED / REJECTED
+    PG --> BE -- : Webhook FAILED (Status: FAILED, ErrorCode: "INVALID_ACCOUNT" | "BANK_OFFLINE")
+    BE -> BE ++ : Rollback Saldo Available Psikolog (Saldo Kembali Utuh)
+    BE --> BE -- : Return Computed Result / State
+    BE -> WORM ++ : Simpan SHA-256 Hash Log Kegagalan Transfer
+    WORM --> BE -- : Hash Written Permanently
+    BE --> FE : 400 Bad Request (Transfer Gagal / Ditolak Bank)
+    FE --> Mitra : Tampilkan Error: "Transfer Gagal [ErrorCode]. Saldo telah dikembalikan ke dompet Anda."
 end
-deactivate User
+deactivate BE
+deactivate FE
+deactivate Mitra
 @enduml
 ```
+
+---
 
 ### SD-Q-11: Memantau Laporan Keuangan Qualifa & Audit WORM (Q-UC18)
-*Sequence diagram alur pemeriksaan laporan keuangan & integritas hash WORM pada Qualifa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-11).*
+*Sequence diagram pengawasan buku besar honorarium, verifikasi bagi hasil platform (20%/80%), dan eksport bukti pajak PPh 21 ber-hash WORM SHA-256 oleh Admin Qualifa dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Auditor Keuangan Qualifa" as User
-participant "Admin Portal Qualifa (Boundary Client)" as B_FE
-participant "QualifaAuditController (Boundary Server)" as B_BE
-participant "QualifaWormReportService (Control)" as C_Svc
-database "QualifaWormVault (Entity)" as E_DB
+actor "Admin Qualifa" as Admin
+participant "Portal Backoffice Admin" as FE
+participant "Backend Independen Qualifa" as BE
+database "Database Qualifa" as DB
+database "WORM Hash Storage" as WORM
 
-activate User
-User -> B_FE ++ : Ekspor Laporan Finansial Qualifa WORM
-B_FE -> B_BE ++ : GET /api/v2/admin/qualifa/audit/financial-worm
-B_BE -> C_Svc ++ : generateWormReport()
-C_Svc -> E_DB ++ : queryLedgerEntries()
-E_DB --> C_Svc -- : WormRecords
-C_Svc --> B_BE -- : ReportDTO(records, rootHashSha256)
-B_BE --> B_FE -- : 200 OK (JSON {reportData, rootHashSha256})
-B_FE --> User : Tampilkan Laporan Audit & Validasi SHA-256
+activate Admin
+Admin -> FE ++ : Buka Modul Keuangan & Buku Besar Honorarium
+FE -> BE ++ : GET /api/v1/admin/finance/honorarium-ledger?startDate=X&endDate=Y
+BE -> DB ++ : Query Rekapitulasi Saldo & Bagi Hasil (20%/80%)
+DB --> BE -- : Return Financial Records
+BE -> WORM ++ : Validasi Integritas Hash SHA-256 Transaksi
+WORM --> BE -- : Return Hash Validation Status
+BE --> FE -- : 200 OK (Data Ledger & Status Hash Valid)
+FE --> Admin : Tampilkan Tabel Laporan Keuangan Honorarium & PPh 21
 
-opt Auditor Melakukan Tindak Lanjut Investigasi Laporan WORM
-    User -> B_FE : Flag Transaksi Anomali untuk Komite Etik Qualifa
-    B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/audit/flag-anomaly
-    B_BE -> C_Svc ++ : escalateToEthicCommittee(dto)
-    C_Svc --> B_BE -- : FlagACK
-    B_BE --> B_FE -- : 200 OK
+opt Unduh Bukti Rekap PPh 21 & Hash Audit
+    Admin -> FE ++ : Klik Unduh Laporan Rekap PPh 21
+    FE -> BE ++ : GET /api/v1/admin/finance/export-tax-report
+    BE -> BE ++ : Generate Dokumen PDF/Excel dengan Digital Signature SHA-256
+    BE --> BE -- : Return Computed Result / State
+    BE --> FE -- : 200 OK (File Export Ready)
+    FE --> Admin : Download File Laporan Rekapitulasi Pajak
 end
-deactivate User
+deactivate Admin
 @enduml
 ```
+
+---
 
 ### SD-Q-20: Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
-*Sequence diagram alur login portal backoffice Admin Qualifa dengan otentikasi ganda TOTP dan pemeriksaan IP Address Whitelist berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-20).*
+*Sequence diagram alur autentikasi tingkat lanjut untuk Admin Qualifa melalui portal backoffice terisolasi (`admin.qualifa.com`) dengan IP Whitelisting, verifikasi kredensial internal, dan otentikasi ganda TOTP Authenticator dengan spesifikasi eksekusi aktif (activation bars).*
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-Q-20 - Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
 autonumber
-actor "Admin Qualifa" as User
-participant "Admin Portal UI (Boundary Client)" as B_FE
-participant "AdminQualifaAuthController (Boundary Server)" as B_BE
-participant "AdminQualifaAuthService (Control)" as C_Svc
-database "AdminVault (Entity)" as E_DB
+actor "Admin Qualifa" as Admin
+participant "Portal Backoffice (`admin.qualifa.com`)" as FE
+participant "IAM Gateway Qualifa" as IAM
+database "IAM Database Qualifa" as DB
+database "WORM Audit Storage Qualifa" as WORM
 
-activate User
-User -> B_FE ++ : Masukkan Email & Password Admin Qualifa
-B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/auth/login (AdminLoginDTO)
+activate Admin
+Admin -> FE ++ : Buka URL Portal Backoffice via VPN/ZTNA
+FE -> IAM ++ : Verifikasi IP Address Pengakses (IP Whitelist Check)
+IAM -> IAM ++ : Evaluasi IP terhadap Ruleset SOC Qualifa
+IAM --> IAM -- : 200 OK (Token / State Verified)
 
-alt Apakah IP Address Terdaftar di Whitelist Qualifa
-    B_BE -> C_Svc ++ : verifyAdmin(email, password)
-    C_Svc -> E_DB ++ : findAdminByEmail(email)
-    E_DB --> C_Svc -- : AdminEntity
-
-    alt Kredensial Salah / Akun Terkunci
-        C_Svc --> B_BE : InvalidAdminAuthException
-        B_BE --> B_FE : 401 Unauthorized
-        B_FE --> User : Tampilkan Error Login Admin Qualifa
+alt IP Address Tidak Terdaftar (Unauthorized IP)
+    IAM -> WORM ++ : Catat Peringatan SOC Keamanan Kritis (Unauthorized IP)
+    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+    IAM --> FE : 403 Forbidden (Access Denied)
+    FE --> Admin : Blokir Akses & Tampilkan Halaman Error 403
+else IP Address Terdaftar di Whitelist
+    IAM --> FE : 200 OK (Allow Form Login)
+    FE --> Admin : Tampilkan Form Login Backoffice Psikologi
+    Admin -> FE : Submit Email & Password Internal Qualifa
+    FE -> IAM : POST /api/v1/admin/auth/login (Credentials)
+    IAM -> DB ++ : Query Kredensial & Status Akun Admin Qualifa
+    DB --> IAM -- : Return User Data & Password Hash
+    
+    alt Kredensial Tidak Valid / Akun Terkunci
+        IAM -> WORM ++ : Catat Percobaan Login Gagal (Failed Attempt)
+        WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+        IAM --> FE : 401 Unauthorized (Kredensial Salah)
+        FE --> Admin : Tampilkan Error "Kredensial Tidak Valid"
     else Kredensial Valid
-        alt Status Akun Admin Terkunci sementara karena Gagal 5x
-            C_Svc --> B_BE : AccountLockedException
-            B_BE --> B_FE : 403 Forbidden
-            B_FE --> User : Tampilkan Pesan Hubungi Super Admin
-        else Akun Admin Sah & Aktif
-            C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
-            B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
-            B_FE --> User : Tampilkan Input Kode TOTP 6-Digit
-
-            loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
-                User -> B_FE : Input Kode TOTP 6-Digit
-                B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/auth/verify-totp (TotpDTO)
-                B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
-
-                alt Kode TOTP Salah
-                    C_Svc --> B_BE : InvalidTotpException
-                    B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
-                    B_FE --> User : Tampilkan Error Kode TOTP
-                else Kode TOTP Sah
-                    C_Svc -> E_DB ++ : logAdminLoginWorm(adminId, timestamp)
-                    E_DB --> C_Svc -- : LoggedOK
-                    C_Svc --> B_BE -- : AdminSessionDTO(accessToken)
-                    B_BE --> B_FE -- : 200 OK (JSON {accessToken})
-                    B_FE --> User : Masuk ke Dasbor Backoffice Qualifa
-                    note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
-                end
-            end
+        IAM --> FE : 200 OK (Require TOTP 2FA Verification)
+        FE --> Admin : Tampilkan Permintaan Kode TOTP 2FA
+        Admin -> FE : Input 6 Digit Kode dari Aplikasi Authenticator
+        FE -> IAM : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
+        IAM -> IAM ++ : Verifikasi Algoritma TOTP (Time-step Check)
+        IAM --> IAM -- : 200 OK (Token / State Verified)
+        
+        alt Kode TOTP Salah / Kadaluarsa
+            IAM -> WORM ++ : Catat Anomali Kegagalan TOTP SOC Qualifa
+            WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+            IAM --> FE : 401 Unauthorized (TOTP Invalid)
+            FE --> Admin : Tampilkan Error "Kode TOTP Tidak Valid"
+        else Kode TOTP Valid
+            IAM -> IAM ++ : Generate Cryptographic JWT Session Token
+            IAM --> IAM -- : 200 OK (Token / State Verified)
+            IAM -> WORM ++ : Catat Log Autentikasi Sukses (Timestamp, IP, Role)
+            WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
+            IAM --> FE : 200 OK (Return JWT Token & Admin Profile)
+            FE --> Admin : Redirect ke Dasbor Admin Utama Qualifa (`SCR-QLF-07`)
         end
     end
-else IP Address Tidak Terdaftar di Whitelist Qualifa
-    B_BE --> B_FE : 403 Forbidden (IP Address Not Whitelisted)
-    B_FE --> User : Tampilkan Error Akses Ditolak dari Luar Jaringan Aman
 end
-deactivate User
+IAM --> FE -- : 200 OK (Token / State Verified)
+deactivate FE
+deactivate Admin
 @enduml
 ```
+
+---
+
