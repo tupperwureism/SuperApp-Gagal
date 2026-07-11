@@ -704,64 +704,74 @@ actor "Klien Justifiqa" as Klien
 activate Mitra
 Mitra -> FE ++ : Buka Form Catatan IRAC & Isi Kolom (Issue, Rule, App, Concl)
 FE -> BE ++ : POST /api/v1/advocate/notes/irac (Session ID, IRAC Payload)
-BE -> BE ++ : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
-BE --> BE -- : Return Computed Result / State
-BE -> DB ++ : Simpan Catatan IRAC (access_level = 'INTERNAL_ONLY')
-DB --> BE -- : Success Insert Note (Work Product Privilege Enforced)
-BE --> FE -- : 201 Created (Catatan Internal Tersimpan)
-FE --> Mitra : Tampilkan Notifikasi Catatan IRAC Berhasil Diarsip
-deactivate FE
 
-alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
-    Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
-    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
-    BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
-    DB --> BE -- : 200 OK
-    BE -> FE ++ : Push Notification "Laporan Saran Hukum Siap Diperiksa"
-    FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
+alt Level Konsultasi == Tier 1 Gratis / Triage 15 Menit
+    BE --> FE : 403 Forbidden (Tier 1 Triage Gratis Tidak Termasuk Layanan IRAC Note)
+    FE --> Mitra : Tampilkan Pesan "Layanan IRAC Hanya untuk Tier 2 Premium & Tier 3 Pro"
+else Level Konsultasi == Tier 2 Premium atau Tier 3 Pro
+    BE -> BE ++ : Enkripsi Field Catatan dengan AES-256 Field-Level Encryption
+    BE --> BE -- : Return Computed Result / State
+    BE -> DB ++ : Simpan Catatan IRAC (access_level = 'INTERNAL_ONLY')
+    DB --> BE -- : Success Insert Note (Work Product Privilege Enforced)
+    BE --> FE -- : 201 Created (Catatan Internal Tersimpan)
+    FE --> Mitra : Tampilkan Notifikasi Catatan IRAC Berhasil Diarsip
     deactivate FE
 
-    loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
-        alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
-            Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
-            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
-            BE -> DB ++ : INCREMENT clarification_rounds = clarification_rounds + 1
-            DB --> BE -- : 200 OK
-            BE --> FE -- : 200 OK
-            FE --> Klien : Pertanyaan Klarifikasi Terkirim
-            deactivate FE
-            
-            Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
-            FE -> BE ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
-            BE -> DB ++ : UPDATE irac_notes SET issue = updated_i, application = updated_a
-            DB --> BE -- : 200 OK
-            BE --> FE -- : 200 OK (Internal IRAC Updated)
-            FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
-            deactivate FE
-            
-            Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
-            FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/reply
-            BE --> FE -- : 200 OK
-            FE --> Mitra : Jawaban Terkirim
-            deactivate FE
-        else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
-            break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
-                BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE
+    alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
+        Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
+        FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary
+        BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+        DB --> BE -- : 200 OK
+        BE -> FE ++ : Push Notification "Laporan Saran Hukum Siap Diperiksa"
+        FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
+        deactivate FE
+
+        loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
+            alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
+                Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
+                FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+                BE -> DB ++ : INCREMENT clarification_rounds = clarification_rounds + 1
                 DB --> BE -- : 200 OK
-                opt [Jika Batas Kuota 2x Putaran / SLA Habis]
-                    BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
-                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                BE --> FE -- : 200 OK
+                FE --> Klien : Pertanyaan Klarifikasi Terkirim
+                deactivate FE
+                
+                Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
+                FE -> BE ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
+                BE -> DB ++ : UPDATE irac_notes SET issue = updated_i, application = updated_a
+                DB --> BE -- : 200 OK
+                BE --> FE -- : 200 OK (Internal IRAC Updated)
+                FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
+                deactivate FE
+                
+                Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
+                FE -> BE ++ : POST /api/v1/consultations/{id}/async-thread/reply
+                BE --> FE -- : 200 OK
+                FE --> Mitra : Jawaban Terkirim
+                deactivate FE
+            else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+                break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
+                    BE -> DB ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE
+                    DB --> BE -- : 200 OK
+                    opt [Jika Batas Kuota 2x Putaran / SLA Habis]
+                        BE -> FE ++ : Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis"
+                        FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                        deactivate FE
+                    end
+                    Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
+                    FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+                    BE -> BE ++ : Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee 25% & PPh 21)
+                    BE --> BE -- : Return Computed Result / State
+                    BE --> FE -- : 200 Approved
+                    FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
                     deactivate FE
                 end
-                Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
-                FE -> BE ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
-                BE -> BE ++ : Cairkan Dana Escrow Tunai ke Dompet Advokat (Potong Fee 25% & PPh 21)
-                BE --> BE -- : Return Computed Result / State
-                BE --> FE -- : 200 Approved
-                FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
-                deactivate FE
             end
         end
+    else Level Konsultasi == Tier 3 Pro (Deliverable: Dokumen Hukum Final J-UC12 / J-UC14)
+        BE -> DB ++ : UPDATE irac_notes SET status = 'INTERNAL_FOUNDATION_PRO' WHERE note_id = id
+        DB --> BE -- : 200 OK
+        FE --> Mitra : Tampilkan Status "Catatan IRAC Internal Tersimpan - Lanjut ke Draf Dokumen Hukum (SD-J-10)"
     end
 end
 

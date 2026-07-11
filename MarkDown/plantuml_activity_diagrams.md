@@ -558,40 +558,49 @@ stop
 start
 :Selesai Melayani Sesi Konsultasi Hukum;
 :Buka Menu "Catatan Sesi Advokat (IRAC Framework)";
-:Isi Kolom Issue, Rule, Application, Conclusion;
-:Klik Simpan Catatan IRAC Internal;
 
 |Backend Independen Justifiqa|
-:Enkripsi Catatan dengan Field-Level Encryption (AES-256);
-:Simpan di Arsip Perkara Klien Justifiqa (access_level = INTERNAL_ONLY - Work Product Privilege);
-
-if (Apakah Level Konsultasi == Tier 2 Premium?) then (Ya - Butuh Client Advice Summary)
+if (Apakah Level Konsultasi == Tier 1 Gratis / Triage 15 Menit?) then (Ya - Tidak Relevan)
+  :Tolak Akses Pembuatan IRAC Note (Tier 1 Hanya Orientasi & Penapisan Awal - Tidak Mendapatkan IRAC);
+  stop
+else (Tidak - Tier 2 Premium atau Tier 3 Pro)
   |Advokat Justifiqa|
-  :Susun & Rilis Laporan Saran Hukum (Client Advice Summary) ke Dasbor Klien;
-  
-  |Klien Justifiqa|
-  :Baca Laporan Saran & Rekomendasi Hukum di Ruang Kerja Asinkron;
-  
-  repeat
-    if (Apakah Klien Mengajukan Tiket [KLARIFIKASI FAKTA] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) then (Ya - Klarifikasi Terbatas)
-      :Kirim Pertanyaan / Tambahan Fakta Baru di Async Thread;
-      |Advokat Justifiqa|
-      :Perbarui Internal IRAC Note (I - Issue & A - Application) Berdasarkan Fakta Lengkap Terbaru;
-      :Kirim Balasan Penjelasan / Perbarui Client Advice Summary;
-      |Klien Justifiqa|
-    else (Tidak - Setuju / Kuota Habis / SLA Habis)
-    endif
-  repeat while (Apakah Klien Masih Mengajukan Klarifikasi & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Q&A Terbatas)
-  
+  :Isi Kolom Issue, Rule, Application, Conclusion;
+  :Klik Simpan Catatan IRAC Internal;
+
   |Backend Independen Justifiqa|
-  :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED - Cegah Konsultasi Gratis Tanpa Batas);
-  if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
-    :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
-  else (Tidak - Disetujui Klien)
+  :Enkripsi Catatan dengan Field-Level Encryption (AES-256);
+  :Simpan di Arsip Perkara Klien Justifiqa (access_level = INTERNAL_ONLY - Work Product Privilege);
+
+  if (Apakah Level Konsultasi == Tier 2 Premium?) then (Ya - Butuh Client Advice Summary)
+    |Advokat Justifiqa|
+    :Susun & Rilis Laporan Saran Hukum (Client Advice Summary) ke Dasbor Klien;
+    
+    |Klien Justifiqa|
+    :Baca Laporan Saran & Rekomendasi Hukum di Ruang Kerja Asinkron;
+    
+    repeat
+      if (Apakah Klien Mengajukan Tiket [KLARIFIKASI FAKTA] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) then (Ya - Klarifikasi Terbatas)
+        :Kirim Pertanyaan / Tambahan Fakta Baru di Async Thread;
+        |Advokat Justifiqa|
+        :Perbarui Internal IRAC Note (I - Issue & A - Application) Berdasarkan Fakta Lengkap Terbaru;
+        :Kirim Balasan Penjelasan / Perbarui Client Advice Summary;
+        |Klien Justifiqa|
+      else (Tidak - Setuju / Kuota Habis / SLA Habis)
+      endif
+    repeat while (Apakah Klien Masih Mengajukan Klarifikasi & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Lanjut Q&A Terbatas)
+    
+    |Backend Independen Justifiqa|
+    :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED - Cegah Konsultasi Gratis Tanpa Batas);
+    if (Apakah Kuota Klarifikasi 2x Habis ATAU SLA 2x24 Jam Habis?) then (Ya)
+      :Tampilkan Prompt "Batas Kuota Klarifikasi Sesi Ini Habis - Buat Reservasi Baru untuk Topik Tambahan";
+    else (Tidak - Disetujui Klien)
+    endif
+    :Disetujui Klien ATAU SLA Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+  else (Tidak - Tier 3 Pro)
+    :Catatan IRAC Internal Tersimpan Aman di Rekam Perkara (Work Product Privilege untuk Dasar Analisis);
+    :Lanjut ke Pembuatan Draf Dokumen Hukum & Alur Revisi Klausul Klien (AD-J-10 / J-UC12 / J-UC14);
   endif
-  :Disetujui Klien ATAU SLA Habis -> Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
-else (Tidak - Tier 1 Gratis / Tier 3 Pro)
-  :Catatan IRAC Internal Tersimpan Aman di Rekam Perkara;
 endif
 stop
 @enduml
