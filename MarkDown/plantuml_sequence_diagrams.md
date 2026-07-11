@@ -92,7 +92,7 @@ deactivate User
 ```
 
 ### SD-J-02: Login Akun Klien & Advokat (J-UC02, J-UC08)
-*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-02).*
+*Sequence diagram alur masuk (login) independen beserta verifikasi Multi-Factor Authentication (MFA / 2FA) dan pengiriman ulang OTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-02).*
 
 ```plantuml
 @startuml
@@ -130,6 +130,17 @@ else Akun Ditemukan & Password Valid
         B_FE --> User : Tampilkan Modal Input OTP 2FA
 
         loop [Maksimal 3x Percobaan Input OTP]
+            opt Minta Kirim Ulang OTP
+                User -> B_FE : Klik Kirim Ulang OTP
+                B_FE -> B_BE ++ : POST /api/v2/auth/resend-otp (challengeId)
+                B_BE -> C_Svc ++ : resendOtpChallenge(challengeId)
+                C_Svc -> SMS ++ : sendOtpSmsOrEmail(target, newOtpCode)
+                SMS --> C_Svc -- : DeliveryReceipt(OK)
+                C_Svc --> B_BE -- : ResendACK
+                B_BE --> B_FE -- : 200 OK
+                B_FE --> User : OTP Baru Terkirim
+            end
+
             User -> B_FE : Input Kode OTP 6-Digit
             B_FE -> B_BE ++ : POST /api/v2/auth/verify-mfa (MfaVerifyDTO)
             B_BE -> C_Svc ++ : verifyMfaChallenge(challengeId, otpCode)
@@ -898,7 +909,7 @@ deactivate User
 ```
 
 ### SD-J-20: Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
-*Sequence diagram alur login aman Multi-Factor Authentication berbasis TOTP Authenticator untuk Admin Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-20).*
+*Sequence diagram alur login aman Multi-Factor Authentication berbasis TOTP Authenticator dan validasi IP Address Whitelist untuk Admin Justifiqa berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-20).*
 
 ```plantuml
 @startuml
@@ -912,43 +923,49 @@ database "AdminAccountVault & WORM (Entity)" as E_DB
 activate User
 User -> B_FE ++ : Masukkan Email & Password Admin
 B_FE -> B_BE ++ : POST /api/v2/admin/auth/login (AdminLoginDTO)
-B_BE -> C_Svc ++ : verifyAdminCredentials(email, password)
-C_Svc -> E_DB ++ : findAdminByEmail(email)
-E_DB --> C_Svc -- : AdminEntity
 
-alt Kredensial Salah / Akun Terkunci
-    C_Svc --> B_BE : InvalidAdminAuthException
-    B_BE --> B_FE : 401 Unauthorized
-    B_FE --> User : Tampilkan Error Login Admin
-else Kredensial Valid
-    alt Status Akun Admin Terkunci sementara karena Gagal 5x
-        C_Svc --> B_BE : AccountLockedException
-        B_BE --> B_FE : 403 Forbidden (Akun Admin Terkunci Sementara)
-        B_FE --> User : Tampilkan Pesan Hubungi Super Admin
-    else Akun Admin Sah & Aktif
-        C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
-        B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
-        B_FE --> User : Tampilkan Input Kode TOTP 6-Digit (Google Authenticator)
+alt Apakah IP Address Terdaftar di Whitelist Justifiqa
+    B_BE -> C_Svc ++ : verifyAdminCredentials(email, password)
+    C_Svc -> E_DB ++ : findAdminByEmail(email)
+    E_DB --> C_Svc -- : AdminEntity
 
-        loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
-            User -> B_FE : Input Kode TOTP 6-Digit
-            B_FE -> B_BE ++ : POST /api/v2/admin/auth/verify-totp (TotpDTO)
-            B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
+    alt Kredensial Salah / Akun Terkunci
+        C_Svc --> B_BE : InvalidAdminAuthException
+        B_BE --> B_FE : 401 Unauthorized
+        B_FE --> User : Tampilkan Error Login Admin
+    else Kredensial Valid
+        alt Status Akun Admin Terkunci sementara karena Gagal 5x
+            C_Svc --> B_BE : AccountLockedException
+            B_BE --> B_FE : 403 Forbidden (Akun Admin Terkunci Sementara)
+            B_FE --> User : Tampilkan Pesan Hubungi Super Admin
+        else Akun Admin Sah & Aktif
+            C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
+            B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
+            B_FE --> User : Tampilkan Input Kode TOTP 6-Digit (Google Authenticator)
 
-            alt Kode TOTP Salah
-                C_Svc --> B_BE : InvalidTotpException
-                B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
-                B_FE --> User : Tampilkan Error Kode TOTP
-            else Kode TOTP Sah
-                C_Svc -> E_DB ++ : recordAdminAccessLogWorm(adminId, ip, timestamp)
-                E_DB --> C_Svc -- : AccessLoggedOK
-                C_Svc --> B_BE -- : AdminSessionDTO(accessToken, permissions)
-                B_BE --> B_FE -- : 200 OK (JSON {accessToken, permissions})
-                B_FE --> User : Masuk ke Dasbor Admin Kepatuhan / Command Center
-                note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
+            loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
+                User -> B_FE : Input Kode TOTP 6-Digit
+                B_FE -> B_BE ++ : POST /api/v2/admin/auth/verify-totp (TotpDTO)
+                B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
+
+                alt Kode TOTP Salah
+                    C_Svc --> B_BE : InvalidTotpException
+                    B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
+                    B_FE --> User : Tampilkan Error Kode TOTP
+                else Kode TOTP Sah
+                    C_Svc -> E_DB ++ : recordAdminAccessLogWorm(adminId, ip, timestamp)
+                    E_DB --> C_Svc -- : AccessLoggedOK
+                    C_Svc --> B_BE -- : AdminSessionDTO(accessToken, permissions)
+                    B_BE --> B_FE -- : 200 OK (JSON {accessToken, permissions})
+                    B_FE --> User : Masuk ke Dasbor Admin Kepatuhan / Command Center
+                    note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
+                end
             end
         end
     end
+else IP Address Tidak Terdaftar di Whitelist Backoffice
+    B_BE --> B_FE : 403 Forbidden (IP Address Not Whitelisted)
+    B_FE --> User : Tampilkan Error Akses Ditolak dari Luar Jaringan Aman
 end
 deactivate User
 @enduml
@@ -1025,7 +1042,7 @@ deactivate User
 ```
 
 ### SD-Q-02: Login Akun Klien & Psikolog Klinis (Q-UC02, Q-UC08)
-*Sequence diagram alur login independen Qualifa dengan verifikasi MFA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-02).*
+*Sequence diagram alur login independen Qualifa dengan verifikasi MFA dan opsi pengiriman ulang OTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-02).*
 
 ```plantuml
 @startuml
@@ -1061,6 +1078,17 @@ else Akun Valid & Aktif
         B_FE --> User : Tampilkan Modal Input OTP 2FA
 
         loop [Maksimal 3x Percobaan Input OTP]
+            opt Minta Kirim Ulang OTP
+                User -> B_FE : Klik Kirim Ulang OTP
+                B_FE -> B_BE ++ : POST /api/v2/auth/resend-otp (challengeId)
+                B_BE -> C_Svc ++ : resendOtpChallenge(challengeId)
+                C_Svc -> SMS ++ : sendOtp2FA(userPhone, newOtpCode)
+                SMS --> C_Svc -- : DeliveryReceipt(OK)
+                C_Svc --> B_BE -- : ResendACK
+                B_BE --> B_FE -- : 200 OK
+                B_FE --> User : OTP Baru Terkirim
+            end
+
             User -> B_FE : Input Kode OTP 6-Digit
             B_FE -> B_BE ++ : POST /api/v2/auth/verify-mfa (VerifyDTO)
             B_BE -> C_Svc ++ : verifyOtp(challengeId, otpCode)
@@ -1334,18 +1362,26 @@ B_BE -> C_Svc ++ : verifyPsychologistCredential(psychId, strNumber)
 C_Svc -> Ext ++ : checkStrValidity(strNumber)
 Ext --> C_Svc -- : StrStatus
 
-alt STR Tidak Valid / Kedaluwarsa ATAU Ada Laporan Pelanggaran Kode Etik / Malpraktik
+alt Kredensial Sah & STR Masih Berlaku
+    alt Ada Laporan Pelanggaran Kode Etik / Malpraktik
+        C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED, reason)
+        E_DB --> C_Svc -- : UpdatedOK
+        C_Svc --> B_BE : AuditResult(REJECTED)
+        B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
+        B_FE --> User : Tampilkan Keputusan Ditolak karena Pelanggaran Etik
+    else Kredensial Sah, STR Berlaku, & Bersih dari Pelanggaran Etik
+        C_Svc -> E_DB ++ : updatePsychStatus(psychId, VERIFIED_ACTIVE)
+        E_DB --> C_Svc -- : UpdatedOK
+        C_Svc --> B_BE -- : AuditResult(VERIFIED_ACTIVE)
+        B_BE --> B_FE -- : 200 OK (JSON {status: "VERIFIED_ACTIVE"})
+        B_FE --> User : Tampilkan Lencana Terverifikasi pada Profil Psikolog
+    end
+else Kredensial Tidak Sah / STR Tidak Masih Berlaku di SATUSEHAT
     C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED, reason)
     E_DB --> C_Svc -- : UpdatedOK
     C_Svc --> B_BE : AuditResult(REJECTED)
     B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
-    B_FE --> User : Tampilkan Keputusan Ditolak & Kirim Email Penolakan
-else STR Valid, Berkas Sah, & Bersih dari Pelanggaran Etik
-    C_Svc -> E_DB ++ : updatePsychStatus(psychId, VERIFIED_ACTIVE)
-    E_DB --> C_Svc -- : UpdatedOK
-    C_Svc --> B_BE -- : AuditResult(VERIFIED_ACTIVE)
-    B_BE --> B_FE -- : 200 OK (JSON {status: "VERIFIED_ACTIVE"})
-    B_FE --> User : Tampilkan Lencana Terverifikasi pada Profil Psikolog
+    B_FE --> User : Tampilkan Keputusan Ditolak karena STR Tidak Sah
 end
 deactivate User
 @enduml
@@ -1422,7 +1458,7 @@ deactivate User
 ```
 
 ### SD-Q-20: Autentikasi Portal Backoffice Admin Qualifa (TOTP 2FA - Q-UC20)
-*Sequence diagram alur login portal backoffice Admin Qualifa dengan otentikasi ganda TOTP berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-20).*
+*Sequence diagram alur login portal backoffice Admin Qualifa dengan otentikasi ganda TOTP dan pemeriksaan IP Address Whitelist berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-20).*
 
 ```plantuml
 @startuml
@@ -1436,43 +1472,49 @@ database "AdminVault (Entity)" as E_DB
 activate User
 User -> B_FE ++ : Masukkan Email & Password Admin Qualifa
 B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/auth/login (AdminLoginDTO)
-B_BE -> C_Svc ++ : verifyAdmin(email, password)
-C_Svc -> E_DB ++ : findAdminByEmail(email)
-E_DB --> C_Svc -- : AdminEntity
 
-alt Kredensial Salah / Akun Terkunci
-    C_Svc --> B_BE : InvalidAdminAuthException
-    B_BE --> B_FE : 401 Unauthorized
-    B_FE --> User : Tampilkan Error Login Admin Qualifa
-else Kredensial Valid
-    alt Status Akun Admin Terkunci sementara karena Gagal 5x
-        C_Svc --> B_BE : AccountLockedException
-        B_BE --> B_FE : 403 Forbidden
-        B_FE --> User : Tampilkan Pesan Hubungi Super Admin
-    else Akun Admin Sah & Aktif
-        C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
-        B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
-        B_FE --> User : Tampilkan Input Kode TOTP 6-Digit
+alt Apakah IP Address Terdaftar di Whitelist Qualifa
+    B_BE -> C_Svc ++ : verifyAdmin(email, password)
+    C_Svc -> E_DB ++ : findAdminByEmail(email)
+    E_DB --> C_Svc -- : AdminEntity
 
-        loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
-            User -> B_FE : Input Kode TOTP 6-Digit
-            B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/auth/verify-totp (TotpDTO)
-            B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
+    alt Kredensial Salah / Akun Terkunci
+        C_Svc --> B_BE : InvalidAdminAuthException
+        B_BE --> B_FE : 401 Unauthorized
+        B_FE --> User : Tampilkan Error Login Admin Qualifa
+    else Kredensial Valid
+        alt Status Akun Admin Terkunci sementara karena Gagal 5x
+            C_Svc --> B_BE : AccountLockedException
+            B_BE --> B_FE : 403 Forbidden
+            B_FE --> User : Tampilkan Pesan Hubungi Super Admin
+        else Akun Admin Sah & Aktif
+            C_Svc --> B_BE : MfaChallengeDTO(mfaToken)
+            B_BE --> B_FE : 200 OK (JSON {mfaRequired: true, mfaToken})
+            B_FE --> User : Tampilkan Input Kode TOTP 6-Digit
 
-            alt Kode TOTP Salah
-                C_Svc --> B_BE : InvalidTotpException
-                B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
-                B_FE --> User : Tampilkan Error Kode TOTP
-            else Kode TOTP Sah
-                C_Svc -> E_DB ++ : logAdminLoginWorm(adminId, timestamp)
-                E_DB --> C_Svc -- : LoggedOK
-                C_Svc --> B_BE -- : AdminSessionDTO(accessToken)
-                B_BE --> B_FE -- : 200 OK (JSON {accessToken})
-                B_FE --> User : Masuk ke Dasbor Backoffice Qualifa
-                note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
+            loop [Maksimal 3x Percobaan Input Kode TOTP 2FA]
+                User -> B_FE : Input Kode TOTP 6-Digit
+                B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/auth/verify-totp (TotpDTO)
+                B_BE -> C_Svc ++ : verifyTotpCode(mfaToken, totpCode)
+
+                alt Kode TOTP Salah
+                    C_Svc --> B_BE : InvalidTotpException
+                    B_BE --> B_FE : 401 Unauthorized (Kode TOTP Tidak Valid)
+                    B_FE --> User : Tampilkan Error Kode TOTP
+                else Kode TOTP Sah
+                    C_Svc -> E_DB ++ : logAdminLoginWorm(adminId, timestamp)
+                    E_DB --> C_Svc -- : LoggedOK
+                    C_Svc --> B_BE -- : AdminSessionDTO(accessToken)
+                    B_BE --> B_FE -- : 200 OK (JSON {accessToken})
+                    B_FE --> User : Masuk ke Dasbor Backoffice Qualifa
+                    note over User, B_BE : [BREAK LOOP: Autentikasi 2FA Admin Berhasil]
+                end
             end
         end
     end
+else IP Address Tidak Terdaftar di Whitelist Qualifa
+    B_BE --> B_FE : 403 Forbidden (IP Address Not Whitelisted)
+    B_FE --> User : Tampilkan Error Akses Ditolak dari Luar Jaringan Aman
 end
 deactivate User
 @enduml
