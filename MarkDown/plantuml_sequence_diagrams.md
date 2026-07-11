@@ -315,27 +315,33 @@ participant "AdvocateScheduleService (Control)" as C_Svc
 database "ScheduleLedger & WORM (Entity)" as E_DB
 
 activate User
-User -> B_FE ++ : Buka Kalender & Pilih Slot Waktu Praktik
-B_FE -> B_BE ++ : POST /api/v2/advocate/schedule/slots (ScheduleSlotDTO)
-B_BE -> B_BE : Validasi Skema & Token JWT Advokat
-B_BE -> C_Svc ++ : createOrUpdateScheduleSlot(advocateId, slotsDTO)
+loop [Atur & Simpan Slot Jadwal Ketersediaan Praktik]
+    User -> B_FE ++ : Buka Kalender & Pilih Slot Waktu Praktik
+    B_FE -> B_BE ++ : POST /api/v2/advocate/schedule/slots (ScheduleSlotDTO)
+    B_BE -> B_BE : Validasi Skema & Token JWT Advokat
+    B_BE -> C_Svc ++ : createOrUpdateScheduleSlot(advocateId, slotsDTO)
 
-alt Slot Waktu Bertabrakan dengan Jadwal Sidang / Sesi Eksisting
-    C_Svc --> B_BE : SlotOverlapException
-    B_BE --> B_FE : 409 Conflict (Jadwal Bentrok)
-    B_FE --> User : Tampilkan Peringatan Jadwal Bentrok
-else Batas Maksimal Kuota Harian Terlampaui (> 8 Sesi/Hari)
-    C_Svc --> B_BE : DailyQuotaExceededException
-    B_BE --> B_FE : 422 Unprocessable Entity (Batas Kuota Harian Tercapai)
-    B_FE --> User : Tampilkan Pesan Kuota Penuh
-else Slot Valid & Kuota Tersedia
-    C_Svc -> E_DB ++ : saveScheduleSlots(advocateId, slotsDTO)
-    E_DB --> C_Svc -- : SlotsSavedOK
-    C_Svc -> E_DB ++ : logScheduleChangeAudit(advocateId, timestamp)
-    E_DB --> C_Svc -- : AuditLoggedOK
-    C_Svc --> B_BE -- : ScheduleUpdateResultDTO(SUCCESS)
-    B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
-    B_FE --> User : Tampilkan Konfirmasi Kalender Terperbarui
+    alt Slot Waktu Bertabrakan dengan Jadwal Sidang / Sesi Eksisting
+        C_Svc --> B_BE : SlotOverlapException
+        B_BE --> B_FE : 409 Conflict (Jadwal Bentrok)
+        B_FE --> User : Tampilkan Peringatan Jadwal Bentrok
+        alt Ingin Atur Kembali Slot Jadwal Lain?
+            note over User, B_FE : [REPEAT LOOP: Pilih slot waktu lain yang tersedia]
+        end
+    else Batas Maksimal Kuota Harian Terlampaui (> 8 Sesi/Hari)
+        C_Svc --> B_BE : DailyQuotaExceededException
+        B_BE --> B_FE : 422 Unprocessable Entity (Batas Kuota Harian Tercapai)
+        B_FE --> User : Tampilkan Pesan Kuota Penuh
+    else Slot Valid & Kuota Tersedia
+        C_Svc -> E_DB ++ : saveScheduleSlots(advocateId, slotsDTO)
+        E_DB --> C_Svc -- : SlotsSavedOK
+        C_Svc -> E_DB ++ : logScheduleChangeAudit(advocateId, timestamp)
+        E_DB --> C_Svc -- : AuditLoggedOK
+        C_Svc --> B_BE -- : ScheduleUpdateResultDTO(SUCCESS)
+        B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
+        B_FE --> User : Tampilkan Konfirmasi Kalender Terperbarui
+        note over User, B_BE : [BREAK LOOP: Jadwal Praktik Berhasil Disimpan]
+    end
 end
 deactivate User
 @enduml
@@ -391,46 +397,63 @@ participant "Peruri KMS API" as KMS
 
 activate User
 User -> B_FE ++ : Unggah Draf Opini Hukum & Input PIN KMS 6-Digit
-B_FE -> B_BE ++ : POST /api/v2/advocate/deliverables/sign-and-upload (SignDeliverableDTO)
-B_BE -> B_BE : Validasi Skema DTO & PIN Format
-B_BE -> C_Svc ++ : signAndStampDeliverable(advocateId, documentPdf, kmsPin)
-C_Svc -> KMS ++ : verifyPinAndApplyEmeterai(documentPdf, kmsPin)
-KMS --> C_Svc -- : StampedPdfDocument & StampSerialHash
+alt Dokumen Memerlukan Pembubuhan e-Meterai Resmi
+    B_FE -> B_BE ++ : POST /api/v2/advocate/deliverables/sign-and-upload (SignDeliverableDTO)
+    B_BE -> B_BE : Validasi Skema DTO & PIN Format
+    B_BE -> C_Svc ++ : signAndStampDeliverable(advocateId, documentPdf, kmsPin)
 
-alt PIN KMS Tidak Valid / Kuota e-Meterai Habis
-    C_Svc --> B_BE : KmsSigningFailedException
-    B_BE --> B_FE : 422 Unprocessable Entity / 403 Forbidden
-    B_FE --> User : Tampilkan Error Pembubuhan e-Meterai Gagal
-else Pembubuhan e-Meterai Sukses
-    C_Svc -> C_Svc : computeSha256Fingerprint(StampedPdfDocument)
-    C_Svc -> E_DB ++ : saveDeliverableDocument(docId, StampedPdfDocument, sha256Fingerprint)
-    E_DB --> C_Svc -- : DocumentSavedOK
-    C_Svc -> E_DB ++ : unlockClientReviewGate(orderId, docId)
-    E_DB --> C_Svc -- : ReviewGateUnlockedOK
-    C_Svc --> B_BE -- : SignDeliverableResultDTO(docId, stampSerialHash)
-    B_BE --> B_FE -- : 201 Created (JSON {docId, status: "SIGNED_STAMPED"})
-    B_FE --> User : Tampilkan Dokumen Ber-Meterai & SHA-256 Lencana
+    alt Saldo Dompet Advokat Tidak Cukup untuk Biaya Meterai
+        C_Svc --> B_BE : InsufficientWalletBalanceException
+        B_BE --> B_FE : 402 Payment Required
+        B_FE --> User : Tampilkan Instruksi Top-Up Dompet (SD-J-22)
+    else Saldo Dompet Cukup & PIN Valid
+        C_Svc -> KMS ++ : verifyPinAndApplyEmeterai(documentPdf, kmsPin)
+        KMS --> C_Svc -- : StampedPdfDocument & StampSerialHash
 
-    loop [Siklus Review & Revisi Draf Kontrak (Maks 2x Revisi Klien)]
-        User -> B_FE : Klien Memeriksa Dokumen (Setuju / Minta Revisi)
-        alt Klien Mengajukan Revisi (< 2x Kuota)
-            B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/revise (RevisionNoteDTO)
-            B_BE -> C_Svc ++ : processRevisionRequest(docId, note)
-            C_Svc -> E_DB ++ : updateDocumentStatus(REVISION_REQUESTED)
-            E_DB --> C_Svc -- : UpdatedOK
-            C_Svc --> B_BE -- : RevisionACK
-            B_BE --> B_FE -- : 200 OK
-            B_FE --> User : Kirim Notifikasi Perbaikan ke Advokat
-        else Klien Menyetujui Dokumen Final
-            B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/approve
-            B_BE -> C_Svc ++ : finalizeDocumentAndUnlockPayout(docId)
-            C_Svc -> E_DB ++ : updateDocumentStatus(FINAL_APPROVED_WORM)
-            E_DB --> C_Svc -- : FinalizedOK
-            C_Svc --> B_BE -- : ApproveACK
-            B_BE --> B_FE -- : 200 OK
-            B_FE --> User : Dokumen Resmi Final & Pencairan Escrow Diaktifkan
+        alt PIN KMS Tidak Valid / Kuota e-Meterai Habis
+            C_Svc --> B_BE : KmsSigningFailedException
+            B_BE --> B_FE : 422 Unprocessable Entity / 403 Forbidden
+            B_FE --> User : Tampilkan Error Pembubuhan e-Meterai Gagal
+        else Pembubuhan e-Meterai Sukses
+            C_Svc -> C_Svc : computeSha256Fingerprint(StampedPdfDocument)
+            C_Svc -> E_DB ++ : saveDeliverableDocument(docId, StampedPdfDocument, sha256Fingerprint)
+            E_DB --> C_Svc -- : DocumentSavedOK
+            C_Svc -> E_DB ++ : unlockClientReviewGate(orderId, docId)
+            E_DB --> C_Svc -- : ReviewGateUnlockedOK
+            C_Svc --> B_BE -- : SignDeliverableResultDTO(docId, stampSerialHash)
+            B_BE --> B_FE -- : 201 Created (JSON {docId, status: "SIGNED_STAMPED"})
+            B_FE --> User : Tampilkan Dokumen Ber-Meterai & SHA-256 Lencana
+
+            loop [Siklus Review & Revisi Draf Kontrak (Maks 2x Revisi Klien)]
+                User -> B_FE : Klien Memeriksa Dokumen (Setuju / Minta Revisi)
+                alt Klien Mengajukan Revisi (< 2x Kuota)
+                    B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/revise (RevisionNoteDTO)
+                    B_BE -> C_Svc ++ : processRevisionRequest(docId, note)
+                    C_Svc -> E_DB ++ : updateDocumentStatus(REVISION_REQUESTED)
+                    E_DB --> C_Svc -- : UpdatedOK
+                    C_Svc --> B_BE -- : RevisionACK
+                    B_BE --> B_FE -- : 200 OK
+                    B_FE --> User : Kirim Notifikasi Perbaikan ke Advokat
+                else Klien Menyetujui Dokumen Final
+                    B_FE -> B_BE ++ : POST /api/v2/deliverables/{docId}/approve
+                    B_BE -> C_Svc ++ : finalizeDocumentAndUnlockPayout(docId)
+                    C_Svc -> E_DB ++ : updateDocumentStatus(FINAL_APPROVED_WORM)
+                    E_DB --> C_Svc -- : FinalizedOK
+                    C_Svc --> B_BE -- : ApproveACK
+                    B_BE --> B_FE -- : 200 OK
+                    B_FE --> User : Dokumen Resmi Final & Pencairan Escrow Diaktifkan
+                end
+            end
         end
     end
+else Dokumen Opini Hukum Biasa (Tanpa e-Meterai)
+    B_FE -> B_BE ++ : POST /api/v2/advocate/deliverables/upload-standard
+    B_BE -> C_Svc ++ : saveStandardDeliverable(advocateId, documentPdf)
+    C_Svc -> E_DB ++ : saveDeliverableDocument(docId, documentPdf)
+    E_DB --> C_Svc -- : SavedOK
+    C_Svc --> B_BE -- : UploadResult(docId)
+    B_BE --> B_FE -- : 201 Created
+    B_FE --> User : Tampilkan Dokumen Terkirim
 end
 deactivate User
 @enduml
@@ -457,18 +480,27 @@ B_BE -> C_Svc ++ : verifyProBonoEligibility(clientJwt, nik, sktmNumber)
 C_Svc -> Kemensos ++ : verifyDtksStatus(nik)
 Kemensos --> C_Svc -- : DtksVerificationResult
 
-alt NIK Tidak Terdaftar di DTKS / Tidak Memenuhi Syarat Pro Bono
+alt NIK Tidak Terdaftar di DTKS / SKTM Tidak Memenuhi Syarat
     C_Svc --> B_BE : ProBonoIneligibleException
     B_BE --> B_FE : 403 Forbidden (Tidak Memenuhi Syarat Pro Bono SKTM)
     B_FE --> User : Tampilkan Error & Opsi Konsultasi Escrow Berbayar
+    alt Ingin Pilih Ulang Advokat / Slot Lain?
+        User -> B_FE : Kembali ke Katalog Reguler Justifiqa
+    end
 else NIK Terverifikasi DTKS (Subsidi Penuh Rp 0)
-    C_Svc -> E_DB ++ : allocateProBonoSlot(advocateId, clientJwt)
-    E_DB --> C_Svc -- : SlotAllocatedOK
-    C_Svc -> E_DB ++ : createConsultationOrder(orderId, amount=0, status=SUBSIDIZED_PROBONO)
-    E_DB --> C_Svc -- : OrderSavedOK
-    C_Svc --> B_BE -- : ProBonoOrderDTO(orderId, status: "SUBSIDIZED")
-    B_BE --> B_FE -- : 201 Created (JSON {orderId, subsidized: true})
-    B_FE --> User : Langsung Masuk ke Ruang Obrolan Hukum Pro Bono E2EE
+    alt Advokat Menerima Reservasi Pro Bono
+        C_Svc -> E_DB ++ : allocateProBonoSlot(advocateId, clientJwt)
+        E_DB --> C_Svc -- : SlotAllocatedOK
+        C_Svc -> E_DB ++ : createConsultationOrder(orderId, amount=0, status=SUBSIDIZED_PROBONO)
+        E_DB --> C_Svc -- : OrderSavedOK
+        C_Svc --> B_BE -- : ProBonoOrderDTO(orderId, status: "SUBSIDIZED")
+        B_BE --> B_FE -- : 201 Created (JSON {orderId, subsidized: true})
+        B_FE --> User : Langsung Masuk ke Ruang Obrolan Hukum Pro Bono E2EE
+    else Advokat Menolak / Kuota Pro Bono Penuh
+        C_Svc --> B_BE : QuotaFullException
+        B_BE --> B_FE : 409 Conflict (Kuota Pro Bono Penuh)
+        B_FE --> User : Tampilkan Rekomendasi Advokat Pro Bono Lainnya
+    end
 end
 deactivate User
 @enduml
@@ -535,23 +567,45 @@ deactivate User
 ```
 
 ### SD-J-09: Verifikasi Kredensial & Sanitasi Profil/Media 3-Lapisan Advokat Mitra (J-UC16)
-*Sequence diagram alur audit berkas lisensi Advokat oleh Admin & pemeriksaan otomatis SIPP MA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-09).*
+*Sequence diagram alur audit berkas lisensi Advokat oleh Admin, pemindaian DLP Steganografi Gambar, & pemeriksaan otomatis SIPP MA berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-09).*
 
 ```plantuml
 @startuml
 autonumber
-actor "Admin Verifikator Justifiqa" as User
-participant "Frontend Admin Portal (Boundary Client)" as B_FE
+actor "Advokat / Admin Verifikator" as User
+participant "Frontend Justifiqa (Boundary Client)" as B_FE
 participant "AdvocateAuditController (Boundary Server)" as B_BE
-participant "AdvocateAuditService (Control)" as C_Svc
+participant "AdvocateProfileSanitizerService (Control)" as C_Svc
 database "AdvocateRepository & WORM (Entity)" as E_DB
 participant "API SIPP Mahkamah Agung" as SIPP
 
 activate User
-User -> B_FE ++ : Pilih Berkas Pendaftaran Advokat & Klik Verifikasi SIPP
-B_FE -> B_BE ++ : POST /api/v2/admin/advocate/audit (AuditDecisionDTO)
-B_BE -> B_BE : Validasi JWT RBAC Admin Verifikator
-B_BE -> C_Svc ++ : executeAdvocateAudit(advocateId, sippNumber, decision)
+User -> B_FE ++ : Perbarui Profil / Unggah Kredensial SIPP Advokat
+B_FE -> B_BE ++ : POST /api/v2/advocate/profile/update (ProfileUpdateDTO)
+
+alt Perbaruan Melibatkan Foto Profil / Avatar
+    B_BE -> C_Svc ++ : scanImageForSteganographyAndContactInfo(imageFile)
+    alt Terdeteksi Nomor HP / Steganografi Kontak di Gambar
+        C_Svc --> B_BE : DlpImageViolationException
+        B_BE --> B_FE : 422 Unprocessable Entity (Foto Mengandung Kontak Pribadi)
+        B_FE --> User : Tampilkan Peringatan Larangan Kontak di Foto
+    else Gambar Bersih dari Steganografi
+        C_Svc --> B_BE : ImageCleanACK
+    end
+end
+
+alt Perbaruan Melibatkan Teks Deskripsi / Biodata
+    B_BE -> C_Svc : scanTextForPhoneEmailSocialMedia(bioText)
+    alt Terdeteksi Pola Nomor HP / Email / Sosmed di Teks
+        C_Svc --> B_BE : DlpTextViolationException
+        B_BE --> B_FE : 422 Unprocessable Entity (Teks Mengandung Kontak Pribadi)
+        B_FE --> User : Tampilkan Error Sanitasi Teks
+    else Teks Bersih & Valid
+        C_Svc --> B_BE : TextCleanACK
+    end
+end
+
+B_BE -> C_Svc : executeSippAudit(advocateId, sippNumber)
 C_Svc -> SIPP ++ : verifySippRegistration(sippNumber)
 SIPP --> C_Svc -- : SippStatusResult
 
@@ -575,7 +629,7 @@ deactivate User
 ```
 
 ### SD-J-10: Moderasi Akun, Deteksi Fraud Perilaku, & Due Process Suspend Admin Justifiqa (J-UC17)
-*Sequence diagram alur investigasi pelanggaran DLP/Etik dan penangguhan akun bersanksi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-10).*
+*Sequence diagram alur investigasi pelanggaran DLP/Etik, pemeriksaan tingkat keparahan, sanggahan banding Advokat, dan penangguhan akun berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-10).*
 
 ```plantuml
 @startuml
@@ -592,15 +646,38 @@ B_FE -> B_BE ++ : POST /api/v2/admin/moderation/suspend (SuspendAccountDTO)
 B_BE -> B_BE : Validasi Otorisasi Admin Komite Etik
 B_BE -> C_Svc ++ : enforceAccountSuspension(targetUserId, reason, evidenceHash)
 
-alt Laporan Fraud Terbukti Sah & Melanggar Ketentuan
-    C_Svc -> E_DB ++ : updateAccountStatus(targetUserId, SUSPENDED)
-    E_DB --> C_Svc -- : AccountSuspendedOK
-    C_Svc -> C_Svc : freezeActiveEscrowAndSessions(targetUserId)
-    C_Svc -> E_DB ++ : recordImmutableSanctionWorm(targetUserId, reason, evidenceHash)
-    E_DB --> C_Svc -- : WormSanctionRecordedOK
-    C_Svc --> B_BE : ModerationResultDTO(status: "SUSPENDED")
-    B_BE --> B_FE : 200 OK (JSON {status: "SUSPENDED", wormHash})
-    B_FE --> User : Tampilkan Konfirmasi Akun Ditangguhkan & Rekam WORM Audit
+alt Bukti Permulaan Sah & Skor Anomali Kritis Terverifikasi
+    alt Tergolong Pelanggaran Berat / Kritis (Penggelapan / Kontak Pribadi Berulang)
+        alt Mitra Sedang Dalam Sesi Konsultasi Aktif
+            C_Svc -> C_Svc : freezeActiveEscrowAndSessions(targetUserId)
+        end
+        C_Svc -> E_DB ++ : updateAccountStatus(targetUserId, SUSPENDED)
+        E_DB --> C_Svc -- : AccountSuspendedOK
+        C_Svc -> E_DB ++ : recordImmutableSanctionWorm(targetUserId, reason, evidenceHash)
+        E_DB --> C_Svc -- : WormSanctionRecordedOK
+
+        alt Mitra Mengajukan Berkas Sanggahan / Banding
+            C_Svc -> E_DB ++ : submitAppealReview(targetUserId, appealDocs)
+            E_DB --> C_Svc -- : AppealFiledOK
+            alt Terbukti Bersalah Melanggar Etik / Penggelapan Transaksi
+                C_Svc -> E_DB ++ : confirmPermanentSuspension(targetUserId)
+                E_DB --> C_Svc -- : PermanentSuspendOK
+            else Banding Diterima & Tidak Terbukti
+                C_Svc -> E_DB ++ : restoreAccountStatus(targetUserId, ACTIVE)
+                E_DB --> C_Svc -- : RestoredOK
+            end
+        end
+
+        C_Svc --> B_BE : ModerationResultDTO(status: "SUSPENDED")
+        B_BE --> B_FE : 200 OK (JSON {status: "SUSPENDED", wormHash})
+        B_FE --> User : Tampilkan Konfirmasi Akun Ditangguhkan & Rekam WORM Audit
+    else Pelanggaran Ringan (Peringatan Surat Tertulis SP1)
+        C_Svc -> E_DB ++ : issueFormalWarningLetter(targetUserId, reason)
+        E_DB --> C_Svc -- : WarningIssuedOK
+        C_Svc --> B_BE : ModerationResultDTO(status: "WARNING_ISSUED")
+        B_BE --> B_FE : 200 OK (JSON {status: "WARNING_ISSUED"})
+        B_FE --> User : Tampilkan Konfirmasi Surat Peringatan SP1 Dikirim
+    end
 else Bukti Tidak Mencukupi (Laporan Palsu / Dismiss)
     C_Svc -> E_DB ++ : recordDismissedInvestigation(targetUserId, reason)
     E_DB --> C_Svc -- : LoggedOK
@@ -640,14 +717,23 @@ alt Sesi Dalam Sengketa / Belum Disetujui Klien
 else Sesi Selesai Sah & Tidak Ada Sengketa
     C_Svc -> C_Svc : calculatePph21TaxAndPlatformFee(grossAmount)
     C_Svc -> Bank ++ : transferDisbursement(advocateBankAccount, netAmount)
-    Bank --> C_Svc -- : TransferReceipt(SUCCESS, trxRef)
-    C_Svc -> E_DB ++ : updateLedgerStatus(SETTLED_DISBURSED, trxRef)
-    E_DB --> C_Svc -- : LedgerUpdatedOK
-    C_Svc -> E_DB ++ : generateTaxWithholdingSlip(advocateId, pph21Amount)
-    E_DB --> C_Svc -- : TaxSlipGeneratedOK
-    C_Svc --> B_BE -- : PayoutResultDTO(SUCCESS, netAmount, trxRef)
-    B_BE --> B_FE -- : 200 OK (JSON {status: "DISBURSED", trxRef})
-    B_FE --> User : Tampilkan Konfirmasi Pencairan & Bukti Potong PPh 21
+    Bank --> C_Svc -- : TransferReceipt(status)
+
+    alt Status Webhook PG / Transfer Bank = SUCCESS
+        C_Svc -> E_DB ++ : updateLedgerStatus(SETTLED_DISBURSED, trxRef)
+        E_DB --> C_Svc -- : LedgerUpdatedOK
+        C_Svc -> E_DB ++ : generateTaxWithholdingSlip(advocateId, pph21Amount)
+        E_DB --> C_Svc -- : TaxSlipGeneratedOK
+        C_Svc --> B_BE : PayoutResultDTO(SUCCESS, netAmount, trxRef)
+        B_BE --> B_FE : 200 OK (JSON {status: "DISBURSED", trxRef})
+        B_FE --> User : Tampilkan Konfirmasi Pencairan & Bukti Potong PPh 21
+    else Transfer Bank Gagal / Ditolak Jaringan
+        C_Svc -> E_DB ++ : rollbackPayoutQueue(consultationId)
+        E_DB --> C_Svc -- : RollbackOK
+        C_Svc --> B_BE -- : PayoutResultDTO(FAILED)
+        B_BE --> B_FE -- : 502 Bad Gateway (Transfer Gagal)
+        B_FE --> User : Tampilkan Error Transfer Gagal & Coba Lagi Nanti
+    end
 end
 deactivate User
 @enduml
@@ -676,12 +762,20 @@ C_Svc -> C_Svc : verifyChainOfTrustSha256(WormAuditLedgerRecords)
 C_Svc --> B_BE -- : FinancialWormReportDTO(records, sha256RootHash)
 B_BE --> B_FE -- : 200 OK (JSON {reportData, sha256RootHash})
 B_FE --> User : Tampilkan Laporan Keuangan & Verifikasi Root Hash WORM
+
+opt Auditor Melakukan Tindak Lanjut Investigasi Laporan WORM
+    User -> B_FE : Flag Transaksi Anomali untuk Investigasi Komite Etik
+    B_FE -> B_BE ++ : POST /api/v2/admin/audit/flag-anomaly (AnomalyFlagDTO)
+    B_BE -> C_Svc ++ : escalateToEthicCommittee(AnomalyFlagDTO)
+    C_Svc --> B_BE -- : FlagACK
+    B_BE --> B_FE -- : 200 OK
+end
 deactivate User
 @enduml
 ```
 
 ### SD-J-13: Memberikan Ulasan & Rating Advokat (J-UC06)
-*Sequence diagram alur pemberian ulasan pasca-sesi konsultasi hukum berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-13).*
+*Sequence diagram alur pemberian ulasan, percabangan anonimasi nama klien, dan moderasi otomatis jika rating <= 2 bintang berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-J-13).*
 
 ```plantuml
 @startuml
@@ -694,6 +788,9 @@ database "RatingAndReviewRepository (Entity)" as E_DB
 
 activate User
 User -> B_FE ++ : Isi Bintang Rating (1-5) & Ulasan Kinerja Advokat
+alt Pengguna Aktifkan Anonimasi Nama Publik
+    B_FE -> B_FE : Masking Nama Klien Jadi "Klien Terverifikasi #XXXX"
+end
 B_FE -> B_FE : Client-Side Regex DLP Scanner (Sanitasi Identitas Pribadi)
 B_FE -> B_BE ++ : POST /api/v2/consultation/reviews (ReviewDTO)
 B_BE -> B_BE : Validasi Skema Rating (1-5) & JWT Klien
@@ -706,9 +803,15 @@ alt Ulasan Sudah Pernah Diberikan untuk Sesi Ini
     B_BE --> B_FE : 409 Conflict (Ulasan Sudah Ada)
     B_FE --> User : Tampilkan Peringatan Ulasan Sudah Direkam
 else Sesi Sah & Ulasan Baru
-    C_Svc -> E_DB ++ : saveReview(orderId, advocateId, stars, sanitizedComment)
+    C_Svc -> E_DB ++ : saveReview(orderId, advocateId, stars, sanitizedComment, isAnonymous)
     E_DB --> C_Svc -- : ReviewSavedOK
     C_Svc -> C_Svc : recalculateAdvocateAverageRating(advocateId)
+
+    alt Rating Agregat / Bintang Sesi <= 2 Bintang (Pelanggaran SLA/Etik)
+        C_Svc -> E_DB ++ : triggerAutomaticQualityAuditQueue(orderId, advocateId)
+        E_DB --> C_Svc -- : QualityQueueTriggeredOK
+    end
+
     C_Svc --> B_BE -- : ReviewResultDTO(SUCCESS)
     B_BE --> B_FE -- : 201 Created (JSON {status: "REVIEW_SAVED"})
     B_FE --> User : Tampilkan Konfirmasi Terima Kasih Atas Ulasan
@@ -778,10 +881,18 @@ B_FE --> User : Tampilkan Instruksi VA Pembayaran Top-Up
 User -> Pay : Lakukan Pembayaran VA
 Pay -> B_BE ++ : POST /api/v2/webhooks/wallet-topup (PaymentNotification)
 B_BE -> C_Svc ++ : processTopUpWebhook(orderId)
-C_Svc -> E_DB ++ : updateWalletBalance(advocateId, +amount, status: PAID)
-E_DB --> C_Svc -- : WalletBalanceUpdatedOK
-C_Svc --> B_BE -- : WebhookACK
-B_BE --> Pay -- : HTTP 200 OK
+
+alt Pembayaran Top-Up Sukses Diterima (PAID / SETTLED)
+    C_Svc -> E_DB ++ : updateWalletBalance(advocateId, +amount, status: PAID)
+    E_DB --> C_Svc -- : WalletBalanceUpdatedOK
+    C_Svc --> B_BE : WebhookACK(200 OK)
+    B_BE --> Pay : HTTP 200 OK
+else Pembayaran Kadaluarsa / Gagal
+    C_Svc -> E_DB ++ : cancelPendingTopUpLedger(orderId)
+    E_DB --> C_Svc -- : CancelledOK
+    C_Svc --> B_BE -- : WebhookACK(200 OK)
+    B_BE --> Pay -- : HTTP 200 OK
+end
 deactivate User
 @enduml
 ```
@@ -1014,10 +1125,20 @@ else Mode = Konseling Klinis Berjadwal / Premium
     User -> Pay : Lakukan Pembayaran VA
     Pay -> B_BE ++ : POST /api/v2/webhooks/qualifa-payment (Notification)
     B_BE -> C_Svc ++ : confirmPaymentWebhook(orderId)
-    C_Svc -> E_DB ++ : updateOrderStatus(PAID)
-    E_DB --> C_Svc -- : UpdatedOK
-    C_Svc --> B_BE -- : WebhookACK
-    B_BE --> Pay -- : HTTP 200 OK
+
+    alt Webhook Status Transaksi PAID / SUCCESS
+        C_Svc -> E_DB ++ : updateOrderStatus(PAID)
+        E_DB --> C_Svc -- : UpdatedOK
+        C_Svc --> B_BE : WebhookACK(200 OK)
+        B_BE --> Pay : HTTP 200 OK
+        B_FE --> User : Pembayaran Berhasil & Ruang E2EE Terbuka
+    else Webhook Status Transaksi Gagal / Kadaluwarsa
+        C_Svc -> E_DB ++ : cancelOrderAndReleaseSlot(orderId)
+        E_DB --> C_Svc -- : CancelledOK
+        C_Svc --> B_BE -- : WebhookACK(200 OK)
+        B_BE --> Pay -- : HTTP 200 OK
+        B_FE --> User : Tampilkan Error Pembayaran Gagal & Opsi Ganti Metode Bayar
+    end
 end
 deactivate User
 @enduml
@@ -1036,20 +1157,26 @@ participant "PsychScheduleService (Control)" as C_Svc
 database "QualifaScheduleLedger (Entity)" as E_DB
 
 activate User
-User -> B_FE ++ : Atur Slot Sesi & Simpan Jadwal Praktik
-B_FE -> B_BE ++ : POST /api/v2/psychologist/schedule/slots (SlotsDTO)
-B_BE -> C_Svc ++ : saveScheduleWithRecoveryBuffer(psychId, slotsDTO)
+loop [Atur & Simpan Slot Jadwal dengan Buffer Pemulihan 30 Menit]
+    User -> B_FE ++ : Atur Slot Sesi & Simpan Jadwal Praktik
+    B_FE -> B_BE ++ : POST /api/v2/psychologist/schedule/slots (SlotsDTO)
+    B_BE -> C_Svc ++ : saveScheduleWithRecoveryBuffer(psychId, slotsDTO)
 
-alt Jarak Antar-Sesi < 30 Menit (Pelanggaran Buffer Mental Health)
-    C_Svc --> B_BE : RecoveryBufferViolationException
-    B_BE --> B_FE : 422 Unprocessable Entity (Jeda Minimal 30 Menit Wajib)
-    B_FE --> User : Tampilkan Error Wajib Menyediakan Jeda 30 Menit Antar-Sesi
-else Jadwal & Buffer Valid
-    C_Svc -> E_DB ++ : updateScheduleSlots(psychId, slotsDTO)
-    E_DB --> C_Svc -- : SavedOK
-    C_Svc --> B_BE -- : ScheduleResult(SUCCESS)
-    B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
-    B_FE --> User : Tampilkan Konfirmasi Jadwal Terperbarui
+    alt Jarak Antar-Sesi < 30 Menit (Pelanggaran Buffer Mental Health) / Bentrok
+        C_Svc --> B_BE : RecoveryBufferViolationException
+        B_BE --> B_FE : 422 Unprocessable Entity (Jeda Minimal 30 Menit Wajib)
+        B_FE --> User : Tampilkan Error Wajib Menyediakan Jeda 30 Menit Antar-Sesi
+        alt Ingin Atur Kembali Slot Jadwal Lain?
+            note over User, B_FE : [REPEAT LOOP: Sesuaikan slot dengan jeda minimal 30 menit]
+        end
+    else Jadwal & Buffer Valid
+        C_Svc -> E_DB ++ : updateScheduleSlots(psychId, slotsDTO)
+        E_DB --> C_Svc -- : SavedOK
+        C_Svc --> B_BE -- : ScheduleResult(SUCCESS)
+        B_BE --> B_FE -- : 200 OK (JSON {status: "UPDATED"})
+        B_FE --> User : Tampilkan Konfirmasi Jadwal Terperbarui
+        note over User, B_BE : [BREAK LOOP: Jadwal Psikolog Berhasil Disimpan]
+    end
 end
 deactivate User
 @enduml
@@ -1074,13 +1201,13 @@ B_BE -> C_Svc ++ : recordDailyMood(clientJwt, moodScore, journalText)
 C_Svc -> E_DB ++ : saveMoodEntry(userId, score, text, timestamp)
 E_DB --> C_Svc -- : EntrySavedOK
 
-alt Mood Score <= 2 Berturut-turut 3 Hari (Crisis Trigger)
+alt Terdeteksi Tren Sedih/Cemas Ekstrem Selama 3-5 Hari Beruntun (Crisis Trigger)
     C_Svc -> E_DB ++ : dispatchCrisisAlertQueue(userId)
     E_DB --> C_Svc -- : AlertQueuedOK
     C_Svc --> B_BE : MoodResult(SAVED_WITH_CRISIS_RECOMMENDATION)
     B_BE --> B_FE : 201 Created (JSON {status: "SAVED", triggerCrisisButton: true})
     B_FE --> User : Tampilkan Rekomendasi Bantuan Darurat 119 / Konseling Segera
-else Mood Normal (Score > 2)
+else Mood Normal / Stabil (Score > 2)
     C_Svc --> B_BE -- : MoodResult(SAVED_NORMAL)
     B_BE --> B_FE -- : 201 Created (JSON {status: "SAVED"})
     B_FE --> User : Tampilkan Grafik Mood Tracker Harian
@@ -1109,6 +1236,13 @@ C_Svc -> E_DB ++ : getTrackSignedUrl(trackId)
 E_DB --> C_Svc -- : SignedAudioStreamUrl
 C_Svc --> B_BE -- : AudioStreamDTO(url, duration)
 B_BE --> B_FE -- : 200 OK (JSON {streamUrl})
+
+alt Koneksi Cepat / Wi-Fi Stabil
+    B_FE -> B_FE : Putar Streaming Kualitas Audio Lossless / High Quality 320kbps
+else Koneksi Seluler / Lambat
+    B_FE -> B_FE : Putar Streaming Adaptive Bitrate AAC 96kbps
+end
+
 B_FE --> User : Mulai Pemutaran Streaming Audio Meditasi
 deactivate User
 @enduml
@@ -1134,7 +1268,7 @@ C_Svc -> C_Svc : Hitung Skor Depresi, Kecemasan, & Stres
 C_Svc -> E_DB ++ : saveAssessmentResult(userId, scoreMap, severity)
 E_DB --> C_Svc -- : AssessmentSavedOK
 
-alt Tingkat Keparahan = SEVERE / EXTREMELY SEVERE
+alt Tingkat Keparahan Masuk Kategori SEVERE / EXTREMELY SEVERE / RISK OF SELF-HARM
     C_Svc --> B_BE : DassResultDTO(scoreMap, severity="SEVERE", enableCrisis119=true)
     B_BE --> B_FE : 201 Created (JSON {severity: "SEVERE", trigger119: true})
     B_FE --> User : Tampilkan Tombol Darurat Crisis 119 & Hotline Kesehatan Mental
@@ -1148,7 +1282,7 @@ deactivate User
 ```
 
 ### SD-Q-08: Membuat Catatan Terapi DAP Note & Worksheet CCBT (Q-UC11, Q-UC12)
-*Sequence diagram alur pencatatan medis klinis DAP (Data, Assessment, Plan) secara terenkripsi berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-08).*
+*Sequence diagram alur pencatatan medis klinis DAP (Data, Assessment, Plan) secara terenkripsi dan penugasan lembar kerja CCBT berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-08).*
 
 ```plantuml
 @startuml
@@ -1165,17 +1299,23 @@ B_FE -> B_BE ++ : POST /api/v2/psychologist/notes/dap (DapNoteDTO)
 B_BE -> C_Svc ++ : saveEncryptedDapNote(psychId, sessionId, dapDTO)
 C_Svc -> E_DB ++ : storeClinicalNote(sessionId, dapPayload, encrypted=true)
 E_DB --> C_Svc -- : NoteStoredOK
+
+opt Perlu Berikan Tugas Terapi CCBT (Worksheet) ke Klien Pasca-Sesi
+    C_Svc -> E_DB ++ : assignCcbtWorksheet(sessionId, ccbtTemplateId)
+    E_DB --> C_Svc -- : WorksheetAssignedOK
+end
+
 C_Svc -> E_DB ++ : appendClinicalAuditWorm(noteId, sha256Ref)
 E_DB --> C_Svc -- : WormLoggedOK
 C_Svc --> B_BE -- : DapNoteResult(status: "SAVED_ENCRYPTED")
 B_BE --> B_FE -- : 201 Created (JSON {status: "SAVED_ENCRYPTED"})
-B_FE --> User : Tampilkan Konfirmasi Catatan Klinis Tersimpan
+B_FE --> User : Tampilkan Konfirmasi Catatan Klinis Tersimpan & Tugas CCBT Terkirim
 deactivate User
 @enduml
 ```
 
 ### SD-Q-09: Verifikasi STR/HIMPSI & Moderasi Komite Etik Admin Qualifa (Q-UC16, Q-UC17)
-*Sequence diagram alur verifikasi kredensial psikolog klinis oleh Admin berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-09).*
+*Sequence diagram alur verifikasi kredensial psikolog klinis & pemeriksaan pelanggaran etika/malpraktik oleh Admin berbasis 5-Lifeline BCE (Sinkron 1-to-1 dengan AD-Q-09).*
 
 ```plantuml
 @startuml
@@ -1192,15 +1332,15 @@ User -> B_FE ++ : Periksa Berkas Psikolog & Klik Verifikasi STR
 B_FE -> B_BE ++ : POST /api/v2/admin/psychologist/verify (AuditDecisionDTO)
 B_BE -> C_Svc ++ : verifyPsychologistCredential(psychId, strNumber)
 C_Svc -> Ext ++ : checkStrValidity(strNumber)
-Ext --> C_Svc -- : StrStatus(VALID)
+Ext --> C_Svc -- : StrStatus
 
-alt STR Tidak Valid / Kedaluwarsa
-    C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED)
+alt STR Tidak Valid / Kedaluwarsa ATAU Ada Laporan Pelanggaran Kode Etik / Malpraktik
+    C_Svc -> E_DB ++ : updatePsychStatus(psychId, REJECTED, reason)
     E_DB --> C_Svc -- : UpdatedOK
     C_Svc --> B_BE : AuditResult(REJECTED)
     B_BE --> B_FE : 200 OK (JSON {status: "REJECTED"})
-    B_FE --> User : Tampilkan Keputusan Ditolak
-else STR Valid & Berkas Lengkap
+    B_FE --> User : Tampilkan Keputusan Ditolak & Kirim Email Penolakan
+else STR Valid, Berkas Sah, & Bersih dari Pelanggaran Etik
     C_Svc -> E_DB ++ : updatePsychStatus(psychId, VERIFIED_ACTIVE)
     E_DB --> C_Svc -- : UpdatedOK
     C_Svc --> B_BE -- : AuditResult(VERIFIED_ACTIVE)
@@ -1229,12 +1369,21 @@ User -> B_FE ++ : Ajukan Pencairan Honor Konseling
 B_FE -> B_BE ++ : POST /api/v2/psychologist/payout/request (PayoutRequestDTO)
 B_BE -> C_Svc ++ : processPsychologistDisbursement(psychId, counselingId)
 C_Svc -> Bank ++ : transferFunds(bankAccount, netAmount)
-Bank --> C_Svc -- : TransferReceipt(OK)
-C_Svc -> E_DB ++ : updateLedgerDisbursed(counselingId, trxRef)
-E_DB --> C_Svc -- : UpdatedOK
-C_Svc --> B_BE -- : PayoutSuccessDTO(trxRef)
-B_BE --> B_FE -- : 200 OK (JSON {status: "DISBURSED", trxRef})
-B_FE --> User : Tampilkan Konfirmasi Transfer & Slip Potong PPh 21
+Bank --> C_Svc -- : TransferReceipt(status)
+
+alt Status Transfer Bank / Webhook Pencairan = SUCCESS
+    C_Svc -> E_DB ++ : updateLedgerDisbursed(counselingId, trxRef)
+    E_DB --> C_Svc -- : UpdatedOK
+    C_Svc --> B_BE : PayoutSuccessDTO(trxRef)
+    B_BE --> B_FE : 200 OK (JSON {status: "DISBURSED", trxRef})
+    B_FE --> User : Tampilkan Konfirmasi Transfer & Slip Potong PPh 21
+else Transfer Bank Gagal / Ditolak
+    C_Svc -> E_DB ++ : rollbackPayoutStatus(counselingId)
+    E_DB --> C_Svc -- : RollbackOK
+    C_Svc --> B_BE -- : PayoutFailureDTO
+    B_BE --> B_FE -- : 502 Bad Gateway
+    B_FE --> User : Tampilkan Error Pencairan Gagal
+end
 deactivate User
 @enduml
 ```
@@ -1260,6 +1409,14 @@ E_DB --> C_Svc -- : WormRecords
 C_Svc --> B_BE -- : ReportDTO(records, rootHashSha256)
 B_BE --> B_FE -- : 200 OK (JSON {reportData, rootHashSha256})
 B_FE --> User : Tampilkan Laporan Audit & Validasi SHA-256
+
+opt Auditor Melakukan Tindak Lanjut Investigasi Laporan WORM
+    User -> B_FE : Flag Transaksi Anomali untuk Komite Etik Qualifa
+    B_FE -> B_BE ++ : POST /api/v2/admin/qualifa/audit/flag-anomaly
+    B_BE -> C_Svc ++ : escalateToEthicCommittee(dto)
+    C_Svc --> B_BE -- : FlagACK
+    B_BE --> B_FE -- : 200 OK
+end
 deactivate User
 @enduml
 ```
