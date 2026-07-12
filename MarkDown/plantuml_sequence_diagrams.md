@@ -184,6 +184,14 @@ alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
     BE --> FE -- : 200 OK (Sesi Triage Gratis Terkonfirmasi)
     FE --> Klien : Buka Ruang Chat E2EE Langsung (Maks 15 Menit)
     BE -> Mitra : Push Notification Sesi Triage Baru (Advokat Muda/Paralegal)
+    note over Klien, Mitra : Sesi Triage Gratis Berlangsung Maks 15 Menit
+    BE -> DB ++ : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = triage_session_id
+    DB --> BE -- : 200 OK
+    BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit)
+    BE --> BE -- : Return Computed Result / State
+    BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06 / J-UC13)
+    FE --> Klien : Tampilkan Modal Ulasan & Rating Sesi Triage
+    deactivate FE
 else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
     BE -> BE ++ : Periksa Saldo Virtual Token Klien (Welcome Bonus Rp100.000 / Non-Cashable)
     BE --> BE -- : Return Virtual Token Balance
@@ -341,22 +349,14 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         BE -> BE ++ : Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled)
         BE --> BE -- : Return Computed Result / State
         
-        alt Paket Sesi == Tier 2 Premium atau Tier 3 Pro (Deliverable Required)
-            BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
-            DB --> BE -- : 200 OK
-            BE -> FE ++ : Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread)
-            FE --> Mitra : Tampilkan Antarmuka Tiket Komentar [KLARIFIKASI FAKTA] / [REVISI KLAUSUL]
-            deactivate FE
-            FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
-        else Paket Sesi == Tier 1 Gratis (Legal Triage Pro Bono)
-            BE -> DB ++ : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = session_id
-            DB --> BE -- : 200 OK
-            BE -> BE ++ : Kreditkan Poin/Token Reputasi ke Profil Advokat
-            BE --> BE -- : Return Computed Result / State
-            BE -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06)
-            FE --> Klien : Tampilkan Modal Ulasan & Rating
-            deactivate FE
-        end
+        BE -> DB ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+        DB --> BE -- : 200 OK
+        BE -> FE ++ : Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread)
+        FE --> Mitra : Tampilkan Antarmuka Tiket Komentar [KLARIFIKASI FAKTA] / [REVISI KLAUSUL]
+        deactivate FE
+        FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
+        BE -> BE ++ : Mengarsip Catatan Sesi IRAC Note (Lihat SD-J-08 / J-UC11)
+        BE --> BE -- : Return Computed Result / State
     end
 end
 

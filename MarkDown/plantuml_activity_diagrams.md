@@ -303,56 +303,51 @@ else (Tidak - Konsultasi Premium / Pro)
     |Backend Independen Justifiqa|
     :Akhiri Waktu Live Chat 60 Menit & Kunci Ruang Chat E2EE (Read-Only History);
     :Nonaktifkan Fitur Panggilan Suara & Video (Voice/Video Call Disabled);
-    if (Apakah Paket Sesi = Tier 2 Premium atau Tier 3 Pro?) then (Ya - Butuh Deliverable)
-      :Ubah Status Perkara Jadi PENDING_DELIVERABLE;
-      :Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread) di Dasbor Perkara;
-      :Aktifkan Sistem Tiket Komentar Terstruktur [KLARIFIKASI FAKTA] / [REVISI KLAUSUL];
-    else (Tidak - Tier 1 Gratis Pro Bono)
-      :Sesi Selesai (CLOSED) & Kreditkan Poin Reputasi ke Advokat;
-    endif
+    :Ubah Status Perkara Jadi PENDING_DELIVERABLE;
+    :Buka Ruang Kerja Asinkron (Asynchronous Deliverable Thread) di Dasbor Perkara;
+    :Aktifkan Sistem Tiket Komentar Terstruktur [KLARIFIKASI FAKTA] / [REVISI KLAUSUL];
   endif
 
   |Backend Independen Justifiqa|
   :Arsip Log Metadata Sesi & Tutup Ruang Chat E2EE;
-  
-  if (Level Konsultasi = Tier 1 Gratis?) then (Ya - Gratis 15 Menit)
-    :Kreditkan Poin/Token Reputasi ke Profil Advokat (Instant Reputation Credit);
-  else (Tidak - Premium / Pro Berbayar Escrow)
-    if (Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
-      |Advokat Justifiqa|
-      :Susun Dokumen Laporan Saran Hukum (Client Advice Summary v1);
-      :Unggah Laporan ke Dasbor Klien;
+
+  |Advokat Justifiqa|
+  :Mengisi & Mengarsip Catatan Sesi IRAC Note (Lihat AD-J-08 / J-UC11);
+
+  if (Apakah Level Konsultasi = Tier 2 Premium?) then (Ya - Premium Advice Summary)
+    |Advokat Justifiqa|
+    :Susun Dokumen Laporan Saran Hukum (Client Advice Summary v1);
+    :Unggah Laporan ke Dasbor Klien;
+    |Klien Justifiqa|
+    :Review Laporan Saran Hukum di Dasbor;
+    while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
       |Klien Justifiqa|
-      :Review Laporan Saran Hukum di Dasbor;
-      while (Apakah Klien Mengajukan Tiket [KLARIFIKASI SARAN] & Kuota Putaran < 2x & SLA 2x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
-        |Klien Justifiqa|
-        :Kirim Pertanyaan Klarifikasi Terbatas;
-        |Advokat Justifiqa|
-        :Berikan Jawaban Penjelasan / Perbarui Laporan;
-        |Klien Justifiqa|
-        :Review Jawaban / Laporan Pembaruan;
-      endwhile (Tidak - Laporan Disetujui / Kuota Habis / SLA Habis)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
-    else (Tier 3 Pro - Legal Drafting / Opinion)
+      :Kirim Pertanyaan Klarifikasi Terbatas;
       |Advokat Justifiqa|
-      :Susun Draf Dokumen Hukum Final (Drafting v1);
-      :Unggah Draf Dokumen ke Dasbor Klien;
+      :Berikan Jawaban Penjelasan / Perbarui Laporan;
       |Klien Justifiqa|
-      :Review Draf Dokumen Hukum di Dasbor;
-      while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
-        |Klien Justifiqa|
-        :Kirim Catatan Revisi Klausul Terbatas;
-        |Advokat Justifiqa|
-        :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
-        |Klien Justifiqa|
-        :Review Draf Revisi Terbaru;
-      endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
-      |Backend Independen Justifiqa|
-      :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
-      :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
-    endif
+      :Review Jawaban / Laporan Pembaruan;
+    endwhile (Tidak - Laporan Disetujui / Kuota Habis / SLA Habis)
+    |Backend Independen Justifiqa|
+    :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+    :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
+  else (Tidak - Tier 3 Pro Legal Drafting / Opinion)
+    |Advokat Justifiqa|
+    :Susun Draf Dokumen Hukum Final (Drafting v1 - Lihat AD-J-10);
+    :Unggah Draf Dokumen ke Dasbor Klien;
+    |Klien Justifiqa|
+    :Review Draf Dokumen Hukum di Dasbor;
+    while (Apakah Klien Mengajukan Tiket [REVISI KLAUSUL] & Kuota Putaran < 2x & SLA 3x24 Jam Belum Habis?) is (Ya - Gunakan Ruang Asinkron)
+      |Klien Justifiqa|
+      :Kirim Catatan Revisi Klausul Terbatas;
+      |Advokat Justifiqa|
+      :Perbarui & Unggah Draf Revisi Dokumen (v2 / v3);
+      |Klien Justifiqa|
+      :Review Draf Revisi Terbaru;
+    endwhile (Tidak - Draf Disetujui / Kuota Habis / SLA Habis)
+    |Backend Independen Justifiqa|
+    :Kunci Permanen Ruang Kerja Asinkron (THREAD_LOCKED);
+    :Cairkan Dana Escrow Tunai ke Advokat (Potong Fee & PPh 21);
   endif
   :Arahkan Klien ke Modul Ulasan & Rating (Lihat AD-J-13);
   stop
