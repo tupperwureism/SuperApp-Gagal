@@ -352,10 +352,8 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
         deactivate SVC
         deactivate CTRL
     else Fallback Check-out (Lupa Check-out / Grace Period 120 Menit Habis)
-        activate SVC
         SVC -> SVC ++ : executeSystemicAutoCheckout(bookingId, 'AUTO_CHECKOUT_SUCCESS')
         SVC --> SVC -- : Mencegah Escrow Menggantung & Lanjut ke PENDING_DELIVERABLE
-        deactivate SVC
     end
 else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
@@ -408,12 +406,10 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             deactivate CTRL
 
             opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
-                activate SVC
                 SVC -> SVC ++ : freezeChatRoomAndHoldEscrow(sessionId)
                 SVC --> SVC -- : Return Computed Result / State
                 SVC -> SVC ++ : escalateIncidentToAdminQueue(sessionId, 'J-UC10')
                 SVC --> SVC -- : Return Computed Result / State
-                deactivate SVC
             end
         else Pesan Aman / Valid (Lolos DLP)
             SVC --> CTRL : MessageDelivered
@@ -425,7 +421,6 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         end
         
         alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
-            activate SVC
             SVC -> SVC ++ : pauseCountdownTimerAndPushSLAAlert(sessionId)
             SVC --> SVC -- : Return Computed Result / State
             
@@ -454,12 +449,10 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
                 SVC -> SVC ++ : resumeCountdownTimer(sessionId)
                 SVC --> SVC -- : Return Computed Result / State
             end
-            deactivate SVC
         end
     end
 
     alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
-        activate SVC
         SVC -> SVC ++ : endLiveChatAndLockRoomReadOnly(sessionId)
         SVC --> SVC -- : Return Computed Result / State
         SVC -> SVC ++ : disableVoiceVideoCalls(sessionId)
@@ -475,7 +468,6 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
         FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
         SVC -> SVC ++ : archiveIRACNote(sessionId)
         SVC --> SVC -- : Return Computed Result / State
-        deactivate SVC
     end
 end
 
@@ -547,13 +539,11 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
         deactivate CTRL
     end
 
-    activate SVC
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
     SVC -> FE ++ : triggerRatingModal(sessionId)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
-    deactivate SVC
 else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     Mitra -> FE ++ : Susun & Unggah Dokumen Hukum Final (Drafting v1)
     FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/final
@@ -622,13 +612,11 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         deactivate CTRL
     end
 
-    activate SVC
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
     SVC -> FE ++ : triggerRatingModal(sessionId)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
-    deactivate SVC
 end
 
 deactivate Mitra
