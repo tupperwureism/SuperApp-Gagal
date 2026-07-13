@@ -1425,37 +1425,57 @@ deactivate Admin
 @startuml
 autonumber
 actor "Advokat Justifiqa" as Mitra
-participant "Frontend Dasbor Advokat" as FE
-participant "Backend Independen Justifiqa" as BE
+participant "AdvocateDashboardUI" as FE
+participant "PayoutController" as CTRL
+participant "DisbursementService" as SVC
+database "AdvocateWalletRepository & DB" as REPO
 participant "Payment Gateway Disbursement" as PG
 database "WORM Hash Storage" as WORM
 
 activate Mitra
 Mitra -> FE ++ : Ajukan Pencairan Dana (Withdrawal) ke Rekening Bank
-FE -> BE ++ : POST /api/v1/advocate/payouts/withdraw (Amount, Bank Acc)
+FE -> CTRL ++ : POST /api/v1/advocate/payouts/withdraw (Amount, Bank Acc)
+CTRL -> SVC ++ : initiateWithdrawal(advocateId, amount, bankAcc)
 
-BE -> BE ++ : Validasi Saldo Tunai Available (Hanya Escrow Tunai yang Sudah Release dari Deliverable Approved - Excl. Token Virtual) & Hitung PPh 21
-BE --> BE -- : Return Computed Result / State
-BE -> PG ++ : POST /api/disbursement/transfer (Net Amount, Bank Detail)
+SVC -> REPO : checkAvailableCashBalance(advocateId)
+activate REPO
+REPO --> SVC : Return Available Balance (Excl. Token Virtual)
+deactivate REPO
+
+SVC -> SVC ++ : hitungPPh21DanNetPayout(amount)
+SVC --> SVC -- : Return Net Payout & PPh 21 Deduction
+SVC -> PG ++ : POST /api/disbursement/transfer (Net Amount, Bank Detail)
 
 alt Webhook Transfer SUCCESS
-    PG --> BE : Webhook SUCCESS (Status: SUCCESS, BankRefNumber)
-    BE -> BE ++ : Kurangi Saldo Available Advokat & Terbitkan Bukti Potong PPh 21
-    BE --> BE -- : Return Computed Result / State
-    BE -> WORM ++ : Simpan SHA-256 Hash Log Transaksi & Audit PPh 21
-    WORM --> BE -- : Hash Written Permanently
-    BE --> FE : 200 OK (Pencairan Berhasil Diproses)
+    PG --> SVC : Webhook SUCCESS (Status: SUCCESS, BankRefNumber)
+    deactivate PG
+    SVC -> REPO : deductWalletBalanceAndSaveTaxReceipt(advocateId, amount, pph21)
+    activate REPO
+    REPO --> SVC : 200 OK (Balance Deducted)
+    deactivate REPO
+    SVC -> WORM : storePayoutAndTaxAuditHashWORM(transactionId, sha256Hash)
+    activate WORM
+    WORM --> SVC : 200 OK (Hash Written Permanently)
+    deactivate WORM
+    SVC --> CTRL : PayoutSuccess
+    CTRL --> FE : 200 OK (Pencairan Berhasil Diproses)
     FE --> Mitra : Tampilkan Resi Transfer & Bukti Potong Pajak
 else Webhook Transfer FAILED / REJECTED
-    PG --> BE -- : Webhook FAILED (Status: FAILED, ErrorCode: "INVALID_ACCOUNT" | "BANK_OFFLINE")
-    BE -> BE ++ : Rollback Saldo Available Advokat (Saldo Kembali Utuh)
-    BE --> BE -- : Return Computed Result / State
-    BE -> WORM ++ : Simpan SHA-256 Hash Log Kegagalan Transfer
-    WORM --> BE -- : Hash Written Permanently
-    BE --> FE : 400 Bad Request (Transfer Gagal / Ditolak Bank)
-    FE --> Mitra : Tampilkan Error: "Transfer Gagal [ErrorCode]. Saldo telah dikembalikan ke dompet Anda."
+    PG --> SVC : Webhook FAILED (Status: FAILED, ErrorCode)
+    SVC -> REPO : rollbackWalletBalance(advocateId, amount)
+    activate REPO
+    REPO --> SVC : 200 OK (Saldo Kembali Utuh)
+    deactivate REPO
+    SVC -> WORM : storeFailedPayoutLogWORM(transactionId, sha256Hash)
+    activate WORM
+    WORM --> SVC : 200 OK (Hash Written Permanently)
+    deactivate WORM
+    SVC --> CTRL : throw PayoutFailedException(ErrorCode)
+    CTRL --> FE : 400 Bad Request (Transfer Gagal / Ditolak Bank)
+    FE --> Mitra : Tampilkan Error: "Transfer Gagal [ErrorCode]. Saldo dikembalikan."
 end
-deactivate BE
+deactivate SVC
+deactivate CTRL
 deactivate FE
 deactivate Mitra
 @enduml
@@ -1470,28 +1490,43 @@ deactivate Mitra
 @startuml
 autonumber
 actor "Admin Justifiqa" as Admin
-participant "Portal Backoffice Admin" as FE
-participant "Backend Independen Justifiqa" as BE
-database "Database Justifiqa" as DB
+participant "AdminFinanceUI" as FE
+participant "FinanceLedgerController" as CTRL
+participant "EscrowAuditService" as SVC
+database "EscrowLedgerRepository & DB" as REPO
 database "WORM Hash Storage" as WORM
 
 activate Admin
 Admin -> FE ++ : Buka Modul Keuangan & Buku Besar Escrow
-FE -> BE ++ : GET /api/v1/admin/finance/escrow-ledger?startDate=X&endDate=Y
-BE -> DB ++ : Query Rekapitulasi Saldo & Bagi Hasil (25%/75%)
-DB --> BE -- : Return Financial Records
-BE -> WORM ++ : Validasi Integritas Hash SHA-256 Transaksi
-WORM --> BE -- : Return Hash Validation Status
-BE --> FE -- : 200 OK (Data Ledger & Status Hash Valid)
+FE -> CTRL ++ : GET /api/v1/admin/finance/escrow-ledger?startDate=X&endDate=Y
+CTRL -> SVC ++ : getEscrowLedgerAuditReport(startDate, endDate)
+SVC -> REPO : queryEscrowSummaryAndRevenueShare()
+activate REPO
+REPO --> SVC : Return Financial Records (25% Platform / 75% Advocate)
+deactivate REPO
+SVC -> WORM : verifyTransactionIntegrityHashes(records)
+activate WORM
+WORM --> SVC : Return Hash Validation Status (Verified)
+deactivate WORM
+SVC --> CTRL : EscrowLedgerAuditReport
+deactivate SVC
+CTRL --> FE : 200 OK (Data Ledger & Status Hash Valid)
+deactivate CTRL
 FE --> Admin : Tampilkan Tabel Laporan Keuangan Escrow & PPh 21
+deactivate FE
 
 opt Unduh Bukti Rekap PPh 21 & Hash Audit
     Admin -> FE ++ : Klik Unduh Laporan Rekap PPh 21
-    FE -> BE ++ : GET /api/v1/admin/finance/export-tax-report
-    BE -> BE ++ : Generate Dokumen PDF/Excel dengan Digital Signature SHA-256
-    BE --> BE -- : Return Computed Result / State
-    BE --> FE -- : 200 OK (File Export Ready)
+    FE -> CTRL ++ : GET /api/v1/admin/finance/export-tax-report
+    CTRL -> SVC ++ : generateTaxAndAuditExport()
+    SVC -> SVC ++ : generateSignedTaxReportPDF(sha256Hash)
+    SVC --> SVC -- : Return Signed Document File
+    SVC --> CTRL : ExportFileReady
+    deactivate SVC
+    CTRL --> FE : 200 OK (File Export Ready)
+    deactivate CTRL
     FE --> Admin : Download File Laporan Rekapitulasi Pajak
+    deactivate FE
 end
 deactivate Admin
 @enduml
@@ -1506,9 +1541,10 @@ deactivate Admin
 @startuml
 autonumber
 actor "Klien Justifiqa" as Klien
-participant "Frontend Justifiqa" as FE
-participant "Backend Justifiqa" as BE
-database "Database Justifiqa" as DB
+participant "ClientReviewUI" as FE
+participant "ReviewController" as CTRL
+participant "AdvocateRatingService" as SVC
+database "ReviewRepository & DB" as REPO
 
 activate Klien
 Klien -> FE ++ : Buka Form Ulasan (Pilih Skor Bintang 1-5 & Tulis Ulasan)
@@ -1518,35 +1554,45 @@ else Profil Asli
     Klien -> FE : Biarkan Toggle Non-Aktif
 end
 Klien -> FE : Klik Kirim Penilaian
-FE -> BE ++ : POST /api/v1/reviews/submit {sessId, rating, comment, isAnonymous}
-BE -> DB ++ : SELECT status FROM sessions WHERE id = sessId
-DB --> BE -- : status = DONE, review_status = NONE
+FE -> CTRL ++ : POST /api/v1/reviews/submit {sessId, rating, comment, isAnonymous}
+CTRL -> SVC ++ : submitReview(sessId, rating, comment, isAnonymous)
+SVC -> REPO : verifySessionAndReviewStatus(sessId)
+activate REPO
+REPO --> SVC : status = DONE, review_status = NONE
+deactivate REPO
 
 alt Sesi Valid & Belum Direview
     alt isAnonymous == true
-        BE -> BE ++ : Masking Nama Profil (Misal: K****n)
-        BE --> BE -- : Return Computed Result / State
+        SVC -> SVC ++ : maskDisplayName(profileName)
+        SVC --> SVC -- : Return Masked Name (Misal: K****n)
     else isAnonymous == false
-        BE -> BE ++ : Gunakan Nama Profil Asli
-        BE --> BE -- : Return Computed Result / State
+        SVC -> SVC ++ : useOriginalDisplayName(profileName)
+        SVC --> SVC -- : Return Original Display Name
     end
-    BE -> DB ++ : INSERT INTO reviews (sessId, advokatId, rating, comment, display_name)
-    DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE -> DB ++ : UPDATE advokat_profiles SET aggregate_rating = calc_new_rating() WHERE id = advokatId
-    DB --> BE -- : Save Success
+    SVC -> REPO : insertReview(sessId, advokatId, rating, comment, display_name)
+    activate REPO
+    REPO --> SVC : 200 OK (Success / Rows Affected)
+    deactivate REPO
+    SVC -> REPO : recalculateAggregateRating(advokatId)
+    activate REPO
+    REPO --> SVC : Save Success
+    deactivate REPO
     
     opt Rating Agregat <= 2 Bintang
-        BE -> BE ++ : Generate Internal Quality Alert untuk Advokat (Tanpa AML Overkill)
-        BE --> BE -- : Return Computed Result / State
+        SVC -> SVC ++ : generateInternalQualityAlert(advokatId)
+        SVC --> SVC -- : Alert Generated
     end
     
-    BE --> FE : 201 Created (Review Submitted)
+    SVC --> CTRL : ReviewSubmitted
+    CTRL --> FE : 201 Created (Review Submitted)
     FE --> Klien : Tampilkan Pesan Konfirmasi "Terima Kasih atas Ulasan Anda"
 else Sesi Tidak Valid / Duplikat Review
-    BE --> FE : 400 Bad Request (Session Invalid or Already Reviewed)
+    SVC --> CTRL : throw InvalidSessionReviewException
+    CTRL --> FE : 400 Bad Request (Session Invalid or Already Reviewed)
     FE --> Klien : Tampilkan Pesan Error "Sesi Tidak Valid / Sudah Diberi Ulasan"
 end
-deactivate BE
+deactivate SVC
+deactivate CTRL
 deactivate FE
 deactivate Klien
 @enduml
@@ -1565,9 +1611,10 @@ deactivate Klien
 title Sequence Diagram: SD-J-21 - Melaporkan Dugaan Pelanggaran Etik Advokat (J-UC21)
 autonumber
 actor "Klien Justifiqa" as Klien
-participant "Frontend Klien" as FE
-participant "Backend Independen Justifiqa" as BE
-database "Database Justifiqa" as DB
+participant "WhistleblowingUI" as FE
+participant "EthicsReportController" as CTRL
+participant "ModerationReportService" as SVC
+database "ModerationReportRepository & DB" as REPO
 database "WORM Hash Storage" as WORM
 
 activate Klien
@@ -1577,24 +1624,38 @@ Klien -> FE : Pilih Kategori Pelanggaran & Isi Kronologi Kejadian
 
 alt Klien Melampirkan Bukti Transkrip E2EE / Dokumen Pendukung
     Klien -> FE : Unggah File Ekspor Transkrip E2EE / Bukti PDF
-    FE -> BE ++ : POST /api/v1/client/reports/verify-evidence {file}
-    BE -> BE ++ : Verifikasi Kriptografi & Compute Hash SHA-256 Bukti
-    BE --> BE -- : Return Computed Result / State
-    BE --> FE -- : 200 OK {evidence_hash: SHA-256, verified: true}
+    FE -> CTRL ++ : POST /api/v1/client/reports/verify-evidence {file}
+    CTRL -> SVC ++ : verifyCryptographicEvidence(file)
+    SVC -> SVC ++ : computeSHA256AndVerifySignature(file)
+    SVC --> SVC -- : Return Verified Hash
+    SVC --> CTRL : EvidenceVerificationPayload {evidence_hash, verified: true}
+    deactivate SVC
+    CTRL --> FE : 200 OK {evidence_hash: SHA-256, verified: true}
+    deactivate CTRL
     FE --> Klien : Tampilkan Bukti Terlampir & Hash SHA-256 Valid
 else Klien Tidak Melampirkan Bukti Pendukung
     FE --> Klien : Tampilkan Peringatan "Laporan Tanpa Bukti Sah Berisiko Ditolak Saat Triage"
 end
 
 Klien -> FE : Centang Pernyataan Kebenaran Laporan & Klik "Kirim Laporan"
-FE -> BE ++ : POST /api/v1/client/reports/advokat {advocate_id, category, description, evidence_hash}
-BE -> DB ++ : INSERT INTO moderation_reports (client_id, advocate_id, category, status: 'PENDING_TRIAGE')
-DB --> BE -- : Report Ticket Created
-BE -> WORM ++ : Catat Hash SHA-256 Tiket Laporan ke WORM Storage
-WORM --> BE -- : 200 OK (WORM Hash Stamped / Recorded)
-BE -> DB ++ : Teruskan Tiket Laporan ke Antrean Investigasi Admin Legal (`AD-J-10`)
-DB --> BE -- : Queue Updated
-BE --> FE -- : 201 Created {ticket_id, status: 'PENDING_TRIAGE'}
+FE -> CTRL ++ : POST /api/v1/client/reports/advokat {advocate_id, category, description, evidence_hash}
+CTRL -> SVC ++ : submitModerationReport(client_id, advocate_id, category, evidence_hash)
+SVC -> REPO : insertModerationReport(clientId, advocateId, category, status='PENDING_TRIAGE')
+activate REPO
+REPO --> SVC : Report Ticket Created
+deactivate REPO
+SVC -> WORM : stampReportTicketHashWORM(ticketId, evidenceHash)
+activate WORM
+WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+deactivate WORM
+SVC -> REPO : forwardToInvestigationQueue(ticketId)
+activate REPO
+REPO --> SVC : Queue Updated
+deactivate REPO
+SVC --> CTRL : ReportTicketSubmitted {ticket_id, status: 'PENDING_TRIAGE'}
+deactivate SVC
+CTRL --> FE : 201 Created {ticket_id, status: 'PENDING_TRIAGE'}
+deactivate CTRL
 FE --> Klien : Tampilkan Konfirmasi Laporan Diterima & Nomor Tiket Investigasi
 deactivate FE
 deactivate Klien
@@ -1611,48 +1672,70 @@ deactivate Klien
 title Sequence Diagram: SD-J-22 - Mengisi Saldo Dompet Advokat (Top-Up / Cash-In - J-UC22)
 autonumber
 actor "Advokat Justifiqa" as Mitra
-participant "Frontend Dompet" as FE
-participant "Backend Justifiqa" as BE
+participant "WalletDashboardUI" as FE
+participant "WalletTopUpController" as CTRL
+participant "AdvocateWalletService" as SVC
+database "AdvocateWalletRepository & DB" as REPO
 participant "Payment Gateway" as PG
-database "Database (`advocate_wallets`)" as DB
 
 activate Mitra
 Mitra -> FE ++ : Buka Dasbor Dompet & Pilih Menu "Top-Up Saldo"
 FE --> Mitra : Tampilkan Pilihan Nominal (Rp12k / Rp50k / Rp100k)
 Mitra -> FE : Pilih Nominal & Klik "Buat Tagihan Pembayaran"
-FE -> BE ++ : POST /api/v1/advocates/wallet/topup {amount}
+FE -> CTRL ++ : POST /api/v1/advocates/wallet/topup {amount}
+CTRL -> SVC ++ : createTopUpBilling(advocateId, amount)
 
-BE -> DB ++ : INSERT INTO wallet_transactions (advocate_id, amount, status: 'PENDING')
-DB --> BE -- : Transaction ID Created
-BE -> PG ++ : POST /v1/payment-gateway/snap-token {order_id, amount, customer_details}
-PG --> BE -- : 200 OK {snap_token, redirect_url, qris_string}
-BE --> FE -- : 201 Created {snap_token, order_id}
+SVC -> REPO : insertWalletTransaction(advocateId, amount, status='PENDING')
+activate REPO
+REPO --> SVC : Transaction ID Created
+deactivate REPO
+SVC -> PG ++ : POST /v1/payment-gateway/snap-token {order_id, amount, customer_details}
+PG --> SVC -- : 200 OK {snap_token, redirect_url, qris_string}
+SVC --> CTRL : TopUpBillingPayload {snap_token, order_id}
+deactivate SVC
+CTRL --> FE : 201 Created {snap_token, order_id}
+deactivate CTRL
 FE --> Mitra : Tampilkan Halaman Pembayaran (Snap Checkout UI)
 
 Mitra -> PG ++ : Selesaikan Pembayaran via M-Banking / E-Wallet Eksternal
 PG --> Mitra -- : Tampilkan Status Pembayaran / Redirect ke Aplikasi Dompet
 
 alt Pembayaran Sukses Diterima Payment Gateway
-    PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'PAID', signature}
-    BE -> BE ++ : Verifikasi Kriptografi HMAC-SHA512 Webhook Signature
-    BE --> BE -- : Return Computed Result / State
-    BE -> DB ++ : UPDATE wallet_transactions SET status = 'PAID', paid_at = NOW() WHERE order_id = order_id
-    DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE -> DB ++ : UPDATE advocate_wallets SET balance = balance + amount WHERE advocate_id = advocate_id
-    DB --> BE -- : Balance Updated
-    BE --> PG -- : 200 OK (Webhook Received)
+    PG -> CTRL ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'PAID', signature}
+    CTRL -> SVC ++ : processTopUpWebhook(orderId, status, signature)
+    SVC -> SVC ++ : verifyHMACSHA512WebhookSignature(signature)
+    SVC --> SVC -- : Verified Signature
+    SVC -> REPO : updateTransactionPaid(orderId, paidAt=NOW)
+    activate REPO
+    REPO --> SVC : 200 OK (Transaction Updated)
+    deactivate REPO
+    SVC -> REPO : incrementAdvocateWalletBalance(advocateId, amount)
+    activate REPO
+    REPO --> SVC : Balance Updated
+    deactivate REPO
+    SVC --> CTRL : WebhookProcessed
+    deactivate SVC
+    CTRL --> PG : 200 OK (Webhook Received)
+    deactivate CTRL
     
-    BE -> FE : Push Notification / SSE "Saldo Dompet Berhasil Ditambahkan"
+    CTRL -> FE : Push Notification / SSE "Saldo Dompet Berhasil Ditambahkan"
     FE --> Mitra : Tampilkan Resi Top-Up & Update Saldo Dompet Aktif
 else Pembayaran Kedaluwarsa / Dibatalkan (Expired / Cancelled)
-    PG -> BE ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'EXPIRED'}
-    BE -> DB ++ : UPDATE wallet_transactions SET status = 'CANCELLED' WHERE order_id = order_id
-    DB --> BE -- : 200 OK (Success / Rows Affected)
-    BE --> PG -- : 200 OK (Webhook Received)
+    PG -> CTRL ++ : Webhook Callback (POST /api/v1/webhooks/payment) {order_id, status: 'EXPIRED'}
+    CTRL -> SVC ++ : processTopUpWebhook(orderId, status='EXPIRED')
+    SVC -> REPO : updateTransactionCancelled(orderId)
+    activate REPO
+    REPO --> SVC : 200 OK (Transaction Cancelled)
+    deactivate REPO
+    SVC --> CTRL : WebhookProcessed
+    deactivate SVC
+    CTRL --> PG : 200 OK (Webhook Received)
+    deactivate CTRL
     
-    BE -> FE : Push Notification / SSE "Tagihan Top-Up Kedaluwarsa"
+    CTRL -> FE : Push Notification / SSE "Tagihan Top-Up Kedaluwarsa"
     FE --> Mitra : Tampilkan Status Tagihan Kedaluwarsa
 end
+deactivate FE
 deactivate Mitra
 @enduml
 ```
@@ -1667,68 +1750,94 @@ deactivate Mitra
 title Sequence Diagram: SD-J-20 - Autentikasi Portal Backoffice Admin Justifiqa (TOTP 2FA - J-UC20)
 autonumber
 actor "Admin Justifiqa" as Admin
-participant "Portal Backoffice (`admin.justifiqa.com`)" as FE
-participant "IAM Gateway Justifiqa" as IAM
-database "IAM Database Justifiqa" as DB
+participant "AdminPortalUI" as FE
+participant "AdminAuthController" as CTRL
+participant "AdminIAMService" as SVC
+database "AdminIAMRepository & DB" as REPO
 database "WORM Audit Storage Justifiqa" as WORM
 
 activate Admin
 Admin -> FE ++ : Buka URL Portal Backoffice via VPN/ZTNA
-FE -> IAM ++ : Verifikasi IP Address Pengakses (IP Whitelist Check)
-IAM -> IAM ++ : Evaluasi IP terhadap Ruleset SOC Justifiqa
-IAM --> IAM -- : 200 OK (Token / State Verified)
+FE -> CTRL ++ : GET /admin/login
+CTRL -> SVC ++ : verifyClientIPWhitelist(clientIP)
+SVC -> SVC ++ : evaluateIPAgainstSOCRuleset(clientIP)
+SVC --> SVC -- : IP Whitelist Evaluation Result
 
 alt IP Address Tidak Terdaftar (Unauthorized IP)
-    IAM -> WORM ++ : Catat Peringatan SOC Keamanan Kritis (Unauthorized IP)
-    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-    IAM --> FE : 403 Forbidden (Access Denied)
+    SVC -> WORM : recordSecurityAlertWORM(clientIP, 'UNAUTHORIZED_IP')
+    activate WORM
+    WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+    deactivate WORM
+    SVC --> CTRL : throw UnauthorizedIPException
+    CTRL --> FE : 403 Forbidden (Access Denied)
     FE --> Admin : Blokir Akses & Tampilkan Halaman Error 403
 else IP Address Terdaftar di Whitelist
-    IAM --> FE -- : 200 OK (Allow Form Login)
+    SVC --> CTRL : IPVerified
+    CTRL --> FE : 200 OK (Allow Form Login)
     FE --> Admin : Tampilkan Form Login Backoffice Hukum
     
     loop [Maksimal 3x Percobaan Input Kredensial Login Backoffice]
         Admin -> FE : Submit Email & Password Internal Justifiqa
-        FE -> IAM ++ : POST /api/v1/admin/auth/login (Credentials)
-        IAM -> DB ++ : Query Kredensial & Status Akun Admin Justifiqa
-        DB --> IAM -- : Return User Data & Password Hash
+        FE -> CTRL ++ : POST /api/v1/admin/auth/login (Credentials)
+        CTRL -> SVC ++ : authenticateAdminCredentials(email, password)
+        SVC -> REPO : queryAdminCredentialsAndStatus(email)
+        activate REPO
+        REPO --> SVC : Return User Data & Password Hash
+        deactivate REPO
         
         alt Kredensial Tidak Valid / Akun Terkunci
-            IAM -> WORM ++ : Catat Percobaan Login Gagal (Failed Attempt)
-            WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-            IAM --> FE : 401 Unauthorized (Kredensial Salah)
+            SVC -> WORM : recordFailedLoginAttemptWORM(email)
+            activate WORM
+            WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+            deactivate WORM
+            SVC --> CTRL : throw InvalidCredentialsException
+            CTRL --> FE : 401 Unauthorized (Kredensial Salah)
             FE --> Admin : Tampilkan Error "Kredensial Tidak Valid"
             note over Admin, FE : [REPEAT LOOP: Admin mengulangi input kredensial ke baris awal loop]
         else Kredensial Valid
-            IAM --> FE -- : 200 OK (Require TOTP 2FA Verification)
+            SVC --> CTRL : CredentialsValid (Require TOTP 2FA)
+            CTRL --> FE : 200 OK (Require TOTP 2FA Verification)
             FE --> Admin : Tampilkan Permintaan Kode TOTP 2FA
-            note over Admin, IAM : [BREAK LOOP: Kredensial Valid Lanjut ke Verifikasi TOTP 2FA]
+            note over Admin, CTRL : [BREAK LOOP: Kredensial Valid Lanjut ke Verifikasi TOTP 2FA]
             
             loop [Maksimal 3x Percobaan Verifikasi Kode TOTP 2FA]
                 Admin -> FE : Input 6 Digit Kode dari Aplikasi Authenticator
-                FE -> IAM ++ : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
-                IAM -> IAM ++ : Verifikasi Algoritma TOTP (Time-step Check)
-                IAM --> IAM -- : 200 OK (Token / State Verified)
+                FE -> CTRL ++ : POST /api/v1/admin/auth/verify-totp (TOTP Code, Session ID)
+                CTRL -> SVC ++ : verifyTOTPAndGenerateSession(adminId, totpCode)
+                SVC -> SVC ++ : verifyTimeStepTOTPAlgorithm(totpCode)
+                SVC --> SVC -- : TOTP Verification Result
                 
                 alt Kode TOTP Salah / Kadaluarsa
-                    IAM -> WORM ++ : Catat Anomali Kegagalan TOTP SOC Justifiqa
-                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-                    IAM --> FE : 401 Unauthorized (TOTP Invalid)
+                    SVC -> WORM : recordFailedTOTPAttemptWORM(adminId)
+                    activate WORM
+                    WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+                    deactivate WORM
+                    SVC --> CTRL : throw InvalidTOTPException
+                    CTRL --> FE : 401 Unauthorized (TOTP Invalid)
                     FE --> Admin : Tampilkan Error "Kode TOTP Tidak Valid"
-                    note over Admin, FE : [REPEAT LOOP: Admin memasukkan ulang kode TOTP ke baris awal loop]
+                    note over Admin, FE : [REPEAT LOOP: Admin memasukkan ulang kode TOTP]
                 else Kode TOTP Valid
-                    IAM -> IAM ++ : Generate Cryptographic JWT Session Token
-                    IAM --> IAM -- : 200 OK (Token / State Verified)
-                    IAM -> WORM ++ : Catat Log Autentikasi Sukses (Timestamp, IP, Role)
-                    WORM --> IAM -- : 200 OK (WORM Hash Stamped / Recorded)
-                    IAM --> FE -- : 200 OK (Return JWT Token & Admin Profile)
-                    FE --> Admin : Redirect ke Dasbor Admin Utama Justifiqa (`SCR-JST-07`)
-                    note over Admin, IAM : [BREAK LOOP: TOTP Valid Lanjut ke Dasbor Admin Utama]
+                    SVC -> SVC ++ : generateSignedJWTSessionToken(adminProfile)
+                    SVC --> SVC -- : Return JWT Token
+                    SVC -> WORM : recordSuccessfulAdminLoginWORM(adminId, timestamp, ip)
+                    activate WORM
+                    WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+                    deactivate WORM
+                    SVC --> CTRL : AdminAuthSuccessPayload {jwtToken, profile}
+                    CTRL --> FE : 200 OK (Return JWT Token & Admin Profile)
+                    FE --> Admin : Redirect ke Dasbor Admin Utama Justifiqa (SCR-JST-07)
+                    note over Admin, CTRL : [BREAK LOOP: TOTP Valid Lanjut ke Dasbor Admin Utama]
                 end
+                deactivate SVC
+                deactivate CTRL
             end
         end
+        deactivate SVC
+        deactivate CTRL
     end
 end
+deactivate SVC
+deactivate CTRL
 deactivate FE
 deactivate Admin
 @enduml
