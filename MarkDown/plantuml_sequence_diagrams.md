@@ -644,8 +644,10 @@ loop [Percobaan Pengaturan Slot Kalender hingga Tidak Ada Konflik]
     FE -> CTRL ++ : PUT /api/v1/advocate/calendar (Status: OPEN_SLOT)
     CTRL -> SVC ++ : updateCalendarAvailability(advocateId, slotPayload)
 
-    SVC -> REPO ++ : checkActiveBookingAndScheduleConflict(advocateId, slotPayload)
-    REPO --> SVC -- : Return Booking Schedule & Active Session State
+    SVC -> REPO : checkActiveBookingAndScheduleConflict(advocateId, slotPayload)
+    activate REPO
+    REPO --> SVC : Return Booking Schedule & Active Session State
+    deactivate REPO
 
     alt Ada Jadwal yang Bentrok / Sesi Sedang Berjalan (HTTP 409)
         SVC --> CTRL : throw ScheduleConflictException(Jadwal Bentrok)
@@ -653,8 +655,10 @@ loop [Percobaan Pengaturan Slot Kalender hingga Tidak Ada Konflik]
         FE --> Mitra : Tampilkan Peringatan & Minta Penyesuaian Slot Kalender
         note over Mitra, FE : [REPEAT LOOP: Mitra sesuaikan jam operasional & simpan kembali ke baris awal loop]
     else Slot Jadwal Aman (200 OK)
-        SVC -> REPO ++ : updateCalendarStatus(advocateId, status='AVAILABLE')
-        REPO --> SVC -- : Success Update
+        SVC -> REPO : updateCalendarStatus(advocateId, status='AVAILABLE')
+        activate REPO
+        REPO --> SVC : Success Update
+        deactivate REPO
         SVC --> CTRL : CalendarScheduleUpdated
         CTRL --> FE : 200 OK (Jadwal Kalender Berhasil Diperbarui)
         FE --> Mitra : Tampilkan Status Siap (Auto-Scheduled) Menerima Klien
@@ -662,8 +666,8 @@ loop [Percobaan Pengaturan Slot Kalender hingga Tidak Ada Konflik]
     end
     deactivate SVC
     deactivate CTRL
+    deactivate FE
 end
-deactivate FE
 deactivate Mitra
 @enduml
 ```
@@ -687,34 +691,42 @@ actor "Advokat Justifiqa" as Mitra
 activate Klien
 Klien -> LocK ++ : Pilih Berkas Bukti Perkara (PDF/JPG)
 LocK -> LocK ++ : Enkripsi File Lokal dengan Session Key (Zero-Knowledge)
-deactivate LocK
+LocK --> LocK -- : Local File Encrypted
 LocK -> CTRL ++ : POST /api/v1/chat/upload-secure (Encrypted Blob, SHA-256 Hash)
 CTRL -> SVC ++ : storeEncryptedBlob(blob, sha256Hash)
 SVC -> SVC ++ : verifyZeroKnowledgeHeader(blob, sha256Hash)
 SVC --> SVC -- : Header Verified (No Plaintext Access)
 
-SVC -> REPO ++ : storeBlobAndIntegrityHash(blob, sha256Hash)
-REPO --> SVC -- : Storage Confirmation
+SVC -> REPO : storeBlobAndIntegrityHash(blob, sha256Hash)
+activate REPO
+REPO --> SVC : Storage Confirmation
+deactivate REPO
 SVC --> CTRL : EncryptedBlobStored
-CTRL --> LocM ++ : Push Notification File Baru Diunggah
+deactivate SVC
+CTRL --> LocK : 201 Created (File Uploaded)
+deactivate CTRL
+LocK --> Klien : Konfirmasi Berkas Terenkripsi Terunggah
+deactivate LocK
+
+CTRL -> LocM ++ : Push Notification File Baru Diunggah
 activate Mitra
 LocM --> Mitra : Notifikasi Berkas Baru Tersedia
 deactivate LocM
-deactivate SVC
-deactivate CTRL
-deactivate LocK
 
 Mitra -> LocM ++ : Klik Unduh Bukti Perkara
 LocM -> CTRL ++ : GET /api/v1/chat/download-secure (File ID)
 CTRL -> SVC ++ : fetchEncryptedBlob(fileId)
-SVC -> REPO ++ : getBlobMetadataAndPayload(fileId)
-REPO --> SVC -- : Return Encrypted Blob
+SVC -> REPO : getBlobMetadataAndPayload(fileId)
+activate REPO
+REPO --> SVC : Return Encrypted Blob
+deactivate REPO
 SVC --> CTRL : EncryptedBlobPayload
-CTRL --> LocM -- : Return Encrypted Blob
 deactivate SVC
+CTRL --> LocM : Return Encrypted Blob
+deactivate CTRL
 
 LocM -> LocM ++ : Dekripsi Lokal dengan Session Key
-deactivate LocM
+LocM --> LocM -- : Decrypted
 LocM --> Mitra : Tampilkan Dokumen Utuh untuk Ditelusuri
 deactivate LocM
 deactivate Klien
@@ -743,13 +755,15 @@ activate Mitra
 Mitra -> FE ++ : Buat Draf Legal Opinion / Kontrak & Pilih e-Meterai
 FE -> CTRL ++ : POST /api/v1/legal-docs/generate (Payload, Stamping Req)
 CTRL -> SVC ++ : generateDraftDocument(advocateId, payload, stampingReq)
-SVC -> REPO ++ : saveDraftVersionInitial(payload)
-REPO --> SVC -- : Draf Saved
+SVC -> REPO : saveDraftVersionInitial(payload)
+activate REPO
+REPO --> SVC : Draf Saved
+deactivate REPO
 SVC --> CTRL : DraftGenerated
-CTRL --> FE : 201 Created (Draft Tersimpan)
-FE --> Mitra : Tampilkan Draf Tersimpan
 deactivate SVC
+CTRL --> FE : 201 Created (Draft Tersimpan)
 deactivate CTRL
+FE --> Mitra : Tampilkan Draf Tersimpan
 deactivate FE
 
 alt Pembubuhan e-Meterai Peruri = TRUE
@@ -758,8 +772,10 @@ alt Pembubuhan e-Meterai Peruri = TRUE
     CTRL -> SVC ++ : finalizeAndStampDocument(draftId, advocateId)
     
     loop Cek Saldo Dompet Advokat (Biaya Rp12.000)
-        SVC -> REPO ++ : queryAdvocateWalletBalance(advocateId)
-        REPO --> SVC -- : Return Balance
+        SVC -> REPO : queryAdvocateWalletBalance(advocateId)
+        activate REPO
+        REPO --> SVC : Return Balance
+        deactivate REPO
         
         alt Saldo Dompet Tidak Mencukupi (Balance < Rp12.000)
             SVC --> CTRL : throw PaymentRequiredException(Saldo Dompet Kurang)
@@ -768,10 +784,14 @@ alt Pembubuhan e-Meterai Peruri = TRUE
             Mitra -> FE : Lakukan Top-Up Dompet (Lihat SD-J-22)
             note right of Mitra : Advokat menjalankan alur SD-J-22 (Top-Up).\nJika sukses/gagal/batal, kontrol kembali\nuntuk mengulang pengecekan saldo di atas.
         else Saldo Dompet Mencukupi
-            SVC -> REPO ++ : deductAdvocateWalletBalance(advocateId, amount=12000)
-            REPO --> SVC -- : 200 OK (Success / Rows Affected)
-            SVC -> REPO ++ : updateDraftStatus(draftId, 'IMMUTABLE_FINAL')
-            REPO --> SVC -- : 200 OK (Success / Rows Affected)
+            SVC -> REPO : deductAdvocateWalletBalance(advocateId, amount=12000)
+            activate REPO
+            REPO --> SVC : 200 OK (Success / Rows Affected)
+            deactivate REPO
+            SVC -> REPO : updateDraftStatus(draftId, 'IMMUTABLE_FINAL')
+            activate REPO
+            REPO --> SVC : 200 OK (Success / Rows Affected)
+            deactivate REPO
         end
     end
     
@@ -779,29 +799,39 @@ alt Pembubuhan e-Meterai Peruri = TRUE
     Peruri -> Peruri ++ : Validasi Request & Bubuhkan Serial Number e-Meterai
     Peruri --> Peruri -- : 200 OK (Serial Number e-Meterai Rilis)
     Peruri --> SVC -- : Return Stamped Document & Certificate SHA-256 Hash
-    SVC -> REPO ++ : storeStampedDocumentWORM(draftId, stampedPdf, sha256Hash)
-    REPO --> SVC -- : 200 OK (Success / Rows Affected)
+    SVC -> REPO : storeStampedDocumentWORM(draftId, stampedPdf, sha256Hash)
+    activate REPO
+    REPO --> SVC : 200 OK (Success / Rows Affected)
+    deactivate REPO
 else Tanpa e-Meterai (Draf Internal / Standar)
-    SVC -> REPO ++ : saveStandardLegalDocument(draftId)
-    REPO --> SVC -- : 200 OK (Success / Rows Affected)
+    Mitra -> FE ++ : Klik "Finalisasi Dokumen Tanpa e-Meterai"
+    FE -> CTRL ++ : POST /api/v1/drafts/{id}/finalize-standard
+    CTRL -> SVC ++ : finalizeStandardDocument(draftId, advocateId)
+    SVC -> REPO : saveStandardLegalDocument(draftId)
+    activate REPO
+    REPO --> SVC : 200 OK (Success / Rows Affected)
+    deactivate REPO
 end
 
 SVC --> CTRL : SaveConfirmed
-CTRL --> FE : 200 OK (Dokumen Final Siap)
-FE --> Mitra : Tampilkan Konfirmasi Sukses & Tautan Unduh
 deactivate SVC
+CTRL --> FE : 200 OK (Dokumen Final Siap)
 deactivate CTRL
+FE --> Mitra : Tampilkan Konfirmasi Sukses & Tautan Unduh
+deactivate FE
 
 Mitra -> FE ++ : Unduh Arsip Dokumen Bermeterai
 FE -> CTRL ++ : GET /api/v1/documents/{id}/download
 CTRL -> SVC ++ : downloadLegalDocument(documentId)
-SVC -> REPO ++ : getDocumentPayloadAndProof(documentId)
-REPO --> SVC -- : Return File PDF Resmi & SHA-256 Proof
+SVC -> REPO : getDocumentPayloadAndProof(documentId)
+activate REPO
+REPO --> SVC : Return File PDF Resmi & SHA-256 Proof
+deactivate REPO
 SVC --> CTRL : DocumentDownloadPayload
-CTRL --> FE : Return File PDF Resmi & SHA-256 Proof
-FE --> Mitra : Render & Simpan File PDF Bermeterai
 deactivate SVC
+CTRL --> FE : Return File PDF Resmi & SHA-256 Proof
 deactivate CTRL
+FE --> Mitra : Render & Simpan File PDF Bermeterai
 deactivate FE
 
 activate Klien
@@ -809,13 +839,15 @@ SVC -> Klien : Push Notification & Email "Dokumen Hukum Bermeterai Siap Diunduh"
 Klien -> FE ++ : Unduh Dokumen Akhir (Download Gate)
 FE -> CTRL ++ : GET /api/v1/documents/{id}/download
 CTRL -> SVC ++ : downloadLegalDocumentClient(documentId, clientId)
-SVC -> REPO ++ : getDocumentPayloadAndProof(documentId)
-REPO --> SVC -- : Return File PDF Resmi & SHA-256 Proof
+SVC -> REPO : getDocumentPayloadAndProof(documentId)
+activate REPO
+REPO --> SVC : Return File PDF Resmi & SHA-256 Proof
+deactivate REPO
 SVC --> CTRL : DocumentDownloadPayload
-CTRL --> FE : Return File PDF Resmi & SHA-256 Proof
-FE --> Klien : Render File PDF Bermeterai
 deactivate SVC
+CTRL --> FE : Return File PDF Resmi & SHA-256 Proof
 deactivate CTRL
+FE --> Klien : Render File PDF Bermeterai
 deactivate FE
 
 loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
@@ -824,13 +856,15 @@ loop [Siklus Review & Revisi Draf Kontrak - Ulangi Selama Klien Mengajukan Revis
     CTRL -> SVC ++ : submitClauseRevisionTicket(documentId, revisionPayload)
     SVC -> SVC ++ : inlineDLPScan(revisionPayload)
     SVC --> SVC -- : Return DLP Decision
-    SVC -> REPO ++ : saveRevisionTicket(documentId, revisionPayload)
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : saveRevisionTicket(documentId, revisionPayload)
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     SVC --> CTRL : RevisionSent
-    CTRL --> FE : 200 OK
-    FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
     deactivate SVC
+    CTRL --> FE : 200 OK
     deactivate CTRL
+    FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
     deactivate FE
     note over Klien, CTRL : Advokat memproses revisi dan mengunggah draf v2/v3
 end
@@ -839,8 +873,10 @@ alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis
     Klien -> FE ++ : Klik Setujui Dokumen Final (Final Approved) / Auto-Approve SLA Habis / Kuota Habis
     FE -> CTRL ++ : POST /api/v1/documents/{id}/approve
     CTRL -> SVC ++ : approveFinalDocumentAndSettle(documentId)
-    SVC -> REPO ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     opt [Jika Batas Kuota 2x Habis / SLA Habis]
         SVC -> FE ++ : showPromptRevisionQuotaExceeded()
         FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
@@ -848,13 +884,15 @@ alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis
     end
     SVC -> SVC ++ : triggerDeliverableEscrowRelease(documentId)
     SVC --> SVC -- : Return Computed Result / State
-    SVC -> REPO ++ : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : UPDATE escrow_ledger SET status = 'SETTLED' WHERE session_id = id
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     SVC --> CTRL : DocumentApprovedAndSettled
-    CTRL --> FE : 200 Approved
-    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
     deactivate SVC
+    CTRL --> FE : 200 Approved
     deactivate CTRL
+    FE --> Klien : Konfirmasi Dokumen Disetujui & Escrow Dicairkan
     deactivate FE
 end
 deactivate Klien
@@ -892,16 +930,20 @@ loop [Percobaan Pengajuan Pro Bono & Pemilihan Advokat hingga Diterima]
         FE --> Klien : Tampilkan Alasan Penolakan & Opsi Beralih ke Konsultasi Berbayar Reguler / Perbaiki Berkas
         note over Klien, FE : [REPEAT LOOP: Klien memperbaiki SKTM atau beralih ke katalog reguler]
     else SKTM Sah & Terverifikasi
-        SVC -> REPO ++ : insertProBonoApplication(payload, fee=Rp0)
-        REPO --> SVC -- : Success Insert
+        SVC -> REPO : insertProBonoApplication(payload, fee=Rp0)
+        activate REPO
+        REPO --> SVC : Success Insert
+        deactivate REPO
         SVC -> SVC ++ : generateZeroFeeInvoice()
         SVC --> SVC -- : Return Computed Result / State
         SVC -> Mitra ++ : Request Reservasi Konsultasi Pro Bono Rp0
         
         alt Advokat Menerima Penugasan Pro Bono
             Mitra --> SVC -- : 200 OK (Terima Reservasi Pro Bono)
-            SVC -> REPO ++ : updateApplicationStatus(id, 'ACCEPTED')
-            REPO --> SVC -- : 200 OK
+            SVC -> REPO : updateApplicationStatus(id, 'ACCEPTED')
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
             SVC --> CTRL : ProBonoApplicationAccepted
             CTRL --> FE : 200 OK (Sesi Pro Bono Siap Dimulai)
             FE --> Klien : Masuk ke Ruang Konsultasi Hukum Gratis (J-UC04)
@@ -916,8 +958,8 @@ loop [Percobaan Pengajuan Pro Bono & Pemilihan Advokat hingga Diterima]
     end
     deactivate SVC
     deactivate CTRL
+    deactivate FE
 end
-deactivate FE
 deactivate Klien
 @enduml
 ```
@@ -949,85 +991,107 @@ alt Level Konsultasi == Tier 1 Gratis / Triage 15 Menit
 else Level Konsultasi == Tier 2 Premium atau Tier 3 Pro
     SVC -> SVC ++ : encryptFieldsAES256(payload)
     SVC --> SVC -- : Return Encrypted Fields
-    SVC -> REPO ++ : insertIRACNote(payload, access_level = 'INTERNAL_ONLY')
-    REPO --> SVC -- : Success Insert Note (Work Product Privilege Enforced)
+    SVC -> REPO : insertIRACNote(payload, access_level = 'INTERNAL_ONLY')
+    activate REPO
+    REPO --> SVC : Success Insert Note (Work Product Privilege Enforced)
+    deactivate REPO
     SVC --> CTRL : IRACNoteCreated
     CTRL --> FE : 201 Created (Catatan Internal Tersimpan)
     FE --> Mitra : Tampilkan Notifikasi Catatan IRAC Berhasil Diarsip
-
-    alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
-        Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
-        FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary
-        CTRL -> SVC ++ : releaseClientAdviceSummary(sessionId, summaryPayload)
-        SVC -> REPO ++ : updateConsultationStatus(sessionId, 'PENDING_DELIVERABLE')
-        REPO --> SVC -- : 200 OK
-        SVC -> Klien : Push Notification "Laporan Saran Hukum Siap Diperiksa"
-        SVC --> CTRL : SummaryReleased
-        CTRL --> FE : 200 OK
-        FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
-        deactivate FE
-
-        loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
-            alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
-                Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
-                FE -> CTRL ++ : POST /api/v1/consultations/{id}/async-thread/clarify
-                CTRL -> SVC ++ : submitClarificationRequest(sessionId, clarificationPayload)
-                SVC -> REPO ++ : incrementClarificationRounds(sessionId)
-                REPO --> SVC -- : 200 OK
-                SVC --> CTRL : ClarificationSent
-                CTRL --> FE : 200 OK
-                FE --> Klien : Pertanyaan Klarifikasi Terkirim
-                deactivate FE
-                
-                Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
-                FE -> CTRL ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
-                CTRL -> SVC ++ : updateIRACNote(noteId, updatedFields)
-                SVC -> REPO ++ : updateIRACFields(noteId, updatedFields)
-                REPO --> SVC -- : 200 OK
-                SVC --> CTRL : IRACNoteUpdated
-                CTRL --> FE : 200 OK (Internal IRAC Updated)
-                FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
-                deactivate FE
-                
-                Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
-                FE -> CTRL ++ : POST /api/v1/consultations/{id}/async-thread/reply
-                CTRL -> SVC ++ : replyClarification(sessionId, replyPayload)
-                SVC --> CTRL : ReplySent
-                CTRL --> FE : 200 OK
-                FE --> Mitra : Jawaban Terkirim
-                deactivate FE
-            else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
-                break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
-                    SVC -> REPO ++ : updateConsultationSessionLock(sessionId, locked=TRUE)
-                    REPO --> SVC -- : 200 OK
-                    opt [Jika Batas Kuota 2x Putaran / SLA Habis]
-                        SVC -> FE ++ : showPromptClarificationQuotaExceeded()
-                        FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
-                        deactivate FE
-                    end
-                    Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
-                    FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
-                    CTRL -> SVC ++ : approveSummaryAndDisburseEscrow(sessionId)
-                    SVC -> SVC ++ : disburseEscrowWithDeduction(fee=25%, pph21)
-                    SVC --> SVC -- : Escrow Disbursed
-                    SVC --> CTRL : SummaryApproved
-                    CTRL --> FE : 200 Approved
-                    FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
-                    deactivate FE
-                end
-            end
-        end
-    else Level Konsultasi == Tier 3 Pro (Deliverable: Dokumen Hukum Final J-UC12 / J-UC14)
-        SVC -> REPO ++ : updateIRACNoteStatus(noteId, 'INTERNAL_FOUNDATION_PRO')
-        REPO --> SVC -- : 200 OK
-        SVC --> CTRL : NotePromotedToPro
-        CTRL --> FE : 200 OK
-        FE --> Mitra : Tampilkan Status "Catatan IRAC Internal Tersimpan - Lanjut ke Draf Dokumen Hukum"
-    end
 end
 deactivate SVC
 deactivate CTRL
 deactivate FE
+
+alt Level Konsultasi == Tier 2 Premium (Deliverable: Client Advice Summary)
+    Mitra -> FE ++ : Susun & Rilis Laporan Saran Hukum (Client Advice Summary)
+    FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary
+    CTRL -> SVC ++ : releaseClientAdviceSummary(sessionId, summaryPayload)
+    SVC -> REPO : updateConsultationStatus(sessionId, 'PENDING_DELIVERABLE')
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
+    SVC -> Klien : Push Notification "Laporan Saran Hukum Siap Diperiksa"
+    SVC --> CTRL : SummaryReleased
+    deactivate SVC
+    CTRL --> FE : 200 OK
+    deactivate CTRL
+    FE --> Klien : Tampilkan Laporan di Ruang Kerja Asinkron
+    deactivate FE
+
+    loop [Maksimal 2x Putaran Tiket Klarifikasi & Dalam Batas SLA 2x24 Jam]
+        alt Klien Mengajukan Tiket [KLARIFIKASI FAKTA] (Putaran Ke-1 atau Ke-2)
+            Klien -> FE ++ : Kirim Pertanyaan & Fakta Tambahan Berlabel [KLARIFIKASI FAKTA]
+            FE -> CTRL ++ : POST /api/v1/consultations/{id}/async-thread/clarify
+            CTRL -> SVC ++ : submitClarificationRequest(sessionId, clarificationPayload)
+            SVC -> REPO : incrementClarificationRounds(sessionId)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
+            SVC --> CTRL : ClarificationSent
+            deactivate SVC
+            CTRL --> FE : 200 OK
+            deactivate CTRL
+            FE --> Klien : Pertanyaan Klarifikasi Terkirim
+            deactivate FE
+            
+            Mitra -> FE ++ : Perbarui Internal IRAC Note (I - Issue / A - Application) Berdasarkan Fakta Baru
+            FE -> CTRL ++ : PATCH /api/v1/advocate/notes/irac/{note_id} (Updated I & A)
+            CTRL -> SVC ++ : updateIRACNote(noteId, updatedFields)
+            SVC -> REPO : updateIRACFields(noteId, updatedFields)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
+            SVC --> CTRL : IRACNoteUpdated
+            deactivate SVC
+            CTRL --> FE : 200 OK (Internal IRAC Updated)
+            deactivate CTRL
+            FE --> Mitra : Konfirmasi Catatan Internal Diperbarui
+            deactivate FE
+            
+            Mitra -> FE ++ : Kirim Jawaban Penjelasan / Perbarui Client Advice Summary
+            FE -> CTRL ++ : POST /api/v1/consultations/{id}/async-thread/reply
+            CTRL -> SVC ++ : replyClarification(sessionId, replyPayload)
+            SVC --> CTRL : ReplySent
+            deactivate SVC
+            CTRL --> FE : 200 OK
+            deactivate CTRL
+            FE --> Mitra : Jawaban Terkirim
+            deactivate FE
+        else Klien Menyetujui Laporan ATAU Kuota 2x Habis ATAU SLA 2x24 Jam Habis
+            break [BREAK LOOP] Laporan Disetujui / Batas Kuota Habis / SLA Habis -> Keluar dari Siklus
+                SVC -> REPO : updateConsultationSessionLock(sessionId, locked=TRUE)
+                activate REPO
+                REPO --> SVC : 200 OK
+                deactivate REPO
+                opt [Jika Batas Kuota 2x Putaran / SLA Habis]
+                    SVC -> FE ++ : showPromptClarificationQuotaExceeded()
+                    FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
+                    deactivate FE
+                end
+                Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA
+                FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
+                CTRL -> SVC ++ : approveSummaryAndDisburseEscrow(sessionId)
+                SVC -> SVC ++ : disburseEscrowWithDeduction(fee=25%, pph21)
+                SVC --> SVC -- : Escrow Disbursed
+                SVC --> CTRL : SummaryApproved
+                deactivate SVC
+                CTRL --> FE : 200 Approved
+                deactivate CTRL
+                FE --> Klien : Konfirmasi Laporan Disetujui & Escrow Dicairkan
+                deactivate FE
+            end
+        end
+    end
+else Level Konsultasi == Tier 3 Pro (Deliverable: Dokumen Hukum Final J-UC12 / J-UC14)
+    SVC -> REPO : updateIRACNoteStatus(noteId, 'INTERNAL_FOUNDATION_PRO')
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
+    SVC --> CTRL : NotePromotedToPro
+    CTRL --> FE : 200 OK
+    FE --> Mitra : Tampilkan Status "Catatan IRAC Internal Tersimpan - Lanjut ke Draf Dokumen Hukum"
+end
 deactivate Mitra
 @enduml
 ```
@@ -1052,8 +1116,10 @@ activate Admin
 Admin -> FE ++ : Buka Antrean Audit Advokat Baru
 FE -> CTRL ++ : GET /api/v1/admin/audits/advocates (Pending List)
 CTRL -> SVC ++ : getPendingAdvocatesAuditList()
-SVC -> REPO ++ : fetchPendingAdvocatesAndCredentials()
-REPO --> SVC -- : Return Dokumen SIPP, KTP, & Peradi
+SVC -> REPO : fetchPendingAdvocatesAndCredentials()
+activate REPO
+REPO --> SVC : Return Dokumen SIPP, KTP, & Peradi
+deactivate REPO
 SVC --> CTRL : AdvocateAuditList
 CTRL --> FE : 200 OK (Dokumen SIPP, KTP, & Peradi)
 FE --> Admin : Tampilkan Dokumen Kredensial Advokat
@@ -1062,16 +1128,19 @@ deactivate CTRL
 deactivate FE
 
 Admin -> Peradi ++ : Verifikasi Keabsahan Nomor SIPP & Berita Acara Sumpah
-Peradi --> Admin : Hasil Verifikasi Status Advokat
+Peradi --> Admin -- : Hasil Verifikasi Status Advokat
 
 alt Kredensial Palsu / Kadaluarsa
     Admin -> FE ++ : Klik Tolak Kredensial & Isi Alasan
     FE -> CTRL ++ : POST /api/v1/admin/audits/reject (Advocate ID)
     CTRL -> SVC ++ : rejectAdvocateCredential(advocateId, reason)
-    SVC -> REPO ++ : updateAdvocateStatus(advocateId, 'REJECTED')
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : updateAdvocateStatus(advocateId, 'REJECTED')
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     activate Mitra
     SVC -> Mitra : Push Email Alasan Penolakan Akun
+    deactivate Mitra
     SVC --> CTRL : AuditRejected
     CTRL --> FE : 200 OK (Status Rejected)
     FE --> Admin : Notifikasi Penolakan Berhasil Dikirim
@@ -1082,9 +1151,13 @@ else Kredensial Sah & Aktif
     Admin -> FE ++ : Klik Setujui Kredensial
     FE -> CTRL ++ : POST /api/v1/admin/audits/approve (Advocate ID)
     CTRL -> SVC ++ : approveAdvocateCredential(advocateId)
-    SVC -> REPO ++ : updateAdvocateVerifiedAndLockName(advocateId)
-    REPO --> SVC -- : 200 OK (Layer 1: Immutable Display Name Locked)
+    SVC -> REPO : updateAdvocateVerifiedAndLockName(advocateId)
+    activate REPO
+    REPO --> SVC : 200 OK (Layer 1: Immutable Display Name Locked)
+    deactivate REPO
+    activate Mitra
     SVC -> Mitra : Push Email Akun Aktif Siap Praktik
+    deactivate Mitra
     SVC --> CTRL : AuditApproved
     CTRL --> FE : 200 OK (Status Approved)
     FE --> Admin : Notifikasi Persetujuan Berhasil Dikirim
@@ -1096,6 +1169,7 @@ deactivate Admin
 
 alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile DLP)
     alt Unggah Foto Profil / Avatar (Layer 3: Media OCR Sandbox)
+        activate Mitra
         Mitra -> FE ++ : Unggah File Foto Profil Baru
         FE -> CTRL ++ : POST /api/v1/advocate/profile/avatar
         CTRL -> SVC ++ : uploadAvatarWithSandboxOCR(advocateId, avatarBlob)
@@ -1106,8 +1180,10 @@ alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile D
             CTRL --> FE : 422 Unprocessable Media (Contact Info Detected in Image)
             FE --> Mitra : Tampilkan Error "Foto Profil Mengandung Kontak Dilarang"
         else Gambar Bersih / Lolos OCR
-            SVC -> REPO ++ : updateAdvocateAvatarUrl(advocateId, url)
-            REPO --> SVC -- : 200 OK
+            SVC -> REPO : updateAdvocateAvatarUrl(advocateId, url)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
             SVC --> CTRL : AvatarVerifiedAndSaved
             CTRL --> FE : 200 OK (Avatar Terverifikasi)
             FE --> Mitra : Tampilkan Foto Profil Baru
@@ -1115,7 +1191,9 @@ alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile D
         deactivate SVC
         deactivate CTRL
         deactivate FE
+        deactivate Mitra
     else Perbarui Teks Bio / Deskripsi Diri (Layer 2: Pre-Publication NLP Scan)
+        activate Mitra
         Mitra -> FE ++ : Simpan Pembaruan Bio & Pengalaman Kerja
         FE -> CTRL ++ : PUT /api/v1/advocate/profile {bio, experience}
         CTRL -> SVC ++ : updateProfileWithNLPScan(advocateId, bioPayload)
@@ -1126,8 +1204,10 @@ alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile D
             CTRL --> FE : 400 Bad Request (Profile Rejected - DLP Contact Violation)
             FE --> Mitra : Tampilkan Error "Teks Profil Mengandung Kontak Pribadi"
         else Teks Bersih / Lolos NLP
-            SVC -> REPO ++ : updateAdvocateBio(advocateId, bioPayload)
-            REPO --> SVC -- : 200 OK
+            SVC -> REPO : updateAdvocateBio(advocateId, bioPayload)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
             SVC --> CTRL : ProfileUpdated
             CTRL --> FE : 200 OK (Profil Diperbarui)
             FE --> Mitra : Konfirmasi Profil Berhasil Dipublikasikan
@@ -1135,9 +1215,9 @@ alt Advokat Memperbarui Deskripsi Profil / Unggah Foto Profil (3-Layer Profile D
         deactivate SVC
         deactivate CTRL
         deactivate FE
+        deactivate Mitra
     end
 end
-deactivate Mitra
 @enduml
 ```
 
@@ -1156,28 +1236,31 @@ participant "ModerationController" as CTRL
 participant "FraudDetectionService" as SVC
 database "AccountAuditRepository & DB" as REPO
 database "WORM Hash Storage" as WORM
-actor "Advokat Terlapor" as Mitra
-
-activate Admin
+actor "Advokat Terlapor" as Mitraactivate Admin
 Admin -> FE ++ : Buka Antrean Investigasi Moderasi (Menerima Laporan Klien J-UC21 ATAU Security Alert DLP Backend)
 FE -> CTRL ++ : GET /api/v1/admin/moderation/reports
 CTRL -> SVC ++ : listModerationReports()
-SVC -> REPO ++ : fetchReportsAndWORMProofs()
-REPO --> SVC -- : Return Daftar Laporan & Bukti WORM SHA-256 / Log Anomali
+SVC -> REPO : fetchReportsAndWORMProofs()
+activate REPO
+REPO --> SVC : Return Daftar Laporan & Bukti WORM SHA-256 / Log Anomali
+deactivate REPO
 SVC --> CTRL : ModerationReportsList
 CTRL --> FE : 200 OK (Daftar Laporan & Bukti WORM SHA-256)
 FE --> Admin : Tampilkan Daftar Laporan & Bukti SHA-256
 deactivate SVC
 deactivate CTRL
+deactivate FE
 
-Admin -> FE : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal / Skor Anomali
+Admin -> FE ++ : Pilih Akun Advokat & Periksa Keabsahan Bukti Awal / Skor Anomali
 
 alt Bukti Permulaan Tidak Sah / Laporan Palsu (SHA-256 Invalid)
     Admin -> FE : Klik Tolak & Arsip Laporan (Clear / Dismiss)
     FE -> CTRL ++ : POST /api/v1/admin/moderation/dismiss {report_id}
     CTRL -> SVC ++ : dismissReport(reportId)
-    SVC -> REPO ++ : updateReportStatus(reportId, 'DISMISSED')
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : updateReportStatus(reportId, 'DISMISSED')
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     SVC --> CTRL : ReportDismissed
     CTRL --> FE : 200 OK (Laporan Diabaikan)
     FE --> Admin : Tampilkan Status Laporan Tidak Terbukti (Clear)
@@ -1189,8 +1272,10 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         FE -> CTRL ++ : POST /api/v1/admin/moderation/warning {advocate_id, reason}
         CTRL -> SVC ++ : issueWrittenWarning(advocateId, reason)
         par Catat Surat Teguran ke WORM Storage
-            SVC -> WORM ++ : storeWarningLetterWORM(advocateId, reason)
-            WORM --> SVC -- : 200 OK (WORM Hash Stamped / Recorded)
+            SVC -> WORM : storeWarningLetterWORM(advocateId, reason)
+            activate WORM
+            WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+            deactivate WORM
         else Kirim Notifikasi & Surat ke Advokat
             activate Mitra
             SVC -> Mitra : Kirim Email & Push Notifikasi Surat Peringatan
@@ -1206,24 +1291,36 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         Admin -> FE : Klik "🛑 Suspend Akun & Kirim Panggilan Klarifikasi"
         FE -> CTRL ++ : POST /api/v1/admin/moderation/suspend {advocate_id, reason}
         CTRL -> SVC ++ : executeDueProcessSuspend(advocateId, reason)
-        SVC -> REPO ++ : updateAccountStatus(advocateId, 'SUSPENDED', catalog='UNLISTED')
-        REPO --> SVC -- : 200 OK
-        SVC -> REPO ++ : queryActiveConsultations(advocateId, status='IN_PROGRESS')
-        REPO --> SVC -- : Return Active Consultation State
+        SVC -> REPO : updateAccountStatus(advocateId, 'SUSPENDED', catalog='UNLISTED')
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
+        SVC -> REPO : queryActiveConsultations(advocateId, status='IN_PROGRESS')
+        activate REPO
+        REPO --> SVC : Return Active Consultation State
+        deactivate REPO
 
         alt Mitra Sedang Dalam Sesi Konsultasi Aktif (IN_PROGRESS - Rows > 0)
-            SVC -> REPO ++ : freezeEscrowLedger(sessionId, status='FROZEN_IN_ESCROW')
-            REPO --> SVC -- : 200 OK (Graceful Finish Allowed & Escrow Frozen)
+            SVC -> REPO : freezeEscrowLedger(sessionId, status='FROZEN_IN_ESCROW')
+            activate REPO
+            REPO --> SVC : 200 OK (Graceful Finish Allowed & Escrow Frozen)
+            deactivate REPO
         else Tidak Ada Sesi Aktif (Idle - Rows == 0)
             note over SVC, REPO : [Mitra dalam kondisi Idle, tidak ada sesi konsultasi yang berjalan]
         end
 
-        SVC -> REPO ++ : cancelUpcomingReservationsAndRefund100Percent()
-        REPO --> SVC -- : 200 OK (Refund Processed)
-        SVC -> WORM ++ : generateAndStoreSummonsLetterWORM(advocateId)
-        WORM --> SVC -- : 200 OK (WORM Hash Stamped / Recorded)
-        SVC -> REPO ++ : startAppealTimer14Days(advocateId)
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : cancelUpcomingReservationsAndRefund100Percent()
+        activate REPO
+        REPO --> SVC : 200 OK (Refund Processed)
+        deactivate REPO
+        SVC -> WORM : generateAndStoreSummonsLetterWORM(advocateId)
+        activate WORM
+        WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+        deactivate WORM
+        SVC -> REPO : startAppealTimer14Days(advocateId)
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC --> CTRL : DueProcessSummonsSent
         CTRL --> FE : 200 OK (Status Suspended & Surat Panggilan Terkirim)
         FE --> Admin : Tampilkan Konfirmasi Suspend & Timer 14 Hari
@@ -1234,8 +1331,10 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         CTRL -> Mitra : Push Email, SMS, & Push Notifikasi Panggilan Klarifikasi
         Mitra -> CTRL ++ : GET /api/v1/advocate/moderation/status
         CTRL -> SVC ++ : getModerationCaseStatus(advocateId)
-        SVC -> WORM ++ : fetchSummonsAndProof(advocateId)
-        WORM --> SVC -- : Return Surat Panggilan & Proof
+        SVC -> WORM : fetchSummonsAndProof(advocateId)
+        activate WORM
+        WORM --> SVC : Return Surat Panggilan & Proof
+        deactivate WORM
         SVC --> CTRL : ModerationStatusPayload
         CTRL --> Mitra : Return Surat Panggilan Ber-hash SHA-256 & Timer 14 Hari
         deactivate SVC
@@ -1244,50 +1343,68 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
         alt Advokat Mengajukan Berkas Sanggahan (Dalam Masa 14 Hari)
             Mitra -> CTRL ++ : POST /api/v1/advocate/moderation/appeal (Defense Doc PDF)
             CTRL -> SVC ++ : submitAppealDefense(advocateId, defenseDoc)
-            SVC -> WORM ++ : storeDefenseDocWORM(defenseDoc)
-            WORM --> SVC -- : 200 OK (WORM Hash Stamped / Recorded)
+            SVC -> WORM : storeDefenseDocWORM(defenseDoc)
+            activate WORM
+            WORM --> SVC : 200 OK (WORM Hash Stamped / Recorded)
+            deactivate WORM
             SVC --> CTRL : AppealSubmitted
             CTRL -> FE : Push Notifikasi Ada Bukti Sanggahan Baru Masuk
             CTRL --> Mitra : 200 OK (Sanggahan Diterima)
             deactivate SVC
             deactivate CTRL
+            deactivate Mitra
         else Tidak Mengajukan Sanggahan / Timer 14 Hari Habis (Putusan Verstek)
             CTRL -> SVC ++ : handleVerstekDefaultVerdict(advocateId)
-            SVC -> REPO ++ : updateDefenseStatus(advocateId, 'NO_DEFENSE_VERSTEK')
-            REPO --> SVC -- : 200 OK
+            SVC -> REPO : updateDefenseStatus(advocateId, 'NO_DEFENSE_VERSTEK')
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
             SVC --> CTRL : VerstekReady
             CTRL -> FE : Push Notifikasi Masa Sanggah Habis (Siap Putusan Verstek)
             deactivate SVC
             deactivate CTRL
+            deactivate Mitra
         end
         
         Admin -> FE : Review Berkas & Input Putusan Akhir Sidang Etik
         alt Terbukti Bersalah (Sanksi Reputational Death & Pemecatan Permanen)
             FE -> CTRL ++ : POST /api/v1/admin/moderation/verdict {verdict: 'GUILTY'}
             CTRL -> SVC ++ : enforceGuiltyVerdictReputationalDeath(advocateId)
-            SVC -> REPO ++ : revokeAdvocatePermanently(advocateId, reputationScore=0)
-            REPO --> SVC -- : 200 OK
-            SVC -> WORM ++ : generateAndStoreRevocationDecreeWORM(advocateId)
-            WORM --> SVC -- : 200 OK
+            SVC -> REPO : revokeAdvocatePermanently(advocateId, reputationScore=0)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
+            SVC -> WORM : generateAndStoreRevocationDecreeWORM(advocateId)
+            activate WORM
+            WORM --> SVC : 200 OK
+            deactivate WORM
             SVC -> SVC ++ : reportDigitalIntegrityViolationToPeradi(advocateId)
             SVC --> SVC -- : Report Confirmation
             SVC --> CTRL : VerdictExecuted
             CTRL --> FE : 200 OK (Verdict & External Report Executed)
             FE --> Admin : Tampilkan Status Pemecatan Permanen & Dilaporkan ke Peradi
+            activate Mitra
             CTRL -> Mitra : Kirim Email SK Pemecatan Permanen & Pemberitahuan Laporan Peradi
+            deactivate Mitra
             deactivate SVC
             deactivate CTRL
         else Tidak Terbukti / Rehabilitasi (Unsuspend)
             FE -> CTRL ++ : POST /api/v1/admin/moderation/verdict {verdict: 'REHABILITATED'}
             CTRL -> SVC ++ : rehabilitateAdvocateAccount(advocateId)
-            SVC -> REPO ++ : restoreAdvocateStatusActive(advocateId)
-            REPO --> SVC -- : 200 OK
-            SVC -> WORM ++ : generateAndStoreRehabilitationLetterWORM(advocateId)
-            WORM --> SVC -- : 200 OK
+            SVC -> REPO : restoreAdvocateStatusActive(advocateId)
+            activate REPO
+            REPO --> SVC : 200 OK
+            deactivate REPO
+            SVC -> WORM : generateAndStoreRehabilitationLetterWORM(advocateId)
+            activate WORM
+            WORM --> SVC : 200 OK
+            deactivate WORM
             SVC --> CTRL : AccountRehabilitated
             CTRL --> FE : 200 OK (Account Rehabilitated)
             FE --> Admin : Tampilkan Status Rehabilitasi Berhasil
+            activate Mitra
             CTRL -> Mitra : Kirim Email Pemulihan Akun & Pembukaan Katalog
+            deactivate Mitra
             deactivate SVC
             deactivate CTRL
         end
@@ -1295,7 +1412,6 @@ else Bukti Permulaan Sah & Terverifikasi SHA-256
 end
 deactivate FE
 deactivate Admin
-deactivate Mitra
 @enduml
 ```
 
