@@ -7,7 +7,7 @@
 | **Nama Halaman** | Portal Autentikasi & Keamanan Mitra Advokat |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Mitra Advokat Berlisensi Mahkamah Agung & SIPP PERADI/AAI/KAI |
-| **Ref. Use Case** | `J-UC18` |
+| **Ref. Use Case** | `J-UC02` (`ST-J-02`) |
 
 ---
 

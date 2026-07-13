@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-AD-02A` |
 | **Nama Halaman** | Command Center Advokat, Fair-Clock SLA Monitor, & Saldo Escrow (`advocate.justica.id/dashboard`) |
 | **Aktor Target** | Mitra Advokat Berlisensi Mahkamah Agung |
-| **Ref. Use Case** | `J-UC20` (Manajemen Perkara Aktif & Monitoring SLA Fair-Clock) |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`: Profil & Manajemen Jadwal), `J-UC04` (`ST-J-08`: Sesi E2EE Aktif), `J-UC10` (`ST-J-09`: SLA Respons & AFK Monitor), `J-UC18` (`ST-J-16`: Command Center & Dasbor Advokat) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-AD-01` -> `MOCK-J-AD-02A` -> `MOCK-J-CL-04` (Masuk Ruang E2EE), `MOCK-J-CL-06` (Unggah Deliverable), `MOCK-J-CL-09` (Lihat Mediasi), `MOCK-J-GATEWAY-01` (Keluar) |
 | **Kepatuhan Keamanan** | Hardware Token Session Lock, Realtime Fair-Clock SLA Penalty Guard, Escrow Payout Ledger |
 

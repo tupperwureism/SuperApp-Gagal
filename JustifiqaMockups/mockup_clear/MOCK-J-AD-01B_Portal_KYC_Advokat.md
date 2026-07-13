@@ -7,7 +7,7 @@
 | **Nama Halaman** | Portal Onboarding, Verifikasi KYC, & Sinkronisasi Lisensi SIPP Advokat |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Mitra Advokat Berlisensi Mahkamah Agung |
-| **Ref. Use Case** | `J-UC19` |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`), `J-UC17` (`ST-J-15`) |
 
 ---
 

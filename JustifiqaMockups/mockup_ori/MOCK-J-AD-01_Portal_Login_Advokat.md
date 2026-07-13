@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-AD-01` |
 | **Nama Halaman** | Portal Autentikasi & Keamanan Mitra Advokat (`advocate.justica.id/login`) |
 | **Aktor Target** | Mitra Advokat Berlisensi Mahkamah Agung & SIPP PERADI/AAI/KAI |
-| **Ref. Use Case** | `J-UC18` (Autentikasi Advokat MFA & e-Meterai PIN) |
+| **Ref. Use Case** | `J-UC02` (`ST-J-02`: Login MFA & FIDO2 Hardware Token Guard Mitra Advokat) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-AD-01` -> `MOCK-J-AD-01B` (Verifikasi KYC SIPP), `MOCK-J-AD-02A` (Command Center) |
 | **Kepatuhan Keamanan** | Hardware Token / FIDO2 Key ready, Mandatory MFA OTP + 6-Digit PIN e-Meterai KMS, Rate Limit 3 attempts/15m |
 

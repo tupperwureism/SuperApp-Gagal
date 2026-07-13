@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-AD-01B` |
 | **Nama Halaman** | Portal Onboarding, Verifikasi KYC, & Sinkronisasi Lisensi SIPP Advokat (`advocate.justica.id/kyc`) |
 | **Aktor Target** | Mitra Advokat Berlisensi Mahkamah Agung |
-| **Ref. Use Case** | `J-UC19` (Verifikasi KYC & Sinkronisasi SIPP Mahkamah Agung) |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`: Registrasi & Verifikasi KYC/SIPP MA), `J-UC17` (`ST-J-15`: Pengelolaan Lisensi & Verifikasi SIPP MA) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-AD-01` -> `MOCK-J-AD-01B` -> `MOCK-J-AD-02A` (Command Center) |
 | **Kepatuhan Keamanan** | Automated Supreme Court API Handshake, SHA-256 Biometric Match, WORM Credential Store |
 
