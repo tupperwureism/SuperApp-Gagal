@@ -1236,7 +1236,8 @@ participant "ModerationController" as CTRL
 participant "FraudDetectionService" as SVC
 database "AccountAuditRepository & DB" as REPO
 database "WORM Hash Storage" as WORM
-actor "Advokat Terlapor" as Mitraactivate Admin
+actor "Advokat Terlapor" as Mitra
+activate Admin
 Admin -> FE ++ : Buka Antrean Investigasi Moderasi (Menerima Laporan Klien J-UC21 ATAU Security Alert DLP Backend)
 FE -> CTRL ++ : GET /api/v1/admin/moderation/reports
 CTRL -> SVC ++ : listModerationReports()
