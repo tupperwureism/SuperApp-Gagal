@@ -1,0 +1,28 @@
+# ==========================================
+# JUSTICA PROJECT .GITIGNORE
+# ==========================================
+
+# 1. Build & Temporary Outputs
+out/
+dist/
+build/
+
+# 2. Logs & Backups
+*.log
+*.bak
+*.tmp
+
+# 3. Environment & Security Secrets
+.env
+.env.*
+*.pem
+*.key
+
+# 4. OS & Editor Metadata
+.DS_Store
+Thumbs.db
+
+# 5. Agent Local Cache & External Skills
+skills-lock.json
+.agents/skills/*
+!.agents/skills/forensic-audit/
