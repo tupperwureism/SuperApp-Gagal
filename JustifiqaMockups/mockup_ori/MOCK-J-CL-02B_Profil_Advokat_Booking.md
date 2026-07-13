@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-02B` |
 | **Nama Halaman** | Profil Lengkap, Portofolio Perkara, & Pemilihan Jadwal Booking Advokat (`client.justica.id/advocates/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC05` (Pemeriksaan Detail Profil & Lisensi), `J-UC06` (Booking Jadwal Konsultasi) |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`: Profil Lengkap, Verifikasi Lisensi MA/Peradi, & Pemilihan Slot Konsultasi) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02` -> `MOCK-J-CL-02B` -> `MOCK-J-CL-03` (Checkout Pembayaran Escrow), `MOCK-J-CL-02` (Kembali) |
 | **Kepatuhan Keamanan** | Concurrency Slot Lock (Redis Mutex TTL 15m), KYC Advokat Verified, Transparansi Biaya Mutlak |
 

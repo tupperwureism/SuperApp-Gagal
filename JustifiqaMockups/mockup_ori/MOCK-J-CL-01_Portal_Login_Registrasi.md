@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-01` |
 | **Nama Halaman** | Portal Registrasi & Autentikasi Klien Hukum Justica (`client.justica.id/login`) |
 | **Aktor Target** | Klien Hukum (*Client*) |
-| **Ref. Use Case** | `J-UC01` (Registrasi Akun Klien), `J-UC02` (Login Autentikasi MFA) |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`: Registrasi Akun Klien Justifiqa), `J-UC02` (`ST-J-02`: Login Akun Klien MFA & Lockout Due Process Check) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-CL-01` -> `MOCK-J-CL-02A` (Dasbor Utama Klien) |
 | **Kepatuhan Keamanan** | SHA-256 Consent Hash Tracking, AES-256 Local Token Storage, Mandatory MFA OTP, Rate Limit 5 attempts/15m |
 

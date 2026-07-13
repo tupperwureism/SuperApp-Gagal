@@ -7,7 +7,7 @@
 | **Nama Halaman** | Direktori Advokat (`client.justica.id/advocates`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC03` |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`) |
 
 ---
 

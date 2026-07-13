@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-GATEWAY-01` |
 | **Nama Halaman** | Gerbang Depan & Pemilihan Peran Platform Justica (`justica.id`) |
 | **Aktor Target** | Pengguna Publik, Calon Klien, Mitra Advokat, Admin Kepatuhan |
-| **Ref. Use Case** | `J-UC01` (Registrasi Klien), `J-UC07` (Registrasi Advokat), `J-UC14` (Verifikasi Dokumen) |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`: Registrasi Klien), `J-UC02` (`ST-J-02`: Login Klien), `J-UC07` (`ST-J-03`: Registrasi Advokat), `J-UC08` (`ST-J-04`: Login Advokat), `J-UC14` (`ST-J-12`: Verifikasi Keabsahan Dokumen Hukum SHA-256) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-CL-01` (Klien Login), `MOCK-J-AD-01` (Advokat Login), `MOCK-J-PUBLIC-VERIFY` (Verifikasi SHA-256) |
 | **Kepatuhan Keamanan** | HSTS Strict Transport, TLS 1.3 Mandatory, Client-Side Role Isolation, Rate Limiting 100 req/min |
 

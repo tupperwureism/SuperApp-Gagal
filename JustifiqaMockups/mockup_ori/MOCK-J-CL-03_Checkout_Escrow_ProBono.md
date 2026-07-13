@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-03` |
 | **Nama Halaman** | Checkout Pembayaran Rekening Bersama (Escrow) & Pro Bono DTKS (`client.justica.id/checkout`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC06` (Checkout Pembayaran Escrow), `J-UC07` (Pengajuan Bantuan Pro Bono SKTM) |
+| **Ref. Use Case** | `J-UC05` (`ST-J-07`: Membayar Biaya Konsultasi Escrow & Gateway Idempotent), `J-UC15` (`ST-J-13`: Mengajukan Konsultasi Pro Bono SKTM & Verifikasi API DTKS) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02B` -> `MOCK-J-CL-03` -> `MOCK-J-CL-03B` (Instruksi Pembayaran & Resi), `MOCK-J-CL-02A` (Dasbor Saya), `MOCK-J-CL-02B` (Kembali) |
 | **Kepatuhan Keamanan** | Idempotency Key SHA-256, Zero-Storage PCI-DSS Tokenization, DTKS Kemensos API Verification |
 

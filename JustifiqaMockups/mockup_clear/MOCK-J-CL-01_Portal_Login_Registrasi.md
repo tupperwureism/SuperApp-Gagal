@@ -7,7 +7,7 @@
 | **Nama Halaman** | Portal Registrasi & Autentikasi Klien Hukum Justica |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum (*Client*) |
-| **Ref. Use Case** | `J-UC01`, `J-UC02` |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`), `J-UC02` (`ST-J-02`) |
 
 ---
 

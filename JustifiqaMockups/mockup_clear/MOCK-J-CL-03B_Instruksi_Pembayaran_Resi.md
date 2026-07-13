@@ -7,7 +7,7 @@
 | **Nama Halaman** | Instruksi Pembayaran (`client.justica.id/invoice`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC05` |
+| **Ref. Use Case** | `J-UC05` (`ST-J-07`) |
 
 ---
 

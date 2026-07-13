@@ -7,7 +7,7 @@
 | **Nama Halaman** | Ruang Konsultasi (`client.justica.id/room`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC04`, `J-UC10` |
+| **Ref. Use Case** | `J-UC04` (`ST-J-08`), `J-UC10` (`ST-J-09`), `J-UC13` (`ST-J-10`) |
 
 ---
 

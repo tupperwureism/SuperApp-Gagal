@@ -6,9 +6,9 @@
 | **ID Mockup** | `MOCK-J-CL-04` |
 | **Nama Halaman** | Ruang Konsultasi Hukum Enkripsi Ujung-ke-Ujung (`client.justica.id/room/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi & Advokat Berlisensi SIPP |
-| **Ref. Use Case** | `J-UC09` (Konsultasi E2EE Chat/Call), `J-UC10` (Fair-Clock Timer Control), `J-UC11` (Inline DLP Protection) |
+| **Ref. Use Case** | `J-UC04` (`ST-J-08`: Konsultasi E2EE Chat/Call, Tiering Engine, Fair-Clock Timer, Inline DLP Guard), `J-UC10` (`ST-J-09`: SLA Respons Advokat & AFK Auto-Refund), `J-UC13` (`ST-J-10`: Unggah Bukti Zero-Knowledge) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03B` -> `MOCK-J-CL-04` -> `MOCK-J-CL-02A` (Dasbor Saya), `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa/Dispute) |
-| **Kepatuhan Keamanan** | Client-Side Signal AES-GCM Enkripsi, Zero-Storage Server Relay, Inline Regex DLP Scanner, WebRTC SRTP Call |
+| **Kepatuhan Keamanan** | Client-Side Signal AES-GCM Enkripsi, Zero-Storage Server Relay, Inline Regex DLP Scanner (~30ms), WebRTC SRTP Call |
 
 ---
 
@@ -26,13 +26,14 @@
   --
   {
     {#
-      <b>Informasi Advokat Mitra</b> | <b>Status Enkripsi & Kunci Sesi</b> | <b>Waktu Tersedia (Fair-Clock)</b>
+      <b>Informasi Advokat & Tier Layanan</b> | <b>Status Enkripsi & Kunci Sesi</b> | <b>Waktu Tersedia (Fair-Clock)</b>
       {
         Dr. Mahendra Kusuma, S.H., M.H.
         SIPP MA: ACTIVE (VERIFIED)
+        Tier Layanan: <color:blue><b>TIER 2 (45 MENIT E2EE)</b></color>
       } | {
         Fingerprint Kunci: `8F:90:A2:C4:...`
-        Inline DLP Guard: <color:green><b>ACTIVE</b></color>
+        Inline DLP Guard: <color:green><b>ACTIVE (~30ms Scan)</b></color>
       } | {
         Sisa Waktu: <b>44:12 / 45:00 Menit</b>
         [  <b>MINTA JEDA WAKTU (PAUSE TIMER)</b>  ]

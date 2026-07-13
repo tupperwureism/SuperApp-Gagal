@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-02A` |
 | **Nama Halaman** | Dasbor Manajemen Perkara & Sesi Klien (`client.justica.id/dashboard`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC03` (Akses Dasbor & Riwayat Sesi), `J-UC13` (Unduh Berkas e-Meterai) |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`: Katalog & Profil), `J-UC04` (`ST-J-08`: Sesi E2EE Aktif), `J-UC12` (`ST-J-12`: Deliverable & e-Meterai), `J-UC14` (`ST-J-12`: Unduh Dokumen e-Meterai Peruri) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-01` -> `MOCK-J-CL-02A` -> `MOCK-J-CL-02` (Katalog Advokat), `MOCK-J-CL-04` (Chat Room), `MOCK-J-CL-06` (Async Room), `MOCK-J-CL-03B` (Resi Invoice), `MOCK-J-CL-09` (Pusat Sengketa), `MOCK-J-CL-10` (Pengaturan Akun) |
 | **Kepatuhan Keamanan** | Client Session Isolation (RBAC), Fair-Clock State Tracking, WORM Audit Logging, Encrypted Vault Access |
 

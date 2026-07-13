@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-02` |
 | **Nama Halaman** | Direktori & Katalog Pencarian Advokat Terverifikasi SIPP (`client.justica.id/advocates`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC04` (Pencarian & Filter Advokat), `J-UC05` (Pemilihan Tier Layanan & Booking) |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`: Memilih & Memfilter Katalog Advokat Berdasarkan Keahlian, Tarif, Rating, dan Status SIPP Mahkamah Agung) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-02` -> `MOCK-J-CL-02B` (Profil & Booking Advokat), `MOCK-J-CL-10` (Pengaturan) |
 | **Kepatuhan Keamanan** | Anti-Scraping Rate Limit (60 queries/min), Dynamic Token Search Guard, Real-time SIPP MA Status Verify |
 

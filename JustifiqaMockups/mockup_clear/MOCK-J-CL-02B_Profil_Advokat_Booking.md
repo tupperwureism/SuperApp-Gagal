@@ -7,7 +7,7 @@
 | **Nama Halaman** | Profil Advokat & Pemilihan Jadwal (`client.justica.id/advocates/mahendra-kusuma`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC03`, `J-UC05` |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`) |
 
 ---
 

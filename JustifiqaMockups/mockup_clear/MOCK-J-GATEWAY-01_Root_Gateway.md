@@ -7,7 +7,7 @@
 | **Nama Halaman** | Beranda Utama Justica (`justica.id`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Pengguna Publik & Calon Klien |
-| **Ref. Use Case** | `J-UC01`, `J-UC07` |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`), `J-UC02` (`ST-J-02`), `J-UC07` (`ST-J-03`), `J-UC08` (`ST-J-04`), `J-UC14` (`ST-J-12`) |
 
 ---
 

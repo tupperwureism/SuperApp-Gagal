@@ -7,7 +7,7 @@
 | **Nama Halaman** | Dasbor Saya (`client.justica.id/dashboard`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC03`, `J-UC04`, `J-UC12` |
+| **Ref. Use Case** | `J-UC03` (`ST-J-05`), `J-UC04` (`ST-J-08`), `J-UC12` (`ST-J-12`), `J-UC14` (`ST-J-12`) |
 
 ---
 

@@ -7,7 +7,7 @@
 | **Nama Halaman** | Checkout Layanan (`client.justica.id/checkout`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC05`, `J-UC15` |
+| **Ref. Use Case** | `J-UC05` (`ST-J-07`), `J-UC15` (`ST-J-13`) |
 
 ---
 

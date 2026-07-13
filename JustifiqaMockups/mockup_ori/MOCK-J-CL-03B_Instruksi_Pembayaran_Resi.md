@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-03B` |
 | **Nama Halaman** | Portal Instruksi Pembayaran & Resi Kriptografi Escrow (`client.justica.id/invoice/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC06` (Pembayaran Rekening Escrow), `J-UC08` (Verifikasi Status Resi SHA-256) |
+| **Ref. Use Case** | `J-UC05` (`ST-J-07`: Membayar Biaya Konsultasi Escrow & Webhook Verifikasi Signature SHA-256) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-03` -> `MOCK-J-CL-03B` -> `MOCK-J-CL-04` (Ruang Obrolan Hukum E2EE), `MOCK-J-CL-02A` (Dasbor Saya) |
 | **Kepatuhan Keamanan** | SHA-256 Digital Receipt Hash, Midtrans/Xendit Webhook Sign-Verify, Realtime WebSocket Payment Polling |
 
