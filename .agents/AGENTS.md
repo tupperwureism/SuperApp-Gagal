@@ -12,12 +12,21 @@
 - **Phase-Gate & Sign-Off Rule:** Pekerjaan dilakukan per fase (UML -> Product Backlog -> Wireframe/Mockup -> ERD & Database Schema -> Code). DILARANG KERAS melompat ke fase berikutnya tanpa konfirmasi/sign-off eksplisit dari pengguna.
 - **Cascade Correction Rule:** Jika ditemukan kesalahan teknis, hentikan kemajuan ke depan. Identifikasi seluruh pola kesalahan serupa di semua dokumen terkait, laporkan daftarnya, dan perbaiki secara serentak hingga tuntas.
 
-## 3. DOMAIN TECHNICAL RIGOR (UML & ARCHITECTURE)
+## 3. DOMAIN TECHNICAL RIGOR (DATA MODELING, ERD & ARCHITECTURE SUPREMACY)
 - **Supremasi Component-Level BCE Sequence Diagram (`5-Lifeline BCE`):** Seluruh Sequence Diagram (SD) sistem WAJIB menerapkan arsitektur terdekopel **Boundary-Control-Entity (BCE)** yang memisahkan minimal 5 lapisan lifeline: `Actor` -> `Frontend UI (Boundary Client)` -> `API Controller / Gateway (Boundary Server)` -> `Domain / Application Service (Control)` -> `Repository & Database / WORM Vault (Entity)`. DILARANG menyederhanakan API Controller dan Business Service ke dalam satu lifeline monolitik `Backend`.
 - **Supremasi Detail SD terhadap AD (`SD > AD`):** Sequence Diagram berkedudukan sebagai representasi sistemik dan programmik. Seluruh blok keputusan (`if/else`) dan pengulangan/retry dari Activity Diagram WAJIB dipetakan 1-to-1 ke dalam sintaks SD (`alt`, `opt`, `loop`), lengkap dengan HTTP status code dan endpoint API.
 - **Aturan Activation Bar UML (Clean & Accurate Activation Bars):** Seluruh activation bar pada lifeline diagram sequence WAJIB akurat (hidup saat komponen aktif memproses data dan tertutup saat selesai) serta TIDAK BOLEH menumpuk berlapis-lapis (*zero stacking*) atau terputus/mati saat proses internal berjalan. Gunakan perintah aktivasi/deaktivasi secara konsisten dan presisi per alur eksekusi.
+- **Supremasi Physical & Logical Crow's Foot ERD:** Seluruh diagram relasi entitas WAJIB ditulis secara eksplisit mencantumkan tipe data fisik PostgreSQL/Supabase (`UUID`, `VARCHAR(N)`, `TIMESTAMPTZ`, `NUMERIC(15,2)`, `JSONB`), status *Primary Key* (`PK`), *Foreign Key* (`FK`), serta rasio kardinalitas presisi (`1 ||--o{ N`).
+- **Aturan ACID Transaksional & Concurrency Mutex Lock:** Seluruh tabel sensitif finansial & jadwal (`escrow_transactions`, `consultation_slots`, `wallet_balances`) WAJIB mendefinisikan mekanisme penguncian baris (`SELECT ... FOR UPDATE` / Optimistic Versioning) untuk mencegah *double-booking* dan *race condition*.
+- **Decoupled Storage Tiers & Zero-Knowledge E2EE Isolation:** Pemisahan mutlak antara tabel transaksional OLTP dengan tabel jejak audit *WORM Immutable Vault* (`audit_logs_worm`), serta larangan menyimpan *plaintext message / private key* E2EE pada database server utama.
 
 ## 4. PERMANENT MEMORY & SYSTEMIC ADAPTATION
 - **Git as Single Source of Truth:** Catat dan permanenkan setiap keputusan arsitektur serta koreksi melalui Git commit (`git add ; git commit -m "..."`). Tidak perlu lagi memelihara file duplikasi log manual seperti `decision_log.md`.
 - **Windows PowerShell Syntax Mandate:** Lingkungan OS pengguna adalah Windows (PowerShell). DILARANG KERAS menggunakan operator POSIX `&&`. Seluruh penggabungan perintah terminal WAJIB menggunakan titik koma (`;`).
 - **Blind Replacement & Hallucination Ban:** Dalam setiap skrip modifikasi file programatik (*search-and-replace*), WAJIB menyertakan validasi kegagalan eksplisit (`if target not in content: raise ValueError()`). Dilarang menganggap tugas selesai hanya karena exit code terminal 0; wajib verifikasi fisik isi file sebelum melapor kepada pengguna.
+
+## 5. MANDATORY FORENSIC SELF-AUDIT ("EAGLE-EYE / FORGET-LESS SYSTEM")
+- **Anti-Macro Assumption Mandate:** DILARANG KERAS menyatakan sebuah pekerjaan/fase "selesai 100%" atau "siap migrasi" hanya berdasarkan abstraksi memori makro atau asumsi umum.
+- **Automatic 360-Degree Forensic Check:** Sebelum memberikan pernyataan penyelesaian akhir atau meminta *sign-off* penutupan fase, WAJIB SECARA OTOMATIS DAN MANDIRI mengeksekusi pemindaian mikro baris-demi-baris (*micro line-by-line forensic audit*) terhadap seluruh file master/sumber terkait menggunakan SOP pada skill `forensic-audit`.
+- **Traceability Mapping Proof & Zero-Omission Certification:** Klaim kesiapan 100% WAJIB disertai bukti verifikasi forensik 1-to-1 (*Verification Matrix*) yang membuktikan angka 0 celah (*zero missing entities/rules*).
+
