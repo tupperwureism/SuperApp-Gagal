@@ -213,15 +213,20 @@ FE -> CTRL ++ : POST /api/v1/consultations/book (tier, advocate_id, slot, use_pr
 
 alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
     CTRL -> SVC ++ : createTriageSession(clientId, advocateId, slot)
-    SVC -> REPO ++ : insertConsultationSession(fee=Rp0, duration=15m, status='ACTIVE')
-    REPO --> SVC -- : 200 OK (triage_session_id)
+    SVC -> REPO : insertConsultationSession(fee=Rp0, duration=15m, status='ACTIVE')
+    activate REPO
+    REPO --> SVC : 200 OK (triage_session_id)
+    deactivate REPO
     SVC --> CTRL : TriageSessionCreated
     CTRL --> FE : 200 OK (Sesi Triage Gratis Terkonfirmasi)
     FE --> Klien : Buka Ruang Chat E2EE Langsung (Maks 15 Menit)
+    deactivate FE
     SVC -> Mitra : Push Notification Sesi Triage Baru (Advokat Muda/Paralegal)
     note over Klien, Mitra : Sesi Triage Gratis Berlangsung Maks 15 Menit
-    SVC -> REPO ++ : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = triage_session_id
-    REPO --> SVC -- : 200 OK
+    SVC -> REPO : UPDATE consultation_sessions SET status = 'CLOSED' WHERE id = triage_session_id
+    activate REPO
+    REPO --> SVC : 200 OK
+    deactivate REPO
     SVC -> SVC ++ : creditReputationTokens(advocateId)
     SVC --> SVC -- : Return Computed Result / State
     SVC -> FE ++ : Trigger Rating & Ulasan Modal (J-UC06 / J-UC13)
@@ -229,37 +234,44 @@ alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
     deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
 else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
     CTRL -> SVC ++ : checkVirtualTokenBalance(clientId)
-    SVC -> REPO ++ : getVirtualTokenBalance(clientId)
-    REPO --> SVC -- : Return Virtual Token Balance
+    SVC -> REPO : getVirtualTokenBalance(clientId)
+    activate REPO
+    REPO --> SVC : Return Virtual Token Balance
+    deactivate REPO
 
     alt Saldo Virtual Token Mencukupi 100% Tagihan (Full Virtual Token)
-        SVC -> REPO ++ : deductVirtualTokenAndReserveSession(clientId, tierFee)
-        REPO --> SVC -- : 200 OK
-        SVC -> REPO ++ : updateBookingStatus(bookingId, 'TERKONFIRMASI')
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : deductVirtualTokenAndReserveSession(clientId, tierFee)
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
+        SVC -> REPO : updateBookingStatus(bookingId, 'TERKONFIRMASI')
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC --> CTRL : ReservationConfirmedVirtualToken
         CTRL --> FE : 200 OK (Reservasi Terkonfirmasi via Virtual Token)
         FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
+        deactivate FE
         SVC -> Mitra : Kirim Push Notification Jadwal Sesi Baru
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
         opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
-            SVC -> REPO ++ : deductPromoCreditBalance(clientId)
-            REPO --> SVC -- : Return Computed Result / State
+            SVC -> REPO : deductPromoCreditBalance(clientId)
+            activate REPO
+            REPO --> SVC : Return Computed Result / State
+            deactivate REPO
         end
         SVC -> PG ++ : Create Payment Invoice untuk Nominal Sisa / Penuh
         PG --> SVC -- : Return Invoice URL & VA Number
         SVC --> CTRL : BillingDetailReady
         CTRL --> FE : Return Billing Detail (Nominal Sisa / Penuh)
         FE --> Klien : Tampilkan Halaman Pembayaran PG
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
 
         loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
             Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
@@ -267,8 +279,10 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
             alt Webhook Status Transaksi = PAID / SUCCESS
                 PG -> CTRL ++ : Webhook Notification (POST /webhook/payment PAID)
                 CTRL -> SVC ++ : processPaymentWebhookPaid(invoiceId, payload)
-                SVC -> REPO ++ : lockEscrowFundsAndConfirmBooking(bookingId, amount)
-                REPO --> SVC -- : 200 OK
+                SVC -> REPO : lockEscrowFundsAndConfirmBooking(bookingId, amount)
+                activate REPO
+                REPO --> SVC : 200 OK
+                deactivate REPO
                 SVC --> CTRL : WebhookProcessedSuccess
                 CTRL --> PG : 200 OK (Webhook Processed)
                 deactivate PG
@@ -282,8 +296,10 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
             else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
                 PG -> CTRL ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
                 CTRL -> SVC ++ : processPaymentWebhookFailed(invoiceId)
-                SVC -> REPO ++ : rollbackPromoCreditAndCancelInvoice(bookingId)
-                REPO --> SVC -- : 200 OK
+                SVC -> REPO : rollbackPromoCreditAndCancelInvoice(bookingId)
+                activate REPO
+                REPO --> SVC : 200 OK
+                deactivate REPO
                 SVC --> CTRL : WebhookProcessedFailed
                 CTRL --> PG : 200 OK (Webhook Processed)
                 deactivate PG
@@ -300,9 +316,9 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
                     SVC --> CTRL : NewBillingDetailReady
                     CTRL --> FE : 200 OK (New Billing Detail Rp250.000 + Fee)
                     FE --> Klien : Tampilkan Halaman Pembayaran Baru
+                    deactivate FE
                     deactivate SVC
                     deactivate CTRL
-                    deactivate FE
                 end
                 deactivate SVC
                 deactivate CTRL
@@ -321,9 +337,9 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
     SVC --> CTRL : SafeMeetingStarted
     CTRL --> FE : 200 OK (Sesi Offline Tatap Muka Dimulai)
     FE --> Klien : Tampilkan Status Sesi Berjalan & Countdown 60 Menit
+    deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
     note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
     alt Normal Check-out (QR Code Dipindai Klien < 120 Menit)
         Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
@@ -332,12 +348,14 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
         SVC --> CTRL : SessionCheckOutSuccess
         CTRL --> FE : 200 OK (Check-out Berhasil)
         FE --> Klien : Tampilkan Ringkasan Sesi Offline
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     else Fallback Check-out (Lupa Check-out / Grace Period 120 Menit Habis)
+        activate SVC
         SVC -> SVC ++ : executeSystemicAutoCheckout(bookingId, 'AUTO_CHECKOUT_SUCCESS')
         SVC --> SVC -- : Mencegah Escrow Menggantung & Lanjut ke PENDING_DELIVERABLE
+        deactivate SVC
     end
 else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
@@ -356,9 +374,9 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     SVC --> CTRL : MessageAccepted
     CTRL --> FE : 200 OK (Message Sent & Clock Active)
     FE --> Klien : Tampilkan Chat Status Active
+    deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
 
     Mitra -> FE ++ : Kirim Balasan Pertama
     FE -> CTRL ++ : POST /api/v1/chat/messages {session_id, content}
@@ -368,9 +386,9 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     SVC --> CTRL : FairClockStarted
     CTRL --> FE : 200 OK (Timer Berdetak)
     FE --> Mitra : Tampilkan Timer Sesi Aktif
+    deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
 
     loop [Interaksi Dua Arah, DLP Circumvention Filter & Monitoring SLA Balasan]
         Klien -> FE ++ : Kirim Pesan Teks / Audio / Video
@@ -385,117 +403,137 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             SVC --> CTRL : SecurityAlertLevel1
             CTRL --> FE : 403 Forbidden / Red Security Alert
             FE --> Klien : Tampilkan Peringatan Keras Pengiriman Kontak Pribadi Ditolak
+            deactivate FE
             deactivate SVC
             deactivate CTRL
-            deactivate FE
 
             opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
+                activate SVC
                 SVC -> SVC ++ : freezeChatRoomAndHoldEscrow(sessionId)
                 SVC --> SVC -- : Return Computed Result / State
                 SVC -> SVC ++ : escalateIncidentToAdminQueue(sessionId, 'J-UC10')
                 SVC --> SVC -- : Return Computed Result / State
+                deactivate SVC
             end
         else Pesan Aman / Valid (Lolos DLP)
             SVC --> CTRL : MessageDelivered
             CTRL --> FE : 200 OK (Message Delivered)
             FE --> Mitra : Tampilkan Pesan Chat
+            deactivate FE
             deactivate SVC
             deactivate CTRL
-            deactivate FE
         end
         
         alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
+            activate SVC
             SVC -> SVC ++ : pauseCountdownTimerAndPushSLAAlert(sessionId)
             SVC --> SVC -- : Return Computed Result / State
             
             alt Advokat Tidak Aktif / AFK > 15 Menit
-                SVC -> REPO ++ : updateSessionStatus(sessionId, 'CANCELLED_AFK')
-                REPO --> SVC -- : 200 OK
+                SVC -> REPO : updateSessionStatus(sessionId, 'CANCELLED_AFK')
+                activate REPO
+                REPO --> SVC : 200 OK
+                deactivate REPO
                 SVC -> FE ++ : pushAlertSessionCancelledAFK()
                 FE --> Klien : Tampilkan Modal Refund 100%
                 deactivate FE
                 Klien -> FE ++ : Ajukan Laporan Pelanggaran / Klaim Refund (J-UC21)
                 FE -> CTRL ++ : POST /api/v1/moderation/reports
                 CTRL -> SVC ++ : submitRefundClaimReport(sessionId)
-                SVC -> REPO ++ : insertViolationReport(sessionId)
-                REPO --> SVC -- : 201 Created
+                SVC -> REPO : insertViolationReport(sessionId)
+                activate REPO
+                REPO --> SVC : 201 Created
+                deactivate REPO
                 SVC --> CTRL : ReportCreated
                 CTRL --> FE : 201 Created
                 FE --> Klien : Konfirmasi Laporan Diterima
+                deactivate FE
                 deactivate SVC
                 deactivate CTRL
-                deactivate FE
             else Advokat Kembali Membalas Pesan
                 SVC -> SVC ++ : resumeCountdownTimer(sessionId)
                 SVC --> SVC -- : Return Computed Result / State
             end
+            deactivate SVC
         end
     end
 
     alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
+        activate SVC
         SVC -> SVC ++ : endLiveChatAndLockRoomReadOnly(sessionId)
         SVC --> SVC -- : Return Computed Result / State
         SVC -> SVC ++ : disableVoiceVideoCalls(sessionId)
         SVC --> SVC -- : Return Computed Result / State
         
-        SVC -> REPO ++ : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : UPDATE consultation_sessions SET status = 'PENDING_DELIVERABLE' WHERE id = session_id
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC -> FE ++ : openAsyncDeliverableThread(sessionId)
         FE --> Mitra : Tampilkan Antarmuka Tiket Komentar [KLARIFIKASI FAKTA] / [REVISI KLAUSUL]
         deactivate FE
         FE --> Klien : Tampilkan Ruang Kerja Asinkron untuk Review & Klarifikasi
         SVC -> SVC ++ : archiveIRACNote(sessionId)
         SVC --> SVC -- : Return Computed Result / State
+        deactivate SVC
     end
 end
 
 alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
-    Mitra -> FE ++ : Susun & Unggah Laporan Saran Hukum (Client Advice Summary v1)
+    Mitra -> FE ++ : Susun & Unggah Laporan Saran Hukum (Summary v1)
     FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary
-    CTRL -> SVC ++ : submitAdviceSummary(sessionId, summaryPayload)
-    SVC -> REPO ++ : saveDeliverableSummary(sessionId, summaryPayload)
-    REPO --> SVC -- : 201 Created
-    SVC --> CTRL : DeliverableSummaryCreated
+    CTRL -> SVC ++ : submitDeliverableSummary(sessionId, summaryPayload)
+    SVC -> REPO : saveDeliverableSummary(sessionId, summaryPayload)
+    activate REPO
+    REPO --> SVC : 201 Created
+    deactivate REPO
+    SVC --> CTRL : SummaryCreated
     CTRL --> FE : 201 Created
     FE --> Mitra : Konfirmasi Laporan Saran Dirilis
+    deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
 
     loop [Siklus Klarifikasi Saran Hukum - Ulangi Selama Klien Mengajukan Tiket & Kuota < 2x & SLA Belum Habis]
         Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/async-thread/clarify
-        CTRL -> SVC ++ : submitClarificationQuestion(sessionId, questionPayload)
+        CTRL -> SVC ++ : submitClarificationTicket(sessionId, questionPayload)
         SVC -> SVC ++ : inlineDLPScan(questionPayload)
         SVC --> SVC -- : Return DLP Decision
-        SVC -> REPO ++ : saveClarificationTicket(sessionId, questionPayload)
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : saveClarificationTicket(sessionId, questionPayload)
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC --> CTRL : ClarificationSent
         CTRL --> FE : 200 OK
         FE --> Klien : Pertanyaan Klarifikasi Terkirim
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
         
         Mitra -> FE ++ : Berikan Jawaban / Perbarui Laporan Saran Hukum
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary
-        CTRL -> SVC ++ : updateAdviceSummary(sessionId, updatedPayload)
-        SVC -> REPO ++ : updateDeliverableSummary(sessionId, updatedPayload)
-        REPO --> SVC -- : 200 OK
+        CTRL -> SVC ++ : updateDeliverableSummary(sessionId, updatedPayload)
+        SVC -> REPO : updateDeliverableSummary(sessionId, updatedPayload)
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC --> CTRL : SummaryUpdated
         CTRL --> FE : 200 OK
         FE --> Mitra : Konfirmasi Pembaruan Dirilis
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     end
 
     alt [Penyelesaian Deliverable] Laporan Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 2x24 Jam Habis
         Klien -> FE ++ : Klik Setujui Laporan / Auto-Approve SLA Habis / Kuota Habis
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary/approve
         CTRL -> SVC ++ : approveDeliverableSummary(sessionId)
-        SVC -> REPO ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         opt [Jika Batas Kuota 2x Habis / SLA Habis]
             SVC -> FE ++ : showPromptQuotaOrSLAExceeded()
             FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
@@ -504,27 +542,32 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
         SVC --> CTRL : SummaryApproved
         CTRL --> FE : 200 Approved
         FE --> Klien : Konfirmasi Laporan Disetujui
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     end
+
+    activate SVC
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
     SVC -> FE ++ : triggerRatingModal(sessionId)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
+    deactivate SVC
 else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     Mitra -> FE ++ : Susun & Unggah Dokumen Hukum Final (Drafting v1)
     FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/final
     CTRL -> SVC ++ : submitFinalLegalDocument(sessionId, docPayload)
-    SVC -> REPO ++ : saveFinalDocumentVersion(sessionId, docPayload)
-    REPO --> SVC -- : 201 Created
+    SVC -> REPO : saveFinalDocumentVersion(sessionId, docPayload)
+    activate REPO
+    REPO --> SVC : 201 Created
+    deactivate REPO
     SVC --> CTRL : FinalDocumentCreated
     CTRL --> FE : 201 Created
     FE --> Mitra : Konfirmasi Dokumen Final Diunggah
+    deactivate FE
     deactivate SVC
     deactivate CTRL
-    deactivate FE
 
     loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
         Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
@@ -532,34 +575,40 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         CTRL -> SVC ++ : submitRevisionTicket(sessionId, revisionPayload)
         SVC -> SVC ++ : inlineDLPScan(revisionPayload)
         SVC --> SVC -- : Return DLP Decision
-        SVC -> REPO ++ : saveRevisionTicket(sessionId, revisionPayload)
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : saveRevisionTicket(sessionId, revisionPayload)
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         SVC --> CTRL : RevisionSent
         CTRL --> FE : 200 OK
         FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
         
         Mitra -> FE ++ : Perbarui & Unggah Draf Revisi Dokumen (v2 / v3)
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/final
         CTRL -> SVC ++ : updateFinalLegalDocument(sessionId, updatedDoc)
-        SVC -> REPO ++ : saveFinalDocumentVersion(sessionId, updatedDoc)
-        REPO --> SVC -- : 201 Created
+        SVC -> REPO : saveFinalDocumentVersion(sessionId, updatedDoc)
+        activate REPO
+        REPO --> SVC : 201 Created
+        deactivate REPO
         SVC --> CTRL : FinalDocumentUpdated
         CTRL --> FE : 201 Created
         FE --> Mitra : Konfirmasi Revisi Diunggah
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     end
 
     alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 3x24 Jam Habis
         Klien -> FE ++ : Klik Setujui Dokumen Final / Auto-Approve SLA Habis / Kuota Habis
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/final/approve
         CTRL -> SVC ++ : approveFinalLegalDocument(sessionId)
-        SVC -> REPO ++ : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
-        REPO --> SVC -- : 200 OK
+        SVC -> REPO : UPDATE consultation_sessions SET async_thread_locked = TRUE WHERE id = session_id
+        activate REPO
+        REPO --> SVC : 200 OK
+        deactivate REPO
         opt [Jika Batas Kuota 2x Habis / SLA Habis]
             SVC -> FE ++ : showPromptRevisionQuotaExceeded()
             FE --> Klien : Prompt Buat Reservasi Sesi Baru untuk Topik Tambahan
@@ -568,19 +617,22 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         SVC --> CTRL : FinalDocumentApproved
         CTRL --> FE : 200 Approved
         FE --> Klien : Konfirmasi Dokumen Disetujui
+        deactivate FE
         deactivate SVC
         deactivate CTRL
-        deactivate FE
     end
+
+    activate SVC
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
     SVC -> FE ++ : triggerRatingModal(sessionId)
     FE --> Klien : Tampilkan Modal Ulasan & Rating
     deactivate FE
+    deactivate SVC
 end
 
-deactivate Klien
 deactivate Mitra
+deactivate Klien
 @enduml
 ```
 
