@@ -7,7 +7,7 @@
 | **Nama Halaman** | Verifikasi Dokumen (`verify.justica.id`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Pengguna Publik |
-| **Ref. Use Case** | `J-UC12`, `J-UC14` |
+| **Ref. Use Case** | `J-UC14` (`ST-J-12`) |
 
 ---
 

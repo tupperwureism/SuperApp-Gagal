@@ -6,9 +6,9 @@
 | **ID Mockup** | `MOCK-J-CL-05` |
 | **Nama Halaman** | Check-in & Check-out Tatap Muka Resmi ber-QR (`client.justica.id/offline-handshake`) |
 | **Aktor Target** | Klien Hukum Terverifikasi & Advokat Berlisensi SIPP |
-| **Ref. Use Case** | `J-UC10` (Verifikasi Pertemuan Tatap Muka via QR Cryptographic Handshake) |
+| **Ref. Use Case** | `J-UC03, J-UC04` (`ST-J-08B`: Konsultasi Tatap Muka Resmi Dual QR Handshake Check-in & Check-out, 60m Standard Timer, 120m Auto Check-out) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-05` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa) |
-| **Kepatuhan Keamanan** | Dynamic Time-Based QR Token (TTL 30s), Geofencing Office Verification, Escrow Release Guard |
+| **Kepatuhan Keamanan** | Dual QR Handshake Token (TTL 30s), Geofencing Office Verification, Standard Timer 60m, Systemic Auto Check-out 120m |
 
 ---
 
@@ -20,21 +20,21 @@
   {* <b>JUSTICA</b> - Check-in Tatap Muka Resmi | [ Dasbor Saya ] | [ ☀ / ☾ ] }
   --
   {
-    === HANDSHAKE KONSULTASI OFFLINE TATAP MUKA BER-QR
-    "Pastikan Anda melakukan pemindaian QR resmi di kantor advokat untuk mencatat waktu mulai dan selesai sesi secara sah."
+    === HANDSHAKE KONSULTASI OFFLINE TATAP MUKA BER-QR (DUAL QR HANDSHAKE)
+    "Pastikan Anda melakukan pemindaian QR Check-in & Check-out resmi di kantor advokat untuk perlindungan dana Escrow."
   }
   --
   {
     {#
-      <b>Informasi Sesi Tatap Muka</b> | <b>Status & Lokasi Terverifikasi</b>
+      <b>Informasi Sesi Tatap Muka</b> | <b>Status Dual QR Handshake & Timer Sesi (ST-J-08B)</b>
       {
         Advokat: Dr. Mahendra Kusuma, S.H.
         Lokasi: Kantor Hukum Mahendra & Partners
-        Jadwal: 10 Juli 2026 (14:00 - 14:45 WIB)
+        Durasi Slot Baku: 60 Menit
       } | {
-        Status Handshake: <color:green><b>CHECK-IN BERHASIL (14:02 WIB)</b></color>
-        Sisa Waktu Sesi: <b>38:15 Menit</b>
-        Geofence Accuracy: Validated (12m Radius)
+        Dual QR Handshake: <color:green><b>CHECK-IN BERHASIL (14:02 WIB)</b></color>
+        Standard Session Timer: <b>Sisa 48:15 / 60:00 Menit</b>
+        Systemic Auto Check-out Guard: <color:orange><b>Batas Maks 120m (16:02 WIB)</b></color>
       }
     }
   }

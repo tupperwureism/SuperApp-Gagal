@@ -7,7 +7,7 @@
 | **Nama Halaman** | Check-in Konsultasi Offline (`client.justica.id/offline-handshake`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC06`, `J-UC11` |
+| **Ref. Use Case** | `J-UC03, J-UC04` (`ST-J-08B`) |
 
 ---
 

@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-09` |
 | **Nama Halaman** | Dasbor Pusat Pemantauan Sengketa & Mediasi Escrow Klien (`client.justica.id/disputes/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) & Admin Kepatuhan Justica |
-| **Ref. Use Case** | `J-UC15` (Pemantauan Status Investigasi & Mediasi Escrow) |
+| **Ref. Use Case** | `J-UC21` (`ST-J-19`: Investigasi & Mediasi Pelanggaran Etik Advokat) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-08` -> `MOCK-J-CL-09` -> `MOCK-J-CL-02A` (Dasbor Saya) |
 | **Kepatuhan Keamanan** | Audit Trail Immutable SHA-256, Multi-Party Mediator Sign-off, Escrow Freeze / Refund Control |
 

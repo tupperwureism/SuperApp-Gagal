@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-PUBLIC-VERIFY` |
 | **Nama Halaman** | Portal Verifikasi Keaslian Dokumen Hukum & e-Meterai (`verify.justica.id`) |
 | **Aktor Target** | Pihak Ketiga Publik (Hakim, Notaris, Instansi Pemerintah, Auditor, HRD) |
-| **Ref. Use Case** | `J-UC12` (Verifikasi Deliverable), `J-UC14` (Pemeriksaan Hash SHA-256 Dokumen) |
+| **Ref. Use Case** | `J-UC14` (`ST-J-12`: Pemeriksaan Keabsahan & Hash SHA-256 Dokumen e-Meterai Peruri) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-GATEWAY-01` -> `MOCK-J-PUBLIC-VERIFY` -> `MOCK-J-GATEWAY-01` (Kembali ke Beranda) |
 | **Kepatuhan Keamanan** | Anonymous Public Read-Only Endpoint, Rate Limiting (20 req/min/IP), WORM Immutable Cross-Check |
 

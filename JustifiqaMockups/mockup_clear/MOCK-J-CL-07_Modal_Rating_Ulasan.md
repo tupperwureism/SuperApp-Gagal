@@ -7,7 +7,7 @@
 | **Nama Halaman** | Modal Penilaian Kinerja (`client.justica.id/feedback`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC16` |
+| **Ref. Use Case** | `J-UC06` (`ST-J-14`) |
 
 ---
 

@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-10` |
 | **Nama Halaman** | Pengaturan Keamanan MFA, Profil Identitas, & Privasi Data Klien (`client.justica.id/settings`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC16` (Manajemen Profil & Keamanan MFA), `J-UC17` (Pengaturan Privasi UU PDP) |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`), `J-UC02` (`ST-J-02`: Pengaturan Keamanan MFA & Hak Subjek Data UU PDP No. 27/2022) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-10` -> `MOCK-J-CL-02A` (Dasbor Saya) |
 | **Kepatuhan Keamanan** | Mandatory MFA Device Management, Right to be Forgotten (UU PDP Art. 8), AES-256 Key Rotation |
 

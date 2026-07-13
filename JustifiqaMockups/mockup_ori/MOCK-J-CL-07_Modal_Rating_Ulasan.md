@@ -6,9 +6,9 @@
 | **ID Mockup** | `MOCK-J-CL-07` |
 | **Nama Halaman** | Modal Wajib Penilaian Mutu & Ulasan Layanan Advokat (`client.justica.id/feedback/{session_id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC11` (Penilaian Mutu Layanan), `J-UC13` (Pelepasan Akhir Escrow) |
+| **Ref. Use Case** | `J-UC06` (`ST-J-14`: Memberikan Ulasan & Rating Advokat - Blocking Modal & Total Client Anonymization) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-04` / `MOCK-J-CL-05` / `MOCK-J-CL-06` -> `MOCK-J-CL-07` -> `MOCK-J-CL-02A` (Dasbor Saya) |
-| **Kepatuhan Keamanan** | WORM Quality Audit Trail, Anonymous Feedback Option, Anti-Spam NLP Filter |
+| **Kepatuhan Keamanan** | WORM Quality Audit Trail, Total Client Anonymization Guard (`ST-J-14`), Anti-Spam NLP Filter |
 
 ---
 
@@ -20,7 +20,7 @@
   {* <b>JUSTICA</b> - Penilaian Mutu Layanan Advokat | [ ☀ Light / ☾ Dark Mode ] }
   --
   {
-    === PENILAIAN & ULASAN KONSULTASI HUKUM TERVERIFIKASI
+    === PENILAIAN & ULASAN KONSULTASI HUKUM TERVERIFIKASI (ST-J-14)
     "Ulasan Anda membantu menjaga standar kualitas advokat berlisensi Mahkamah Agung di platform Justica."
   }
   --
@@ -49,7 +49,7 @@
     <b>3. TULISKAN ULASAN PENGALAMAN ANDA (OPSIONAL)</b>
     "Advokat sangat profesional, langsung menjelaskan landasan pasal hukum perjanjian dengan sangat jelas."
     --
-    [X] Sembunyikan nama saya dari publik (*Anonymous Review — Identitas terverifikasi hanya di server internal*)
+    [X] Anonimisasi Total Identitas Klien (*Mandatory Total Anonymized Review — Tampil sebagai 'Klien Terverifikasi #8192'*)
   }
   --
   {

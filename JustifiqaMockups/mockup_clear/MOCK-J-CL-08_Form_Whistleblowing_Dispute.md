@@ -7,7 +7,7 @@
 | **Nama Halaman** | Formulir Pelaporan Sengketa Layanan & Whistleblowing Pelanggaran Etik Advokat |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC15` |
+| **Ref. Use Case** | `J-UC21` (`ST-J-19`) |
 
 ---
 

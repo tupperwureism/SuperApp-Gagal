@@ -6,9 +6,9 @@
 | **ID Mockup** | `MOCK-J-CL-06` |
 | **Nama Halaman** | Portal Penyerahan Berkas Hukum Asinkron & e-Meterai (`client.justica.id/deliverable/{id}`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC12` (Verifikasi & Persetujuan Berkas Deliverable), `J-UC13` (Unduh Dokumen Resmi e-Meterai) |
+| **Ref. Use Case** | `J-UC12` (`ST-J-12`: Pembuatan & Verifikasi Deliverable Opini Hukum / Kontrak, 2-Round Review Quota, Hard Thread Lock), `J-UC14` (`ST-J-12`: Pembubuhan e-Meterai Peruri SHA-256) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-02A` -> `MOCK-J-CL-06` -> `MOCK-J-CL-07` (Modal Rating & Ulasan), `MOCK-J-CL-08` (Pusat Sengketa) |
-| **Kepatuhan Keamanan** | Peruri e-Meterai KMS Integration, SHA-256 Digital Signature Verify, Escrow Hold/Release Gate |
+| **Kepatuhan Keamanan** | Peruri e-Meterai KMS Integration, SHA-256 Digital Signature Verify, Escrow Hold/Release Gate, Hard Thread Lock |
 
 ---
 
@@ -20,21 +20,22 @@
   {* <b>JUSTICA</b> - Ruang Kerja Asinkron | [ Dasbor Saya ] | [ ☀ Light / ☾ Dark Mode ] }
   --
   {
-    === RUANG SERAH TERIMA BERKAS HUKUM & LEGAL OPINION RESMI
+    === RUANG SERAH TERIMA BERKAS HUKUM & LEGAL OPINION RESMI (ST-J-12)
     "Periksa dokumen hukum yang telah disusun oleh Advokat. Anda dapat mengajukan revisi atau menyetujuinya untuk melepas dana Escrow."
   }
   --
   {
     {#
-      <b>Informasi Berkas Deliverable</b> | <b>Metadata Kepatuhan Hukum SHA-256</b>
+      <b>Informasi Berkas Deliverable</b> | <b>Metadata Kepatuhan Hukum SHA-256 & Quota Guard</b>
       {
         Judul Dokumen     | "Pendapat Hukum (*Legal Opinion*) & Draf Perjanjian Kerja Sama"
         Status Terkini    | <b>SIAP DIUNDUH & DIVERIFIKASI (SIAP E-METERAI RESMI)</b>
         Hash SHA-256 Asli | "a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8a0b2d4c6e8f01234"
         Nomor e-Meterai   | "PERURI-1029384756 (Legalisasi 100% Sah)"
       } | {
-        Sisa Kuota Revisi : <b>2 Kali Pengajuan Gratis</b>
+        Sisa Kuota Revisi : <b>2 / 2 Putaran Revisi Gratis (2-Round Quota Engine)</b>
         Batas Waktu Review: <b>72 Jam Sebelum Auto-Approve</b>
+        Status Thread     : <color:orange><b>ACTIVE (async_thread_locked = TRUE saat Final/Approved)</b></color>
         [ <b>PERIKSA KEASLIAN HASH</b> ]
       }
     }

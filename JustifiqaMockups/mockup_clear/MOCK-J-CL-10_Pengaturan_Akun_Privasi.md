@@ -7,7 +7,7 @@
 | **Nama Halaman** | Pengaturan Keamanan MFA, Profil Identitas, & Privasi Data Klien |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC16`, `J-UC17` |
+| **Ref. Use Case** | `J-UC01` (`ST-J-01`), `J-UC02` (`ST-J-02`) |
 
 ---
 

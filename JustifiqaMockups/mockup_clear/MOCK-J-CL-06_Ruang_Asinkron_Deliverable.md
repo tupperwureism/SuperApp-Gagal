@@ -7,7 +7,7 @@
 | **Nama Halaman** | Ruang Kerja Dokumen (`client.justica.id/deliverable`) |
 | **Gaya Desain (*Design System*)** | **Professional Corporate Slate UI** (*Light / Dark Mode Ready*) |
 | **Aktor Target** | Klien Hukum |
-| **Ref. Use Case** | `J-UC12`, `J-UC13` |
+| **Ref. Use Case** | `J-UC12` (`ST-J-12`), `J-UC14` (`ST-J-12`) |
 
 ---
 

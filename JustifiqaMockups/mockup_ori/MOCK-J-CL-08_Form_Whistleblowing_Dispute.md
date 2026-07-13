@@ -6,7 +6,7 @@
 | **ID Mockup** | `MOCK-J-CL-08` |
 | **Nama Halaman** | Formulir Pelaporan Sengketa Layanan & Whistleblowing Pelanggaran Etik Advokat (`client.justica.id/dispute/new`) |
 | **Aktor Target** | Klien Hukum Terverifikasi (*Verified Legal Client*) |
-| **Ref. Use Case** | `J-UC15` (Pengajuan Sengketa Escrow & Laporan Etik Advokat) |
+| **Ref. Use Case** | `J-UC21` (`ST-J-19`: Melaporkan Pelanggaran Etik Advokat - Whistleblowing, Exclusively Client-Initiated) |
 | **Peta Navigasi (`from` -> `to`)** | `MOCK-J-CL-04` / `MOCK-J-CL-05` / `MOCK-J-CL-06` -> `MOCK-J-CL-08` -> `MOCK-J-CL-09` (Pusat Pemantauan Dispute), `MOCK-J-CL-02A` (Dasbor Saya) |
 | **Kepatuhan Keamanan** | Escrow Freeze Trigger (Immediate Mutex Lock), WORM Dispute Evidence Archive, KMS AES-256 Confidentiality |
 
