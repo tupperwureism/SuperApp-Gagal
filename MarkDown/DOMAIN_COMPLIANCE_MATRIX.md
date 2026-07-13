@@ -46,7 +46,7 @@ Sebelum Klien dan Advokat dapat membuka ruang obrolan E2EE (`J-UC03`), kedua bel
 3. **Pembatalan Garansi & Pelepasan Tanggung Jawab (*Liability Disclaimer*)**: Segala bentuk penipuan, malpraktik, atau sengketa yang timbul akibat pertemuan/transaksi di luar platform secara otomatis **membatalkan hak Klaim Refund Escrow 100%** dan membebaskan Justifiqa dari segala tuntutan hukum.
 
 #### 2. Arsitektur Pre-Broadcast Inline Interception & Matriks Zero-Tolerance (2-Tier Enforcement)
-Seluruh pesan *chat* diproses secara **Pre-Broadcast Inline Interception** di lapisan *Edge Gateway Backend* (~25–40 milidetik) **SEBELUM** diteruskan ke *socket* WebSocket lawan bicara. Dengan demikian, pesan melanggar **dicegat secara mutlak sebelum tampil di layar UI penerima (*Zero Exposure*)**.
+Seluruh pesan *chat* diproses secara **Pre-Broadcast Inline Interception** di lapisan *API Gateway / ConsultationController* (~25–40 milidetik) **SEBELUM** diproses oleh *ConsultationService* dan diteruskan ke *socket* WebSocket lawan bicara. Dengan demikian, pesan melanggar **dicegat secara mutlak sebelum tampil di layar UI penerima (*Zero Exposure*)**.
 
 | Tingkat Pelanggaran | Kondisi Pemicu (DLP Filter) | Tindakan Sistem Otomatis | Sanksi & Eskalasi Hukum |
 | :--- | :--- | :--- | :--- |
@@ -120,23 +120,21 @@ Oleh karena itu, untuk menangani upaya penggelapan transaksi ekstrim yang lolos 
 
 ---
 
-## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI)
+## BAGIAN II: REGULASI & KEPATUHAN — APLIKASI MANDIRI QUALIFA (DOMAIN PSIKOLOGI KLINIS)
 
-### 2.1 Ringkasan Regulasi Utama Psikologi
+### 2.1 Ringkasan Regulasi Utama Kesehatan Mental & Psikologi
 | Regulasi Utama | Pasal Kunci | Relevansi untuk Qualifa |
 | :--- | :--- | :--- |
-| **UU 18/2014 tentang Kesehatan Mental** | Pasal 12, 13, 14, 15 | Hak penyandang masalah kesehatan jiwa atas kerahasiaan rekam psikologis, persetujuan tindakan medis/psikologis (*informed consent*), dan perlindungan dari stigma. |
-| **Kode Etik HIMPSI 2019** | Bab III, IV, V (Pasal 23-27) | Kompetensi psikolog klinis, batas kerahasiaan (*confidentiality*), pengecualian kerahasiaan untuk kondisi darurat (*duty to protect / warn*), dan aturan hubungan majemuk. |
-| **Permenkumham No. 1 Tahun 2024** | Pasal 5, 6 | Perlindungan hak keistimewaan komunikasi psikolog-klien dan penegakan hukum psikologi forensik. |
-| **UU PDP No. 27 Tahun 2022** | Pasal 15, 16, 26, 46 | Data kesehatan mental dikategorikan sebagai **Data Pribadi Spesifik / Sensitif**; wajib enkripsi tingkat tinggi, persetujuan eksplisit, dan penyimpanan server di Indonesia. |
-| **Pedoman Krisis Suicide (WHO/HIMPSI)** | Protokol Intervensi Krisis | Kewajiban pemicuan **Mandatory Crisis Protocol** (Hotline 119 dan alert darurat) saat terdeteksi kecenderungan bunuh diri (*self-harm / suicidal ideation*). |
+| **UU 18/2014 tentang Kesehatan Mental** | Pasal 22, 23, 24 | Hak atas kerahasiaan kondisi kejiwaan (*Patient-Clinician Confidentiality*) dan jaminan penanganan krisis psikiatrik/psikologis. |
+| **Kode Etik Psikologi HIMPSI 2019** | Pasal 23, 24, 25, 26, 27 | Kewajiban memegang teguh rahasia rekam klinis, asas persetujuan (*Informed Consent*), dan larangan eksploitasi relasi terapeutik. |
+| **UU PDP No. 27 Tahun 2022** | Pasal 26, 46 | Data kejiwaan adalah **Data Pribadi Spesifik/Sensitif dengan Perlindungan Ekstra Tinggi**. Dilarang keras dipindahkan/disimpan di server luar negeri. |
 
 ---
 
-### 2.2 Klasifikasi & Enkripsi Data Psikologi (Qualifa)
+### 2.2 Klasifikasi & Enkripsi Data Kesehatan Mental (Qualifa)
 | Kategori Data | Contoh Data | Tingkat Sensitivitas | Standar Enkripsi & Proteksi | Masa Retensi | Hak Akses (*RBAC*) |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Identitas Klien & Kontak Darurat** | Nama, Email, No. HP, Nama & No. Wali Darurat | Tinggi (*Sensitive PII*) | AES-256-GCM + Field-Level Encryption | 10 Tahun | Klien, Psikolog aktif, Tim Respons Krisis 119 |
+| **Identitas Klien Psikologi** | NIK, Nama Samaran (*Pseudonym*), Kontak darurat | Tinggi (*Sensitive PII*) | AES-256-GCM + Anonymization Layer | 10 Tahun | Klien bersangkutan, Psikolog penanganan |
 | **Jurnal Mood Tracker Harian** | Emotikon tren, catatan perasaan harian | **Sangat Rahasia / Klinis** | **Zero-Knowledge Architecture (E2EE)** | 10 Tahun | **Hanya Klien** (Psikolog melihat dalam bentuk grafik via consent per sesi) |
 | **Skor Asesmen Klinis DASS-21** | Skor Depression, Anxiety, Stress, Interpretasi | **Sangat Rahasia / Klinis** | AES-256-GCM + Client-Side Decrypt | 10 Tahun | Klien bersangkutan, Psikolog penanggung jawab, Supervisor Klinis |
 | **Catatan Terapi DAP Note** | Data, Assessment, Plan klinis | **Sangat Rahasia / Klinis** | AES-256-GCM + E2EE Wajib | 20 Tahun (Sesuai Kode Etik) | Psikolog pembuat catatan, Supervisor Klinis (atas mandat etik) |
@@ -162,7 +160,7 @@ Seluruh perancangan diagram alur (`AD`), diagram interaksi (`SD`), dan implement
 Untuk mencegah penyalahgunaan wewenang sepihak (*unilateral abuse of power*), kesalahan mitigasi, dan menjaga *Due Process of Law*, seluruh tindakan administratif berdampak tinggi **DILARANG KERAS** dieksekusi oleh satu aktor admin tunggal.
 | Tindakan Kritis (*High-Impact Action*) | Aktor Inisiator (*Maker / Tahap 1*) | Aktor Validator (*Checker / Approver Tahap 2*) | Bukti Audit yang Wajib Dilampirkan |
 | :--- | :--- | :--- | :--- |
-| **Penjatuhan Sanksi Suspend Akun (`AD/SD-J-21`)** | Admin Legal Investigasi | Supervisor Legal / Komite Etik | Hash SHA-256 Surat Teguran & Bukti Forensik Pelanggaran Berat |
+| **Penjatuhan Sanksi Suspend Akun (`AD/SD-J-10`)** | Admin Legal Investigasi | Supervisor Legal / Komite Etik | Hash SHA-256 Surat Teguran & Bukti Forensik Pelanggaran Berat |
 | **Pencairan / Rollback Darurat Dana Escrow** | Admin Keuangan (*Finance Maker*) | Manajer Keuangan (*Finance Checker*) | Berita Acara Sengketa & Tiket Resolusi Dispute |
 | **Pencabutan / Pembatalan Sanksi Advokat** | Admin Legal | Dewan Kehormatan / Compliance Head | Berita Acara Klarifikasi / Putusan Banding |
 
