@@ -30,13 +30,16 @@ participant "API Dukcapil / Peradi" as Ext
 activate User
 User -> FE ++ : Buka Halaman Registrasi & Pilih Jenis Akun
 FE --> User : Tampilkan Formulir Registrasi Spesifik Justifiqa
+deactivate FE
+
 loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
-    User -> FE : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
+    User -> FE ++ : Isi Data Diri & Unggah Dokumen Kredensial (KTP/SIPP)
     FE -> CTRL ++ : POST /api/v1/auth/register (Payload & Files)
 
     alt Format & Ukuran File Tidak Valid (Maks 5MB, PDF/JPG)
         CTRL --> FE : 400 Bad Request / 422 Unprocessable Entity (Invalid File Format or Size Limit)
         FE --> User : Tampilkan Error "Format/Ukuran File Tidak Valid" & Instruksi Perbaikan
+        deactivate FE
         note over User, FE : [REPEAT LOOP: Pengguna memperbaiki format file dan mengirim ulang ke baris awal loop]
     else Format & Ukuran File Valid
         CTRL -> SVC ++ : registerAccount(payload, files)
@@ -47,6 +50,7 @@ loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
             SVC --> CTRL : throw ConflictException(Akun Sudah Terdaftar)
             CTRL --> FE : 409 Conflict (Akun Sudah Terdaftar)
             FE --> User : Tampilkan Error "Email/No HP/NIK Sudah Terdaftar" & Instruksi Perbaikan
+            deactivate FE
             note over User, FE : [REPEAT LOOP: Pengguna mengganti kredensial dan mengirim ulang ke baris awal loop]
         else Kredensial Baru & Unik
             alt Jenis Akun = Klien (Pencari Keadilan)
@@ -57,6 +61,7 @@ loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
                     SVC --> CTRL : throw ValidationException(NIK Tidak Terdaftar)
                     CTRL --> FE : 422 Unprocessable Entity (NIK Tidak Terdaftar / Tidak Cocok di Dukcapil)
                     FE --> User : Tampilkan Error "NIK Tidak Valid / Tidak Cocok"
+                    deactivate FE
                     note over User, FE : [REPEAT LOOP: Pengguna memperbaiki NIK dan mengirim ulang ke baris awal loop]
                 else NIK Valid & Cocok
                     SVC -> REPO ++ : insertClient(clientEntity, status='AKTIF')
@@ -64,6 +69,7 @@ loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
                     SVC --> CTRL : ClientAccountCreated
                     CTRL --> FE : 201 Created (Registrasi Sukses)
                     FE --> User : Arahkan ke Halaman Login Justifiqa
+                    deactivate FE
                     note over User, CTRL : [BREAK LOOP: NIK Valid & Akun Klien Berhasil Dibuat]
                 end
             else Jenis Akun = Advokat / Notaris
@@ -74,6 +80,7 @@ loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
                 SVC --> CTRL : AdvocateAccountPendingVerification
                 CTRL --> FE : 201 Created (Menunggu Verifikasi Admin)
                 FE --> User : Tampilkan Pesan "Menunggu Audit Admin 1x24 Jam"
+                deactivate FE
                 note over User, CTRL : [BREAK LOOP: Akun Advokat Berhasil Disimpan PENDING_VERIFICATION]
             end
         end
@@ -81,7 +88,6 @@ loop [Maksimal 3x Percobaan Input & Pendaftaran Akun hingga Valid & Unik]
     end
     deactivate CTRL
 end
-deactivate FE
 deactivate User
 @enduml
 ```
@@ -114,10 +120,12 @@ loop [Maksimal 3x Percobaan Input Kredensial Login]
         SVC --> CTRL : throw UnauthorizedException(Kredensial Salah)
         CTRL --> FE : 401 Unauthorized (Kredensial Salah)
         FE --> User : Tampilkan Error Email/No HP atau Password Salah
+        deactivate FE
         note over User, FE : [REPEAT LOOP: Pengguna memasukkan kembali kredensial ke baris awal loop]
     else Kredensial Cocok
         SVC --> CTRL : CredentialsVerified
         CTRL --> FE : 200 OK (Credentials Verified)
+        deactivate FE
         note over User, CTRL : [BREAK LOOP: Kredensial Cocok Lanjut ke Langkah MFA / OTP]
     end
     deactivate SVC
@@ -176,7 +184,6 @@ else Status Akun = AKTIF
     deactivate SVC
     deactivate CTRL
 end
-deactivate FE
 deactivate User
 @enduml
 ```
@@ -188,17 +195,19 @@ deactivate User
 
 ```plantuml
 @startuml
+title Sequence Diagram: SD-J-03 - Konsultasi Hukum & Pembayaran Escrow (J-UC03, J-UC04, J-UC05, J-UC10)
 autonumber
 actor "Klien Justifiqa" as Klien
 participant "ConsultationUI" as FE
 participant "ConsultationController" as CTRL
-participant "EscrowFairClockService" as SVC
-database "ConsultationRepository & Ledger" as REPO
-participant "Payment Gateway" as PG
-actor "Advokat Justifiqa" as Mitra
+participant "ConsultationService" as SVC
+database "ConsultationRepository & DB" as REPO
+participant "Payment Gateway (Midtrans/Xendit)" as PG
+actor "Advokat Mitra" as Mitra
 
 activate Klien
 activate Mitra
+
 Klien -> FE ++ : Pilih Level Konsultasi (Gratis / Premium / Pro), Advokat, & Slot
 FE -> CTRL ++ : POST /api/v1/consultations/book (tier, advocate_id, slot, use_promo=true)
 
@@ -219,6 +228,8 @@ alt Level Konsultasi = Gratis (Legal Triage - 15 Menit Text Chat)
     FE --> Klien : Tampilkan Modal Ulasan & Rating Sesi Triage
     deactivate FE
     deactivate SVC
+    deactivate CTRL
+    deactivate FE
 else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
     CTRL -> SVC ++ : checkVirtualTokenBalance(clientId)
     SVC -> REPO ++ : getVirtualTokenBalance(clientId)
@@ -233,6 +244,9 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
         CTRL --> FE : 200 OK (Reservasi Terkonfirmasi via Virtual Token)
         FE --> Klien : Tampilkan Konfirmasi Reservasi Sukses
         SVC -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+        deactivate SVC
+        deactivate CTRL
+        deactivate FE
     else Bayar Penuh / Sebagian via Payment Gateway (Split Payment)
         opt Klien Menggunakan Sebagian Promo Credit (Split Payment)
             SVC -> REPO ++ : deductPromoCreditBalance(clientId)
@@ -243,6 +257,9 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
         SVC --> CTRL : BillingDetailReady
         CTRL --> FE : Return Billing Detail (Nominal Sisa / Penuh)
         FE --> Klien : Tampilkan Halaman Pembayaran PG
+        deactivate SVC
+        deactivate CTRL
+        deactivate FE
 
         loop [Maksimal 3x Percobaan Pembayaran & Verifikasi Webhook]
             Klien -> PG ++ : Lakukan Pembayaran via Bank Transfer / E-Wallet
@@ -259,6 +276,8 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
                 FE --> Klien : Tampilkan Konfirmasi Reservasi Terkonfirmasi
                 deactivate FE
                 SVC -> Mitra : Kirim Push Notification Jadwal Sesi Baru
+                deactivate SVC
+                deactivate CTRL
                 note over Klien, PG : [BREAK LOOP: Pembayaran Sukses Lanjut ke Sesi Konsultasi]
             else Webhook Status Transaksi = FAILED / EXPIRED / CANCELLED
                 PG -> CTRL ++ : Webhook Notification (POST /webhook/payment FAILED / EXPIRED)
@@ -283,16 +302,15 @@ else Level Konsultasi = Premium / Pro (Berbayar via Virtual Token / PG)
                     FE --> Klien : Tampilkan Halaman Pembayaran Baru
                     deactivate SVC
                     deactivate CTRL
+                    deactivate FE
                 end
+                deactivate SVC
+                deactivate CTRL
                 note over Klien, PG : [REPEAT LOOP: Pengguna melakukan pembayaran ulang ke baris awal loop]
             end
-            deactivate SVC
-            deactivate CTRL
         end
     end
-    deactivate SVC
 end
-deactivate CTRL
 
 alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
     Klien -> FE ++ : Datang ke Safe Meeting Point & Pindai QR Code Check-in Advokat
@@ -305,6 +323,7 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
     FE --> Klien : Tampilkan Status Sesi Berjalan & Countdown 60 Menit
     deactivate SVC
     deactivate CTRL
+    deactivate FE
     note over Klien, Mitra : Sesi Konsultasi Tatap Muka Berlangsung di Lokasi Terverifikasi
     alt Normal Check-out (QR Code Dipindai Klien < 120 Menit)
         Klien -> FE ++ : Pindai QR Code Check-out saat Sesi Selesai
@@ -315,6 +334,7 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
         FE --> Klien : Tampilkan Ringkasan Sesi Offline
         deactivate SVC
         deactivate CTRL
+        deactivate FE
     else Fallback Check-out (Lupa Check-out / Grace Period 120 Menit Habis)
         SVC -> SVC ++ : executeSystemicAutoCheckout(bookingId, 'AUTO_CHECKOUT_SUCCESS')
         SVC --> SVC -- : Mencegah Escrow Menggantung & Lanjut ke PENDING_DELIVERABLE
@@ -322,8 +342,12 @@ alt Mode Konsultasi = Offline Tatap Muka (QR-Code Handshake & Standard Clock)
 else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     Klien -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=klien)
     FE --> Klien : Render Client Viewpoint (.user=Klien di kanan, Topbar=Advokat)
+    deactivate FE
+
     Mitra -> FE ++ : Masuk Ruang Chat E2EE Justifiqa (?role=mitra)
     FE --> Mitra : Render Partner Viewpoint (.user=Advokat di kanan, Topbar=Klien)
+    deactivate FE
+
     Klien -> FE ++ : Kirim Pesan Pembuka Perkara
     FE -> CTRL ++ : POST /api/v1/chat/messages {session_id, content}
     CTRL -> SVC ++ : processIncomingMessage(sessionId, messagePayload)
@@ -332,6 +356,10 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     SVC --> CTRL : MessageAccepted
     CTRL --> FE : 200 OK (Message Sent & Clock Active)
     FE --> Klien : Tampilkan Chat Status Active
+    deactivate SVC
+    deactivate CTRL
+    deactivate FE
+
     Mitra -> FE ++ : Kirim Balasan Pertama
     FE -> CTRL ++ : POST /api/v1/chat/messages {session_id, content}
     CTRL -> SVC ++ : processPartnerReplyAndStartFairClock(sessionId, messagePayload)
@@ -342,6 +370,7 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
     FE --> Mitra : Tampilkan Timer Sesi Aktif
     deactivate SVC
     deactivate CTRL
+    deactivate FE
 
     loop [Interaksi Dua Arah, DLP Circumvention Filter & Monitoring SLA Balasan]
         Klien -> FE ++ : Kirim Pesan Teks / Audio / Video
@@ -356,6 +385,9 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             SVC --> CTRL : SecurityAlertLevel1
             CTRL --> FE : 403 Forbidden / Red Security Alert
             FE --> Klien : Tampilkan Peringatan Keras Pengiriman Kontak Pribadi Ditolak
+            deactivate SVC
+            deactivate CTRL
+            deactivate FE
 
             opt Percobaan Berulang >= 2x / Evasion Attempt (Level 2 - Zero Tolerance)
                 SVC -> SVC ++ : freezeChatRoomAndHoldEscrow(sessionId)
@@ -367,6 +399,9 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
             SVC --> CTRL : MessageDelivered
             CTRL --> FE : 200 OK (Message Delivered)
             FE --> Mitra : Tampilkan Pesan Chat
+            deactivate SVC
+            deactivate CTRL
+            deactivate FE
         end
         
         alt Advokat Tidak Merespons > 5 Menit (Auto-Pause SLA)
@@ -389,13 +424,12 @@ else Mode Konsultasi = Online E2EE Chat Room (Fair-Clock & Smart SLA)
                 FE --> Klien : Konfirmasi Laporan Diterima
                 deactivate SVC
                 deactivate CTRL
+                deactivate FE
             else Advokat Kembali Membalas Pesan
                 SVC -> SVC ++ : resumeCountdownTimer(sessionId)
                 SVC --> SVC -- : Return Computed Result / State
             end
         end
-        deactivate SVC
-        deactivate CTRL
     end
 
     alt Waktu Live Chat 60 Menit Habis ATAU Sesi Diakhiri
@@ -426,6 +460,7 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
     FE --> Mitra : Konfirmasi Laporan Saran Dirilis
     deactivate SVC
     deactivate CTRL
+    deactivate FE
 
     loop [Siklus Klarifikasi Saran Hukum - Ulangi Selama Klien Mengajukan Tiket & Kuota < 2x & SLA Belum Habis]
         Klien -> FE ++ : Kirim Pertanyaan berlabel [KLARIFIKASI SARAN] di Async Thread
@@ -440,6 +475,7 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
         FE --> Klien : Pertanyaan Klarifikasi Terkirim
         deactivate SVC
         deactivate CTRL
+        deactivate FE
         
         Mitra -> FE ++ : Berikan Jawaban / Perbarui Laporan Saran Hukum
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/summary
@@ -451,6 +487,7 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
         FE --> Mitra : Konfirmasi Pembaruan Dirilis
         deactivate SVC
         deactivate CTRL
+        deactivate FE
     end
 
     alt [Penyelesaian Deliverable] Laporan Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 2x24 Jam Habis
@@ -469,6 +506,7 @@ alt Level Konsultasi = Tier 2 Premium (Deliverable: Client Advice Summary)
         FE --> Klien : Konfirmasi Laporan Disetujui
         deactivate SVC
         deactivate CTRL
+        deactivate FE
     end
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
@@ -486,6 +524,7 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
     FE --> Mitra : Konfirmasi Dokumen Final Diunggah
     deactivate SVC
     deactivate CTRL
+    deactivate FE
 
     loop [Siklus Review & Revisi Dokumen Final - Ulangi Selama Klien Mengajukan Revisi & Kuota < 2x & SLA Belum Habis]
         Klien -> FE ++ : Kirim Catatan berlabel [REVISI KLAUSUL] di Async Thread
@@ -500,6 +539,7 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         FE --> Klien : Konfirmasi Permintaan Revisi Terkirim
         deactivate SVC
         deactivate CTRL
+        deactivate FE
         
         Mitra -> FE ++ : Perbarui & Unggah Draf Revisi Dokumen (v2 / v3)
         FE -> CTRL ++ : POST /api/v1/consultations/{id}/deliverables/final
@@ -511,6 +551,7 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         FE --> Mitra : Konfirmasi Revisi Diunggah
         deactivate SVC
         deactivate CTRL
+        deactivate FE
     end
 
     alt [Penyelesaian Deliverable] Dokumen Disetujui Klien ATAU Batas Kuota 2x Habis ATAU SLA 3x24 Jam Habis
@@ -529,6 +570,7 @@ else Level Konsultasi = Tier 3 Pro (Deliverable: Dokumen Hukum Final)
         FE --> Klien : Konfirmasi Dokumen Disetujui
         deactivate SVC
         deactivate CTRL
+        deactivate FE
     end
     SVC -> SVC ++ : disburseEscrowToAdvocateWallet(sessionId, feeRate=0.25, pph21)
     SVC --> SVC -- : Return Computed Result / State
