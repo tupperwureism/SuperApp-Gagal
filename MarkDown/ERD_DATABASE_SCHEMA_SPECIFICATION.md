@@ -634,6 +634,8 @@ users_client ||--o{ probono_cases
 | `dispute_id` | `UUID` | `FOREIGN KEY REFERENCES dispute_cases(dispute_id)` | Sengketa yang diputuskan. |
 | `mediator_admin_id` | `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Anggota Dewan Mediator yang menyetujui putusan. |
 | `decision_type` | `VARCHAR(32)` | `NOT NULL` | Keputusan mediator (`AGREE_SPLIT`, `AGREE_REFUND`, `AGREE_RELEASE`). |
+| `fido2_signature_hash` | `VARCHAR(256)` | `NOT NULL` | Hash tanda tangan FIDO2 WebAuthn / Hardware Key mediator. |
+| `signed_at` | `TIMESTAMPTZ` | `NOT NULL` | Waktu persetujuan tanda tangan putusan. |
 | *Constraint Kritis* | `UNIQUE KEY` | `UNIQUE(dispute_id, mediator_admin_id)` | **Mencegah admin yang sama tanda tangan dua kali demi penegakan 3-of-5.** |
 
 #### 25. `audit_logs_worm` (Append-Only Cryptographic WORM Vault)
