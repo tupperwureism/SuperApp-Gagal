@@ -64,4 +64,35 @@ Berkas migrasi fisik untuk Batch 2 tersedia pada:
   $$S_{\text{DDL\_Batch2}} - S_{\text{Baseline\_Batch2}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch2}} - S_{\text{DDL\_Batch2}} = \emptyset$$
 
 ---
-*Catatan: Batch 3 (Domain 3: Escrow Transactions, Tax PPh21 & Ledgers - Tabel 13 s.d. 17) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
+
+## 4. BATCH 3: DOMAIN 3 — ESCROW TRANSACTIONS, TAX PPH 21 & LEDGERS (TABEL 13 S.D. 17)
+
+Berkas migrasi fisik untuk Batch 3 tersedia pada:  
+[`database/migrations/03_domain3_escrow_tax_ledgers_acid.sql`](file:///D:/justificadll/database/migrations/03_domain3_escrow_tax_ledgers_acid.sql)
+
+### 4.1 Ringkasan Implementasi Tabel, RLS Policy & PL/pgSQL Domain 3
+
+| No | Nama Tabel | Primary Key | Konfigurasi RLS | Kebijakan Akses (*RLS Policies*) / Proteksi ACID | Status |
+| :-: | :--- | :--- | :---: | :--- | :---: |
+| 13 | `escrow_transactions` | `escrow_id` (`UUID`) | `ENABLED` | `rls_escrow_transactions_client_read`: Klien membaca transaksi miliknya.<br>`rls_escrow_transactions_advocate_read`: Advokat membaca transaksi miliknya. | <color:green>COMPLETE</color> |
+| 14 | `wallet_balances` | `wallet_id` (`UUID`) | `ENABLED` | `rls_wallet_balances_self_read`: Pemilik akun membaca saldo dompetnya sendiri. | <color:green>COMPLETE</color> |
+| 15 | `escrow_payout_ledgers` | `ledger_id` (`UUID`) | `ENABLED` | `rls_payout_ledgers_wallet_owner_read`: Pemilik dompet membaca jejak mutasi miliknya. | <color:green>COMPLETE</color> |
+| 16 | `tax_pph21_withholdings`| `tax_receipt_id` (`UUID`)| `ENABLED` | `rls_tax_pph21_advocate_read`: Advokat membaca bukti potong PPh 21 otomatis miliknya. | <color:green>COMPLETE</color> |
+| 17 | `platform_governance_configs`| `config_key` (`VARCHAR`)| `ENABLED` | `rls_governance_configs_public_read`: Publik dapat membaca parameter transparansi Escrow. | <color:green>COMPLETE</color> |
+
+#### Prosedur PL/pgSQL ACID Concurrency Lock
+* **Fungsi:** `fn_release_escrow_to_advocate_mutex(p_escrow_id UUID)`
+* **Mekanisme:** Mengeksekusi `SELECT ... FOR UPDATE` pada tabel `escrow_transactions` dan `wallet_balances`, memverifikasi *Guard Rule* (`status = 'HOLDING_PERIOD_24H'`), dan memperbarui saldo advokat serta mencatat riwayat mutasi dalam satu transaksi atomik ACID bebas *race condition*.
+
+---
+
+### 4.2 Verifikasi Aljabar Himpunan Simetris Batch 3 ($S_{\text{DDL}} = S_{\text{Baseline}}$)
+* **Himpunan Tabel Baseline Bab 3 (13–17):**  
+  `escrow_transactions`, `wallet_balances`, `escrow_payout_ledgers`, `tax_pph21_withholdings`, `platform_governance_configs`.
+* **Himpunan Tabel DDL Batch 3 (`03_domain3_escrow_tax_ledgers_acid.sql`):**  
+  `escrow_transactions`, `wallet_balances`, `escrow_payout_ledgers`, `tax_pph21_withholdings`, `platform_governance_configs`.
+* **Bukti Matematis:**  
+  $$S_{\text{DDL\_Batch3}} - S_{\text{Baseline\_Batch3}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch3}} - S_{\text{DDL\_Batch3}} = \emptyset$$
+
+---
+*Catatan: Batch 4 (Domain 4: Legal Opinions & WORM Immutability Triggers - Tabel 18 s.d. 21) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
