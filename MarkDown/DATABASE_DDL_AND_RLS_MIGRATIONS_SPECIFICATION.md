@@ -95,4 +95,34 @@ Berkas migrasi fisik untuk Batch 3 tersedia pada:
   $$S_{\text{DDL\_Batch3}} - S_{\text{Baseline\_Batch3}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch3}} - S_{\text{DDL\_Batch3}} = \emptyset$$
 
 ---
-*Catatan: Batch 4 (Domain 4: Legal Opinions & WORM Immutability Triggers - Tabel 18 s.d. 21) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
+
+## 5. BATCH 4: DOMAIN 4 — LEGAL OPINIONS, IRAC NOTES & E-METERAI (TABEL 18 S.D. 21)
+
+Berkas migrasi fisik untuk Batch 4 tersedia pada:  
+[`database/migrations/04_domain4_legal_opinions_worm_emeterai.sql`](file:///D:/justificadll/database/migrations/04_domain4_legal_opinions_worm_emeterai.sql)
+
+### 5.1 Ringkasan Implementasi Tabel, RLS Policy & WORM Trigger Domain 4
+
+| No | Nama Tabel | Primary Key | Konfigurasi RLS | Kebijakan Akses (*RLS Policies*) / Proteksi WORM | Status |
+| :-: | :--- | :--- | :---: | :--- | :---: |
+| 18 | `legal_opinions` | `opinion_id` (`UUID`) | `ENABLED` | `rls_legal_opinions_client_access`: Klien mengakses dokumen miliknya.<br>`rls_legal_opinions_advocate_access`: Advokat menyusun opini untuk kliennya.<br>**Constraint Kuota:** `revision_counter <= 2`. | <color:green>COMPLETE</color> |
+| 19 | `document_revisions` | `revision_id` (`UUID`) | `ENABLED` | `rls_document_revisions_participant_access`: Pihak sesi konsultasi membaca riwayat putaran revisi. | <color:green>COMPLETE</color> |
+| 20 | `emeterai_stamping_logs`| `stamping_id` (`UUID`)| `ENABLED` | `rls_emeterai_public_verify`: Publik dapat memverifikasi keaslian SHA-256 (`PUBLIC-VERIFY`).<br>**WORM Trigger:** `trg_worm_emeterai_stamping_logs`. | <color:green>COMPLETE</color> |
+| 21 | `case_irac_notes` | `irac_id` (`UUID`) | `ENABLED` | `rls_case_irac_advocate_read`: Advokat membaca analisis IRAC miliknya.<br>**WORM Trigger:** `trg_worm_case_irac_notes`. | <color:green>COMPLETE</color> |
+
+#### Fungsi & Trigger Append-Only WORM Vault
+* **Fungsi:** `fn_prevent_worm_mutation()`
+* **Mekanisme:** Mencegah modifikasi (`UPDATE`) atau penghapusan (`DELETE`) pada tabel yang diproteksi kriptografi SHA-256 (`emeterai_stamping_logs` dan `case_irac_notes`), menjamin kepatuhan retensi hukum 10 tahun *tamper-proof*.
+
+---
+
+### 5.2 Verifikasi Aljabar Himpunan Simetris Batch 4 ($S_{\text{DDL}} = S_{\text{Baseline}}$)
+* **Himpunan Tabel Baseline Bab 3 (18–21):**  
+  `legal_opinions`, `document_revisions`, `emeterai_stamping_logs`, `case_irac_notes`.
+* **Himpunan Tabel DDL Batch 4 (`04_domain4_legal_opinions_worm_emeterai.sql`):**  
+  `legal_opinions`, `document_revisions`, `emeterai_stamping_logs`, `case_irac_notes`.
+* **Bukti Matematis:**  
+  $$S_{\text{DDL\_Batch4}} - S_{\text{Baseline\_Batch4}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch4}} - S_{\text{DDL\_Batch4}} = \emptyset$$
+
+---
+*Catatan: Batch 5 Terakhir (Domain 5: Pro Bono & Dispute Resolution - Tabel 22 s.d. 26) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
