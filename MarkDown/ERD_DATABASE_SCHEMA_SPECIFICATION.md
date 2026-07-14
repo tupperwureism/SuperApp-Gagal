@@ -884,12 +884,20 @@ state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP 
 * **`REVISION_REQUESTED`**:
   * **Guard Rule:** `revision_counter <= 2` (Klien maksimal hanya boleh meminta revisi sebanyak 2 putaran sesuai SLA).
   * **Action:** Sistem mencatat log revisi pada tabel `document_revisions` dan menaikkan nilai `revision_counter + 1`.
+* **`FINAL_APPROVED`**:
+  * **Guard Rule:** Klien menyetujui draf Opini Hukum tanpa permintaan revisi lanjutan (`MOCK-J-CL-06`).
+  * **Action:** Mengunci isi draf dari pengeditan advokat dan mempersiapkan dokumen PDF untuk pembubuhan e-Meterai.
 * **`STAMPED_SIGNED`**:
   * **Guard Rule:** Dokumen telah disetujui klien (`FINAL_APPROVED`) DAN saldo e-Meterai advokat/klien mencukupi.
   * **Action:** Sistem memanggil API Peruri, menempelkan *Serial Number*, menghitung hash SHA-256 dokumen PDF akhir, dan menyimpannya di `emeterai_stamping_logs`. Status dokumen dikunci secara *immutable*.
 
 #### B. Entitas `escrow_transactions` (Rekening Bersama & Ledger Keuangan)
-* **`HELD_IN_ESCROW`**: Dana berada di rekening penampung resmi. Tidak dapat dicairkan oleh pihak manapun selama sesi konsultasi berlangsung.
+* **`PENDING_PAYMENT`**:
+  * **Guard Rule:** Klien melakukan *checkout* pemesanan konsultasi (`MOCK-J-CL-03`).
+  * **Action:** Menghasilkan nomor VA / QRIS melalui Payment Gateway dan memasang batas waktu pembayaran otomatis.
+* **`HELD_IN_ESCROW`**:
+  * **Guard Rule:** Webhook Payment Gateway mengonfirmasi pembayaran berhasil lunas (`PAID`).
+  * **Action:** Dana berada di rekening penampung resmi. Tidak dapat dicairkan oleh pihak manapun selama sesi konsultasi berlangsung.
 * **`HOLDING_PERIOD_24H`**:
   * **Guard Rule:** Sesi konsultasi selesai atau Opini Hukum bertanda tangan e-Meterai diterbitkan.
   * **Action:** Mengaktifkan *timer* masa sanggah 24 jam (`holding_expires_at = NOW() + INTERVAL '24 hours'`).
@@ -897,11 +905,16 @@ state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP 
   * **Guard Rule:** Klien mengajukan laporan sengketa sebelum masa sanggah 24 jam berakhir.
   * **Action:** Penguncian dana Escrow. Pemicu entitas `dispute_cases`.
 * **`RELEASED_TO_ADVOCATE`**:
-  * **Guard Rule:** Masa sanggah 24 jam terlewati TANPA sengketa ATAU putusan konsensus 3-of-5 Mediator memenangkan Advokat.
+  * **Guard Rule:** Masa sanggah 24 jam terlewati TANPA sengketa ATAU putusan konsensus 3-of-5 Mediator memenangkan Advokat (`AGREE_RELEASE`).
   * **Action (ACID Transactional Batch):**
     1. Tambah saldo `wallet_balances` advokat sebesar 75% neto.
     2. Hitung potong PPh 21 otomatis dan catat di `tax_pph21_withholdings`.
     3. Catat pembagian fee platform 25% di `escrow_payout_ledgers`.
+* **`REFUNDED_TO_CLIENT`**:
+  * **Guard Rule:** Keputusan konsensus 3-of-5 Dewan Mediator memenangkan Klien (`AGREE_REFUND`).
+  * **Action (ACID Transactional Batch):**
+    1. Kembalikan 100% dana ke metode pembayaran asli atau saldo Klien.
+    2. Catat riwayat pengembalian di `escrow_payout_ledgers` dengan tipe `'REFUND'`.
 * **`RESOLVED_SPLIT_SETTLEMENT`**:
   * **Guard Rule:** Keputusan konsensus 3-of-5 Dewan Mediator menetapkan penyelesaian berbagi (`AGREE_SPLIT`) berdasarkan kompromi mediasi.
   * **Action (ACID Transactional Batch):**
@@ -910,7 +923,18 @@ state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP 
     3. Catat riwayat mutasi kompromi di `escrow_payout_ledgers` dengan tipe `'SPLIT_SETTLEMENT'`.
 
 #### C. Entitas `sipp_verifications` & `users_advocate` (Lisensi & KYC Advokat)
-* **`VERIFIED_ACTIVE`**: Advokat memiliki izin praktik aktif dan SIPP terdaftar sah di Mahkamah Agung. Dapat menerima konsultasi dan menerbitkan Opini Hukum ber-e-Meterai.
+* **`UNVERIFIED`**:
+  * **Guard Rule:** Advokat baru mendaftar akun di aplikasi (`MOCK-J-AD-01`).
+  * **Action:** Akun advokat belum dapat menerima pesanan konsultasi sebelum mengunggah dokumen verifikasi.
+* **`PENDING_MANUAL_REVIEW`**:
+  * **Guard Rule:** Advokat mengunggah berkas KTP/NIK, Berita Acara Sumpah, dan nomor SIPP (`MOCK-J-AD-01B`).
+  * **Action:** Berkas masuk ke antrean dasbor verifikasi Admin (`MOCK-J-AM-02`) untuk pencocokan API Mahkamah Agung.
+* **`VERIFIED_ACTIVE`**:
+  * **Guard Rule:** Admin menyetujui validitas dokumen SIPP & NIK setelah verifikasi API Mahkamah Agung (`MOCK-J-AM-02`).
+  * **Action:** Advokat memiliki izin praktik aktif dan SIPP terdaftar sah. Dapat menerima konsultasi dan menerbitkan Opini Hukum ber-e-Meterai.
+* **`REJECTED_RESUBMIT`**:
+  * **Guard Rule:** Dokumen SIPP tidak sah, kedaluwarsa, atau NIK tidak cocok.
+  * **Action:** Sistem mengirimkan notifikasi penolakan beserta alasan perbaikan kepada advokat agar mengunggah ulang dokumen.
 * **`SUSPENDED_SANCTION`**:
   * **Guard Rule:** Admin memproses putusan sengketa pelanggaran kode etik berat (`MOCK-J-AM-03`).
   * **Action:** Menonaktifkan akses advokat dari pemesanan slot baru dan membatalkan jadwal konsultasi mendatang.
