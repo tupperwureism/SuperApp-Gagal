@@ -568,7 +568,7 @@ users_client ||--o{ probono_cases
 | `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien pembayar layanan. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat penerima pencairan. |
 | `total_amount_idr` | `NUMERIC(15,2)` | `CHECK (total_amount_idr >= 0)` | Total dana Escrow terkunci. |
-| `status` | `VARCHAR(32)` | `NOT NULL` | Status dana transaksional dan siklus Escrow (`PENDING_PAYMENT`, `HELD_IN_ESCROW`, `HOLDING_PERIOD_24H`, `FROZEN_DISPUTE`, `RELEASED_TO_ADVOCATE`, `REFUNDED_TO_CLIENT`). |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status dana transaksional dan siklus Escrow (`PENDING_PAYMENT`, `HELD_IN_ESCROW`, `HOLDING_PERIOD_24H`, `FROZEN_DISPUTE`, `RELEASED_TO_ADVOCATE`, `REFUNDED_TO_CLIENT`, `RESOLVED_SPLIT_SETTLEMENT`). |
 | `holding_expires_at` | `TIMESTAMPTZ` | `NOT NULL` | **Aturan #8:** Batas waktu masa sanggah 24 jam pasca-selesai sesi. |
 | `client_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 0.00` | Rasio persentase pengembalian dana ke klien (untuk *Split Settlement*). |
 | `advocate_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 100.00`| Rasio persentase pencairan dana ke advokat. |
@@ -854,11 +854,13 @@ state "2. ESCROW TRANSACTION LIFECYCLE (escrow_transactions)" as SM_Escrow {
   HOLDING_PERIOD_24H --> RELEASED_TO_ADVOCATE : 24h Elapsed Without Dispute\n[Action: 75% Advocate Wallet + PPh21 Withheld + 25% Fee]
   HOLDING_PERIOD_24H --> FROZEN_DISPUTE : Client Files Dispute / Whistleblowing (MOCK-J-CL-08)
   
-  FROZEN_DISPUTE --> REFUNDED_TO_CLIENT : Mediator Consensus (3-of-5) Favors Client
-  FROZEN_DISPUTE --> RELEASED_TO_ADVOCATE : Mediator Consensus (3-of-5) Favors Advocate
+  FROZEN_DISPUTE --> REFUNDED_TO_CLIENT : Mediator Consensus (3-of-5) AGREE_REFUND (100% Client)
+  FROZEN_DISPUTE --> RELEASED_TO_ADVOCATE : Mediator Consensus (3-of-5) AGREE_RELEASE (100% Advocate)
+  FROZEN_DISPUTE --> RESOLVED_SPLIT_SETTLEMENT : Mediator Consensus (3-of-5) AGREE_SPLIT\n[Action: Payout proportional to client_payout_ratio & advocate_payout_ratio]
   
   RELEASED_TO_ADVOCATE --> [*]
   REFUNDED_TO_CLIENT --> [*]
+  RESOLVED_SPLIT_SETTLEMENT --> [*]
 }
 
 state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP {
@@ -900,6 +902,12 @@ state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP 
     1. Tambah saldo `wallet_balances` advokat sebesar 75% neto.
     2. Hitung potong PPh 21 otomatis dan catat di `tax_pph21_withholdings`.
     3. Catat pembagian fee platform 25% di `escrow_payout_ledgers`.
+* **`RESOLVED_SPLIT_SETTLEMENT`**:
+  * **Guard Rule:** Keputusan konsensus 3-of-5 Dewan Mediator menetapkan penyelesaian berbagi (`AGREE_SPLIT`) berdasarkan kompromi mediasi.
+  * **Action (ACID Transactional Batch):**
+    1. Cairkan dana ke dompet advokat sesuai persentase `advocate_payout_ratio` (dikurangi PPh 21 & fee platform proporsional).
+    2. Kembalikan sisa dana ke klien sesuai persentase `client_payout_ratio`.
+    3. Catat riwayat mutasi kompromi di `escrow_payout_ledgers` dengan tipe `'SPLIT_SETTLEMENT'`.
 
 #### C. Entitas `sipp_verifications` & `users_advocate` (Lisensi & KYC Advokat)
 * **`VERIFIED_ACTIVE`**: Advokat memiliki izin praktik aktif dan SIPP terdaftar sah di Mahkamah Agung. Dapat menerima konsultasi dan menerbitkan Opini Hukum ber-e-Meterai.
