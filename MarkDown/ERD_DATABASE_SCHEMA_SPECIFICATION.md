@@ -724,3 +724,93 @@ Tabel berikut membuktikan bahwa **seluruh 28 Halaman Mockup Logis & 21 Use Case*
 | `MOCK-J-AM-04` | Pemantauan Keuangan & PPh 21 | `J-UC18` | `tax_pph21_withholdings`, `escrow_payout_ledgers` | <color:green>COMPLETE</color> |
 | `MOCK-J-AM-05` | Pusat Audit Trail WORM Center | `J-UC20` | `audit_logs_worm` (*WORM sha256 hash*) | <color:green>COMPLETE</color> |
 | `MOCK-J-AM-06` | Manajemen Parameter Governance | `J-UC18` | `platform_governance_configs` (*Escrow 75/25 & 24h Hold*) | <color:green>COMPLETE</color> |
+
+---
+
+## 5. ENTITY LIFECYCLE & STATE MACHINE WORKFLOWS (DOMAIN STATECHARTS)
+
+Bab ini mendefinisikan siklus hidup fungsional (*state transition lifecycles*) untuk entitas-entitas domain kritis Justica. Spesifikasi state machine ini menjembatani struktur data statis ERD dengan eksekusi logika bisnis fungsional (*Application & Service Layer*).
+
+```plantuml
+@startuml Justica_Domain_State_Machines
+skinparam state {
+  BackgroundColor #F8FAFC
+  BorderColor #334155
+  ArrowColor #2563EB
+  FontName "Inter"
+}
+
+state "1. LEGAL OPINION DELIVERABLE LIFECYCLE (legal_opinions)" as SM_LegalOpinion {
+  [*] --> DRAFT : Create Draft from IRAC Notes (MOCK-J-AD-04)
+  DRAFT --> CLIENT_REVIEW : Submit Draft to Client (MOCK-J-CL-06)
+  
+  state "Client Feedback & Revision Loop" as RevisionLoop {
+    CLIENT_REVIEW --> REVISION_REQUESTED : Client Requests Revision\n[guard: revision_counter <= 2]
+    REVISION_REQUESTED --> DRAFT : Advocate Updates Draft & Increments revision_counter
+  }
+  
+  CLIENT_REVIEW --> FINAL_APPROVED : Client Approves Draft
+  FINAL_APPROVED --> STAMPED_SIGNED : Peruri e-Meterai Stamped + SHA-256 Seal (J-UC12 / J-UC14)
+  STAMPED_SIGNED --> [*]
+}
+
+state "2. ESCROW TRANSACTION LIFECYCLE (escrow_transactions)" as SM_Escrow {
+  [*] --> PENDING_PAYMENT : Client Checkout VA/QRIS (MOCK-J-CL-03)
+  PENDING_PAYMENT --> HELD_IN_ESCROW : Payment Confirmed (Webhook Gateway)
+  HELD_IN_ESCROW --> HOLDING_PERIOD_24H : Session Finished / Deliverable Stamped
+  
+  HOLDING_PERIOD_24H --> RELEASED_TO_ADVOCATE : 24h Elapsed Without Dispute\n[Action: 75% Advocate Wallet + PPh21 Withheld + 25% Fee]
+  HOLDING_PERIOD_24H --> FROZEN_DISPUTE : Client Files Dispute / Whistleblowing (MOCK-J-CL-08)
+  
+  FROZEN_DISPUTE --> REFUNDED_TO_CLIENT : Mediator Consensus (3-of-5) Favors Client
+  FROZEN_DISPUTE --> RELEASED_TO_ADVOCATE : Mediator Consensus (3-of-5) Favors Advocate
+  
+  RELEASED_TO_ADVOCATE --> [*]
+  REFUNDED_TO_CLIENT --> [*]
+}
+
+state "3. ADVOCATE SIPP VERIFICATION LIFECYCLE (sipp_verifications)" as SM_SIPP {
+  [*] --> UNVERIFIED : Advocate Onboarded (MOCK-J-AD-01)
+  UNVERIFIED --> PENDING_MANUAL_REVIEW : Submit SIPP & NIK Documents (MOCK-J-AD-01B)
+  PENDING_MANUAL_REVIEW --> VERIFIED_ACTIVE : Admin / SIPP MA API Sync Approved (MOCK-J-AM-02)
+  PENDING_MANUAL_REVIEW --> REJECTED_RESUBMIT : Document Invalid / NIK Mismatch
+  REJECTED_RESUBMIT --> PENDING_MANUAL_REVIEW : Advocate Resubmits Document
+  
+  VERIFIED_ACTIVE --> SUSPENDED_SANCTION : Ethics Violation / Due Process Sanction (SP1-3 / MOCK-J-AM-03)
+  SUSPENDED_SANCTION --> VERIFIED_ACTIVE : Sanction Period Expired & Reinstated
+}
+@enduml
+```
+
+### 5.1 Spesifikasi Transisi Status & Aturan Penjagaan (*State Guard Rules*)
+
+#### A. Entitas `legal_opinions` (Dokumen Opini Hukum Resmi)
+* **`DRAFT`**: Draft awal yang di-generate dari `case_irac_notes`. Dapat diedit secara leluasa oleh advokat.
+* **`CLIENT_REVIEW`**: Draf dikirim ke halaman `MOCK-J-CL-06` untuk ditinjau oleh Klien.
+* **`REVISION_REQUESTED`**:
+  * **Guard Rule:** `revision_counter <= 2` (Klien maksimal hanya boleh meminta revisi sebanyak 2 putaran sesuai SLA).
+  * **Action:** Sistem mencatat log revisi pada tabel `document_revisions` dan menaikkan nilai `revision_counter + 1`.
+* **`STAMPED_SIGNED`**:
+  * **Guard Rule:** Dokumen telah disetujui klien (`FINAL_APPROVED`) DAN saldo e-Meterai advokat/klien mencukupi.
+  * **Action:** Sistem memanggil API Peruri, menempelkan *Serial Number*, menghitung hash SHA-256 dokumen PDF akhir, dan menyimpannya di `emeterai_stamping_logs`. Status dokumen dikunci secara *immutable*.
+
+#### B. Entitas `escrow_transactions` (Rekening Bersama & Ledger Keuangan)
+* **`HELD_IN_ESCROW`**: Dana berada di rekening penampung resmi. Tidak dapat dicairkan oleh pihak manapun selama sesi konsultasi berlangsung.
+* **`HOLDING_PERIOD_24H`**:
+  * **Guard Rule:** Sesi konsultasi selesai atau Opini Hukum bertanda tangan e-Meterai diterbitkan.
+  * **Action:** Mengaktifkan *timer* masa sanggah 24 jam (`holding_expires_at = NOW() + INTERVAL '24 hours'`).
+* **`FROZEN_DISPUTE`**:
+  * **Guard Rule:** Klien mengajukan laporan sengketa sebelum masa sanggah 24 jam berakhir.
+  * **Action:** Penguncian dana Escrow. Pemicu entitas `dispute_cases`.
+* **`RELEASED_TO_ADVOCATE`**:
+  * **Guard Rule:** Masa sanggah 24 jam terlewati TANPA sengketa ATAU putusan konsensus 3-of-5 Mediator memenangkan Advokat.
+  * **Action (ACID Transactional Batch):**
+    1. Tambah saldo `wallet_balances` advokat sebesar 75% neto.
+    2. Hitung potong PPh 21 otomatis dan catat di `tax_pph21_withholdings`.
+    3. Catat pembagian fee platform 25% di `escrow_payout_ledgers`.
+
+#### C. Entitas `sipp_verifications` & `users_advocate` (Lisensi & KYC Advokat)
+* **`VERIFIED_ACTIVE`**: Advokat memiliki izin praktik aktif dan SIPP terdaftar sah di Mahkamah Agung. Dapat menerima konsultasi dan menerbitkan Opini Hukum ber-e-Meterai.
+* **`SUSPENDED_SANCTION`**:
+  * **Guard Rule:** Admin memproses putusan sengketa pelanggaran kode etik berat (`MOCK-J-AM-03`).
+  * **Action:** Menonaktifkan akses advokat dari pemesanan slot baru dan membatalkan jadwal konsultasi mendatang.
