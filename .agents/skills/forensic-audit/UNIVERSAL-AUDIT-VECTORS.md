@@ -5,6 +5,7 @@ When executing a forensic audit, apply the following sub-atomic inspection vecto
 ---
 
 ## Vector 1: Universal String, Identity & Enum Synchronization (All Phases)
+- **Bi-Directional Mathematical Set Equality Protocol (*Protokol Rekonsiliasi Himpunan Simetris*):** Whenever validating two representations of the same domain concept (e.g., Visual Diagram $A$ vs Specification Text $B$, or DDL Table $A$ vs OpenAPI Schema $B$), explicitly extract the set of all elements from $A$ as $S_A$ and the set of all elements from $B$ as $S_B$. You MUST mathematically prove bi-directional equality: $S_A - S_B = \emptyset$ and $S_B - S_A = \emptyset$. Never rely on narrative reading or asymmetric filtering.
 - **1-to-1 Exact String Match:** Verify that every identifier, status string, enum value, error code, and domain term matches character-for-character across all related files (e.g., visual diagrams, data dictionaries, API schemas, and code).
 - **No Orphan Values:** Ensure that values defined in a dictionary or state enum are fully represented in functional workflows and diagrams, and vice versa.
 

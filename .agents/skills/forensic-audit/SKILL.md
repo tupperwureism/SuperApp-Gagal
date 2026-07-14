@@ -16,7 +16,7 @@ Execute this rigorous self-audit automatically before declaring any phase, artif
 ## 2. Universal Audit Protocol
 Before certifying any phase or deliverable:
 1. **Load Audit Vectors:** Inspect `UNIVERSAL-AUDIT-VECTORS.md` in this skill directory to select and apply the universal and phase-specific inspection vectors relevant to the current task.
-2. **Execute Micro Line-by-Line Verification:** Trace every functional requirement, entity, state, branch, and constraint from the upstream source specification to the downstream deliverable.
+2. **Execute Bi-Directional Set Equality & Micro Verification:** Extract element sets ($S_A$ and $S_B$) from compared documents to prove $S_A - S_B = \emptyset$ and $S_B - S_A = \emptyset$. Trace every functional requirement, entity, state, branch, and constraint line-by-line.
 3. **Check Compiler & Syntax Integrity:** Ensure visual diagram definitions (PlantUML/Mermaid) or code files compile cleanly without preprocessor or syntax errors.
 4. **Enforce Hardening Rules:** Verify that concurrency controls (e.g., Mutex Row Locks), immutability rules (WORM vaults), and guard rules are explicitly defined and represented.
 
