@@ -348,6 +348,7 @@ TABLE(dispute_mediator_signatures) {
   --
   FK(dispute_id) : UUID
   FK(mediator_admin_id) : UUID
+  UK([dispute_id, mediator_admin_id]) [COMPOSITE UNIQUE]
   decision_type : VARCHAR(32)
   fido2_signature_hash : VARCHAR(256)
   signed_at : TIMESTAMPTZ
