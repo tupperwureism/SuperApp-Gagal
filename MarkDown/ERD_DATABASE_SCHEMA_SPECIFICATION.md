@@ -468,7 +468,7 @@ users_client ||--o{ probono_cases
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat yang diverifikasi. |
 | `verified_by_admin_id`| `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Admin yang melakukan verifikasi cross-check SIPP MA. |
 | `sipp_number` | `VARCHAR(64)` | `NOT NULL` | Nomor SIPP yang dicocokkan dengan Mahkamah Agung. |
-| `status` | `VARCHAR(32)` | `NOT NULL` | Status verifikasi (`PENDING_MA_SYNC`, `VERIFIED`, `REJECTED`). |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status verifikasi dan siklus hidup lisensi (`UNVERIFIED`, `PENDING_MANUAL_REVIEW`, `VERIFIED_ACTIVE`, `REJECTED_RESUBMIT`, `SUSPENDED_SANCTION`). |
 | `verification_notes` | `TEXT` | `NULL` | Catatan hasil telaah dokumen hukum advokat oleh tim kepatuhan. |
 | `verified_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu persetujuan verifikasi. |
 
@@ -568,7 +568,7 @@ users_client ||--o{ probono_cases
 | `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien pembayar layanan. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat penerima pencairan. |
 | `total_amount_idr` | `NUMERIC(15,2)` | `CHECK (total_amount_idr >= 0)` | Total dana Escrow terkunci. |
-| `status` | `VARCHAR(32)` | `NOT NULL` | Status dana (`HELD`, `COMPLETED_HOLDING`, `FROZEN_DISPUTE`, `RELEASED`, `REFUNDED`). |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status dana transaksional dan siklus Escrow (`PENDING_PAYMENT`, `HELD_IN_ESCROW`, `HOLDING_PERIOD_24H`, `FROZEN_DISPUTE`, `RELEASED_TO_ADVOCATE`, `REFUNDED_TO_CLIENT`). |
 | `holding_expires_at` | `TIMESTAMPTZ` | `NOT NULL` | **Aturan #8:** Batas waktu masa sanggah 24 jam pasca-selesai sesi. |
 | `client_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 0.00` | Rasio persentase pengembalian dana ke klien (untuk *Split Settlement*). |
 | `advocate_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 100.00`| Rasio persentase pencairan dana ke advokat. |
@@ -632,7 +632,7 @@ users_client ||--o{ probono_cases
 | `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien penerima dokumen hukum. |
 | `document_title` | `VARCHAR(256)` | `NOT NULL` | Judul dokumen opini hukum. |
 | `revision_counter` | `SMALLINT` | `CHECK (revision_counter <= 2)` | **Aturan Kuota Revisi:** Membatasi revisi maksimal 2 putaran gratis. |
-| `status` | `VARCHAR(32)` | `NOT NULL` | Status dokumen (`DRAFT`, `REVISION_REQUESTED`, `STAMPED_SIGNED`). |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status dokumen (`DRAFT`, `CLIENT_REVIEW`, `REVISION_REQUESTED`, `FINAL_APPROVED`, `STAMPED_SIGNED`). |
 | `pdf_storage_path` | `VARCHAR(256)` | `NOT NULL` | Jalur penyimpanan berkas PDF di WORM / Cloud Object Storage. |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu draf dokumen hukum dibuat. |
 
@@ -760,6 +760,24 @@ $$ LANGUAGE plpgsql;
 CREATE TRIGGER enforce_worm_immutability
 BEFORE UPDATE OR DELETE ON audit_logs_worm
 FOR EACH ROW EXECUTE FUNCTION protect_worm_audit_vault();
+```
+
+### C. Strict Concurrency Lock untuk Pencegahan Double-Booking Slot Konsultasi (`consultation_slots`)
+```sql
+-- Panggilan transaksional untuk memesan slot konsultasi agar mencegah race condition double-booking
+BEGIN TRANSACTION;
+SELECT slot_id, is_booked, is_mutex_locked
+FROM consultation_slots
+WHERE slot_id = 'a1234567-89ab-cdef-0123-456789abcdef'
+  AND is_booked = false
+  AND is_mutex_locked = false
+FOR UPDATE;
+
+-- Kunci slot untuk pemesanan
+UPDATE consultation_slots
+SET is_booked = true, is_mutex_locked = true
+WHERE slot_id = 'a1234567-89ab-cdef-0123-456789abcdef';
+COMMIT;
 ```
 
 ---
