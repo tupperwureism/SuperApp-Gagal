@@ -37,4 +37,31 @@ Berkas migrasi fisik untuk Batch 1 tersedia pada:
   $$S_{\text{DDL\_Batch1}} - S_{\text{Baseline\_Batch1}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch1}} - S_{\text{DDL\_Batch1}} = \emptyset$$
 
 ---
-*Catatan: Batch 2 (Domain 2: Consultation & Fair-Clock SLA - Tabel 8 s.d. 12) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
+
+## 3. BATCH 2: DOMAIN 2 — CONSULTATION SESSIONS & FAIR-CLOCK SLA (TABEL 8 S.D. 12)
+
+Berkas migrasi fisik untuk Batch 2 tersedia pada:  
+[`database/migrations/02_domain2_consultation_fairclock_sla.sql`](file:///D:/justificadll/database/migrations/02_domain2_consultation_fairclock_sla.sql)
+
+### 3.1 Ringkasan Implementasi Tabel & RLS Policy Domain 2
+
+| No | Nama Tabel | Primary Key | Konfigurasi RLS | Kebijakan Akses (*RLS Policies*) | Status |
+| :-: | :--- | :--- | :---: | :--- | :---: |
+| 8 | `consultation_slots` | `slot_id` (`UUID`) | `ENABLED` | `rls_consultation_slots_public_read`: Publik dapat membaca slot berstatus `'AVAILABLE'`.<br>`rls_consultation_slots_advocate_manage`: Advokat mengelola slot miliknya sendiri. | <color:green>COMPLETE</color> |
+| 9 | `booking_sessions` | `booking_id` (`UUID`) | `ENABLED` | `rls_booking_sessions_client_access`: Klien mengakses pesanan dengan `client_id = auth.uid()`.<br>`rls_booking_sessions_advocate_access`: Advokat mengakses pesanan miliknya. | <color:green>COMPLETE</color> |
+| 10 | `offline_handshakes_totp`| `handshake_id` (`UUID`) | `ENABLED` | `rls_offline_handshakes_participant_access`: Hanya pihak sesi konsultasi terkait yang dapat memverifikasi QR tatap muka. | <color:green>COMPLETE</color> |
+| 11 | `chat_sessions_metadata` | `chat_session_id` (`UUID`)| `ENABLED` | `rls_chat_sessions_metadata_participants`: Hanya pihak terkait yang dapat melakukan negosiasi kunci E2EE.<br>**Constraint Kritis:** `zero_knowledge_flag = true`. | <color:green>COMPLETE</color> |
+| 12 | `advocate_reviews` | `review_id` (`UUID`) | `ENABLED` | `rls_advocate_reviews_public_read`: Publik dapat membaca ulasan.<br>`rls_advocate_reviews_client_submit`: Klien dapat memberikan ulasan atas pesanannya sendiri. | <color:green>COMPLETE</color> |
+
+---
+
+### 3.2 Verifikasi Aljabar Himpunan Simetris Batch 2 ($S_{\text{DDL}} = S_{\text{Baseline}}$)
+* **Himpunan Tabel Baseline Bab 3 (8–12):**  
+  `consultation_slots`, `booking_sessions`, `offline_handshakes_totp`, `chat_sessions_metadata`, `advocate_reviews`.
+* **Himpunan Tabel DDL Batch 2 (`02_domain2_consultation_fairclock_sla.sql`):**  
+  `consultation_slots`, `booking_sessions`, `offline_handshakes_totp`, `chat_sessions_metadata`, `advocate_reviews`.
+* **Bukti Matematis:**  
+  $$S_{\text{DDL\_Batch2}} - S_{\text{Baseline\_Batch2}} = \emptyset \quad \land \quad S_{\text{Baseline\_Batch2}} - S_{\text{DDL\_Batch2}} = \emptyset$$
+
+---
+*Catatan: Batch 3 (Domain 3: Escrow Transactions, Tax PPh21 & Ledgers - Tabel 13 s.d. 17) akan dieksekusi pada giliran prompt berikutnya sesuai aturan **True Discrete Batching Rule**.*
