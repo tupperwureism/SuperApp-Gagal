@@ -421,6 +421,7 @@ users_client ||--o{ probono_cases
 | `kyc_status` | `VARCHAR(32)` | `DEFAULT 'UNVERIFIED'` | Status KYC (`UNVERIFIED`, `PENDING`, `VERIFIED`, `REJECTED`). |
 | `password_hash` | `VARCHAR(256)` | `NOT NULL` | Hash sandi bcrypt/Argon2id. |
 | `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu registrasi akun. |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pembaruan profil terakhir. |
 
 #### 2. `users_advocate` (Mitra Advokat Terverifikasi)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -432,9 +433,11 @@ users_client ||--o{ probono_cases
 | `sipp_license_no` | `VARCHAR(64)` | `UNIQUE NOT NULL` | Nomor Lisensi Berita Acara Sumpah / SIPP MA. **Immutable pasca-KYC.** |
 | `peradi_card_no` | `VARCHAR(64)` | `NOT NULL` | Nomor Kartu Anggota Organisasi Advokat. |
 | `specialization_primary`| `VARCHAR(64)` | `NOT NULL` | Spesialisasi utama advokat (`Hukum Bisnis`, `Ketenagakerjaan`, dsb.). |
+| `kyc_status` | `VARCHAR(32)` | `NOT NULL DEFAULT 'PENDING'` | Status verifikasi identitas advokat. |
 | `is_online` | `BOOLEAN` | `NOT NULL DEFAULT false` | Status ketersediaan konsultasi instan. |
 | `sla_strikes` | `SMALLINT` | `NOT NULL DEFAULT 0 CHECK (sla_strikes >= 0)` | Akumulasi penalti keterlambatan AFK *Fair-Clock SLA*. |
 | `average_rating` | `NUMERIC(3,2)` | `DEFAULT 0.00` | Rata-rata penilaian klien (1.00 s/d 5.00). |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pendaftaran akun advokat. |
 
 #### 3. `users_admin` (Administrator Kepatuhan & Dewan Mediator)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -444,6 +447,7 @@ users_client ||--o{ probono_cases
 | `email` | `VARCHAR(128)` | `UNIQUE NOT NULL` | Email korporat domain internal. |
 | `role_group` | `VARCHAR(32)` | `NOT NULL` | Grup otorisasi (`COMPLIANCE_OFFICER`, `DISPUTE_MEDIATOR`, `SUPER_ADMIN`). |
 | `fido2_enabled` | `BOOLEAN` | `NOT NULL DEFAULT true` | Wajib mengaktifkan autentikasi perangkat keras FIDO2. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pembuatan akun administrator. |
 
 #### 4. `user_active_devices` (Manajemen Sesi MFA & Perangkat Aktif)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -453,6 +457,7 @@ users_client ||--o{ probono_cases
 | `user_id` | `UUID` | `NOT NULL` | ID pemilik akun. |
 | `device_name` | `VARCHAR(64)` | `NOT NULL` | Nama perangkat/browser (misal: `Chrome on Windows 11`). |
 | `hardware_token_hash`| `VARCHAR(256)` | `NOT NULL` | Hash token AES-256 / kredensial WebAuthn FIDO2. |
+| `ip_address` | `VARCHAR(45)` | `NOT NULL` | Alamat IP perangkat (mendukung IPv4 dan IPv6). |
 | `last_active_at` | `TIMESTAMPTZ` | `NOT NULL` | Waktu aktivitas terakhir untuk *Remote Session Revoke*. |
 
 #### 5. `sipp_verifications` (Jejak Verifikasi Lisensi MA)
@@ -461,7 +466,10 @@ users_client ||--o{ probono_cases
 | `verification_id` | `UUID` | `PRIMARY KEY` | ID catatan verifikasi berkas lisensi advokat. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat yang diverifikasi. |
 | `verified_by_admin_id`| `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Admin yang melakukan verifikasi cross-check SIPP MA. |
+| `sipp_number` | `VARCHAR(64)` | `NOT NULL` | Nomor SIPP yang dicocokkan dengan Mahkamah Agung. |
 | `status` | `VARCHAR(32)` | `NOT NULL` | Status verifikasi (`PENDING_MA_SYNC`, `VERIFIED`, `REJECTED`). |
+| `verification_notes` | `TEXT` | `NULL` | Catatan hasil telaah dokumen hukum advokat oleh tim kepatuhan. |
+| `verified_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu persetujuan verifikasi. |
 
 #### 6. `advocate_service_tiers` (Katalog Tarif Tier 1, 2, 3)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -469,15 +477,21 @@ users_client ||--o{ probono_cases
 | `tier_id` | `UUID` | `PRIMARY KEY` | ID konfigurasi paket layanan advokat. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Pemilik tarif layanan. |
 | `tier_level` | `SMALLINT` | `CHECK (tier_level IN (1, 2, 3))` | Tingkatan Tier (`1` = Gratis 15m, `2` = Berbayar 45m, `3` = Drafting). |
+| `tier_name` | `VARCHAR(64)` | `NOT NULL` | Nama paket konsultasi / layanan. |
 | `duration_minutes` | `SMALLINT` | `NULL` | Durasi konsultasi (`15`, `45`, atau `NULL` untuk Tier 3). |
 | `price_idr` | `NUMERIC(15,2)` | `CHECK (price_idr >= 0)` | Harga layanan dalam Rupiah. |
+| `is_active` | `BOOLEAN` | `NOT NULL DEFAULT true` | Status ketersediaan paket penawaran. |
 
 #### 7. `advocate_sanctions_log` (Riwayat Sanksi & Due Process)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `sanction_id` | `UUID` | `PRIMARY KEY` | ID catatan sanksi/peringatan etik (`MOCK-J-AM-03`). |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat yang dikenai sanksi. |
+| `issued_by_admin_id` | `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Administrator kepatuhan yang menerbitkan sanksi. |
+| `sanction_type` | `VARCHAR(32)` | `NOT NULL` | Jenis pelanggaran etik / keterlambatan SLA. |
 | `warning_level` | `SMALLINT` | `CHECK (warning_level BETWEEN 1 AND 3)` | Tingkat Surat Peringatan (SP 1, SP 2, SP 3 / Suspend). |
+| `reason_text` | `TEXT` | `NOT NULL` | Dasar pertimbangan keputusan sanksi. |
+| `issued_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu sanksi diterbitkan. |
 
 ---
 
@@ -488,7 +502,10 @@ users_client ||--o{ probono_cases
 | :--- | :--- | :--- | :--- |
 | `slot_id` | `UUID` | `PRIMARY KEY` | ID slot waktu konsultasi. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat pemilik slot. |
+| `tier_id` | `UUID` | `FOREIGN KEY REFERENCES advocate_service_tiers(tier_id)` | Jenis layanan yang ditawarkan pada slot ini. |
 | `start_time` | `TIMESTAMPTZ` | `NOT NULL` | Waktu mulai slot konsultasi. |
+| `end_time` | `TIMESTAMPTZ` | `NOT NULL` | Waktu selesai slot konsultasi. |
+| `status` | `VARCHAR(32)` | `NOT NULL DEFAULT 'AVAILABLE'` | Status slot (`AVAILABLE`, `BOOKED`, `BLOCKED`). |
 | `is_mutex_locked` | `BOOLEAN` | `NOT NULL DEFAULT false` | **Mutex Row Lock Flag** untuk mencegah *double-booking* saat pesanan diproses. |
 
 #### 9. `booking_sessions` (Sesi Konsultasi & Fair-Clock SLA)
@@ -497,9 +514,13 @@ users_client ||--o{ probono_cases
 | `booking_id` | `UUID` | `PRIMARY KEY` | ID transaksi sesi pemesanan konsultasi hukum. |
 | `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien pemesan. |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat yang dipilih. |
+| `slot_id` | `UUID` | `FOREIGN KEY REFERENCES consultation_slots(slot_id)` | Slot jadwal konsultasi. |
+| `booking_code` | `VARCHAR(32)` | `UNIQUE NOT NULL` | Kode referensi pemesanan layanan. |
 | `status` | `VARCHAR(32)` | `NOT NULL` | Status sesi (`SCHEDULED`, `ACTIVE`, `COMPLETED`, `CANCELLED_AFK`). |
 | `fair_clock_started_at`| `TIMESTAMPTZ` | `NULL` | Waktu dimulainya *Fair-Clock SLA Monitor*. |
+| `advocate_first_reply_at`| `TIMESTAMPTZ`| `NULL` | Jejak waktu balasan pertama advokat untuk bukti SLA. |
 | `timeout_job_id` | `VARCHAR(64)` | `NULL` | ID *background cron job* untuk memicu *Auto-Refund* jika advokat AFK. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pesanan dibuat. |
 
 #### 10. `offline_handshakes_totp` (Konsultasi Tatap Muka & QR Dinamis)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -508,6 +529,8 @@ users_client ||--o{ probono_cases
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | ID pemesanan terkait. |
 | `totp_secret_hash` | `VARCHAR(256)` | `NOT NULL` | Hash token TOTP waktu dinamis (TTL 30 detik). |
 | `office_lat_long` | `VARCHAR(64)` | `NOT NULL` | Koordinat geofencing kantor advokat tempat scan QR. |
+| `scanned_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pemindaian kode QR di lokasi. |
+| `status` | `VARCHAR(32)` | `NOT NULL DEFAULT 'VERIFIED'` | Status verifikasi kehadiran tatap muka. |
 
 #### 11. `chat_sessions_metadata` (Isolasi Zero-Knowledge E2EE)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -516,15 +539,21 @@ users_client ||--o{ probono_cases
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Sesi konsultasi terkait. |
 | `client_ephemeral_pubkey`| `VARCHAR(256)` | `NOT NULL` | Kunci publik efemer klien untuk negosiasi kriptografi. |
 | `advocate_ephemeral_pubkey`| `VARCHAR(256)` | `NOT NULL` | Kunci publik efemer advokat. |
+| `key_exchange_salt` | `VARCHAR(128)` | `NOT NULL` | Salt pertukaran kunci sesi ECDH E2EE. |
 | `zero_knowledge_flag`| `BOOLEAN` | `NOT NULL DEFAULT true` | **Constraint Kritis:** Menegaskan server tidak menyimpan *plaintext chat*. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu inisiasi ruang obrolan E2EE. |
 
 #### 12. `advocate_reviews` (Penilaian & Ulasan Pasca-Sesi)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `review_id` | `UUID` | `PRIMARY KEY` | ID ulasan klien (`MOCK-J-CL-07`). |
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Sesi konsultasi yang dinilai. |
+| `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien yang memberikan ulasan. |
+| `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat yang menerima ulasan. |
 | `rating` | `SMALLINT` | `CHECK (rating BETWEEN 1 AND 5)` | Nilai bintang 1 sampai 5. |
+| `review_text` | `TEXT` | `NULL` | Teks ulasan kualitas konsultasi hukum. |
 | `is_anonymous` | `BOOLEAN` | `NOT NULL DEFAULT false` | Jika `true`, nama klien disamarkan pada direktori publik demi privasi. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu ulasan dikirimkan. |
 
 ---
 
@@ -535,42 +564,59 @@ users_client ||--o{ probono_cases
 | :--- | :--- | :--- | :--- |
 | `escrow_id` | `UUID` | `PRIMARY KEY` | ID transaksi rekening bersama Escrow Justica. |
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Referensi pemesanan layanan. |
+| `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien pembayar layanan. |
+| `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat penerima pencairan. |
 | `total_amount_idr` | `NUMERIC(15,2)` | `CHECK (total_amount_idr >= 0)` | Total dana Escrow terkunci. |
 | `status` | `VARCHAR(32)` | `NOT NULL` | Status dana (`HELD`, `COMPLETED_HOLDING`, `FROZEN_DISPUTE`, `RELEASED`, `REFUNDED`). |
 | `holding_expires_at` | `TIMESTAMPTZ` | `NOT NULL` | **Aturan #8:** Batas waktu masa sanggah 24 jam pasca-selesai sesi. |
 | `client_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 0.00` | Rasio persentase pengembalian dana ke klien (untuk *Split Settlement*). |
 | `advocate_payout_ratio`| `NUMERIC(5,2)` | `DEFAULT 100.00`| Rasio persentase pencairan dana ke advokat. |
+| `payment_gateway_ref` | `VARCHAR(64)` | `NOT NULL` | Referensi transaksi ke payment gateway eksternal. |
 | `is_mutex_locked` | `BOOLEAN` | `NOT NULL DEFAULT false` | Proteksi *concurrency lock* saat proses pencairan atau sengketa. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu transaksi Escrow dibuat. |
 
 #### 14. `wallet_balances` (Dompet Saldo Klien & Advokat)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `wallet_id` | `UUID` | `PRIMARY KEY` | ID dompet akun (`MOCK-J-AD-05`). |
 | `user_id` | `UUID` | `NOT NULL` | ID pemilik dompet. |
+| `user_type` | `VARCHAR(16)` | `NOT NULL` | Tipe pemilik dompet (`CLIENT` / `ADVOCATE`). |
 | `balance_available_idr`| `NUMERIC(15,2)` | `CHECK (balance_available_idr >= 0)` | Saldo aktif yang siap ditarik ke rekening bank. |
 | `balance_held_idr` | `NUMERIC(15,2)` | `CHECK (balance_held_idr >= 0)` | Saldo yang masih tertahan di Escrow / masa sanggah. |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu perubahan saldo terakhir. |
 
 #### 15. `escrow_payout_ledgers` (Buku Besar Mutasi Finansial)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `ledger_id` | `UUID` | `PRIMARY KEY` | ID catatan jejak pencairan atau pengembalian dana Escrow. |
 | `escrow_id` | `UUID` | `FOREIGN KEY REFERENCES escrow_transactions(escrow_id)` | Referensi Escrow. |
+| `wallet_id` | `UUID` | `FOREIGN KEY REFERENCES wallet_balances(wallet_id)` | Dompet tujuan atau asal mutasi. |
 | `mutation_type` | `VARCHAR(32)` | `NOT NULL` | Jenis mutasi (`RELEASE_ADVOCATE`, `REFUND_CLIENT`, `SPLIT_SETTLEMENT`). |
 | `amount_idr` | `NUMERIC(15,2)` | `NOT NULL` | Nominal mutasi. |
+| `description` | `VARCHAR(256)` | `NOT NULL` | Keterangan rinci mutasi pencairan/refund. |
+| `executed_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pencairan atau mutasi dieksekusi. |
 
 #### 16. `tax_pph21_withholdings` (Bukti Potong PPh 21 Otomatis)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `tax_receipt_id` | `UUID` | `PRIMARY KEY` | ID bukti potong pajak PPh 21 otomatis (`MOCK-J-AD-05`). |
 | `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat wajib pajak. |
+| `escrow_id` | `UUID` | `FOREIGN KEY REFERENCES escrow_transactions(escrow_id)` | Referensi transaksi Escrow pencairan. |
+| `gross_income_idr` | `NUMERIC(15,2)` | `NOT NULL` | Penghasilan bruto advokat sebelum pajak. |
+| `tax_rate_percentage` | `NUMERIC(5,2)` | `NOT NULL` | Tarif pemotongan pajak PPh 21 efektif. |
 | `tax_withheld_idr` | `NUMERIC(15,2)` | `NOT NULL` | Nominal PPh 21 yang dipotong oleh platform. |
+| `npwp_number` | `VARCHAR(32)` | `NOT NULL` | Nomor NPWP advokat untuk pelaporan e-Faktur/DJP. |
 | `einvoice_ref` | `VARCHAR(64)` | `NOT NULL` | Nomor referensi e-Invoice resmi Ditjen Pajak. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu bukti potong pajak diterbitkan. |
 
 #### 17. `platform_governance_configs` (Konfigurasi Parameter Escrow)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `config_key` | `VARCHAR(64)` | `PRIMARY KEY` | Kunci parameter sistem (`ADV_REVENUE_SHARE_PCT`, `ESCROW_HOLDING_HOURS`). |
 | `config_value` | `VARCHAR(256)` | `NOT NULL` | Nilai konfigurasi (`75`, `24`). |
+| `description` | `TEXT` | `NOT NULL` | Deskripsi fungsi konfigurasi parameter sistem. |
+| `updated_by_admin_id` | `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Admin kepatuhan yang mengubah parameter. |
+| `updated_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu perubahan konfigurasi parameter terakhir. |
 
 ---
 
@@ -581,8 +627,13 @@ users_client ||--o{ probono_cases
 | :--- | :--- | :--- | :--- |
 | `opinion_id` | `UUID` | `PRIMARY KEY` | ID dokumen deliverable opini hukum (`MOCK-J-CL-06` / `AD-05`). |
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Sesi konsultasi asal dokumen. |
+| `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat perumus opini hukum. |
+| `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien penerima dokumen hukum. |
+| `document_title` | `VARCHAR(256)` | `NOT NULL` | Judul dokumen opini hukum. |
 | `revision_counter` | `SMALLINT` | `CHECK (revision_counter <= 2)` | **Aturan Kuota Revisi:** Membatasi revisi maksimal 2 putaran gratis. |
 | `status` | `VARCHAR(32)` | `NOT NULL` | Status dokumen (`DRAFT`, `REVISION_REQUESTED`, `STAMPED_SIGNED`). |
+| `pdf_storage_path` | `VARCHAR(256)` | `NOT NULL` | Jalur penyimpanan berkas PDF di WORM / Cloud Object Storage. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu draf dokumen hukum dibuat. |
 
 #### 19. `document_revisions` (Jejak Riwayat Putaran Revisi)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -590,24 +641,31 @@ users_client ||--o{ probono_cases
 | `revision_id` | `UUID` | `PRIMARY KEY` | ID catatan pengajuan revisi oleh klien. |
 | `opinion_id` | `UUID` | `FOREIGN KEY REFERENCES legal_opinions(opinion_id)` | Dokumen yang direvisi. |
 | `revision_round` | `SMALLINT` | `CHECK (revision_round IN (1, 2))` | Putaran revisi ke-1 atau ke-2. |
+| `client_feedback_text`| `TEXT` | `NOT NULL` | Catatan masukan revisi dari klien. |
+| `submitted_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu permohonan revisi diajukan. |
 
 #### 20. `emeterai_stamping_logs` (Penandatanganan e-Meterai Peruri SHA-256)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `stamping_id` | `UUID` | `PRIMARY KEY` | ID log pembubuhan e-Meterai Peruri Rp10.000. |
+| `opinion_id` | `UUID` | `FOREIGN KEY REFERENCES legal_opinions(opinion_id)` | Dokumen hukum yang dibubuhi meterai. |
 | `peruri_serial_number`| `VARCHAR(64)` | `UNIQUE NOT NULL` | Nomor seri resmi dari KMS Peruri. |
 | `sha256_document_hash`| `VARCHAR(64)` | `NOT NULL` | Hash kriptografis SHA-256 dokumen untuk pembuktian di `PUBLIC-VERIFY`. |
+| `stamped_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pembubuhan e-Meterai digital. |
+| `status` | `VARCHAR(32)` | `NOT NULL DEFAULT 'SUCCESS'` | Status pembubuhan e-Meterai Peruri. |
 
 #### 21. `case_irac_notes` (Catatan Analisis IRAC 4-Tab Advokat)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `irac_id` | `UUID` | `PRIMARY KEY` | ID catatan IRAC advokat (`MOCK-J-AD-04`). |
 | `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Kasus/konsultasi terkait. |
+| `advocate_id` | `UUID` | `FOREIGN KEY REFERENCES users_advocate(advocate_id)` | Advokat penulis analisis hukum. |
 | `issue_text` | `TEXT` | `NOT NULL` | Rumusan masalah hukum (*Issue*). |
 | `rule_text` | `TEXT` | `NOT NULL` | Dasar undang-undang & yurisprudensi (*Rule*). |
 | `analysis_text` | `TEXT` | `NOT NULL` | Analisis hukum (*Analysis*). |
 | `conclusion_text` | `TEXT` | `NOT NULL` | Kesimpulan & rekomendasi (*Conclusion*). |
 | `worm_hash_sha256` | `VARCHAR(64)` | `NOT NULL` | Hash WORM retensi 10 tahun sesuai standar hukum. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu catatan analisis hukum disimpan. |
 
 ---
 
@@ -619,13 +677,20 @@ users_client ||--o{ probono_cases
 | `probono_id` | `UUID` | `PRIMARY KEY` | ID pengajuan klaim Pro Bono SKTM (`MOCK-J-CL-03`). |
 | `client_id` | `UUID` | `FOREIGN KEY REFERENCES users_client(client_id)` | Klien pemohon bantuan hukum gratis. |
 | `dtks_registration_no`| `VARCHAR(64)` | `NOT NULL` | Nomor Registrasi DTKS Kemensos RI untuk cross-check API. |
+| `verified_by_admin_id`| `UUID` | `FOREIGN KEY REFERENCES users_admin(admin_id)` | Admin kepatuhan yang memverifikasi kelayakan DTKS. |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status verifikasi Pro Bono (`PENDING_DTKS`, `APPROVED`, `REJECTED`). |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pengajuan klaim Pro Bono. |
 
 #### 23. `dispute_cases` (Sengketa Escrow Status FROZEN)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
 | :--- | :--- | :--- | :--- |
 | `dispute_id` | `UUID` | `PRIMARY KEY` | ID kasus sengketa atau pelaporan etik (`MOCK-J-CL-08` / `ADM-02`). |
+| `booking_id` | `UUID` | `FOREIGN KEY REFERENCES booking_sessions(booking_id)` | Sesi konsultasi yang disengketakan. |
 | `escrow_id` | `UUID` | `FOREIGN KEY REFERENCES escrow_transactions(escrow_id)` | Rekening Escrow yang otomatis berubah status menjadi `FROZEN_DISPUTE`. |
 | `dispute_category` | `VARCHAR(64)` | `NOT NULL` | Kategori sengketa (`DELIVERABLE_LATE`, `QUALITY_ISSUE`, `ETHICS`). |
+| `description` | `TEXT` | `NOT NULL` | Keterangan mendetail dan kronologi sengketa. |
+| `status` | `VARCHAR(32)` | `NOT NULL` | Status penyelesaian (`UNDER_MEDIATION`, `RESOLVED_SPLIT`, `RESOLVED_REFUND`). |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pelaporan sengketa diajukan. |
 
 #### 24. `dispute_mediator_signatures` (Konsensus Multi-Party 3-of-5)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -643,8 +708,12 @@ users_client ||--o{ probono_cases
 | :--- | :--- | :--- | :--- |
 | `audit_id` | `UUID` | `PRIMARY KEY` | ID log jejak audit immutable (`MOCK-J-AM-05`). |
 | `actor_user_id` | `UUID` | `NOT NULL` | ID pengguna yang melakukan tindakan. |
+| `actor_type` | `VARCHAR(16)` | `NOT NULL` | Tipe pengguna pelaku tindakan (`CLIENT`, `ADVOCATE`, `ADMIN`, `SYSTEM`). |
 | `action_type` | `VARCHAR(64)` | `NOT NULL` | Aksi yang dicatat (`PDP_CONSENT_SIGNED`, `ESCROW_FROZEN`, `SIPP_VERIFIED`). |
+| `target_resource` | `VARCHAR(128)` | `NOT NULL` | Entitas atau resource yang menjadi target tindakan audit. |
+| `metadata_json` | `JSONB` | `NOT NULL` | Muatan payload JSONB berisi snapshot data perubahan. |
 | `worm_sha256_hash` | `VARCHAR(64)` | `NOT NULL` | Hash kriptografis rantai log (*Merkle-tree chaining*) anti-tamper. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu pencatatan log audit immutable. |
 
 #### 26. `user_notifications` (In-App Notification Center Feed)
 | Nama Kolom | Tipe Data Fisik | Keterangan Constraint | Deskripsi Bisnis |
@@ -652,7 +721,9 @@ users_client ||--o{ probono_cases
 | `notification_id` | `UUID` | `PRIMARY KEY` | ID notifikasi dalam aplikasi. |
 | `recipient_user_id` | `UUID` | `NOT NULL` | ID penerima notifikasi (Klien / Advokat / Admin). |
 | `title` | `VARCHAR(128)` | `NOT NULL` | Judul pemberitahuan (misal: *Peringatan SLA Fair-Clock*). |
+| `message_body` | `TEXT` | `NOT NULL` | Isi pesan lengkap pemberitahuan dalam aplikasi. |
 | `is_read` | `BOOLEAN` | `DEFAULT false` | Status baca notifikasi. |
+| `created_at` | `TIMESTAMPTZ` | `NOT NULL DEFAULT CURRENT_TIMESTAMP` | Waktu notifikasi dikirimkan ke pengguna. |
 
 ---
 
