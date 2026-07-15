@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Manajemen Kasus Pro Bono & Laporan Tahunan Advokat (Batch 2.3 - AD-07)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        /* MAIN CONTAINER */
+        .container {
+            max-width: 1180px;
+            margin: 3.5rem auto;
+            width: 100%;
+            padding: 0 2rem;
+            flex: 1;
+        }
+
+        .card-surface {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.65rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.02rem;
+            margin-top: 0.35rem;
+        }
+
+        /* STATS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem;
+            margin: 2.5rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::top {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.55rem;
+        }
+
+        /* BUTTONS */
+        .btn-main {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1.15rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+        }
+
+        .btn-main:hover { background: var(--primary-hover); }
+
+        .btn-outline {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .btn-outline:hover { border-color: var(--border-focus); background: var(--bg-card-hover); }
+
+        /* TABLE */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0 2.5rem 0;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 1.15rem 1.25rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td {
+            padding: 1.35rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+
+        .badge-verified { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .badge-pending { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR (Strictly isolated to Advocate Domain according to MOCK-J-AD-07) -->
+    <header class="topbar">
+        <div class="brand-logo">
+            <span>⚖️ JUSTICA ADVOCATE</span>
+            <span class="brand-subtitle">Pro Bono & Laporan Tahunan (Batch 2.3 - `AD-07`)</span>
+        </div>
+        <div class="controls-group">
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a href="JUSTICA_Proto_2.1_Advocate_Portal_KYC_Command.html" class="btn-outline" style="text-decoration:none; border-color:var(--border-color);">
+                &lt; Command Center (`AD-02A`)
+            </a>
+        </div>
+    </header>
+
+    <!-- MAIN SECTION: PRO BONO MANAGEMENT (MOCK-J-AD-07) -->
+    <div class="container">
+        <div class="card-surface">
+            <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.75rem; margin-bottom:2.25rem;">
+                <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🎖️ UU Advokat No. 18/2003 Compliance</span>
+                <h1 class="section-title">=== MANAJEMEN KASUS PRO BONO & LAPORAN TAHUNAN (`AD-07`)</h1>
+                <p class="section-subtitle">Pantau jam pengabdian bantuan hukum gratis bagi pencari keadilan tidak mampu (SKTM) dan unduh sertifikat kepatuhan pro bono Anda.</p>
+            </div>
+
+            <!-- STATS CARDS (Exact mapping lines 27-28 of MOCK-J-AD-07) -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">JAM PRO BONO TERPENUHI TAHUN INI</div>
+                    <div class="stat-value" style="color:var(--text-accent);">48 / 50 <span style="font-size:1.2rem; font-weight:600; color:var(--text-muted);">Jam Tahunan</span></div>
+                    <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                        Tingkat Kepatuhan: <b style="color:var(--text-main);">96%</b> (Tersisa 2 jam untuk pembaruan lisensi penuh).
+                    </div>
+                </div>
+
+                <div class="stat-card" style="border-color:rgba(16,185,129,0.3);">
+                    <div class="stat-label">STATUS SERTIFIKASI ORGANISASI ADVOKAT</div>
+                    <div class="stat-value" style="color:var(--success); font-size:1.85rem; margin-top:0.75rem;">MEMENUHI STANDAR</div>
+                    <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                        Terverifikasi oleh Dinas Sosial & PERADI via SIPP Mahkamah Agung.
+                    </div>
+                </div>
+            </div>
+
+            <!-- ACTION BUTTON (Exact mapping line 32 of MOCK-J-AD-07) -->
+            <div style="margin-bottom:3rem;">
+                <button class="btn-main" style="background:var(--purple); width:100%; padding:1.35rem; font-size:1.15rem;" onclick="downloadProBonoCertificate()">
+                    <span>🎖️ UNDUH SERTIFIKAT KEPATUHAN PRO BONO TAHUNAN (`AD-07`)</span>
+                </button>
+            </div>
+
+            <!-- DETAIL TABLE OF PRO BONO CASES -->
+            <div style="margin-top:3.5rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; flex-wrap:wrap; gap:1rem;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--text-main);">RIWAYAT PENGABDIAN BANTUAN HUKUM SKTM (`J-UC15`)</h3>
+                    <button class="btn-outline" style="border-color:var(--primary); color:var(--text-accent);" onclick="alert('📋 FORM LAPORAN KASUS PRO BONO BARU (`AD-07`)\n\nSilakan lampirkan Berita Acara Pendampingan dan Surat Keterangan Tidak Mampu (SKTM) dari Klien untuk diverifikasi oleh Dinas Sosial dan sistem SIPP MA.')">+ Laporkan Kasus Pro Bono Baru</button>
+                </div>
+
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th>KODE PERKARA & KLIEN SKTM</th>
+                            <th>KLASIFIKASI BANTUAN HUKUM</th>
+                            <th>KONTRIBUSI JAM</th>
+                            <th>VERIFIKASI DINAS SOSIAL / SIPP</th>
+                            <th style="text-align:right;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <b style="color:var(--text-main);">PB-2026-01 (Klien: Ahmad Subarjo)</b>
+                                <div style="font-size:0.82rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.25rem;">SKTM-DINSOS-3171-20260192</div>
+                            </td>
+                            <td>Pendampingan Sengketa Ketenagakerjaan (PHK Sepihak)</td>
+                            <td style="font-family:var(--font-mono); font-weight:800; color:var(--text-accent);">16 Jam</td>
+                            <td><span class="badge-status badge-verified">VERIFIED DINSOS & SIPP</span></td>
+                            <td style="text-align:right;">
+                                <button class="btn-outline" style="padding:0.45rem 0.9rem; font-size:0.8rem;" onclick="alert('📄 Berita Acara Pendampingan PB-2026-01.pdf (Ter-lock WORM SHA-256)')">Lihat Berkas</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b style="color:var(--text-main);">PB-2026-02 (Klien: Siti Aminah)</b>
+                                <div style="font-size:0.82rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.25rem;">SKTM-DINSOS-3172-20260288</div>
+                            </td>
+                            <td>Pendampingan Hukum Perlindungan Anak & KDRT</td>
+                            <td style="font-family:var(--font-mono); font-weight:800; color:var(--text-accent);">20 Jam</td>
+                            <td><span class="badge-status badge-verified">VERIFIED DINSOS & SIPP</span></td>
+                            <td style="text-align:right;">
+                                <button class="btn-outline" style="padding:0.45rem 0.9rem; font-size:0.8rem;" onclick="alert('📄 Berita Acara Pendampingan PB-2026-02.pdf (Ter-lock WORM SHA-256)')">Lihat Berkas</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <b style="color:var(--text-main);">PB-2026-03 (Klien: Budi Santoso)</b>
+                                <div style="font-size:0.82rem; color:var(--text-muted); font-family:var(--font-mono); margin-top:0.25rem;">SKTM-DINSOS-3174-20260411</div>
+                            </td>
+                            <td>Konsultasi & Mediasi Sengketa Tanah Waris</td>
+                            <td style="font-family:var(--font-mono); font-weight:800; color:var(--text-accent);">12 Jam</td>
+                            <td><span class="badge-status badge-verified">VERIFIED DINSOS & SIPP</span></td>
+                            <td style="text-align:right;">
+                                <button class="btn-outline" style="padding:0.45rem 0.9rem; font-size:0.8rem;" onclick="alert('📄 Berita Acara Pendampingan PB-2026-03.pdf (Ter-lock WORM SHA-256)')">Lihat Berkas</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function downloadProBonoCertificate() {
+            alert('🎖️ SERTIFIKAT KEPATUHAN PRO BONO TAHUNAN BERHASIL DIUNDUH (`MOCK-J-AD-07`)\n\nNomor Sertifikat: CERT-PB-PERADI-2026-0891\nNama Advokat: Dr. Mahendra Kusuma, S.H., M.H.\nTotal Jam Pengabdian: 48 Jam Terverifikasi SIPP\n\nSertifikat ini telah diandatangani secara digital dengan KMS e-Meterai Peruri dan tercatat abadi pada WORM Vault sebagai syarat perpanjangan lisensi tahunan Anda.');
+        }
+    </script>
+</body>
+</html>
