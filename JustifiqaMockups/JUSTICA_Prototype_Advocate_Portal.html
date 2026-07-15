@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA ADVOCATE PORTAL — High-Fidelity Interactive Prototype (Batch 2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Style 2: Corporate Slate UI (Dark Mode) */
+            --bg-base: #090d16;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        /* STYLE 1: Executive Neo-Brutalism */
+        [data-style="style-1"] {
+            --radius: 0px;
+            --font-sans: 'Outfit', sans-serif;
+            --shadow: 6px 6px 0px #3b82f6;
+            --border-color: #3b82f6;
+        }
+        [data-style="style-1"][data-theme="dark"] {
+            --bg-base: #050505;
+            --bg-surface: #121212;
+            --bg-card: #1a1a1a;
+            --border-color: #3b82f6;
+        }
+
+        /* STYLE 3: Legal Sovereign Editorial */
+        [data-style="style-3"] {
+            --radius: 8px;
+            --font-sans: 'Georgia', serif;
+        }
+        [data-style="style-3"][data-theme="dark"] {
+            --bg-base: #0f1115;
+            --bg-surface: #181b20;
+            --bg-card: #22262e;
+            --border-color: #d4af37;
+            --text-accent: #f3e5ab;
+            --primary: #b8860b;
+            --primary-hover: #996515;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* TOP NAVIGATION & CONTROLS */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            color: #fff;
+            font-size: 0.65rem;
+            font-family: var(--font-mono);
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .style-selector {
+            display: flex;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+
+        .style-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: calc(var(--radius) - 4px);
+        }
+
+        .style-btn.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 310px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.5rem 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .sidebar-header:first-child {
+            margin-top: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-card);
+            color: var(--text-accent);
+            border-color: var(--border-focus);
+        }
+
+        .nav-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: var(--bg-base);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-item.active .nav-tag {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2.5rem;
+            max-width: 1300px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .screen-pane {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ARCHITECTURAL HEADER & ALERTS */
+        .screen-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .screen-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .screen-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 750px;
+            line-height: 1.6;
+        }
+
+        .screen-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.4rem;
+        }
+
+        .badge-acid {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-worm {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* CARDS & GRIDS */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* FORMS & INPUTS */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
+        .btn-warning { background-color: var(--warning); color: #000; }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background-color: var(--bg-card); }
+
+        /* TABLES */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background-color: var(--bg-base);
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--bg-card);
+        }
+
+        /* STATUS BADGES */
+        .status-pill {
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .status-frozen { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 650px;
+            padding: 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+
+        /* CHAT ROOM SPECIFIC */
+        .chat-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            height: 420px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 1.5rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .message {
+            max-width: 75%;
+            padding: 0.85rem 1.15rem;
+            border-radius: var(--radius);
+            font-size: 0.92rem;
+            line-height: 1.5;
+        }
+        .msg-client {
+            background: var(--bg-card);
+            color: var(--text-main);
+            align-self: flex-start;
+            border-bottom-left-radius: 2px;
+            border: 1px solid var(--border-color);
+        }
+        .msg-advocate {
+            background: var(--primary);
+            color: #fff;
+            align-self: flex-end;
+            border-bottom-right-radius: 2px;
+        }
+        .chat-input-area {
+            padding: 1rem;
+            background: var(--bg-surface);
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo">
+            <span>⚖️ JUSTICA ADVOCATE PORTAL</span>
+            <span class="brand-badge">BATCH 2 : EXECUTIVE PRODUCTION PROTOTYPE</span>
+        </div>
+        <div class="controls-group">
+            <div class="style-selector">
+                <button class="style-btn" onclick="setStyle('style-1')">Style 1: Brutalism</button>
+                <button class="style-btn active" onclick="setStyle('style-2')">Style 2: Corporate Slate</button>
+                <button class="style-btn" onclick="setStyle('style-3')">Style 3: Legal Sovereign</button>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION (AD-01 TO AD-07) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">Autentikasi & Verifikasi</div>
+            <a class="nav-item active" onclick="switchScreen('AD-01')">
+                <span>🔒 Login KMS Advokat</span>
+                <span class="nav-tag">AD-01</span>
+            </a>
+            <a class="nav-item" onclick="switchScreen('AD-01B')">
+                <span>🛡️ Verifikasi KYC SIPP MA</span>
+                <span class="nav-tag">AD-01B</span>
+            </a>
+
+            <div class="sidebar-header">Manajemen Perkara & Sesi</div>
+            <a class="nav-item" onclick="switchScreen('AD-02A')">
+                <span>🖥️ Command Center Advokat</span>
+                <span class="nav-tag">AD-02A</span>
+            </a>
+            <a class="nav-item" onclick="switchScreen('AD-03')">
+                <span>📅 Pengaturan Jadwal & Slot</span>
+                <span class="nav-tag">AD-03</span>
+            </a>
+            <a class="nav-item" onclick="switchScreen('AD-04')">
+                <span>💬 Ruang Konsultasi E2EE</span>
+                <span class="nav-tag">AD-04</span>
+            </a>
+
+            <div class="sidebar-header">Deliverable & Keuangan</div>
+            <a class="nav-item" onclick="switchScreen('AD-05')">
+                <span>📜 Penerbitan Opini & e-Meterai</span>
+                <span class="nav-tag">AD-05</span>
+            </a>
+            <a class="nav-item" onclick="switchScreen('AD-06')">
+                <span>💰 Dompet & Pencairan Honor</span>
+                <span class="nav-tag">AD-06</span>
+            </a>
+            <a class="nav-item" onclick="switchScreen('AD-07')">
+                <span>⚖️ Manajemen Pro Bono</span>
+                <span class="nav-tag">AD-07</span>
+            </a>
+        </nav>
+
+        <!-- MAIN CONTENT PANES -->
+        <main class="main-content">
+
+            <!-- ==================== AD-01: PORTAL LOGIN KMS ==================== -->
+            <section id="AD-01" class="screen-pane active">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">🔒 AD-01: Portal Autentikasi & Keamanan KMS Advokat</h1>
+                        <p class="screen-desc">Gerbang login khusus Advokat tersumpah berlisensi Mahkamah Agung RI dengan pengamanan MFA (Multi-Factor Authentication) dan KMS (Key Management Service) Curve25519/AES-GCM.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-worm">🔐 KMS E2EE HARDWARE-BOUND</span>
+                        <span class="badge-acid">✅ 2FA OTP REQUIREMENT</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">👨‍⚖️ Kredensial Advokat SIPP MA</div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Induk Advokat (NIA / SIPP Mahkamah Agung)</label>
+                            <input type="text" class="form-input" value="18293/PERADI/2015" id="ad-sipp-input">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Alamat Email Profesional Resmi</label>
+                            <input type="email" class="form-input" value="mahendra.k@justica-law.id">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Kata Sandi Keamanan KMS</label>
+                            <input type="password" class="form-input" value="••••••••••••••••••••••••••">
+                        </div>
+                        <div class="grid-2">
+                            <div class="form-group">
+                                <label class="form-label">Kode Keamanan MFA (6-Digit OTP)</label>
+                                <input type="text" class="form-input" style="font-family: var(--font-mono); font-weight: 700; color: var(--text-accent);" value="4 8 1 9 0 2">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">PIN e-Meterai Peruri KMS</label>
+                                <input type="password" class="form-input" style="font-family: var(--font-mono);" value="••••••">
+                            </div>
+                        </div>
+                        <div style="margin: 1.25rem 0; padding: 1rem; background: rgba(59, 130, 246, 0.1); border: 1px solid var(--border-focus); border-radius: var(--radius); font-size: 0.85rem;">
+                            <label style="display: flex; align-items: center; gap: 0.75rem; cursor: pointer;">
+                                <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span><b>Sesi Kerja Terenkripsi E2EE Terproteksi</b> (Hardware-bound Session Token dengan isolasi memori KMS anti-snoop).</span>
+                            </label>
+                        </div>
+                        <button class="btn" style="width: 100%;" onclick="switchScreen('AD-02A')">🚀 MASUK KE COMMAND CENTER ADVOKAT →</button>
+                    </div>
+
+                    <div class="card" style="background: var(--bg-base);">
+                        <div class="card-title">🛡️ Arsitektur Keamanan Login Advokat</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+                            Sesuai standar arsitektur terdekopel <b>Boundary-Control-Entity (BCE)</b>, proses login ini tidak sekadar mengecek database umum:
+                        </p>
+                        <ul style="font-size: 0.88rem; color: var(--text-main); line-height: 1.8; margin-left: 1.25rem;">
+                            <li><b>Controller:</b> `POST /api/v2/auth/advocate/login-mfa` memverifikasi token sesi terhadap KMS Vault.</li>
+                            <li><b>Entity Row-Level Security:</b> Hanya akun pada tabel `users_advocate` dengan status `ACTIVE_VERIFIED` yang dapat menerima JWT Access Token.</li>
+                            <li><b>WORM Audit Trail:</b> Setiap percobaan login (berhasil maupun gagal) dicatat ke dalam `audit_logs_worm` dengan hash kriptografi `SHA-256` yang tidak dapat dihapus (`APPEND-ONLY`).</li>
+                        </ul>
+                        <div style="margin-top: 1.5rem; padding: 1rem; background: var(--bg-surface); border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-muted);">
+                            [INFO] KMS Vault Connection: <span style="color: var(--success);">ESTABLISHED (AES-GCM-256)</span><br>
+                            [INFO] SIPP MA Registry Mirror: <span style="color: var(--success);">ONLINE (Sync Latency 14ms)</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-01B: PORTAL VERIFIKASI KYC & SIPP MA ==================== -->
+            <section id="AD-01B" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">🛡️ AD-01B: Verifikasi KYC & Sinkronisasi Lisensi SIPP Mahkamah Agung</h1>
+                        <p class="screen-desc">Pemeriksaan identitas hukum secara otomatis melalui sinkronisasi API SIPP Mahkamah Agung RI dan verifikasi biometrik NIK KTP guna menjamin legitimasi 100% Advokat berpraktik.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">⚡ API SIPP MA: LIVE SYNC</span>
+                        <span class="badge-worm">📜 RLS: sipp_verifications</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">📋 1. Data Identitas & Kredensial Advokat</div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor Induk Kependudukan (NIK KTP)</label>
+                            <input type="text" class="form-input" style="font-family: var(--font-mono);" value="3171234567890001">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Nomor SIPP Mahkamah Agung RI</label>
+                            <input type="text" class="form-input" style="font-family: var(--font-mono); font-weight: 700; color: var(--text-accent);" value="18293/PERADI/2015">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Organisasi Advokat / Induk Profesi</label>
+                            <select class="form-select">
+                                <option>PERADI (Perhimpunan Advokat Indonesia)</option>
+                                <option>AAI (Asosiasi Advokat Indonesia)</option>
+                                <option>KAI (Kongres Advokat Indonesia)</option>
+                                <option>IKADIN (Ikatan Advokat Indonesia)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Unggah Dokumen Berita Acara Sumpah (BAS) & Kartu Anggota</label>
+                            <div style="border: 2px dashed var(--border-color); padding: 1.5rem; text-align: center; border-radius: var(--radius); background: var(--bg-base);">
+                                <span style="font-size: 1.5rem;">📄</span>
+                                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.5rem;">Dokumen Terlampir: <b>BAS_Dr_Mahendra_Kusuma_MA.pdf</b> (SHA-256 Validated)</p>
+                            </div>
+                        </div>
+                        <button class="btn" style="width: 100%;" onclick="runSIPPSyncSimulation()">🔄 SINKRONISASI & VERIFIKASI KE SIPP MA SEKARANG →</button>
+                    </div>
+
+                    <div class="card" id="sipp-result-card">
+                        <div class="card-title">🔍 2. Hasil Sinkronisasi Real-Time SIPP MA</div>
+                        <div id="sipp-status-box" style="padding: 1.5rem; background: rgba(16, 185, 129, 0.1); border: 1px solid var(--success); border-radius: var(--radius); margin-bottom: 1.5rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                                <span style="font-weight: 800; color: var(--success); font-size: 1.1rem;">✅ ACTIVE SIPP VERIFIED</span>
+                                <span class="status-pill status-active">HTTP 200 OK</span>
+                            </div>
+                            <p style="font-size: 0.88rem; line-height: 1.6;">
+                                Lisensi atas nama <b>Dr. Mahendra Kusuma, S.H., M.H.</b> terbukti AKTIF dan SAH dalam Pangkalan Data Pengadilan Tinggi Mahkamah Agung RI hingga <b>31 Desember 2028</b>.
+                            </p>
+                        </div>
+                        <table class="table" style="font-size: 0.85rem;">
+                            <tbody>
+                                <tr><td><b>ID Advokat Justica</b></td><td>`AD-101-UUID`</td></tr>
+                                <tr><td><b>Nama Lengkap Tersumpah</b></td><td>Dr. Mahendra Kusuma, S.H., M.H.</td></tr>
+                                <tr><td><b>Nomor Berita Acara Sumpah</b></td><td>W10.U/1429/HK.01/IX/2015</td></tr>
+                                <tr><td><b>Pengadilan Tinggi Sumpah</b></td><td>PT DKI Jakarta</td></tr>
+                                <tr><td><b>Status RLS PostgreSQL</b></td><td>`rls_users_advocate_public_read` (ENABLED)</td></tr>
+                            </tbody>
+                        </table>
+                        <div style="margin-top: 1.5rem; text-align: right;">
+                            <button class="btn btn-outline" onclick="switchScreen('AD-02A')">Lanjut ke Dasbor Utama →</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-02A: COMMAND CENTER ADVOKAT ==================== -->
+            <section id="AD-02A" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">🖥️ AD-02A: Command Center & Dasbor Perkara Advokat</h1>
+                        <p class="screen-desc">Pusat komando eksekutif advokat dengan pemantauan Fair-Clock SLA E2EE secara real-time, manajemen perkara aktif, serta ikhtisar saldo Escrow dompet terverifikasi.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">🔒 ACID ESCROW VAULT READY</span>
+                        <span class="badge-worm">⏱️ FAIR-CLOCK SLA MONITOR</span>
+                    </div>
+                </div>
+
+                <!-- 4 KPI SUMMARY CARDS -->
+                <div class="grid-4" style="margin-bottom: 2rem;">
+                    <div class="card" style="margin:0; border-left: 4px solid var(--success);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">STATUS VERIFIKASI MA</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--success); margin-top: 0.5rem;">ACTIVE SIPP</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Lisensi Berlaku: 2028</div>
+                    </div>
+                    <div class="card" style="margin:0; border-left: 4px solid var(--text-accent);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">SLA RESPONS E2EE</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">99.4% (&lt; 2m)</div>
+                        <div style="font-size: 0.75rem; color: var(--success); margin-top: 0.25rem;">▲ Top 5% Platinum SLA</div>
+                    </div>
+                    <div class="card" style="margin:0; border-left: 4px solid var(--purple);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">PERKARA SELESAI</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">318 Perkara</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">Rating Rata-rata: ⭐ 4.98</div>
+                    </div>
+                    <div class="card" style="margin:0; border-left: 4px solid var(--warning);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">SALDO ESCROW SIAP CAIR</div>
+                        <div style="font-size: 1.25rem; font-weight: 800; color: var(--warning); margin-top: 0.5rem;">Rp 14.850.000</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.25rem;">ACID Mutex Protected</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>⚖️ Daftar Perkara Hukum Aktif & Jadwal Konsultasi Hari Ini</span>
+                        <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="switchScreen('AD-03')">⚙️ Atur Kalender Praktik</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID Perkara</th>
+                                    <th>Nama Klien</th>
+                                    <th>Layanan & Tier</th>
+                                    <th>Jadwal / Batas Waktu</th>
+                                    <th>Status Fair-Clock SLA</th>
+                                    <th>Aksi Langsung</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">REQ-202607-001</td>
+                                    <td><b>PT Mitra Jaya</b> (Klien Korporasi)</td>
+                                    <td><span class="status-pill status-active">Tier 2 (E2EE 45m)</span></td>
+                                    <td>10:30 - 11:15 WIB</td>
+                                    <td><span style="color: var(--success); font-weight: 700;">● READY (SLA OK)</span></td>
+                                    <td><button class="btn" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="switchScreen('AD-04')">💬 MASUK RUANG CHAT</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">REQ-202607-002</td>
+                                    <td><b>Bpk. Hendra Saputra</b></td>
+                                    <td><span class="status-pill" style="background:rgba(59,130,246,0.2); color:var(--text-accent);">Tier 3 (Drafting Opini)</span></td>
+                                    <td>Deadline: 11 Juli 2026</td>
+                                    <td><span style="color: var(--text-accent); font-weight: 700;">● DRAFTING IN PROGRESS</span></td>
+                                    <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="switchScreen('AD-05')">📄 UNGGAH DELIVERABLE</button></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">REQ-202607-003</td>
+                                    <td><b>Ibu Kartika Sari</b></td>
+                                    <td><span class="status-pill status-active">Tier 2 (E2EE 45m)</span></td>
+                                    <td>09 Juli 2026 (Selesai)</td>
+                                    <td><span style="color: var(--danger); font-weight: 700;">● ESCROW FROZEN (DISPUTE)</span></td>
+                                    <td><button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem; border-color: var(--danger); color: var(--danger);" onclick="alert('Mediasi #DSP-2026-0019 sedang ditangani oleh Admin & Arbiter di bawah pengawasan WORM Audit.')">🔍 LIHAT MEDIASI</button></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card" style="margin:0;">
+                        <div class="card-title">💵 Pencairan Saldo Escrow Terverifikasi</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            Seluruh dana honorarium Anda aman dalam rekening penampungan Escrow dan siap dicairkan secara instan melalui sistem BI-FAST ke rekening bank terdaftar Anda.
+                        </p>
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: var(--bg-base); border-radius: var(--radius); margin-bottom: 1.25rem;">
+                            <div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">REKENING TUJUAN PENCAIRAN</div>
+                                <div style="font-weight: 700; font-size: 1rem; margin-top: 0.2rem;">BANK MANDIRI • 122-00-9876543-2</div>
+                                <div style="font-size: 0.8rem; color: var(--success);">a.n. Dr. Mahendra Kusuma</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">NET AVAILABLE</div>
+                                <div style="font-weight: 800; font-size: 1.25rem; color: var(--warning);">Rp 14.850.000</div>
+                            </div>
+                        </div>
+                        <button class="btn btn-success" style="width: 100%;" onclick="switchScreen('AD-06')">💸 CAIRkan SALDO KE REKENING SEKARANG →</button>
+                    </div>
+
+                    <div class="card" style="margin:0; background: var(--bg-base);">
+                        <div class="card-title">⚡ Ringkasan Kepatuhan Pro Bono Tahunan</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            Sesuai UU Advokat No. 18 Tahun 2003 & Kode Etik Advokat Indonesia, setiap advokat diwajibkan memberikan bantuan hukum cuma-cuma (Pro Bono) minimal 50 jam/tahun.
+                        </p>
+                        <div style="margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">
+                                <span>Jam Terpenuhi: 48 Jam</span>
+                                <span>Target: 50 Jam (96%)</span>
+                            </div>
+                            <div style="width: 100%; background: var(--bg-surface); height: 10px; border-radius: 999px; overflow: hidden;">
+                                <div style="width: 96%; background: linear-gradient(90deg, var(--primary), var(--success)); height: 100%;"></div>
+                            </div>
+                        </div>
+                        <button class="btn btn-outline" style="width: 100%;" onclick="switchScreen('AD-07')">📜 KELOLA LAPORAN PRO BONO →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-03: PENGATURAN JADWAL & SLOT ==================== -->
+            <section id="AD-03" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">📅 AD-03: Pengaturan Jadwal Ketersediaan & Kalender Praktik</h1>
+                        <p class="screen-desc">Kelola hari, slot jam operasional, serta paket tarif konsultasi (Tier 1/2/3) yang akan sinkron langsung ke katalog Klien dengan proteksi anti-double booking ACID Mutex Lock.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">🔒 SELECT ... FOR UPDATE LOCK</span>
+                        <span class="badge-worm">📜 RLS: advocate_service_tiers</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">⏰ Matriks Ketersediaan Hari & Jam Praktik</div>
+                        <div class="table-responsive">
+                            <table class="table" style="font-size: 0.85rem;">
+                                <thead>
+                                    <tr>
+                                        <th>Hari</th>
+                                        <th>Status Operasional</th>
+                                        <th>Slot Waktu Daring (E2EE)</th>
+                                        <th>Slot Waktu Luring (Kantor)</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><b>Senin</b></td>
+                                        <td><input type="checkbox" checked style="accent-color: var(--success); width:18px; height:18px;"> Aktif</td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="09:00 - 15:00 WIB"></td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="15:30 - 17:00 WIB"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Selasa</b></td>
+                                        <td><input type="checkbox" checked style="accent-color: var(--success); width:18px; height:18px;"> Aktif</td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="09:00 - 16:00 WIB"></td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="-"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Rabu</b></td>
+                                        <td><input type="checkbox" checked style="accent-color: var(--success); width:18px; height:18px;"> Aktif</td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="10:00 - 14:00 WIB"></td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="14:30 - 16:30 WIB"></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>Kamis - Jumat</b></td>
+                                        <td><input type="checkbox" checked style="accent-color: var(--success); width:18px; height:18px;"> Aktif</td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="09:00 - 15:00 WIB"></td>
+                                        <td><input type="text" class="form-input" style="padding:0.4rem;" value="By Appointment"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-success" onclick="alert('✅ Jadwal berhasil disimpan ke database dan disinkronkan ke direktori Klien dengan penguncian slot ACID Mutex!')">💾 SIMPAN KALENDER PRAKTIK →</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🏷️ Pengaturan Tarif Paket Layanan (`advocate_service_tiers`)</div>
+                        <div class="form-group">
+                            <label class="form-label">Tier 1: Konsultasi Kilat E2EE (30 Menit)</label>
+                            <input type="text" class="form-input" value="Rp 250.000 / sesi" style="font-family: var(--font-mono); font-weight: 700;">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tier 2: Konsultasi Mendalam E2EE + Telaah Dokumen (45 Menit)</label>
+                            <input type="text" class="form-input" value="Rp 500.000 / sesi" style="font-family: var(--font-mono); font-weight: 700; color: var(--warning);">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Tier 3: Drafting Opini Hukum Resmi / PKS ber-e-Meterai Peruri</label>
+                            <input type="text" class="form-input" value="Rp 3.500.000 / dokumen" style="font-family: var(--font-mono); font-weight: 700; color: var(--success);">
+                        </div>
+                        <div style="padding: 1rem; background: var(--bg-base); border-radius: var(--radius); font-size: 0.82rem; color: var(--text-muted);">
+                            ℹ️ <b>Proteksi ACID Concurrency:</b> Ketika seorang klien mengklik tombol booking pada jam tertentu, sistem seketika mengeksekusi `SELECT ... FOR UPDATE` selama 15 menit agar advokat tidak bisa menerima dua pesanan pada detik yang sama (*Zero Double-Booking*).
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-04: RUANG KONSULTASI E2EE ==================== -->
+            <section id="AD-04" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">💬 AD-04: Ruang Konsultasi Hukum Terenkripsi E2EE (Advocate View)</h1>
+                        <p class="screen-desc">Ruang obrolan rahasia antara Advokat dan Klien (`PT Mitra Jaya`), dilindungi enkripsi AES-GCM 256-Bit tanpa penyimpanan *plaintext* di server utama, dilengkapi pemantauan Fair-Clock SLA.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-worm" style="background:rgba(245,158,11,0.2); color:var(--warning); border-color:var(--warning);">⏱️ FAIR-CLOCK SLA: 44:12</span>
+                        <span class="badge-acid">🔐 AES-GCM 256-BIT E2EE</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="chat-box">
+                        <div style="padding: 1rem 1.5rem; background: var(--bg-surface); border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="font-weight: 700;">REQ-202607-001 • PT Mitra Jaya (Klien Korporasi)</span>
+                                <div style="font-size: 0.75rem; color: var(--success);">● Sesi Aktif — Tier 2 (Konsultasi E2EE 45m)</div>
+                            </div>
+                            <span style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">ID Sesi: ROOM-8819</span>
+                        </div>
+                        <div class="chat-messages" id="ad-chat-messages">
+                            <div class="message msg-client">
+                                <b style="font-size: 0.75rem; color: var(--text-accent); display: block; margin-bottom: 0.2rem;">PT Mitra Jaya (Klien):</b>
+                                Selamat pagi Pak Dr. Mahendra. Kami ingin mendiskusikan klausa *Force Majeure* dan penalti keterlambatan dalam draft PKS pengadaan barang senilai Rp 4,5 Miliar. Apakah kami bisa mengunggah draftnya sekarang?
+                            </div>
+                            <div class="message msg-advocate">
+                                <b style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.2rem;">Anda (Dr. Mahendra Kusuma):</b>
+                                Selamat pagi Bpk. Direktur. Sangat bisa. Silakan unggah draft PKS melalui tombol lampiran di bawah. Enkripsi E2EE menjamin dokumen Anda tidak dapat diintip oleh pihak luar maupun administrator server.
+                            </div>
+                        </div>
+                        <div class="chat-input-area">
+                            <input type="text" class="form-input" id="ad-chat-input" placeholder="Ketik nasihat atau saran hukum terenkripsi di sini..." onkeypress="if(event.key==='Enter') sendAdChat()">
+                            <button class="btn" onclick="sendAdChat()">Kirim 🔒</button>
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <div class="card-title">🎛️ Panel Kontrol Sesi & Lampiran Dokumen</div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label class="form-label">Dokumen Terlampir Klien (`NDA_PKS_Draft_v2.docx`)</label>
+                            <div style="display: flex; align-items: center; justify-content: space-between; padding: 0.85rem; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: var(--radius);">
+                                <div>
+                                    <b style="font-size: 0.9rem;">NDA_PKS_Draft_v2.docx</b>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); font-family: var(--font-mono);">SHA-256: 9f86d081884c7d659a2fe...</div>
+                                </div>
+                                <button class="btn btn-outline" style="padding: 0.4rem 0.8rem; font-size: 0.8rem;" onclick="alert('📥 Mengunduh dan mendekripsi dokumen di memori lokal peramban advokat...')">⬇️ Dekripsi & Unduh</button>
+                            </div>
+                        </div>
+                        <div style="margin-bottom: 1.5rem;">
+                            <label class="form-label">Aksi Lanjutan Advokat</label>
+                            <div style="display: flex; flex-direction: column; gap: 0.75rem;">
+                                <button class="btn" style="background: var(--text-accent); color: #000;" onclick="switchScreen('AD-05')">📄 BUAT & TERBITKAN OPINI HUKUM (`DELIVERABLE`) →</button>
+                                <button class="btn btn-outline" style="border-color: var(--danger); color: var(--danger);" onclick="if(confirm('Akhiri sesi konsultasi ini? Saldo Escrow akan di-release ke dompet Anda pasca-persetujuan klien.')) switchScreen('AD-06')">⏹️ Akhiri Sesi Konsultasi E2EE Sekarang</button>
+                            </div>
+                        </div>
+                        <div style="padding: 1rem; background: var(--bg-base); border-radius: var(--radius); font-size: 0.82rem; color: var(--text-muted);">
+                            ⏱️ <b>Fair-Clock SLA Monitor:</b> Waktu terus berjalan dan dicatat secara akurat. Jika ada gangguan teknis, sistem otomatis menjeda hitungan mundur agar hak waktu klien maupun advokat terlindungi 100%.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-05: PENERBITAN DELIVERABLE & e-METERAI ==================== -->
+            <section id="AD-05" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">📜 AD-05: Penerbitan Opini Hukum & Pembubuhan e-Meterai Peruri</h1>
+                        <p class="screen-desc">Unggah dokumen hasil telaah atau opini hukum (`Legal Opinion`) resmi bermeterai elektronik SHA-256 Peruri yang akan diverifikasi secara *tamper-proof* oleh Klien sebelum pencairan Escrow.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">📄 PERURI SHA-256 INTEGRATION</span>
+                        <span class="badge-worm">📜 WORM AUDIT VERIFIED</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">📤 Unggah Dokumen Deliverable Opini Hukum</div>
+                        <div class="form-group">
+                            <label class="form-label">Pilih Perkara / Klien Target</label>
+                            <select class="form-select">
+                                <option>REQ-202607-001 • PT Mitra Jaya (Telaah Klausa Force Majeure PKS)</option>
+                                <option>REQ-202607-002 • Bpk. Hendra Saputra (Drafting Gugatan Perdata)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">File Dokumen Target (`.pdf` / `.docx`)</label>
+                            <div style="border: 2px dashed var(--border-focus); padding: 2rem; text-align: center; border-radius: var(--radius); background: rgba(59, 130, 246, 0.05);">
+                                <span style="font-size: 2rem;">📂</span>
+                                <div style="font-weight: 700; margin-top: 0.5rem;">Legal_Opinion_PT_Mitra_Jaya_vFinal.pdf</div>
+                                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem;">Ukuran: 2.4 MB • Siap dibubuhi e-Meterai Peruri SHA-256</p>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Hash SHA-256 Otomatis (Tamper-Proof Verification)</label>
+                            <input type="text" class="form-input" readonly style="font-family: var(--font-mono); font-size: 0.8rem; background: var(--bg-base); color: var(--success);" value="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855">
+                        </div>
+                        <button class="btn btn-success" style="width: 100%;" onclick="runStampingSimulation()">⚡ BUBUHKAN e-METERAI PERURI & TERBITKAN →</button>
+                    </div>
+
+                    <div class="card" id="stamping-result-card" style="background: var(--bg-base);">
+                        <div class="card-title">🛡️ Status Sertifikasi Dokumen Hukum</div>
+                        <div id="stamping-status-box" style="padding: 1.5rem; background: var(--bg-surface); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 1.5rem;">
+                            <p style="font-size: 0.9rem; color: var(--text-muted); line-height: 1.6;">
+                                Klik tombol di sebelah kiri untuk menembakkan API `POST /api/v2/advocate/deliverable/stamp-emeterai` dan menyegel dokumen dengan stempel kriptografi resmi Peruri.
+                            </p>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem;">
+                            <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.75rem;">Prosedur Pelepasan Dana Escrow (`Release Gate`)</h4>
+                            <ol style="font-size: 0.85rem; line-height: 1.8; margin-left: 1.25rem; color: var(--text-main);">
+                                <li>Dokumen diterbitkan dan masuk ke portal Klien (`CL-06`).</li>
+                                <li>Klien memeriksa keaslian hash SHA-256 dan menyetujui hasil opini.</li>
+                                <li>Sistem mengeksekusi trigger `rls_escrow_release` dan memindahkan dana dari penampungan ke Dompet Advokat (`AD-06`).</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-06: DOMPET ADVOKAT & PENCAIRAN HONOR ==================== -->
+            <section id="AD-06" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">💰 AD-06: Dompet Digital Advokat & Ledger Pencairan Honor</h1>
+                        <p class="screen-desc">Kelola saldo honorarium bersih dari sesi konsultasi dan pencairan instan ke rekening bank melalui protokol BI-FAST berproteksi mutlak ACID Concurrency Row-Level Lock.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">🔒 SELECT ... FOR UPDATE MUTEX</span>
+                        <span class="badge-worm">📜 BI-FAST INSTANT SETTLEMENT</span>
+                    </div>
+                </div>
+
+                <div class="grid-3" style="margin-bottom: 2rem;">
+                    <div class="card" style="margin:0; background: linear-gradient(135deg, var(--bg-surface), #1e293b); border-color: var(--border-focus);">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">SALDO SIAP CAIR (AVAILABLE)</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--warning); margin-top: 0.5rem;">Rp 14.850.000</div>
+                        <div style="font-size: 0.8rem; color: var(--success); margin-top: 0.5rem;">● Tersedia untuk ditarik ke Mandiri</div>
+                    </div>
+                    <div class="card" style="margin:0;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">SALDO DALAM PENAMPUNGAN ESCROW</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">Rp 4.200.000</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">Menunggu konfirmasi deliverable klien</div>
+                    </div>
+                    <div class="card" style="margin:0;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted); font-weight: 700;">TOTAL HONORARIUM BULAN INI</div>
+                        <div style="font-size: 2rem; font-weight: 800; color: var(--success); margin-top: 0.5rem;">Rp 38.500.000</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.5rem;">▲ 24% dari bulan lalu</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋 Ledger Transaksi & Pencairan Dana Escrow WORM (`advocate_payout_logs`)</span>
+                        <button class="btn btn-success" onclick="showPayoutModal()">💸 AJUKAN PENCAIRAN BI-FAST SEKARANG →</button>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID Payout / Transaksi</th>
+                                    <th>Tanggal & Waktu</th>
+                                    <th>Keterangan Sesi / Perkara</th>
+                                    <th>Rekening Tujuan</th>
+                                    <th>Nominal Bersih</th>
+                                    <th>Status Mutex & BI-FAST</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">PYT-202607-8812</td>
+                                    <td>10 Juli 2026 • 16:45 WIB</td>
+                                    <td>Pencairan Honor Sesi REQ-202607-001 (PT Mitra Jaya)</td>
+                                    <td>MANDIRI • 122-00-987...</td>
+                                    <td style="font-weight: 700; color: var(--success);">Rp 4.500.000</td>
+                                    <td><span class="status-pill status-active">SETTLED BI-FAST (200 OK)</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">PYT-202607-8805</td>
+                                    <td>08 Juli 2026 • 14:20 WIB</td>
+                                    <td>Pencairan Honor Sesi REQ-202606-194 (Bpk. Rudi)</td>
+                                    <td>MANDIRI • 122-00-987...</td>
+                                    <td style="font-weight: 700; color: var(--success);">Rp 2.850.000</td>
+                                    <td><span class="status-pill status-active">SETTLED BI-FAST (200 OK)</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">ESC-202607-0039</td>
+                                    <td>09 Juli 2026 • 11:00 WIB</td>
+                                    <td>Sesi Tertahan REQ-202607-003 (Ibu Kartika)</td>
+                                    <td>Escrow Vault Holding</td>
+                                    <td style="font-weight: 700; color: var(--danger);">Rp 4.200.000</td>
+                                    <td><span class="status-pill status-frozen">ESCROW FROZEN (DISPUTE)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== AD-07: MANAJEMEN PRO BONO & LAPORAN ==================== -->
+            <section id="AD-07" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">⚖️ AD-07: Manajemen Kasus Pro Bono & Laporan Kepatuhan</h1>
+                        <p class="screen-desc">Pantau kontribusi jam pengabdian bantuan hukum cuma-cuma kepada masyarakat kurang mampu sesuai UU Advokat No. 18/2003 dan unduh sertifikat resmi untuk perpanjangan lisensi SIPP.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-worm">📜 UU ADVOKAT NO. 18 TAHUN 2003</span>
+                        <span class="badge-acid">🎯 TARGET 50 JAM / TAHUN</span>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-title">🌟 Pelacakan Jam Pengabdian Pro Bono Tahunan</div>
+                        <div style="padding: 1.5rem; background: var(--bg-base); border-radius: var(--radius); text-align: center; margin-bottom: 1.5rem;">
+                            <div style="font-size: 3rem; font-weight: 800; color: var(--success);">48 <span style="font-size: 1.25rem; font-weight: 600; color: var(--text-muted);">/ 50 Jam</span></div>
+                            <div style="font-size: 0.88rem; color: var(--text-main); font-weight: 700; margin-top: 0.5rem;">Status: MEMENUHI STANDAR KEPATUHAN PROFESI (96%)</div>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.4rem;">Sisa 2 jam pengabdian sebelum akhir tahun anggaran 2026.</p>
+                        </div>
+                        <div class="table-responsive">
+                            <table class="table" style="font-size: 0.82rem;">
+                                <thead>
+                                    <tr>
+                                        <th>ID Pro Bono</th>
+                                        <th>Nama Klien / LBH</th>
+                                        <th>Durasi & Sesi</th>
+                                        <th>Status WORM</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><b>PB-2026-018</b></td>
+                                        <td>Bpk. Sugeng (Kasus Ketenagakerjaan)</td>
+                                        <td>12 Jam (Pendampingan Mediasi)</td>
+                                        <td><span class="status-pill status-active">VERIFIED PERADI</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><b>PB-2026-012</b></td>
+                                        <td>Ibu Neneng (Sengketa Tanah Waris)</td>
+                                        <td>36 Jam (Penyusunan Eksepsi & Sidang)</td>
+                                        <td><span class="status-pill status-active">VERIFIED PERADI</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn" style="width: 100%;" onclick="alert('🎖️ Sertifikat Kepatuhan Pro Bono 2026 resmi diunduh (SHA-256 Validated). Siap dilampirkan untuk perpanjangan kartu SIPP PERADI/MA!')">⬇️ UNDUH SERTIFIKAT PRO BONO RESMI (.PDF) →</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="background: var(--bg-base);">
+                        <div class="card-title">📜 Dasar Hukum Wajib Pro Bono Advokat</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                            Platform <b>Justica</b> tidak hanya berfokus pada komersialisasi hukum, tetapi mengikat advokat pada sumpah mulia profesi:
+                        </p>
+                        <blockquote style="border-left: 3px solid var(--primary); padding-left: 1rem; font-style: italic; font-size: 0.85rem; color: var(--text-main); margin-bottom: 1.25rem;">
+                            "Advokat wajib memberikan bantuan hukum secara cuma-cuma kepada pencari keadilan yang tidak mampu."<br>
+                            — <b>Pasal 22 Ayat (1) UU No. 18 Tahun 2003 tentang Advokat</b>
+                        </blockquote>
+                        <div style="padding: 1rem; background: var(--bg-surface); border-radius: var(--radius); font-size: 0.82rem; color: var(--text-muted);">
+                            ✅ <b>Keuntungan Pencapaian 50 Jam:</b> Advokat dengan lencana Pro Bono berhak mendapatkan prioritas rekomendasi (*Boosted Rank*) di direktori Klien (`CL-02`) serta badge emas <b>Top Sovereign Advocate</b>.
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL ACID MUTEX LOCK FOR PAYOUT (AD-06) -->
+    <div class="modal-overlay" id="payout-modal">
+        <div class="modal-box">
+            <h3 style="font-size: 1.25rem; font-weight: 800; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                🔒 ACID Mutex Row-Level Lock • Pencairan BI-FAST
+            </h3>
+            <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.6; margin-bottom: 1.25rem;">
+                Untuk mencegah *Race Condition* atau *Double Withdrawal*, database PostgreSQL mengeksekusi penguncian baris eksklusif pada saldo Anda sebelum mentransfer via BI-FAST:
+            </p>
+            <div style="background: var(--bg-base); padding: 1rem; border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-accent); margin-bottom: 1.5rem; border: 1px solid var(--border-color);">
+                BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;<br>
+                <b>SELECT balance FROM advocate_wallets WHERE advocate_id = 'AD-101' FOR UPDATE;</b><br>
+                -- Verifikasi saldo bersih: Rp 14.850.000<br>
+                UPDATE advocate_wallets SET balance = balance - 14850000;<br>
+                INSERT INTO audit_logs_worm (action, hash) VALUES ('BI_FAST_PAYOUT_Rp14850000', 'SHA256:7f8a91...');<br>
+                COMMIT;
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn btn-outline" onclick="hidePayoutModal()">Batal</button>
+                <button class="btn btn-success" onclick="executePayoutSimulation()">⚡ EKSEKUSI PENCAIRAN KE MANDIRI →</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // NAVIGATION & SCREEN SWITCHING
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.getAttribute('onclick').includes(screenId)) {
+                    item.classList.add('active');
+                }
+            });
+            window.scrollTo(0, 0);
+        }
+
+        // STYLE SWITCHER
+        function setStyle(styleName) {
+            document.documentElement.setAttribute('data-style', styleName);
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // SIMULATION: SIPP MA SYNC (AD-01B)
+        function runSIPPSyncSimulation() {
+            const box = document.getElementById('sipp-status-box');
+            box.style.background = 'rgba(59, 130, 246, 0.1)';
+            box.style.borderColor = 'var(--border-focus)';
+            box.innerHTML = `<p style="color:var(--text-accent); font-weight:700;">🔄 Menghubungi API SIPP Mahkamah Agung RI (https://sipp.mahkamahagung.go.id/api/verify)...</p>`;
+
+            setTimeout(() => {
+                box.style.background = 'rgba(16, 185, 129, 0.1)';
+                box.style.borderColor = 'var(--success)';
+                box.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span style="font-weight: 800; color: var(--success); font-size: 1.1rem;">✅ ACTIVE SIPP VERIFIED (SYNC BERHASIL)</span>
+                        <span class="status-pill status-active">HTTP 200 OK • LATENCY 18ms</span>
+                    </div>
+                    <p style="font-size: 0.88rem; line-height: 1.6;">
+                        Lisensi atas nama <b>Dr. Mahendra Kusuma, S.H., M.H.</b> (NIA: 18293/PERADI/2015) terkonfirmasi AKTIF dan SAH dalam database Mahkamah Agung RI. Status PostgreSQL RLS diubah menjadi <code>VERIFIED_ACTIVE</code>.
+                    </p>
+                `;
+            }, 1200);
+        }
+
+        // SIMULATION: E2EE CHAT (AD-04)
+        function sendAdChat() {
+            const input = document.getElementById('ad-chat-input');
+            const container = document.getElementById('ad-chat-messages');
+            if (!input.value.trim()) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'message msg-advocate';
+            userDiv.innerHTML = `<b style="font-size: 0.75rem; color: #cbd5e1; display: block; margin-bottom: 0.2rem;">Anda (Dr. Mahendra Kusuma):</b>` + input.value;
+            container.appendChild(userDiv);
+            input.value = '';
+            container.scrollTop = container.scrollHeight;
+
+            setTimeout(() => {
+                const replyDiv = document.createElement('div');
+                replyDiv.className = 'message msg-client';
+                replyDiv.innerHTML = `<b style="font-size: 0.75rem; color: var(--text-accent); display: block; margin-bottom: 0.2rem;">PT Mitra Jaya (Klien):</b>Baik Pak, terima kasih banyak atas arahan hukumnya. Kami sangat mengapresiasi kejelasan penjelasan Anda dan akan segera memeriksa opini hukum yang diterbitkan.`;
+                container.appendChild(replyDiv);
+                container.scrollTop = container.scrollHeight;
+            }, 1300);
+        }
+
+        // SIMULATION: PERURI STAMPING (AD-05)
+        function runStampingSimulation() {
+            const box = document.getElementById('stamping-status-box');
+            box.innerHTML = `<p style="color:var(--warning); font-weight:700;">⚡ Membubuhi e-Meterai Peruri SHA-256 dan mencatat ke WORM Ledger...</p>`;
+
+            setTimeout(() => {
+                box.style.background = 'rgba(16, 185, 129, 0.1)';
+                box.style.borderColor = 'var(--success)';
+                box.innerHTML = `
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.75rem;">
+                        <span style="font-weight: 800; color: var(--success); font-size: 1.1rem;">✅ e-METERAI PERURI BERHASIL DIBUBUHKAN</span>
+                        <span class="status-pill status-active">SHA-256 SEALED</span>
+                    </div>
+                    <p style="font-size: 0.88rem; line-height: 1.6;">
+                        Opini Hukum <b>Legal_Opinion_PT_Mitra_Jaya_vFinal.pdf</b> resmi teraudit dan dikirimkan ke portal Klien (CL-06). Siap memicu pencairan Escrow setelah konfirmasi kepuasan klien.
+                    </p>
+                `;
+            }, 1400);
+        }
+
+        // MODAL HANDLERS FOR PAYOUT (AD-06)
+        function showPayoutModal() { document.getElementById('payout-modal').classList.add('active'); }
+        function hidePayoutModal() { document.getElementById('payout-modal').classList.remove('active'); }
+        function executePayoutSimulation() {
+            hidePayoutModal();
+            alert('🎉 PENCAIRAN BERHASIL!\n\nDana bersih sebesar Rp 14.850.000 telah ditransfer ke Bank Mandiri 122-00-9876543-2 a.n. Dr. Mahendra Kusuma melalui jaringan BI-FAST dalam 3 detik.\n\nJejak audit dicatat di WORM Vault.');
+            switchScreen('AD-06');
+        }
+    </script>
+</body>
+</html>
