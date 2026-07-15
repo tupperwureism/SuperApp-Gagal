@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Portal Advokat: Login, KYC SIPP & Command Center (Batch 2.1)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-portal-switch {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-portal-switch:hover { background: var(--purple); color: #fff; }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ==================== SCREEN 1: ADVOCATE LOGIN (MOCK-J-AD-01) ==================== */
+        .login-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3.5rem;
+            max-width: 680px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.9rem 1.15rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            font-family: var(--font-sans);
+        }
+
+        .form-input:focus { outline: none; border-color: var(--border-focus); }
+        .form-input.mono { font-family: var(--font-mono); }
+
+        .btn-main-action {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1.1rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-main-action:hover { background: var(--primary-hover); }
+
+        /* ==================== SCREEN 2: KYC & SIPP SYNC (MOCK-J-AD-01B) ==================== */
+        .kyc-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 940px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin: 2rem 0 1rem 0;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .upload-card {
+            background: var(--bg-base);
+            border: 2px dashed var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem 1.5rem;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .upload-card:hover { border-color: var(--border-focus); background: rgba(59, 130, 246, 0.05); }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0 2rem 0;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.92rem;
+            vertical-align: middle;
+        }
+
+        /* ==================== SCREEN 3: COMMAND CENTER (MOCK-J-AD-02A) ==================== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin: 2.25rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.65rem;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::top {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.45rem;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.35rem 0.8rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+
+        .badge-ready { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .badge-draft { background: rgba(59, 130, 246, 0.15); color: var(--text-accent); border: 1px solid var(--primary); }
+        .badge-frozen { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+
+        .btn-table-action {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-table-action:hover { border-color: var(--border-focus); background: var(--bg-card-hover); }
+
+        .withdrawal-banner {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 2.25rem;
+            margin-top: 2.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('AD-01')">
+            <span>⚖️ JUSTICA</span>
+            <span class="brand-subtitle">Portal Advokat: Login, KYC SIPP & Command Center (Batch 2.1)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" id="nav-btn-ad01" onclick="switchScreen('AD-01')">1. Login (`AD-01`)</button>
+                <button class="nav-tab-btn" id="nav-btn-ad01b" onclick="switchScreen('AD-01B')">2. KYC & Lisensi (`AD-01B`)</button>
+                <button class="nav-tab-btn" id="nav-btn-ad02a" onclick="switchScreen('AD-02A')">3. Dasbor (`AD-02A`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a class="btn-portal-switch" href="JUSTICA_Proto_1.3_Client_Checkout_Escrow.html">
+                <span>👤 Portal Klien (`CL-02A`)</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: ADVOCATE LOGIN (MOCK-J-AD-01) ==================== -->
+    <section id="AD-01" class="screen-pane active">
+        <div class="container">
+            <div class="login-box">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <span style="background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.35rem 1rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🔒 Akses Terproteksi KMS & E2EE</span>
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.15rem; font-weight: 800; color: var(--text-main); margin-top: 0.75rem;">=== AUTENTIKASI KEAMANAN TINGGI ADVOKAT (`AD-01`)</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem;">Khusus bagi Advokat tersumpah yang terdaftar resmi pada Sistem Informasi Penelusuran Perkara (SIPP) Mahkamah Agung.</p>
+                </div>
+
+                <!-- FORM GROUPS (Exact mapping lines 27-36) -->
+                <div class="form-group">
+                    <label class="form-label">Nomor Induk Advokat (NIA / SIPP Mahkamah Agung):</label>
+                    <input type="text" class="form-input mono" value="18293/PERADI/2015">
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Alamat Email Profesional (Domain Kantor Hukum):</label>
+                    <input type="email" class="form-input mono" value="mahendra.k@lawfirm.id">
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+                    <div class="form-group">
+                        <label class="form-label">Kata Sandi Keamanan KMS:</label>
+                        <input type="password" class="form-input mono" value="••••••••••••••••••••••••">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kode MFA (6-Digit OTP Auth):</label>
+                        <input type="text" class="form-input mono" value="4  8  1  9  0  2" style="text-align:center; letter-spacing:3px; font-weight:800; color:var(--text-accent);">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">PIN e-Meterai Peruri KMS (6-Digit Penandatanganan):</label>
+                    <input type="password" class="form-input mono" value="••••••" style="letter-spacing:5px;">
+                </div>
+
+                <label style="display:flex; align-items:center; gap:0.65rem; font-size:0.88rem; color:var(--text-main); font-weight:700; cursor:pointer; margin-top:1.25rem;">
+                    <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                    <span>Sesi Kerja Enkripsi E2EE Terproteksi (Hardware-bound Session Token TLS 1.3)</span>
+                </label>
+
+                <button class="btn-main-action" onclick="executeAdvocateLogin()">
+                    <span>🛡️ MASUK KE COMMAND CENTER ADVOKAT (`AD-02A`)</span>
+                </button>
+
+                <div style="display:flex; justify-content:space-between; margin-top:1.5rem; font-size:0.88rem;">
+                    <a href="#" style="color:var(--text-muted); text-decoration:none;" onclick="alert('Panduan pemulihan PIN KMS telah dikirimkan ke email terdaftar Anda')">Lupa PIN KMS / Kredensial?</a>
+                    <a href="#" style="color:var.(--text-accent); font-weight:700; text-decoration:none;" onclick="switchScreen('AD-01B')">Belum verifikasi SIPP? Sinkronisasi KYC (`AD-01B`) →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: KYC & SIPP SYNC (MOCK-J-AD-01B) ==================== -->
+    <section id="AD-01B" class="screen-pane">
+        <div class="container">
+            <div class="kyc-box">
+                <div style="text-align: center; margin-bottom: 2rem;">
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main);">=== VERIFIKASI IDENTITAS & SINKRONISASI LISENSI SIPP (`AD-01B`)</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Langkah wajib untuk memastikan seluruh advokat yang berpraktik di platform Justica berlisensi aktif dan sah.</p>
+                </div>
+
+                <!-- SECTION 1 (Exact mapping lines 27-32) -->
+                <div class="section-header">1. DATA IDENTITAS & KREDENSIAL ADVOKAT RESMI</div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                    <div class="form-group">
+                        <label class="form-label">Nomor Induk Kependudukan (NIK KTP):</label>
+                        <input type="text" class="form-input mono" value="3171234567890001">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor SIPP Mahkamah Agung RI:</label>
+                        <input type="text" class="form-input mono" value="18293/PERADI/2015">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Organisasi Advokat Menaungi:</label>
+                        <input type="text" class="form-input font-bold" value="PERADI (Perhimpunan Advokat Indonesia)" style="color:var(--text-accent); font-weight:800;">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor Rekening Bank Pencairan Honor Escrow:</label>
+                        <input type="text" class="form-input mono" value="123-00-9876543-2 (Bank Mandiri)">
+                    </div>
+                </div>
+
+                <!-- SECTION 2 (Exact mapping lines 34-36) -->
+                <div class="section-header">2. UNGGAH DOKUMEN LEGALITAS FISIK TERVERIFIKASI</div>
+                <div class="upload-grid">
+                    <div class="upload-card" onclick="alert('Kartu Anggota PERADI.jpg (3.2 MB) berhasil dilampirkan')">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">🪪</div>
+                        <b style="color:var(--text-main);">Foto Kartu Anggota Organisasi Advokat</b>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">[ Pilih Berkas JPG/PDF (Max 10MB)... ]</div>
+                    </div>
+                    <div class="upload-card" onclick="alert('BAS_Pengadilan_Tinggi_DKI.pdf (4.8 MB) berhasil dilampirkan')">
+                        <div style="font-size:2rem; margin-bottom:0.5rem;">📜</div>
+                        <b style="color:var(--text-main);">Foto Berita Acara Sumpah Advokat (BAS PT)</b>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">[ Pilih Berkas JPG/PDF (Max 10MB)... ]</div>
+                    </div>
+                </div>
+
+                <button class="btn-main-action" style="background:var(--purple); margin-bottom:2rem;" onclick="triggerSIPPCheck()">
+                    <span>🔄 SINKRONISASIKAN SECARA REAL-TIME KE API MAHKAMAH AGUNG</span>
+                </button>
+
+                <!-- SECTION 3 (Exact mapping lines 42-50) -->
+                <div id="sipp-result-zone" style="display:none; background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:2rem; margin-top:2rem;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">HASIL SINKRONISASI PANGKALAN DATA API MAHKAMAH AGUNG RI:</h3>
+                    
+                    <table class="table-custom" style="margin:0;">
+                        <thead>
+                            <tr>
+                                <th>PARAMETER PEMERIKSAAN</th>
+                                <th>STATUS PANGKALAN DATA MA RI</th>
+                                <th style="text-align:right;">HASIL KEPATUHAN JUSTICA</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b style="color:var(--text-main);">Status Lisensi SIPP</b></td>
+                                <td style="font-weight:800; color:var(--text-main);">AKTIF & BERLAKU HINGGA 2028</td>
+                                <td style="text-align:right;">
+                                    <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.85rem; border-radius:6px; font-weight:800; font-size:0.78rem;">VERIFIED ACTIVE</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b style="color:var(--text-main);">Kesesuaian Nama Advokat</b></td>
+                                <td style="font-family:var(--font-mono);">Dr. Mahendra Kusuma, S.H., M.H.</td>
+                                <td style="text-align:right;">
+                                    <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.85rem; border-radius:6px; font-weight:800; font-size:0.78rem;">MATCH 100%</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b style="color:var(--text-main);">Catatan Pelanggaran Etik MA</b></td>
+                                <td>TIDAK ADA CATATAN PELANGGARAN</td>
+                                <td style="text-align:right;">
+                                    <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.85rem; border-radius:6px; font-weight:800; font-size:0.78rem;">CLEAN RECORD</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- FINAL ACTION (Exact mapping line 53) -->
+                    <button class="btn-main-action" style="background:var(--success); margin-top:2rem;" onclick="completeOnboarding()">
+                        <span>✅ SELESAIKAN ONBOARDING & MASUK KE COMMAND CENTER (`AD-02A`)</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: COMMAND CENTER (MOCK-J-AD-02A) ==================== -->
+    <section id="AD-02A" class="screen-pane">
+        <div class="container">
+            <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:calc(var(--radius) + 4px); padding:3rem; box-shadow:var(--shadow);">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border-color); padding-bottom:1.5rem; margin-bottom:2rem; flex-wrap:wrap; gap:1.5rem;">
+                    <div>
+                        <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">⚡ Fair-Clock SLA Monitor Active</span>
+                        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin-top: 0.65rem;">=== COMMAND CENTER: DR. MAHENDRA KUSUMA (`AD-02A`)</h1>
+                        <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Selamat datang! Seluruh aktivitas sesi konsultasi & penyusunan deliverable Anda diawasi secara real-time oleh Fair-Clock SLA Monitor.</p>
+                    </div>
+                    <div style="display:flex; gap:0.75rem;">
+                        <button class="btn-table-action" style="background:var(--primary); color:#fff; border:none;" onclick="alert('📅 MEMBUKA PENGATURAN JADWAL SLOT (`AD-03`)\n\nAnda dapat menambah atau menutup slot jam konsultasi online/offline Anda.')">+ Atur Jadwal Slot (`AD-03`)</button>
+                        <button class="btn-table-action" onclick="alert('💼 MEMBUKA LAPORAN PRO BONO (`AD-07`)\n\nLihat rekapitulasi 4 perkara Pro Bono SKTM yang telah Anda kerjakan bulan ini.')">Laporan Pro Bono (`AD-07`)</button>
+                    </div>
+                </div>
+
+                <!-- STATS GRID (Exact mapping lines 27-30) -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">STATUS VERIFIKASI MA</div>
+                        <div class="stat-value" style="color:var(--success); font-size:1.35rem; margin-top:0.65rem;">ACTIVE SIPP VERIFIED</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">SLA RESPONS E2EE</div>
+                        <div class="stat-value" style="color:var(--text-accent);">99.4% <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">(&lt; 2 Menit)</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">PERKARA SELESAI</div>
+                        <div class="stat-value" style="color:var(--text-main);">318 <span style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Perkara</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">SALDO ESCROW SIAP CAIR</div>
+                        <div class="stat-value" style="color:var(--success);">Rp 14.850.000</div>
+                    </div>
+                </div>
+
+                <!-- TABLE ACTIVE CASES (Exact mapping lines 34-41) -->
+                <div style="margin-top:3rem;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">DAFTAR PERKARA HUKUM AKTIF & JADWAL KONSULTASI HARI INI</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Pantau status hitung mundur Fair-Clock SLA dan berikan respons hukum tepat waktu kepada klien.</p>
+
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>ID PERKARA</th>
+                                <th>NAMA KLIEN</th>
+                                <th>LAYANAN & TIER</th>
+                                <th>JADWAL / BATAS WAKTU</th>
+                                <th>STATUS FAIR-CLOCK SLA</th>
+                                <th style="text-align:center;">AKSI LANGSUNG</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- ROW 1 -->
+                            <tr>
+                                <td><b style="font-family:var(--font-mono); color:var(--text-main);">REQ-202607-001</b></td>
+                                <td><b>PT Mitra Jaya (Klien)</b></td>
+                                <td>Tier 2 (E2EE 45m)</td>
+                                <td style="font-family:var(--font-mono);">10:30 - 11:15 WIB</td>
+                                <td><span class="badge-status badge-ready">READY (SLA OK)</span></td>
+                                <td style="text-align:center;">
+                                    <button class="btn-table-action" style="background:var(--primary); color:#fff; border:none;" onclick="alert('💬 MASUK RUANG KONSULTASI ADVOKAT (`AD-04`)\n\nMembuka sesi E2EE dengan PT Mitra Jaya. Tombol JEDA SESI (PAUSE CLOCK) tersedia di dalam ruang obrolan advokat.')">MASUK RUANG CHAT</button>
+                                </td>
+                            </tr>
+                            <!-- ROW 2 -->
+                            <tr>
+                                <td><b style="font-family:var(--font-mono); color:var(--text-main);">REQ-202607-002</b></td>
+                                <td><b>Bpk. Hendra S.</b></td>
+                                <td>Tier 3 (Drafting)</td>
+                                <td style="font-family:var(--font-mono);">Deadline: 11 Juli 2026</td>
+                                <td><span class="badge-status badge-draft">DRAFTING IN PROGRESS</span></td>
+                                <td style="text-align:center;">
+                                    <button class="btn-table-action" onclick="alert('📜 MEMBUKA RUANG PENERBITAN DELIVERABLE (`AD-05`)\n\nUnggah draf Pendapat Hukum dan bubuhkan tanda tangan SHA-256 serta e-Meterai Peruri untuk Bpk. Hendra S.')">UNGGAH DELIVERABLE</button>
+                                </td>
+                            </tr>
+                            <!-- ROW 3 -->
+                            <tr>
+                                <td><b style="font-family:var(--font-mono); color:var(--text-main);">REQ-202607-003</b></td>
+                                <td><b>Ibu Kartika</b></td>
+                                <td>Tier 2 (E2EE 45m)</td>
+                                <td style="font-family:var(--font-mono);">09 Juli 2026</td>
+                                <td><span class="badge-status badge-frozen">ESCROW FROZEN (DISPUTE)</span></td>
+                                <td style="text-align:center;">
+                                    <button class="btn-table-action" style="color:var(--danger); border-color:var(--danger);" onclick="alert('⚖️ LIHAT PROSES MEDIASI & REKAM JEJAK (`ADM-02 / CL-09`)\n\nPerkara ini sedang dalam peninjauan Dewan Kepatuhan karena laporan keterlambatan tanggapan.')">LIHAT MEDIASI</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- WITHDRAWAL BANNER (Exact mapping lines 44-46) -->
+                <div class="withdrawal-banner">
+                    <div>
+                        <span style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">PENCAIRAN SALDO ESCROW TERVERIFIKASI KE REKENING BANK MANDIRI:</span>
+                        <div style="font-family:'Outfit', sans-serif; font-size:1.65rem; font-weight:800; color:var(--text-main); margin-top:0.35rem;">Total Saldo Bersih Siap Cair: <span style="color:var(--success);">Rp 14.850.000</span></div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.25rem;">Telah dipotong PPh Pasal 21 dan Biaya Proteksi Escrow sesuai regulasi perpajakan.</div>
+                    </div>
+                    <div style="display:flex; gap:1rem; align-items:center;">
+                        <button class="btn-table-action" style="background:transparent; border-color:var(--border-color); color:var(--text-main); padding:0.9rem 1.4rem;" onclick="alert('📥 MENGUNDUH BUKTI POTONG PAJAK PPh 21\n\nLaporan audit resmi tahun pajak 2026 telah diunduh dalam format PDF ber-eMeterai.')">Unduh Laporan Audit Pajak PPh 21</button>
+                        <button class="btn-main-action" style="background:var(--success); margin-top:0; padding:0.9rem 1.75rem;" onclick="executeWithdrawal()">
+                            <span>💸 TARIK SALDO (Rp 14.850.000) VIA BI-FAST (`AD-06`)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // TAB SWITCHER
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'AD-01') document.getElementById('nav-btn-ad01').classList.add('active');
+            if (screenId === 'AD-01B') document.getElementById('nav-btn-ad01b').classList.add('active');
+            if (screenId === 'AD-02A') document.getElementById('nav-btn-ad02a').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function executeAdvocateLogin() {
+            alert('🛡️ AUTENTIKASI ADVOKAT BERHASIL (`MOCK-J-AD-01` -> `AD-02A`)\n\nToken perangkat Hardware-bound TLS 1.3 diverifikasi.\nLisensi NIA 18293/PERADI/2015 terdaftar aktif di Mahkamah Agung.\n\nMengarahkan ke Advocate Command Center (`AD-02A`).');
+            switchScreen('AD-02A');
+        }
+
+        function triggerSIPPCheck() {
+            alert('🔄 SINKRONISASI API MAHKAMAH AGUNG BERHASIL (`MOCK-J-AD-01B`)\n\nNomor SIPP 18293/PERADI/2015 ditemukan dalam Pangkalan Data Resmi MA RI.\nStatus Lisensi: AKTIF & BERLAKU HINGGA 2028.\n\nSilakan periksa tabel hasil kepatuhan di bawah.');
+            const zone = document.getElementById('sipp-result-zone');
+            if (zone) {
+                zone.style.display = 'block';
+                zone.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function completeOnboarding() {
+            alert('🎉 ONBOARDING KYC ADVOKAT SELESAI (`MOCK-J-AD-01B` -> `AD-02A`)\n\nAkun Anda telah terverifikasi 100% dan berhak menerima penugasan konsultasi serta penerbitan dokumen e-Meterai.\n\nMengarahkan ke Advocate Command Center (`AD-02A`).');
+            switchScreen('AD-02A');
+        }
+
+        function executeWithdrawal() {
+            alert('💸 PENCAIRAN SALDO ESCROW BERHASIL (`AD-02A` -> `AD-06`)\n\nDana sebesar Rp 14.850.000 telah ditransfer via BI-FAST secara instan ke rekening Bank Mandiri 123-00-9876543-2 atas nama Dr. Mahendra Kusuma, S.H., M.H.\n\nResi pencairan resmi tercatat di dalam audit WORM Vault.');
+        }
+    </script>
+</body>
+</html>
