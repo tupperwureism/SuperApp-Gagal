@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA ADMIN BACKOFFICE — High-Fidelity Interactive Prototype (Batch 3)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Default Style 2: Corporate Slate UI (Dark Mode) */
+            --bg-base: #090d16;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        /* STYLE 1: Executive Neo-Brutalism */
+        [data-style="style-1"] {
+            --radius: 0px;
+            --font-sans: 'Outfit', sans-serif;
+            --shadow: 6px 6px 0px #3b82f6;
+            --border-color: #3b82f6;
+        }
+        [data-style="style-1"][data-theme="dark"] {
+            --bg-base: #050505;
+            --bg-surface: #121212;
+            --bg-card: #1a1a1a;
+            --border-color: #3b82f6;
+        }
+
+        /* STYLE 3: Legal Sovereign Editorial */
+        [data-style="style-3"] {
+            --radius: 8px;
+            --font-sans: 'Georgia', serif;
+        }
+        [data-style="style-3"][data-theme="dark"] {
+            --bg-base: #0f1115;
+            --bg-surface: #181b20;
+            --bg-card: #22262e;
+            --border-color: #d4af37;
+            --text-accent: #f3e5ab;
+            --primary: #b8860b;
+            --primary-hover: #996515;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* TOP NAVIGATION & CONTROLS */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+        }
+
+        .brand-badge {
+            background: linear-gradient(135deg, var(--danger), var(--purple));
+            color: #fff;
+            font-size: 0.65rem;
+            font-family: var(--font-mono);
+            padding: 0.25rem 0.6rem;
+            border-radius: 999px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .style-selector {
+            display: flex;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.25rem;
+            gap: 0.25rem;
+        }
+
+        .style-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            padding: 0.4rem 0.8rem;
+            font-size: 0.75rem;
+            font-weight: 600;
+            cursor: pointer;
+            border-radius: calc(var(--radius) - 4px);
+        }
+
+        .style-btn.active {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* MAIN LAYOUT */
+        .app-container {
+            display: flex;
+            flex: 1;
+        }
+
+        .sidebar {
+            width: 320px;
+            background-color: var(--bg-surface);
+            border-right: 1px solid var(--border-color);
+            padding: 1.5rem 1rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 0.5rem 0.75rem;
+            margin-top: 1rem;
+        }
+
+        .sidebar-header:first-child {
+            margin-top: 0;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0.85rem 1rem;
+            border-radius: var(--radius);
+            color: var(--text-muted);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            border: 1px solid transparent;
+        }
+
+        .nav-item:hover {
+            background-color: var(--bg-card-hover);
+            color: var(--text-main);
+        }
+
+        .nav-item.active {
+            background-color: var(--bg-card);
+            color: var(--text-accent);
+            border-color: var(--border-focus);
+        }
+
+        .nav-tag {
+            font-family: var(--font-mono);
+            font-size: 0.68rem;
+            padding: 0.15rem 0.45rem;
+            border-radius: 4px;
+            background: var(--bg-base);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+        }
+
+        .nav-item.active .nav-tag {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        .admin-status-box {
+            margin-top: auto;
+            padding: 1rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            font-size: 0.8rem;
+        }
+
+        .main-content {
+            flex: 1;
+            padding: 2.5rem;
+            max-width: 1350px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .screen-pane {
+            display: none;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ARCHITECTURAL HEADER & ALERTS */
+        .screen-header {
+            margin-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .screen-title {
+            font-size: 1.75rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .screen-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            max-width: 780px;
+            line-height: 1.6;
+        }
+
+        .screen-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 0.4rem;
+        }
+
+        .badge-acid {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-worm {
+            background: rgba(139, 92, 246, 0.15);
+            color: var(--purple);
+            border: 1px solid var(--purple);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        .badge-zk {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+
+        /* CARDS & GRIDS */
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; }
+        .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; }
+
+        .card {
+            background-color: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* FORMS & INPUTS */
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            background-color: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1rem;
+            border-radius: var(--radius);
+            font-family: inherit;
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus, .form-select:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            text-decoration: none;
+        }
+
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-success { background-color: var(--success); }
+        .btn-success:hover { background-color: #059669; }
+        .btn-warning { background-color: var(--warning); color: #000; }
+        .btn-danger { background-color: var(--danger); color: #fff; }
+        .btn-danger:hover { background-color: #dc2626; }
+        .btn-outline { background-color: transparent; border: 1px solid var(--border-color); color: var(--text-main); }
+        .btn-outline:hover { background-color: var(--bg-card); }
+
+        /* TABLES */
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+
+        .table th, .table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table th {
+            background-color: var(--bg-base);
+            color: var(--text-muted);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        .table tbody tr:hover {
+            background-color: var(--bg-card);
+        }
+
+        /* STATUS BADGES */
+        .status-pill {
+            padding: 0.25rem 0.65rem;
+            border-radius: 999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .status-active { background: rgba(16, 185, 129, 0.2); color: var(--success); border: 1px solid var(--success); }
+        .status-pending { background: rgba(245, 158, 11, 0.2); color: var(--warning); border: 1px solid var(--warning); }
+        .status-frozen { background: rgba(239, 68, 68, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(6px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.25s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            width: 100%;
+            max-width: 700px;
+            padding: 2.25rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.75);
+            transform: scale(0.95);
+            transition: transform 0.25s ease;
+        }
+
+        .modal-overlay.active .modal-box {
+            transform: scale(1);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo">
+            <span>⚖️ JUSTICA ADMIN BACKOFFICE</span>
+            <span class="brand-badge">BATCH 3 : COMPLIANCE & DISPUTE RESOLUTION PORTAL</span>
+        </div>
+        <div class="controls-group">
+            <div class="style-selector">
+                <button class="style-btn" onclick="setStyle('style-1')">Style 1: Brutalism</button>
+                <button class="style-btn active" onclick="setStyle('style-2')">Style 2: Corporate Slate</button>
+                <button class="style-btn" onclick="setStyle('style-3')">Style 3: Legal Sovereign</button>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <div class="app-container">
+        <!-- SIDEBAR NAVIGATION (ADM-01 TO ADM-02) -->
+        <nav class="sidebar">
+            <div class="sidebar-header">Pengawasan & Audit Trail</div>
+            <a class="nav-item active" onclick="switchScreen('ADM-01')">
+                <span>🛡️ Kepatuhan SLA & Audit WORM</span>
+                <span class="nav-tag">ADM-01</span>
+            </a>
+
+            <div class="sidebar-header">Mediasi & Sengketa Escrow</div>
+            <a class="nav-item" onclick="switchScreen('ADM-02')">
+                <span>⚖️ Pusat Mediasi & Whistleblowing</span>
+                <span class="nav-tag">ADM-02</span>
+            </a>
+
+            <div class="admin-status-box">
+                <div style="font-weight: 800; font-size: 0.85rem; color: var(--text-main); margin-bottom: 0.4rem; display: flex; align-items: center; justify-content: space-between;">
+                    <span>👤 ADMIN: FIDO2 VERIFIED</span>
+                    <span style="color: var(--success);">● LIVE</span>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.75rem; line-height: 1.5;">
+                    Sesi Anda diawasi oleh <b>Strict Zero-Knowledge Guard</b>. Akses terhadap teks & audio percakapan E2EE diblokir secara mutlak pada level *kernel proxy*.
+                </p>
+                <div style="margin-top: 0.75rem; padding-top: 0.75rem; border-top: 1px solid var(--border-color); font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-accent);">
+                    ROLE: COMPLIANCE & MEDIATION BOARD<br>
+                    CONSENSUS KEY: ACTIVE (3-of-5 THRESHOLD)
+                </div>
+            </div>
+        </nav>
+
+        <!-- MAIN CONTENT PANES -->
+        <main class="main-content">
+
+            <!-- ==================== ADM-01: PORTAL KEPATUHAN SLA & AUDIT WORM ==================== -->
+            <section id="ADM-01" class="screen-pane active">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">🛡️ ADM-01: Command Center Kepatuhan SLA & Audit Trail WORM</h1>
+                        <p class="screen-desc">Pusat pemantauan sistemik berdasarkan metadata sesi dan catatan log *WORM Immutable Vault*. Administrator tidak memiliki kunci dekripsi percakapan E2EE (Strict Zero-Knowledge Guard).</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-zk">🚫 ZERO-KNOWLEDGE ENFORCED</span>
+                        <span class="badge-worm">📜 WORM SHA-256 IMMUTABLE</span>
+                    </div>
+                </div>
+
+                <!-- 3 SYSTEM METRIC CARDS -->
+                <div class="grid-3" style="margin-bottom: 2rem;">
+                    <div class="card" style="margin:0; border-top: 4px solid var(--success);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">STATISTIK SLA & KEPATUHAN HARIAN</div>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">142 Sesi E2EE / Dual QR</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.82rem;">
+                            <span>Kepatuhan SLA (&lt;5m):</span>
+                            <span style="color: var(--success); font-weight: 700;">98.4% On-Time</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem; font-size: 0.82rem;">
+                            <span>AFK Auto-Refund:</span>
+                            <span style="color: var(--warning); font-weight: 700;">2 Kejadian Triggered</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin:0; border-top: 4px solid var(--purple);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">STATUS INTEGRASI KMS & PERURI</div>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">AES-GCM-256 KMS VAULT</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.82rem;">
+                            <span>KMS Key Rotation:</span>
+                            <span style="color: var(--success); font-weight: 700;">HEALTHY (AES-256)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem; font-size: 0.82rem;">
+                            <span>Peruri e-Meterai API:</span>
+                            <span style="color: var(--success); font-weight: 700;">SYNCED (API v2.4)</span>
+                        </div>
+                    </div>
+
+                    <div class="card" style="margin:0; border-top: 4px solid var(--danger);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">PRIVACY ENFORCEMENT GUARD</div>
+                        <div style="font-size: 1.35rem; font-weight: 800; color: var(--danger); margin-top: 0.5rem;">METADATA-ONLY ACCESS</div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; font-size: 0.82rem;">
+                            <span>Zero-Knowledge Guard:</span>
+                            <span style="color: var(--text-accent); font-weight: 700;">ENFORCED (No Key Access)</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.35rem; font-size: 0.82rem;">
+                            <span>DLP Inline Filter:</span>
+                            <span style="color: var(--success); font-weight: 700;">ACTIVE (PKS Protected)</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📜 WORM Immutable Audit Ledger Inspection (`audit_logs_worm`)</span>
+                        <div style="display: flex; gap: 0.75rem;">
+                            <input type="text" class="form-input" style="width: 250px; padding: 0.4rem 0.8rem; font-size: 0.82rem;" placeholder="🔍 Filter Event ID / SHA-256 Hash...">
+                            <button class="btn btn-success" style="padding: 0.4rem 0.8rem; font-size: 0.82rem;" onclick="runReportExportSimulation()">⬇️ EKSPORT LAPORAN AUDIT CRYPTOGRAPHIC SIGNED</button>
+                        </div>
+                    </div>
+                    <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                        Semua perubahan status (Check-in, SLA AFK Trigger, Stamping e-Meterai, dan Payout Escrow) dicatat secara <i>Write-Once-Read-Many</i>. Setiap baris dilindungi hash kriptografi SHA-256 berantai sehingga mustahil dimanipulasi bahkan oleh Administrator super sekalipun.
+                    </p>
+                    <div class="table-responsive">
+                        <table class="table" style="font-size: 0.85rem;">
+                            <thead>
+                                <tr>
+                                    <th>Timestamp UTC</th>
+                                    <th>Event ID</th>
+                                    <th>Aktor & Peran</th>
+                                    <th>Tindakan Sistemik / Metadata</th>
+                                    <th>Hash SHA-256 Validasi (Tamper-Proof)</th>
+                                    <th>Status Audit WORM</th>
+                                </tr>
+                            </thead>
+                            <tbody id="worm-table-body">
+                                <tr>
+                                    <td style="font-family: var(--font-mono);">2026-07-15 08:14:02</td>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">#AUD-8825</td>
+                                    <td><b>Dr. Mahendra Kusuma</b> (Advokat)</td>
+                                    <td>Sync & Verifikasi SIPP Mahkamah Agung RI (RLS updated to <code>VERIFIED_ACTIVE</code>)</td>
+                                    <td style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">`e3b0c44298fc1c149afbf4c8996fb924...`</td>
+                                    <td><span class="status-pill status-active">VERIFIED (INTEGRITY OK)</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono);">2026-07-15 08:12:45</td>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">#AUD-8820</td>
+                                    <td><b>Peruri KMS Service</b> (System Engine)</td>
+                                    <td>Pembubuhan e-Meterai SHA-256 pada Dokumen Opini Hukum (`#DLV-441`)</td>
+                                    <td style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">`7c4a8d09ca3762af6147d33d4bb7e2d...`</td>
+                                    <td><span class="status-pill status-active">VERIFIED (INTEGRITY OK)</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono);">2026-07-15 08:08:19</td>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">#AUD-8815</td>
+                                    <td><b>System SLA Monitor</b> (Cron Daemon)</td>
+                                    <td>Fair-Clock AFK Auto-Refund Triggered untuk Klien `#CL-991` (Advokat Tidak Respon &gt; 15m)</td>
+                                    <td style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">`a9f238d102bc45e812d8a0f9681123a...`</td>
+                                    <td><span class="status-pill status-active">VERIFIED (INTEGRITY OK)</span></td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono);">2026-07-15 08:01:05</td>
+                                    <td style="font-family: var(--font-mono); font-weight: 700;">#AUD-8812</td>
+                                    <td><b>PT Mitra Jaya</b> (Klien Korporasi)</td>
+                                    <td>Dual QR Check-in Handshake di Lokasi Konsultasi Offline (`CL-05`)</td>
+                                    <td style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--text-muted);">`3e23e8160039594a33894f6564e1b13...`</td>
+                                    <td><span class="status-pill status-active">VERIFIED (INTEGRITY OK)</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card" style="margin:0; background: var(--bg-base);">
+                        <div class="card-title">🔐 Isolasi Privasi Zero-Knowledge (Arsitektur BCE)</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                            Sesuai standar UU PDP No. 27/2022 dan prinsip <i>Attorney-Client Privilege</i>, platform menerapkan pemisahan lapisan mutlak:
+                        </p>
+                        <ul style="font-size: 0.85rem; color: var(--text-main); line-height: 1.8; margin-left: 1.25rem;">
+                            <li><b>Controller Isolation:</b> Endpoint `/api/v2/admin/compliance/*` hanya mengembalikan metadata waktu, ukuran dokumen, dan status SLA.</li>
+                            <li><b>KMS Key Enclave:</b> Kunci privat E2EE disimpan di perangkat fisik klien dan advokat. Server utama dan Admin hanya bertindak sebagai <i>Relay Proxy</i> yang buta terhadap isi data.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card" style="margin:0;">
+                        <div class="card-title">⚡ Uji Integritas SHA-256 Ledger Real-Time</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.25rem;">
+                            Jalankan pemindai forensik otomatis untuk memverifikasi konsistensi rantai kriptografi seluruh blok di dalam WORM Vault saat ini.
+                        </p>
+                        <div id="integrity-box" style="padding: 1.25rem; background: var(--bg-base); border: 1px solid var(--border-color); border-radius: var(--radius); margin-bottom: 1.25rem; font-family: var(--font-mono); font-size: 0.8rem; color: var(--text-muted);">
+                            [IDLE] Siap menjalankan pemindaian rantai blok WORM (`audit_logs_worm`)...
+                        </div>
+                        <button class="btn" style="width: 100%;" onclick="runIntegrityCheckSimulation()">🛡️ JALANKAN VERIFIKASI FORENSIK BLOK WORM SEKARANG →</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ==================== ADM-02: PUSAT MEDIASI SENGKETA ESCROW ==================== -->
+            <section id="ADM-02" class="screen-pane">
+                <div class="screen-header">
+                    <div>
+                        <h1 class="screen-title">⚖️ ADM-02: Pusat Mediasi Sengketa Escrow & Whistleblowing Etik</h1>
+                        <p class="screen-desc">Pengelolaan investigasi sengketa layanan (`Dispute`) dan laporan dugaan pelanggaran etik Advokat (`Whistleblowing`). Dana Escrow berada dalam status FROZEN (`SELECT ... FOR UPDATE`) hingga keputusan ditandatangani.</p>
+                    </div>
+                    <div class="screen-meta">
+                        <span class="badge-acid">🔒 ESCROW FROZEN: SELECT ... FOR UPDATE</span>
+                        <span class="badge-worm">🗝️ MULTI-PARTY CONSENSUS KEY (3-OF-5)</span>
+                    </div>
+                </div>
+
+                <!-- 3 MEDIATION METRICS -->
+                <div class="grid-3" style="margin-bottom: 2rem;">
+                    <div class="card" style="margin:0; border-left: 4px solid var(--warning);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">SENGKETA DALAM INVESTIGASI</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: var(--warning); margin-top: 0.5rem;">3 Kasus Aktif</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.25rem;">1 Laporan Whistleblowing Etik Advokat</div>
+                    </div>
+                    <div class="card" style="margin:0; border-left: 4px solid var(--danger);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">TOTAL DANA ESCROW TERKUNCI</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: var(--danger); margin-top: 0.5rem;">Rp 18.400.000</div>
+                        <div style="font-size: 0.78rem; color: var(--danger); margin-top: 0.25rem;">● Status: Active Mutex Lock (FROZEN)</div>
+                    </div>
+                    <div class="card" style="margin:0; border-left: 4px solid var(--text-accent);">
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700;">MULTI-PARTY CONSENSUS BOARD</div>
+                        <div style="font-size: 1.6rem; font-weight: 800; color: var(--text-main); margin-top: 0.5rem;">3 dari 5 Mediator</div>
+                        <div style="font-size: 0.78rem; color: var(--success); margin-top: 0.25rem;">Ambang Batas Sign-off Terpenuhi</div>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">
+                        <span>📋 Daftar Kasus Sengketa & Investigasi Mediasi (`disputes`)</span>
+                        <span style="font-size: 0.82rem; font-weight: 600; color: var(--text-muted);">Integritas Bukti WORM: <b style="color:var(--success);">100% SHA-256 Verified</b></span>
+                    </div>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>ID Kasus</th>
+                                    <th>Jenis Laporan / Sengketa</th>
+                                    <th>Pihak Pelapor (Klien)</th>
+                                    <th>Pihak Terlapor (Advokat)</th>
+                                    <th>Nominal Escrow Tertahan</th>
+                                    <th>Status Mediasi</th>
+                                    <th>Tindakan Eksekusi (Requires 3-of-5 Sign-off)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--warning);">#DSP-1102</td>
+                                    <td><b>Sengketa Deliverable Opini</b><br><span style="font-size: 0.75rem; color: var(--text-muted);">Klien merasa opini hukum tidak sesuai ruang lingkup PKS.</span></td>
+                                    <td>Klien Terverifikasi #8192<br><span style="font-size: 0.75rem; color: var(--text-muted);">PT Mitra Korporat</span></td>
+                                    <td>Dr. Mahendra Kusuma, S.H.<br><span style="font-size: 0.75rem; color: var(--text-muted);">SIPP: 18293/PERADI/2015</span></td>
+                                    <td style="font-weight: 800; color: var(--danger);">Rp 4.200.000</td>
+                                    <td><span class="status-pill status-pending">MEDIASI AKTIF</span></td>
+                                    <td>
+                                        <button class="btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" onclick="openMediationModal('#DSP-1102', 'Dr. Mahendra Kusuma', 4200000)">⚖️ PANEL MEDIASI & EKSEKUSI</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--danger);">#WHS-2201</td>
+                                    <td><b>Whistleblowing Etik Advokat</b><br><span style="font-size: 0.75rem; color: var(--danger);">Dugaan pelanggaran Kode Etik Peradi (Pelaporan Anonim).</span></td>
+                                    <td>Whistleblower Anonim #3319<br><span style="font-size: 0.75rem; color: var(--purple);">UU Perlindungan Saksi & Korban</span></td>
+                                    <td>Adv. Raden Kurniawan, S.H.<br><span style="font-size: 0.75rem; color: var(--text-muted);">SIPP: 09182/PERADI/2018</span></td>
+                                    <td style="font-weight: 800; color: var(--text-muted);">Rp 0 (Pro Bono)</td>
+                                    <td><span class="status-pill status-frozen">INVESTIGASI ETIK</span></td>
+                                    <td>
+                                        <button class="btn btn-danger" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" onclick="alert('⚖️ Panel Investigasi Etik Dewan Kehormatan Peradi telah menerima lampiran bukti WORM secara rahasia. Sanksi administratif/SP 1-3 akan dicatat ke dalam tabel advocate_sanctions_log.')">🚨 PANEL SANKSI ETIK</button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="font-family: var(--font-mono); font-weight: 700; color: var(--warning);">#DSP-2026-0019</td>
+                                    <td><b>Keterlambatan Sesi Konsultasi E2EE</b><br><span style="font-size: 0.75rem; color: var(--text-muted);">Klien mengklaim advokat terlambat check-in &gt; 20 menit.</span></td>
+                                    <td>Ibu Kartika Sari #991<br><span style="font-size: 0.75rem; color: var(--text-muted);">Klien Perorangan</span></td>
+                                    <td>Dr. Bambang Widjojanto, S.H.<br><span style="font-size: 0.75rem; color: var(--text-muted);">SIPP: 0112/PERADI/2012</span></td>
+                                    <td style="font-weight: 800; color: var(--danger);">Rp 14.200.000</td>
+                                    <td><span class="status-pill status-pending">MEDIASI AKTIF</span></td>
+                                    <td>
+                                        <button class="btn" style="padding: 0.45rem 0.85rem; font-size: 0.8rem;" onclick="openMediationModal('#DSP-2026-0019', 'Dr. Bambang Widjojanto', 14200000)">⚖️ PANEL MEDIASI & EKSEKUSI</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- CONSENSUS & MECHANISM GUIDE -->
+                <div class="grid-2">
+                    <div class="card" style="margin:0; background: var(--bg-base);">
+                        <div class="card-title">🗝️ Aturan Multi-Party Consensus Key (3-of-5 Threshold)</div>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); line-height: 1.7; margin-bottom: 1.25rem;">
+                            Untuk mencegah penyalahgunaan kewenangan oleh satu orang admin, setiap pembukaan gembok Escrow yang tertahan sengketa wajib memenuhi syarat kriptografi:
+                        </p>
+                        <ul style="font-size: 0.85rem; color: var(--text-main); line-height: 1.8; margin-left: 1.25rem;">
+                            <li><b>Mediator Board Sign-off:</b> Terdapat 5 Arbiter/Mediator bersumpah dalam dewan penilai Justica.</li>
+                            <li><b>Threshold Execution:</b> Minimal <b>3 dari 5 Mediator</b> harus memberikan tanda tangan digital (FIDO2 / Curve25519) sebelum trigger SQL `rls_escrow_dispute_settle` mengizinkan perpindahan uang.</li>
+                        </ul>
+                    </div>
+
+                    <div class="card" style="margin:0;">
+                        <div class="card-title">🛡️ Status Persetujuan Dewan Arbiter Saat Ini</div>
+                        <div style="margin-bottom: 1.25rem;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; font-weight: 700; margin-bottom: 0.4rem;">
+                                <span>Tanda Tangan Terkumpul: 3 / 5 Mediator</span>
+                                <span style="color: var(--success);">READY TO EXECUTE (60%)</span>
+                            </div>
+                            <div style="width: 100%; background: var(--bg-base); height: 12px; border-radius: 999px; overflow: hidden; border: 1px solid var(--border-color);">
+                                <div style="width: 60%; background: linear-gradient(90deg, var(--primary), var(--success)); height: 100%;"></div>
+                            </div>
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 0.6rem; font-size: 0.82rem; color: var(--text-main);">
+                            <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-base); border-radius: 6px;">
+                                <span>1. Arbiter Senior Prof. Hikmahanto, S.H.</span>
+                                <span style="color: var(--success); font-weight: 700;">✅ SIGNED (FIDO2)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-base); border-radius: 6px;">
+                                <span>2. Mediator Kepatuhan Dr. Chandra, S.H.</span>
+                                <span style="color: var(--success); font-weight: 700;">✅ SIGNED (FIDO2)</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: var(--bg-base); border-radius: 6px;">
+                                <span>3. Admin Lead Compliance Justica</span>
+                                <span style="color: var(--success); font-weight: 700;">✅ SIGNED (FIDO2)</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- MODAL PANEL MEDIASI & EKSEKUSI ESCROW (ADM-02) -->
+    <div class="modal-overlay" id="mediation-modal">
+        <div class="modal-box">
+            <h3 style="font-size: 1.3rem; font-weight: 800; margin-bottom: 0.5rem; display: flex; align-items: center; justify-content: space-between;">
+                <span>⚖️ Panel Mediasi & Eksekusi Escrow</span>
+                <span class="badge-acid" style="font-size: 0.7rem;">MUTEX FOR UPDATE</span>
+            </h3>
+            <p id="modal-subtitle" style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+                Putuskan penyelesaian sengketa dengan otorisasi Multi-Party Consensus Key (3-of-5 Threshold).
+            </p>
+
+            <!-- SQL SIMULATION BOX -->
+            <div style="background: var(--bg-base); padding: 1.15rem; border-radius: var(--radius); font-family: var(--font-mono); font-size: 0.78rem; color: var(--text-accent); margin-bottom: 1.75rem; border: 1px solid var(--border-color); line-height: 1.6;">
+                BEGIN TRANSACTION ISOLATION LEVEL SERIALIZABLE;<br>
+                <b>SELECT amount, status FROM escrow_transactions WHERE dispute_id = '<span id="modal-dsp-id">#DSP-1102</span>' FOR UPDATE;</b><br>
+                -- Escrow Status: FROZEN (Nominal: <span id="modal-dsp-amount">Rp 4.200.000</span>)<br>
+                -- Verify Consensus Key: <span style="color: var(--success);">3-of-5 Mediator Sign-off Validated</span><br>
+                -- Pilihan Eksekusi di bawah akan memicu trigger penyelesaian RLS PostgreSQL seketika:
+            </div>
+
+            <!-- 3 EXECUTION BUTTONS -->
+            <div style="display: flex; flex-direction: column; gap: 0.85rem;">
+                <button class="btn btn-danger" style="width: 100%; justify-content: space-between; padding: 1rem 1.25rem;" onclick="executeSettlement('REFUND_FULL')">
+                    <span>🔄 EKSEKUSI FULL REFUND KE KLIEN (100% Pengembalian)</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.8rem;">Release Lock → Client Wallet</span>
+                </button>
+                <button class="btn btn-success" style="width: 100%; justify-content: space-between; padding: 1rem 1.25rem;" onclick="executeSettlement('RELEASE_FULL')">
+                    <span>💸 EKSEKUSI RELEASE KE ADVOKAT (Sengketa Ditolak / Resolved)</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.8rem;">Release Lock → Advocate Wallet</span>
+                </button>
+                <button class="btn" style="width: 100%; justify-content: space-between; padding: 1rem 1.25rem; background: var(--purple);" onclick="executeSettlement('SPLIT_50_50')">
+                    <span>🤝 SPLIT 50:50 MEDIATION SETTLEMENT (Kesepakatan Bersama)</span>
+                    <span style="font-family: var(--font-mono); font-size: 0.8rem;">50% Client / 50% Advocate</span>
+                </button>
+            </div>
+
+            <div style="margin-top: 1.5rem; text-align: right;">
+                <button class="btn btn-outline" style="padding: 0.5rem 1rem; font-size: 0.85rem;" onclick="closeMediationModal()">Tutup Panel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentDisputeId = '';
+        let currentAdvocate = '';
+        let currentAmount = 0;
+
+        // NAVIGATION & SCREEN SWITCHING
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-item').forEach(item => {
+                if (item.getAttribute('onclick').includes(screenId)) {
+                    item.classList.add('active');
+                }
+            });
+            window.scrollTo(0, 0);
+        }
+
+        // STYLE SWITCHER
+        function setStyle(styleName) {
+            document.documentElement.setAttribute('data-style', styleName);
+            document.querySelectorAll('.style-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // SIMULATION: REPORT EXPORT (ADM-01)
+        function runReportExportSimulation() {
+            alert('📥 EKSPORT LAPORAN AUDIT CRYPTOGRAPHIC SIGNED (.JSONL / .PDF)\n\nLaporan berisi seluruh jejak transaksional WORM dan tanda tangan digital KMS berhasil diunduh. Laporan ini sah sebagai alat bukti audit kepatuhan hukum!');
+        }
+
+        // SIMULATION: FORENSIC WORM INTEGRITY CHECK (ADM-01)
+        function runIntegrityCheckSimulation() {
+            const box = document.getElementById('integrity-box');
+            box.style.color = 'var(--text-accent)';
+            box.innerHTML = `🔄 [SCANNING] Memeriksa rantai hash SHA-256 pada 1.420 blok di tabel <code>audit_logs_worm</code>...`;
+
+            setTimeout(() => {
+                box.style.background = 'rgba(16, 185, 129, 0.1)';
+                box.style.borderColor = 'var(--success)';
+                box.style.color = 'var(--success)';
+                box.innerHTML = `
+                    <div style="font-weight: 800; font-size: 0.95rem; margin-bottom: 0.3rem;">✅ ZERO TAMPERING DETECTED (100% WORM INTEGRITY VERIFIED)</div>
+                    <div>Seluruh rantai kriptografi dari Genesis Block #AUD-0001 hingga #AUD-8825 cocok dengan akar Merkle Tree (Merkle Root SHA-256). Tidak ada upaya modifikasi atau penghapusan ilegal di dalam PostgreSQL WORM Vault.</div>
+                `;
+            }, 1400);
+        }
+
+        // MODAL HANDLERS FOR MEDIATION (ADM-02)
+        function openMediationModal(dspId, advocateName, amount) {
+            currentDisputeId = dspId;
+            currentAdvocate = advocateName;
+            currentAmount = amount;
+
+            document.getElementById('modal-dsp-id').textContent = dspId;
+            document.getElementById('modal-dsp-amount').textContent = 'Rp ' + amount.toLocaleString('id-ID');
+            document.getElementById('modal-subtitle').textContent = `Kasus: ${dspId} • Terlapor: ${advocateName} • Dana Tertahan: Rp ${amount.toLocaleString('id-ID')}`;
+
+            document.getElementById('mediation-modal').classList.add('active');
+        }
+
+        function closeMediationModal() {
+            document.getElementById('mediation-modal').classList.remove('active');
+        }
+
+        function executeSettlement(actionType) {
+            closeMediationModal();
+            let actionDesc = '';
+            if (actionType === 'REFUND_FULL') {
+                actionDesc = `Dana Escrow sebesar Rp ${currentAmount.toLocaleString('id-ID')} dikembalikan penuh 100% ke Dompet Klien. Status sengketa ${currentDisputeId} ditutup (CLIENT_REFUNDED).`;
+            } else if (actionType === 'RELEASE_FULL') {
+                actionDesc = `Dana Escrow sebesar Rp ${currentAmount.toLocaleString('id-ID')} dilepaskan 100% ke Dompet Advokat (${currentAdvocate}). Status sengketa ${currentDisputeId} ditutup (ADVOCATE_RELEASED).`;
+            } else {
+                actionDesc = `Dana Escrow sebesar Rp ${currentAmount.toLocaleString('id-ID')} dibagi rata (50% Klien / 50% Advokat) sesuai kesepakatan damai mediasi. Status sengketa ${currentDisputeId} ditutup (SETTLED_50_50).`;
+            }
+
+            alert(`⚡ EKSEKUSI MEDIASI BERHASIL DITANDATANGANI!\n\n${actionDesc}\n\nOtorisasi: Multi-Party Consensus Key (3-of-5 Mediator Board).\nJejak keputusan telah direkam ke dalam WORM Immutable Ledger.`);
+        }
+    </script>
+</body>
+</html>
