@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark" data-style="style1">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>JUSTICA — Production-Level Interactive Prototype (Batch 1: Gateway & Client Portal)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* STYLE 1 (EXECUTIVE NEO-BRUTALISM) - LIGHT */
+      --font-main: 'Inter', -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --bg-app: #FFFFFF;
+      --bg-card: #F8FAFC;
+      --bg-header: #FFFFFF;
+      --text-main: #1A1A1A;
+      --text-muted: #4A5568;
+      --border-color: #1A1A1A;
+      --border-width: 2px;
+      --border-radius: 6px;
+      --accent-color: #0D3B66;
+      --accent-text: #FFFFFF;
+      --badge-bg: #E2E8F0;
+      --badge-text: #1A1A1A;
+      --shadow-style: 4px 4px 0px #1A1A1A;
+      --status-green: #10B981;
+      --status-red: #EF4444;
+      --status-amber: #F59E0B;
+    }
+
+    [data-theme="dark"][data-style="style1"] {
+      --bg-app: #0F1115;
+      --bg-card: #181B20;
+      --bg-header: #13161A;
+      --text-main: #F3F4F6;
+      --text-muted: #9CA3AF;
+      --border-color: #4B5563;
+      --shadow-style: 4px 4px 0px #374151;
+      --accent-color: #3B82F6;
+      --accent-text: #FFFFFF;
+      --badge-bg: #272F3D;
+      --badge-text: #E5E7EB;
+    }
+
+    [data-style="style2"] {
+      --font-main: 'Inter', sans-serif;
+      --bg-app: #F8FAFC;
+      --bg-card: #FFFFFF;
+      --bg-header: #FFFFFF;
+      --text-main: #0F172A;
+      --text-muted: #64748B;
+      --border-color: #E2E8F0;
+      --border-width: 1px;
+      --border-radius: 12px;
+      --accent-color: #2563EB;
+      --accent-text: #FFFFFF;
+      --badge-bg: #EFF6FF;
+      --badge-text: #1D4ED8;
+      --shadow-style: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -1px rgba(0,0,0,0.04);
+    }
+
+    [data-theme="dark"][data-style="style2"] {
+      --bg-app: #0B0F19;
+      --bg-card: #1E293B;
+      --bg-header: #0F172A;
+      --text-main: #F8FAFC;
+      --text-muted: #94A3B8;
+      --border-color: #334155;
+      --accent-color: #3B82F6;
+      --badge-bg: #1E3A8A;
+      --badge-text: #BFDBFE;
+      --shadow-style: 0 10px 15px -3px rgba(0,0,0,0.5);
+    }
+
+    [data-style="style3"] {
+      --font-main: 'IBM Plex Sans', sans-serif;
+      --bg-app: #F4F4F2;
+      --bg-card: #FFFFFF;
+      --bg-header: #EBEBE8;
+      --text-main: #111111;
+      --text-muted: #555555;
+      --border-color: #CCCCCC;
+      --border-width: 1px;
+      --border-radius: 0px;
+      --accent-color: #8B0000;
+      --accent-text: #FFFFFF;
+      --badge-bg: #EAEAEA;
+      --badge-text: #111111;
+      --shadow-style: none;
+    }
+
+    [data-theme="dark"][data-style="style3"] {
+      --bg-app: #121212;
+      --bg-card: #1A1A1A;
+      --bg-header: #1F1F1F;
+      --text-main: #EDEDED;
+      --text-muted: #A0A0A0;
+      --border-color: #3A3A3A;
+      --accent-color: #C0392B;
+      --badge-bg: #2A2A2A;
+      --badge-text: #EDEDED;
+      --shadow-style: none;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease; }
+    body {
+      font-family: var(--font-main);
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    header {
+      background-color: var(--bg-header);
+      border-bottom: var(--border-width) solid var(--border-color);
+      padding: 12px 24px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: var(--shadow-style);
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand-logo {
+      font-family: var(--font-mono);
+      font-weight: 700;
+      font-size: 20px;
+      background: var(--accent-color);
+      color: var(--accent-text);
+      padding: 4px 10px;
+      border-radius: var(--border-radius);
+      border: var(--border-width) solid var(--border-color);
+      letter-spacing: -0.5px;
+    }
+    .brand-title { font-weight: 700; font-size: 16px; }
+    .brand-subtitle { font-size: 12px; color: var(--text-muted); }
+
+    .header-controls { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .control-group { display: flex; align-items: center; gap: 6px; }
+    .control-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+    select, button {
+      font-family: var(--font-main);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--border-radius);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      cursor: pointer;
+    }
+    select:hover, button:hover { opacity: 0.9; }
+    button.primary { background-color: var(--accent-color); color: var(--accent-text); border-color: var(--border-color); }
+    button.danger { background-color: var(--status-red); color: #FFFFFF; }
+    button.success { background-color: var(--status-green); color: #FFFFFF; }
+
+    .nav-bar {
+      background-color: var(--bg-card);
+      border-bottom: var(--border-width) solid var(--border-color);
+      padding: 8px 24px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
+    .nav-tab {
+      padding: 6px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      border: var(--border-width) solid transparent;
+      border-radius: var(--border-radius);
+      cursor: pointer;
+      background: transparent;
+      color: var(--text-muted);
+    }
+    .nav-tab:hover { color: var(--text-main); background: var(--badge-bg); }
+    .nav-tab.active {
+      border-color: var(--border-color);
+      background-color: var(--accent-color);
+      color: var(--accent-text);
+      box-shadow: var(--shadow-style);
+    }
+
+    main { flex: 1; padding: 24px; max-width: 1320px; margin: 0 auto; width: 100%; }
+    .screen-container { display: none; }
+    .screen-container.active { display: block; animation: fadeIn 0.25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .screen-header {
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: var(--border-width) solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .screen-id-badge {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      font-weight: 700;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
+      padding: 3px 8px;
+      border-radius: var(--border-radius);
+      border: 1px solid var(--border-color);
+    }
+    .screen-title { font-size: 22px; font-weight: 700; margin-top: 4px; }
+    .screen-desc { font-size: 13px; color: var(--text-muted); margin-top: 2px; }
+
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
+    .card {
+      background-color: var(--bg-card);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 20px;
+      box-shadow: var(--shadow-style);
+      position: relative;
+    }
+    .card-title { font-size: 16px; font-weight: 700; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    
+    .badge {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+    .badge.green { background-color: rgba(16, 185, 129, 0.15); color: var(--status-green); border: 1px solid var(--status-green); }
+    .badge.red { background-color: rgba(239, 68, 68, 0.15); color: var(--status-red); border: 1px solid var(--status-red); }
+    .badge.amber { background-color: rgba(245, 158, 11, 0.15); color: var(--status-amber); border: 1px solid var(--status-amber); }
+    .badge.blue { background-color: var(--badge-bg); color: var(--badge-text); border: 1px solid var(--border-color); }
+
+    .form-group { margin-bottom: 16px; }
+    .form-label { display: block; font-size: 12px; font-weight: 600; margin-bottom: 6px; color: var(--text-main); }
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      font-family: var(--font-main);
+      font-size: 14px;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--border-radius);
+    }
+    .form-textarea { min-height: 80px; resize: vertical; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; }
+    th, td { text-align: left; padding: 12px; border-bottom: 1px solid var(--border-color); font-size: 13px; }
+    th { font-weight: 700; background-color: rgba(0,0,0,0.03); color: var(--text-muted); font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; }
+
+    .modal-backdrop {
+      position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+      background-color: rgba(0,0,0,0.7);
+      display: none; justify-content: center; align-items: center; z-index: 1000;
+      backdrop-filter: blur(4px);
+    }
+    .modal-backdrop.active { display: flex; }
+    .modal-box {
+      background-color: var(--bg-card);
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--border-radius);
+      padding: 24px;
+      max-width: 520px;
+      width: 90%;
+      box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5);
+    }
+
+    .status-banner {
+      padding: 12px 16px;
+      border-radius: var(--border-radius);
+      border: var(--border-width) solid var(--border-color);
+      background-color: var(--badge-bg);
+      margin-bottom: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .chat-box {
+      border: var(--border-width) solid var(--border-color);
+      border-radius: var(--border-radius);
+      height: 320px;
+      display: flex;
+      flex-direction: column;
+      background-color: var(--bg-app);
+    }
+    .chat-messages { flex: 1; padding: 16px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+    .chat-bubble { max-width: 75%; padding: 10px 14px; border-radius: var(--border-radius); font-size: 13px; border: 1px solid var(--border-color); }
+    .chat-bubble.me { align-self: flex-end; background-color: var(--accent-color); color: var(--accent-text); }
+    .chat-bubble.other { align-self: flex-start; background-color: var(--bg-card); }
+    .chat-input-row { display: flex; gap: 8px; padding: 12px; border-top: var(--border-width) solid var(--border-color); background-color: var(--bg-card); }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER NAVIGATION -->
+  <header>
+    <div class="brand">
+      <div class="brand-logo">JUSTICA</div>
+      <div>
+        <div class="brand-title">SuperApp-Gagal / JUSTICA</div>
+        <div class="brand-subtitle">Production-Level Interactive Prototype (Batch 1: Gateway & Client Portal)</div>
+      </div>
+    </div>
+    <div class="header-controls">
+      <div class="control-group">
+        <span class="control-label">Style:</span>
+        <select id="style-select" onchange="changeStyle(this.value)">
+          <option value="style1">Style 1: Executive Neo-Brutalism</option>
+          <option value="style2">Style 2: Corporate Slate UI</option>
+          <option value="style3">Style 3: Legal Sovereign Editorial</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <span class="control-label">Theme:</span>
+        <button onclick="toggleTheme()" id="theme-btn">🌙 Dark</button>
+      </div>
+      <div class="control-group">
+        <button class="primary" onclick="resetDemoData()">🔄 Reset State</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- TAB SWITCHER 1-TO-1 WITH MOCKUP_SPEC_DETAIL.MD -->
+  <div class="nav-bar">
+    <button class="nav-tab active" onclick="showScreen('GATEWAY-01')">GATEWAY-01 (Root Gateway)</button>
+    <button class="nav-tab" onclick="showScreen('PUBLIC-VERIFY')">PUBLIC-VERIFY (SHA-256 Check)</button>
+    <button class="nav-tab" onclick="showScreen('CL-01')">CL-01 (Register / Login)</button>
+    <button class="nav-tab" onclick="showScreen('CL-02A')">CL-02A (Client Dashboard)</button>
+    <button class="nav-tab" onclick="showScreen('CL-02')">CL-02 (Advocate Catalog)</button>
+    <button class="nav-tab" onclick="showScreen('CL-02B')">CL-02B (Advocate Profile & Slot)</button>
+    <button class="nav-tab" onclick="showScreen('CL-03')">CL-03 (Escrow Checkout)</button>
+    <button class="nav-tab" onclick="showScreen('CL-03B')">CL-03B (VA/QRIS Payment)</button>
+    <button class="nav-tab" onclick="showScreen('CL-04')">CL-04 (E2EE Chat Room)</button>
+    <button class="nav-tab" onclick="showScreen('CL-05')">CL-05 (QR Scan Offline)</button>
+    <button class="nav-tab" onclick="showScreen('CL-06')">CL-06 (Deliverable Gate)</button>
+    <button class="nav-tab" onclick="showScreen('CL-07')">CL-07 (Blocking Review Modal)</button>
+    <button class="nav-tab" onclick="showScreen('CL-08')">CL-08 (Whistleblowing Form)</button>
+    <button class="nav-tab" onclick="showScreen('CL-09')">CL-09 (Dispute Status Center)</button>
+    <button class="nav-tab" onclick="showScreen('CL-10')">CL-10 (Account & MFA Audit)</button>
+  </div>
+
+  <main>
+    <!-- SYSTEM STATUS BANNER -->
+    <div class="status-banner">
+      <div>
+        <span class="badge green">● ACID MUTEX READY</span>
+        <span class="badge blue" style="margin-left: 8px;">● E2EE ZERO-KNOWLEDGE ACTIVE</span>
+        <span class="badge amber" style="margin-left: 8px;">● WORM VAULT IMMUTABLE</span>
+      </div>
+      <div style="font-family: var(--font-mono); font-size: 12px;">
+        Active User: <strong id="user-display-name">Budi Santoso (Klien Terverifikasi MFA)</strong> | Dompet Escrow: <strong id="wallet-balance-display">Rp 12.500.000</strong>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 1: MOCK-J-GATEWAY-01 ==================== -->
+    <div id="screen-GATEWAY-01" class="screen-container active">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-GATEWAY-01</span>
+          <h1 class="screen-title">Gerbang Utama & Pemilihan Peran (*Root Gateway*)</h1>
+          <p class="screen-desc">Halaman pendaratan publik dengan pemilihan 3 portal terdekopel serta akses cepat ke alat verifikasi dokumen SHA-256.</p>
+        </div>
+      </div>
+      <div class="grid-3">
+        <div class="card">
+          <div class="card-title">Portal Klien <span class="badge blue">Pencari Keadilan</span></div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Konsultasi hukum E2EE, transaksi Escrow ACID terlindungi, dan perlindungan penuh di bawah pengawasan WORM Audit.</p>
+          <button class="primary" style="width: 100%;" onclick="showScreen('CL-01')">Masuk ke Portal Klien →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Command Center Advokat <span class="badge green">Mitra Hukum</span></div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Manajemen antrean perkara, penerbitan opini hukum ber-eMeterai SHA-256, dan pencairan honor BI-FAST.</p>
+          <button style="width: 100%;" onclick="alert('Portal Advokat berada di Batch 2 (JUSTICA_Prototype_Advocate_Portal.html) yang akan dieksekusi setelah sign-off Batch 1 ini!')">Buka Portal Advokat (Batch 2) →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Pusat Mediasi & Compliance <span class="badge amber">Admin SLA</span></div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Audit jejak WORM Immutable, pemantauan batas waktu SLA 48 jam, dan penyelesaian sengketa hukum Escrow.</p>
+          <button style="width: 100%;" onclick="alert('Portal Admin Compliance berada di Batch 3 (JUSTICA_Prototype_Admin_and_WORM.html) yang akan dieksekusi setelah sign-off Batch 1 & 2!')">Buka Portal Admin (Batch 3) →</button>
+        </div>
+      </div>
+      <div class="card" style="margin-top: 20px;">
+        <div class="card-title">Alat Verifikasi Publik <span class="badge green">Tanpa Login</span></div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Periksa keaslian dokumen opini hukum, kontrak jasa, atau putusan arbitrase yang diterbitkan melalui JUSTICA menggunakan verifikasi kriptografi SHA-256.</p>
+        <button onclick="showScreen('PUBLIC-VERIFY')">Buka Verifikator Dokumen SHA-256 →</button>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 2: MOCK-J-PUBLIC-VERIFY ==================== -->
+    <div id="screen-PUBLIC-VERIFY" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-PUBLIC-VERIFY</span>
+          <h1 class="screen-title">Portal Publik Verifikasi Keaslian Dokumen SHA-256</h1>
+          <p class="screen-desc">Verifikasi independen kriptografi dokumen hukum ber-eMeterai tanpa memerlukan akun login.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Unggah atau Tempel Hash Dokumen</div>
+          <div class="form-group">
+            <label class="form-label">SHA-256 Hash atau Nomor Seri e-Meterai:</label>
+            <input type="text" class="form-input" id="verify-hash-input" value="e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Atau Pilih Dokumen PDF:</label>
+            <input type="file" class="form-input" onchange="document.getElementById('verify-hash-input').value='9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08'">
+          </div>
+          <button class="primary" style="width: 100%;" onclick="runPublicVerification()">🔍 Verifikasi Keaslian Kriptografi</button>
+        </div>
+        <div class="card" id="verify-result-box">
+          <div class="card-title">Hasil Verifikasi Kriptografi <span class="badge green">TERVERIFIKASI SAH</span></div>
+          <table style="margin-top: 4px;">
+            <tr><th>Parameter</th><th>Nilai Terverifikasi</th></tr>
+            <tr><td><strong>Status Dokumen</strong></td><td><span class="badge green">ASLI & UTUH (No Tampering)</span></td></tr>
+            <tr><td><strong>Penerbit Advokat</strong></td><td>Dr. H. Bambang Widjojanto, S.H., M.H. (Peradi #088192)</td></tr>
+            <tr><td><strong>Nomor e-Meterai</strong></td><td><code style="font-family: var(--font-mono);">10000-MTR-2026-991827</code></td></tr>
+            <tr><td><strong>Waktu Stempel WORM</strong></td><td>2026-07-15 10:14:02 WIB (UTC+7)</td></tr>
+            <tr><td><strong>Hash Blok WORM</strong></td><td><code style="font-size: 11px;">0x8f7c19a2b3...d91e</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 3: MOCK-J-CL-01 ==================== -->
+    <div id="screen-CL-01" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-01</span>
+          <h1 class="screen-title">Portal Registrasi & Login Klien (*Pencari Keadilan*)</h1>
+          <p class="screen-desc">Autentikasi berlapis MFA (2FA) dan persetujuan mutlak UU Perlindungan Data Pribadi (UU PDP No. 27/2022).</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Masuk ke Akun Klien Terverifikasi</div>
+          <div class="form-group">
+            <label class="form-label">Nomor Induk Kependudukan (NIK / KTP):</label>
+            <input type="text" class="form-input" value="3171234567890001">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kata Sandi Akses:</label>
+            <input type="password" class="form-input" value="••••••••••••">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kode MFA 2FA (Dari Authenticator):</label>
+            <input type="text" class="form-input" value="882 194" style="font-family: var(--font-mono); letter-spacing: 2px;">
+          </div>
+          <div class="form-group" style="display: flex; gap: 8px; align-items: flex-start;">
+            <input type="checkbox" id="pdp-consent-login" checked style="margin-top: 3px;">
+            <label for="pdp-consent-login" style="font-size: 12px; color: var(--text-muted);">Saya menyetujui pemrosesan data pribadi saya sesuai UU PDP No. 27/2022 dan mengizinkan pencatatan log akses di dalam WORM Immutable Vault.</label>
+          </div>
+          <button class="primary" style="width: 100%;" onclick="showScreen('CL-02A')">🔐 Masuk & Buka Dasbor Klien →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Keamanan & Privasi Tingkat Tinggi</div>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+            JUSTICA menerapkan prinsip <strong>Zero-Knowledge E2EE</strong> pada seluruh komunikasi hukum. Server, administrator, maupun penegak hukum yang tidak memiliki kunci dekripsi fisik tidak akan dapat membaca isi konsultasi Anda.<br><br>
+            Seluruh transaksi finansial dijamin oleh <strong>ACID Mutex Lock Escrow</strong> yang mencegah double-deduction serta memastikan honor advokat hanya cair setelah deliverable Anda verifikasi atau SLA terlewati.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 4: MOCK-J-CL-02A ==================== -->
+    <div id="screen-CL-02A" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-02A</span>
+          <h1 class="screen-title">Dasbor Utama Klien & Riwayat Perkara Aktif</h1>
+          <p class="screen-desc">Hub manajemen kasus aktif, pemantauan saldo Escrow terkunci, dan akses langsung ke ruang konsultasi E2EE.</p>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-bottom: 20px;">
+        <div class="card">
+          <div class="card-title">Saldo Dompet Escrow <span class="badge green">Tersedia</span></div>
+          <div style="font-size: 26px; font-weight: 700; font-family: var(--font-mono); color: var(--status-green);">Rp 12.500.000</div>
+          <button style="margin-top: 12px; width: 100%;" onclick="showScreen('CL-03')">+ Top Up Saldo Escrow</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Perkara Aktif Berjalan <span class="badge blue">1 Kasus</span></div>
+          <div style="font-size: 14px; font-weight: 700;">#J-2026-8891 (Sengketa Kontrak IT)</div>
+          <div style="font-size: 12px; color: var(--text-muted); margin-top: 4px;">Advokat: Dr. H. Bambang Widjojanto, S.H., M.H.</div>
+          <button class="primary" style="margin-top: 12px; width: 100%;" onclick="showScreen('CL-04')">💬 Buka Ruang Chat E2EE →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Status Deliverable <span class="badge amber">Menunggu Konfirmasi</span></div>
+          <div style="font-size: 13px; color: var(--text-muted);">Opini Hukum Tertulis telah diunggah oleh Advokat. Silakan periksa sebelum honor Escrow dicairkan.</div>
+          <button style="margin-top: 12px; width: 100%;" onclick="showScreen('CL-06')">📄 Periksa & Download Gate →</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daftar Riwayat Perkara & Sesi Hukum</div>
+        <table>
+          <tr><th>ID Kasus</th><th>Spesialisasi</th><th>Advokat Penanganan</th><th>Status Escrow / Kasus</th><th>Aksi Cepat</th></tr>
+          <tr>
+            <td><strong style="font-family: var(--font-mono);">#J-2026-8891</strong></td>
+            <td>Hukum Bisnis & Kontrak IT</td>
+            <td>Dr. H. Bambang Widjojanto, S.H., M.H.</td>
+            <td><span class="badge amber">ESCROW TERKUNCI (Rp 3.500.000)</span></td>
+            <td><button onclick="showScreen('CL-04')">Chat</button> <button onclick="showScreen('CL-06')">Berkas</button></td>
+          </tr>
+          <tr>
+            <td><strong style="font-family: var(--font-mono);">#J-2026-4412</strong></td>
+            <td>Hukum Ketenagakerjaan (PHK)</td>
+            <td>LBH Keadilan Pro Bono (SKTM Terverifikasi)</td>
+            <td><span class="badge green">PRO BONO SELESAI (Rp 0)</span></td>
+            <td><button onclick="showScreen('CL-07')">Ulasan</button></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 5: MOCK-J-CL-02 ==================== -->
+    <div id="screen-CL-02" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-02</span>
+          <h1 class="screen-title">Katalog Advokat & Direktori Layanan Hukum</h1>
+          <p class="screen-desc">Pencarian advokat berlisensi resmi SIPP Mahkamah Agung dengan filter spesialisasi dan opsi Pro Bono SKTM.</p>
+        </div>
+      </div>
+      <div class="card" style="margin-bottom: 20px;">
+        <div class="grid-3">
+          <div>
+            <label class="form-label">Cari Nama / Nomor BAS Peradi:</label>
+            <input type="text" class="form-input" placeholder="Contoh: Bambang Widjojanto / Pidana...">
+          </div>
+          <div>
+            <label class="form-label">Spesialisasi Hukum:</label>
+            <select class="form-select">
+              <option>Semua Spesialisasi</option>
+              <option>Hukum Pidana & Korupsi</option>
+              <option>Hukum Perdata & Sengketa Bisnis</option>
+              <option>Hukum Ketenagakerjaan & Hubungan Industrial</option>
+              <option>Layanan Pro Bono (Khusus Pemegang SKTM)</option>
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Filter Tarif / Escrow:</label>
+            <select class="form-select">
+              <option>Semua Tarif</option>
+              <option>Pro Bono (Rp 0 - Bersubsidi)</option>
+              <option>Standar (Rp 500k - Rp 2 Juta)</option>
+              <option>Eksekutif (> Rp 2 Juta)</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Dr. H. Bambang Widjojanto, S.H., M.H. <span class="badge green">SIPP MA AKTIF</span></div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Spesialisasi: Hukum Pidana Khusus, Sengketa Korporasi & Kontrak IT. Lisensi Peradi #088192.</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span style="font-weight: 700; font-family: var(--font-mono);">Rp 3.500.000 / Sesi Konsultasi</span>
+            <span class="badge blue">⭐ 4.98 (142 Sesi)</span>
+          </div>
+          <button class="primary" style="width: 100%;" onclick="showScreen('CL-02B')">Lihat Profil Lengkap & Pilih Slot Booking →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">LBH Keadilan Nusantara (Divisi Pro Bono) <span class="badge green">SKTM ACCREDITED</span></div>
+          <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 12px;">Spesialisasi: Bantuan Hukum Masyarakat Tidak Mampu, Sengketa Ketenagakerjaan, KDRT, & Pertanahan.</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <span style="font-weight: 700; font-family: var(--font-mono); color: var(--status-green);">Rp 0 (Subsidi SKTM / Pro Bono)</span>
+            <span class="badge blue">⭐ 4.95 (310 Sesi)</span>
+          </div>
+          <button style="width: 100%;" onclick="showScreen('CL-03')">Ajukan Sesi Pro Bono SKTM →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 6: MOCK-J-CL-02B ==================== -->
+    <div id="screen-CL-02B" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-02B</span>
+          <h1 class="screen-title">Profil Detail Advokat & Pemilihan Slot Jadwal Booking</h1>
+          <p class="screen-desc">Verifikasi kredensial SIPP Mahkamah Agung, rekam jejak, serta penguncian slot waktu konsultasi dengan Escrow Lock.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Kredensial & Rekam Jejak Advokat</div>
+          <div style="margin-bottom: 16px;">
+            <h3 style="font-size: 18px; font-weight: 700;">Dr. H. Bambang Widjojanto, S.H., M.H.</h3>
+            <p style="font-size: 13px; color: var(--text-muted);">Nomor BAS Peradi: 088192 | Status SIPP: Terverifikasi Mahkamah Agung RI</p>
+          </div>
+          <table>
+            <tr><th>Aspek</th><th>Keterangan Verifikasi</th></tr>
+            <tr><td><strong>Pendidikan</strong></td><td>S3 Ilmu Hukum Universitas Padjadjaran (Cum Laude)</td></tr>
+            <tr><td><strong>Pengalaman</strong></td><td>28 Tahun (Litigasi & Non-Litigasi Korporasi)</td></tr>
+            <tr><td><strong>SLA Respon</strong></td><td><span class="badge green">Rata-rata < 15 Menit</span></td></tr>
+            <tr><td><strong>Audit Jejak</strong></td><td><span class="badge green">0 Pelanggaran Etik WORM</span></td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <div class="card-title">Pilih Slot Jadwal & Metode Konsultasi</div>
+          <div class="form-group">
+            <label class="form-label">Metode Sesi Konsultasi:</label>
+            <select class="form-select" id="booking-method-select">
+              <option value="online">Konsultasi Daring (Online E2EE Chat / Video)</option>
+              <option value="offline">Konsultasi Tatap Muka Resmi (Offline QR Scan di Kantor)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Pilih Slot Waktu Tersedia:</label>
+            <select class="form-select">
+              <option>Hari Ini, 15 Juli 2026 — 16:00 - 17:00 WIB (Tersedia)</option>
+              <option>Besok, 16 Juli 2026 — 10:00 - 11:00 WIB (Tersedia)</option>
+              <option>Besok, 16 Juli 2026 — 14:00 - 15:00 WIB (Tersedia)</option>
+            </select>
+          </div>
+          <div style="background-color: var(--bg-app); padding: 12px; border: 1px solid var(--border-color); border-radius: var(--border-radius); margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Total Biaya Escrow Terkunci:</div>
+            <div style="font-size: 20px; font-weight: 700; font-family: var(--font-mono); color: var(--status-green);">Rp 3.500.000</div>
+          </div>
+          <button class="primary" style="width: 100%;" onclick="openAcidModal()">🔒 Kunci Slot & Lanjut ke Checkout Escrow →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 7: MOCK-J-CL-03 ==================== -->
+    <div id="screen-CL-03" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-03</span>
+          <h1 class="screen-title">Checkout Pembayaran Escrow & Pro Bono SKTM</h1>
+          <p class="screen-desc">Perhitungan transparan honor advokat, pajak e-Meterai, dan jaminan perlindungan Escrow ACID Mutex Lock.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Rincian Biaya & Jaminan Escrow</div>
+          <table>
+            <tr><th>Komponen Biaya</th><th>Nominal / Status</th></tr>
+            <tr><td>Honor Konsultasi Advokat (#J-2026-8891)</td><td style="font-family: var(--font-mono);">Rp 3.500.000</td></tr>
+            <tr><td>Biaya e-Meterai Resmi Peruri (SHA-256)</td><td style="font-family: var(--font-mono);">Rp 10.000</td></tr>
+            <tr><td>Biaya Admin & Perlindungan Escrow WORM</td><td style="font-family: var(--font-mono);">Rp 15.000</td></tr>
+            <tr><td><strong>Total Pembayaran Escrow</strong></td><td style="font-family: var(--font-mono); font-weight: 700; color: var(--status-green);">Rp 3.525.000</td></tr>
+          </table>
+          <div class="form-group" style="margin-top: 16px;">
+            <label class="form-label">Pilihan Metode Pembayaran:</label>
+            <select class="form-select">
+              <option>Virtual Account BCA / Mandiri / BRI (Otomatis)</option>
+              <option>QRIS Dinamis BI-FAST (Instan)</option>
+              <option>Potong Saldo Dompet Escrow JUSTICA (Saat ini: Rp 12.500.000)</option>
+              <option>Klaim Subsidi Pro Bono SKTM (Unggah Bukti Surat Keterangan Tidak Mampu)</option>
+            </select>
+          </div>
+          <button class="primary" style="width: 100%;" onclick="showScreen('CL-03B')">💳 Bayar & Kunci Dana di Escrow Vault →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Cara Kerja Perlindungan Escrow ACID</div>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+            Ketika Anda membayar, dana <strong>TIDAK LANGSUNG MASUK</strong> ke rekening advokat. Dana Anda diamankan di dalam rekening penampungan bersama (*Escrow Vault*) dengan penguncian baris database (<code style="font-family: var(--font-mono);">SELECT ... FOR UPDATE</code>).<br><br>
+            Honor baru akan dicairkan kepada advokat jika:<br>
+            1. Anda menekan tombol <strong>Konfirmasi Terima Deliverable</strong> pada layar CL-06.<br>
+            2. Atau batas waktu SLA pasca-sesi (48 jam) telah berakhir tanpa ada sengketa / dispute yang diajukan.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 8: MOCK-J-CL-03B ==================== -->
+    <div id="screen-CL-03B" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-03B</span>
+          <h1 class="screen-title">Instruksi Pembayaran VA/QRIS & Resi e-Invoice</h1>
+          <p class="screen-desc">Nomor Virtual Account pembayaran unik dengan batas waktu otomatis dan pencatatan e-Invoice.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Nomor Virtual Account Pembayaran <span class="badge amber" id="countdown-timer">59:12</span></div>
+          <div style="background-color: var(--bg-app); padding: 16px; border: var(--border-width) solid var(--border-color); border-radius: var(--border-radius); text-align: center; margin-bottom: 16px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Bank BCA Virtual Account (JUSTICA ESCROW):</div>
+            <div style="font-size: 24px; font-weight: 700; font-family: var(--font-mono); letter-spacing: 2px; margin: 8px 0; color: var(--accent-color);">8891 0819 2881 9200</div>
+            <div style="font-size: 14px; font-weight: 600;">Total Bayar: Rp 3.525.000</div>
+          </div>
+          <button class="success" style="width: 100%;" onclick="simulatePaymentSuccess()">✅ Simulasi Bayar Berhasil (Otomatis Masuk Chat) →</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Resi e-Invoice Sementara</div>
+          <table style="font-size: 12px;">
+            <tr><td>Nomor e-Invoice:</td><td style="font-family: var(--font-mono);">INV/JST/2026/07/8891</td></tr>
+            <tr><td>Status Transaksi:</td><td><span class="badge amber">MENUNGGU PEMBAYARAN VA</span></td></tr>
+            <tr><td>ID Kasus Tujuan:</td><td style="font-family: var(--font-mono);">#J-2026-8891</td></tr>
+            <tr><td>Perlindungan Mutex:</td><td><code style="font-size: 11px;">FOR UPDATE LOCK ACTIVE</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 9: MOCK-J-CL-04 ==================== -->
+    <div id="screen-CL-04" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-04</span>
+          <h1 class="screen-title">Ruang Obrolan Hukum Online E2EE (*Zero-Knowledge Chat Room*)</h1>
+          <p class="screen-desc">Sesi konsultasi hukum daring yang dienkripsi secara end-to-end dengan pertukaran berkas teramankan.</p>
+        </div>
+      </div>
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 12px 16px; background-color: var(--badge-bg); border-bottom: var(--border-width) solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <strong style="font-size: 14px;">Konsultasi Bersama Dr. H. Bambang Widjojanto, S.H., M.H.</strong>
+            <span class="badge green" style="margin-left: 8px;">● E2EE ENCRYPTED (AES-GCM 256)</span>
+          </div>
+          <div style="font-size: 12px; font-family: var(--font-mono);">Sesi: #J-2026-8891 | Escrow: Rp 3.5M (Terkunci)</div>
+        </div>
+        <div class="chat-box" style="border: none; border-radius: 0;">
+          <div class="chat-messages" id="chat-message-list">
+            <div class="chat-bubble other">
+              <strong>Dr. H. Bambang Widjojanto:</strong> Selamat sore Pak Budi. Saya telah mempelajari ringkasan kasus sengketa kontrak IT Anda. Apakah Anda memiliki salinan perjanjian kerja sama (PKS) berserta lampiran klausul penalti SLA-nya?
+            </div>
+            <div class="chat-bubble me">
+              <strong>Budi Santoso (Anda):</strong> Selamat sore Dok. Ya, saya ada lampirannya. Pihak vendor terlambat 45 hari kerja dan menolak membayarkan denda keterlambatan sesuai pasal 12 PKS. Saya lampirkan berkasnya sekarang.
+            </div>
+          </div>
+          <div class="chat-input-row">
+            <input type="text" class="form-input" id="chat-input-field" placeholder="Ketik pesan hukum terenkripsi Anda di sini..." onkeypress="if(event.key==='Enter') sendChatMessage()">
+            <button class="primary" onclick="sendChatMessage()">Kirim Pesan E2EE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 10: MOCK-J-CL-05 ==================== -->
+    <div id="screen-CL-05" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-05</span>
+          <h1 class="screen-title">Check-in/out Konsultasi Offline Resmi (Dynamic QR Scan)</h1>
+          <p class="screen-desc">Pemindai kode QR dinamis dan verifikasi Geo-Fencing GPS untuk mengonfirmasi kehadiran sesi tatap muka di kantor advokat.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card" style="text-align: center;">
+          <div class="card-title" style="justify-content: center;">Pemindai QR Code & GPS Geo-Fencing</div>
+          <div style="width: 200px; height: 200px; margin: 20px auto; border: 4px dashed var(--border-color); display: flex; justify-content: center; align-items: center; background-color: var(--bg-app); border-radius: var(--border-radius);">
+            <div style="font-family: var(--font-mono); font-size: 12px; color: var(--text-muted);">[KAMERA AKTIF]<br><br>Arahkan ke Dynamic QR Host di Kantor Advokat</div>
+          </div>
+          <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 16px;">Verifikasi GPS: <strong style="color: var(--status-green);">Akurat (Dalam radius 25 meter dari Kantor Law Firm Bambang & Partners)</strong></p>
+          <button class="success" style="width: 100%;" onclick="simulateQRCheckin()">📍 Konfirmasi Check-in Hadir Sesi Offline</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Manfaat Check-in Resmi Offline</div>
+          <p style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+            Check-in QR dinamis ini berfungsi sebagai bukti kriptografi yang dicatat ke dalam <strong>WORM Audit Vault</strong> bahwa Anda dan advokat benar-benar melangsungkan pertemuan tatap muka fisik resmi.<br><br>
+            Tanpa pemindaian QR check-in dan check-out, sistem Escrow tidak akan dapat mencairkan dana ataupun menerbitkan sertifikat penyelesaian konsultasi offline.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 11: MOCK-J-CL-06 ==================== -->
+    <div id="screen-CL-06" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-06</span>
+          <h1 class="screen-title">Ruang Kerja Asinkron Deliverable & Download Gate</h1>
+          <p class="screen-desc">Pemeriksaan dokumen opini hukum ber-eMeterai SHA-256 dan konfirmasi pelepasan dana Escrow.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Dokumen Deliverable Resmi Diterbitkan</div>
+          <div style="background-color: var(--bg-app); padding: 16px; border: 1px solid var(--border-color); border-radius: var(--border-radius); margin-bottom: 16px;">
+            <div style="font-weight: 700; font-size: 15px;">📄 Opini_Hukum_Sengketa_Kontrak_IT_Final.pdf</div>
+            <div style="font-size: 12px; color: var(--text-muted); margin: 6px 0;">Ukuran Berkas: 2.4 MB | e-Meterai: <code style="font-family: var(--font-mono);">10000-MTR-2026-991827</code></div>
+            <div style="font-size: 11px; font-family: var(--font-mono); word-break: break-all; background: var(--badge-bg); padding: 6px; border-radius: 4px;">
+              SHA-256 Hash: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+            </div>
+          </div>
+          <button class="primary" style="width: 100%; margin-bottom: 10px;" onclick="alert('Mengunduh berkas Opini_Hukum_Sengketa_Kontrak_IT_Final.pdf terverifikasi SHA-256...')">⬇️ Unduh Dokumen PDF Resmi</button>
+          <button class="success" style="width: 100%; margin-bottom: 10px;" onclick="releaseEscrowFunds()">✅ Konfirmasi Terima & Cairkan Honor Escrow ke Advokat</button>
+          <button class="danger" style="width: 100%;" onclick="showScreen('CL-09')">⚠️ Ajukan Sengketa / Dispute Deliverable</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Status Konfirmasi Pelepasan Escrow</div>
+          <div style="font-size: 13px; color: var(--text-muted); line-height: 1.6;">
+            Dana Escrow saat ini: <strong style="font-family: var(--font-mono); color: var(--status-amber);">Rp 3.500.000 (TERKUNCI DI VAULT)</strong><br><br>
+            Batas Waktu Otomatis SLA (48 Jam):<br>
+            Jika Anda tidak melakukan konfirmasi ataupun mengajukan sengketa dalam waktu <strong>47 jam 18 menit ke depan</strong>, sistem ACID akan mencairkan honor kepada advokat secara otomatis sesuai perjanjian baku klausul 9.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 12: MOCK-J-CL-07 ==================== -->
+    <div id="screen-CL-07" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-07</span>
+          <h1 class="screen-title">Blocking Modal Rating & Ulasan Advokat (*Evaluasi Mutlak*)</h1>
+          <p class="screen-desc">Jendela penasihat kepuasan pasca-sesi yang wajib diisi sebelum membuka konsultasi hukum baru.</p>
+        </div>
+      </div>
+      <div class="card" style="max-width: 640px; margin: 0 auto;">
+        <div class="card-title">Evaluasi Sesi #J-2026-4412 (LBH Keadilan Pro Bono)</div>
+        <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px;">Sesi Anda telah selesai. Untuk menjaga transparansi dan kualitas penegakan hukum di ekosistem JUSTICA, silakan berikan penilaian objektif Anda.</p>
+        <div class="form-group">
+          <label class="form-label">Bintang Kepuasan (SLA & Ketajaman Analisis Hukum):</label>
+          <select class="form-select">
+            <option>⭐⭐⭐⭐⭐ (5/5) — Sangat Puas, Analisis Sangat Tajam</option>
+            <option>⭐⭐⭐⭐ (4/5) — Puas, Solusi Hukum Jelas</option>
+            <option>⭐⭐⭐ (3/5) — Cukup, Sesuai Standar Minimal</option>
+            <option>⭐⭐ (2/5) — Kurang Memuaskan, Respon Lambat</option>
+            <option>⭐ (1/5) — Buruk, Melanggar Kode Etik / Tidak Kompeten</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Ulasan Tertulis Anda (Akan dicatat di direktori transparan):</label>
+          <textarea class="form-textarea" placeholder="Tuliskan pengalaman konsultasi Anda secara jujur..."></textarea>
+        </div>
+        <button class="primary" style="width: 100%;" onclick="alert('Ulasan berhasil disimpan ke WORM Audit Vault! Anda kini dapat membuka sesi konsultasi baru.') ; showScreen('CL-02A')">⭐ Kirim Penilaian & Buka Kunci Dasbor</button>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 13: MOCK-J-CL-08 ==================== -->
+    <div id="screen-CL-08" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-08</span>
+          <h1 class="screen-title">Form Whistleblowing & Pelaporan Etik Advokat</h1>
+          <p class="screen-desc">Saluran pelaporan pelanggaran Kode Etik Peradi atau UU Advokat No. 18/2003 dengan perlindungan identitas anonim.</p>
+        </div>
+      </div>
+      <div class="card" style="max-width: 720px; margin: 0 auto;">
+        <div class="card-title">Laporkan Pelanggaran Profesional / Kode Etik</div>
+        <div class="form-group">
+          <label class="form-label">Nama / Nomor BAS Advokat yang Dilaporkan:</label>
+          <input type="text" class="form-input" placeholder="Contoh: Advokat X (BAS #123456)...">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kategori Pelanggaran Etik:</label>
+          <select class="form-select">
+            <option>Penelantaran Kasus / Tidak Memberikan Deliverable Setelah Honor Cair</option>
+            <option>Konflik Kepentingan (Memihak Lawan Sengketa Klien)</option>
+            <option>Permintaan Biaya Liar / Di Luar Sistem Escrow JUSTICA</option>
+            <option>Pelecehan / Tindakan Tidak Menyenangkan Selama Konsultasi</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Kronologi Lengkap & Bukti Pendukung:</label>
+          <textarea class="form-textarea" style="min-height: 120px;" placeholder="Jelaskan secara rinci waktu, tempat, dan bukti percakapan yang melanggar etik..."></textarea>
+        </div>
+        <div class="form-group" style="display: flex; gap: 8px; align-items: center;">
+          <input type="checkbox" id="anon-toggle" checked>
+          <label for="anon-toggle" style="font-size: 13px; font-weight: 600; color: var(--accent-color);">🔒 Sembunyikan identitas saya dari Advokat (Pelaporan Whistleblower Anonim)</label>
+        </div>
+        <button class="danger" style="width: 100%;" onclick="alert('Laporan pelanggaran etik telah dikirim langsung ke Dewan Kehormatan Peradi & Admin Compliance JUSTICA (Tercatat permanen di WORM Vault)!') ; showScreen('CL-09')">🚨 Kirim Laporan Pelanggaran Etik Resmi</button>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 14: MOCK-J-CL-09 ==================== -->
+    <div id="screen-CL-09" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-09</span>
+          <h1 class="screen-title">Pusat Pemantauan Status Dispute & Laporan Etik</h1>
+          <p class="screen-desc">Pelacakan transparan investigasi sengketa Escrow dan laporan pelanggaran etik oleh Admin Compliance.</p>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Daftar Sengketa (Dispute) & Pelaporan Etik Anda</div>
+        <table>
+          <tr><th>ID Dispute / Laporan</th><th>Subjek Kasus</th><th>Status Investigasi WORM</th><th>Tindakan Escrow</th><th>Update Terakhir</th></tr>
+          <tr>
+            <td><strong style="font-family: var(--font-mono);">#DSP-2026-0019</strong></td>
+            <td>Sengketa Keterlambatan Opini Hukum (#J-2026-8891)</td>
+            <td><span class="badge amber">AUDIT PRELIMINARY ADMIN</span></td>
+            <td><strong style="color: var(--status-red);">DIBEKUKAN MUTEX (Rp 3.5M)</strong></td>
+            <td>15 Juli 2026, 11:30 WIB</td>
+          </tr>
+          <tr>
+            <td><strong style="font-family: var(--font-mono);">#ETH-2026-0004</strong></td>
+            <td>Laporan Pelanggaran Etik (Whistleblowing Anonim)</td>
+            <td><span class="badge blue">DITERUSKAN KE DEWAN PERADI</span></td>
+            <td>N/A (Investigasi Etik)</td>
+            <td>14 Juli 2026, 16:20 WIB</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- ==================== SCREEN 15: MOCK-J-CL-10 ==================== -->
+    <div id="screen-CL-10" class="screen-container">
+      <div class="screen-header">
+        <div>
+          <span class="screen-id-badge">MOCK-J-CL-10</span>
+          <h1 class="screen-title">Pengaturan Akun, Keamanan MFA, & Audit Consent UU PDP</h1>
+          <p class="screen-desc">Manajemen kunci publik E2EE, autentikasi dua faktor, dan log jejak persetujuan data pribadi WORM.</p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Keamanan Kunci E2EE & Autentikasi MFA</div>
+          <div class="form-group">
+            <label class="form-label">Status Multi-Factor Authentication (2FA):</label>
+            <div style="font-weight: 700; color: var(--status-green);">✅ AKTIF (Google Authenticator / Biometrik WebAuthn)</div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Kunci Publik E2EE Perangkat Anda (Curve25519):</label>
+            <input type="text" class="form-input" readonly value="8f91c28b44a238019e7a6345bc09121c6783d2e1fa009281a8b34c219f8e7b1a" style="font-family: var(--font-mono); font-size: 11px;">
+          </div>
+          <button class="primary" style="width: 100%;" onclick="alert('Kunci publik E2EE baru telah dibangkitkan dan disinkronkan ke server!')">🔄 Rotasi Kunci Kriptografi E2EE</button>
+        </div>
+        <div class="card">
+          <div class="card-title">Log Jejak Persetujuan UU PDP (WORM Immutable)</div>
+          <table>
+            <tr><th>Waktu Stempel WORM</th><th>Aktivitas Persetujuan</th><th>SHA-256 Log Hash</th></tr>
+            <tr><td>15/07/2026 08:30:12</td><td>Persetujuan Pemrosesan KTP & NIK (Login CL-01)</td><td><code style="font-size: 11px;">0xa19f...882c</code></td></tr>
+            <tr><td>14/07/2026 14:15:00</td><td>Persetujuan Pembukaan Ruang Chat E2EE (#J-8891)</td><td><code style="font-size: 11px;">0xb34e...119d</code></td></tr>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- MODAL FOR ACID MUTEX LOCK CONFIRMATION -->
+  <div class="modal-backdrop" id="acid-modal">
+    <div class="modal-box">
+      <div class="card-title">Konfirmasi Penguncian Slot & Escrow ACID Mutex <span class="badge amber">LOCK FOR UPDATE</span></div>
+      <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 16px; line-height: 1.6;">
+        Anda akan mengunci slot konsultasi hukum bersama <strong>Dr. H. Bambang Widjojanto, S.H., M.H.</strong> pada hari ini pukul 16:00 WIB.<br><br>
+        Sistem akan menjalankan perintah database:<br>
+        <code style="font-family: var(--font-mono); display: block; background: var(--bg-app); padding: 8px; margin: 8px 0; border: 1px solid var(--border-color);">BEGIN TRANSACTION;<br>SELECT * FROM consultation_slots WHERE id = 'slot-1' FOR UPDATE;<br>UPDATE consultation_slots SET status = 'LOCKED' ...;<br>COMMIT;</code>
+      </p>
+      <div style="display: flex; gap: 12px; justify-content: flex-end;">
+        <button onclick="closeAcidModal()">Batal</button>
+        <button class="primary" onclick="confirmAcidLock()">🔒 Kunci Slot & Lanjut Bayar</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // IN-MEMORY STATE MACHINE FOR PROTOTYPE INTERACTIVITY
+    let state = {
+      walletBalance: 12500000,
+      activeCaseId: 'J-2026-8891',
+      activeTab: 'GATEWAY-01'
+    };
+
+    function changeStyle(styleName) {
+      document.documentElement.setAttribute('data-style', styleName);
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      document.getElementById('theme-btn').innerText = next === 'dark' ? '🌙 Dark' : '☀️ Light';
+    }
+
+    function showScreen(screenId) {
+      document.querySelectorAll('.screen-container').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-tab').forEach(el => el.classList.remove('active'));
+      
+      const targetScreen = document.getElementById('screen-' + screenId);
+      if (targetScreen) targetScreen.classList.add('active');
+      
+      const tabs = document.querySelectorAll('.nav-tab');
+      tabs.forEach(tab => {
+        if (tab.innerText.includes(screenId)) tab.classList.add('active');
+      });
+      
+      state.activeTab = screenId;
+      window.scrollTo(0, 0);
+    }
+
+    function openAcidModal() {
+      document.getElementById('acid-modal').classList.add('active');
+    }
+
+    function closeAcidModal() {
+      document.getElementById('acid-modal').classList.remove('active');
+    }
+
+    function confirmAcidLock() {
+      closeAcidModal();
+      showScreen('CL-03');
+    }
+
+    function simulatePaymentSuccess() {
+      alert('Pembayaran Virtual Account Rp 3.525.000 terkonfirmasi oleh sistem ACID Mutex! Dana kini diamankan di dalam Escrow Vault. Mengalihkan ke Ruang Obrolan E2EE...');
+      showScreen('CL-04');
+    }
+
+    function sendChatMessage() {
+      const field = document.getElementById('chat-input-field');
+      const text = field.value.trim();
+      if (!text) return;
+
+      const list = document.getElementById('chat-message-list');
+      const bubble = document.createElement('div');
+      bubble.className = 'chat-bubble me';
+      bubble.innerHTML = '<strong>Budi Santoso (Anda):</strong> ' + text;
+      list.appendChild(bubble);
+      field.value = '';
+      list.scrollTop = list.scrollHeight;
+
+      setTimeout(() => {
+        const reply = document.createElement('div');
+        reply.className = 'chat-bubble other';
+        reply.innerHTML = '<strong>Dr. H. Bambang Widjojanto:</strong> Baik Pak Budi, saya telah menerima lampiran dan pesan terenkripsi Anda. Saya akan segera menyusun Opini Hukum ber-eMeterai dalam waktu kurang dari 24 jam.';
+        list.appendChild(reply);
+        list.scrollTop = list.scrollHeight;
+      }, 1200);
+    }
+
+    function simulateQRCheckin() {
+      alert('Verifikasi QR Dynamic & GPS Geo-Fencing Berhasil! Waktu check-in 15/07/2026 16:02 WIB telah dicatat permanen ke dalam WORM Audit Vault.');
+      showScreen('CL-02A');
+    }
+
+    function releaseEscrowFunds() {
+      const confirmRelease = confirm('Apakah Anda yakin telah menerima Opini Hukum yang memuaskan dan ingin mencairkan dana Escrow Rp 3.500.000 kepada Advokat Dr. H. Bambang Widjojanto?');
+      if (confirmRelease) {
+        alert('Dana Escrow Rp 3.500.000 telah dicairkan ke rekening BI-FAST Advokat! Transaksi selesai dengan jejak WORM terverifikasi.');
+        showScreen('CL-07');
+      }
+    }
+
+    function runPublicVerification() {
+      const hash = document.getElementById('verify-hash-input').value.trim();
+      if (!hash) {
+        alert('Silakan masukkan SHA-256 Hash atau nomor seri e-Meterai terlebih dahulu.');
+        return;
+      }
+      alert('Memverifikasi hash kriptografi ' + hash.substring(0, 16) + '... dengan buku besar WORM Immutable Vault...');
+      document.getElementById('verify-result-box').style.display = 'block';
+    }
+
+    function resetDemoData() {
+      state.walletBalance = 12500000;
+      document.getElementById('wallet-balance-display').innerText = 'Rp 12.500.000';
+      alert('Status demonstrasi prototipe telah di-reset ke kondisi awal.');
+      showScreen('GATEWAY-01');
+    }
+  </script>
+</body>
+</html>
