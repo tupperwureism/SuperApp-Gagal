@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Portal Klien: Dasbor, Checkout & Escrow (Batch 1.3)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-back-nav {
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--text-accent);
+            border: 1px solid var(--primary);
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-back-nav:hover { background: var(--primary); color: #fff; }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ==================== SCREEN 1: CLIENT DASHBOARD (MOCK-J-CL-02A) ==================== */
+        .dashboard-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2.5rem;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.75rem;
+        }
+
+        .welcome-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .welcome-desc {
+            font-size: 1rem;
+            color: var(--text-muted);
+        }
+
+        .action-strip {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-action-main {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.9rem 1.75rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            text-decoration: none;
+        }
+
+        .btn-action-main:hover { background: var(--primary-hover); }
+
+        .btn-action-alt {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            padding: 0.9rem 1.75rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .btn-action-alt:hover { background: var(--success); color: #fff; }
+
+        .section-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 2rem;
+            margin-bottom: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+            font-size: 0.92rem;
+        }
+
+        .table-custom tr:last-child td { border-bottom: none; }
+        .table-custom tr:hover td { background: var(--bg-card-hover); }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            display: inline-block;
+        }
+
+        .badge-active { background: rgba(59, 130, 246, 0.15); color: var(--text-accent); border: 1px solid var(--primary); }
+        .badge-doc { background: rgba(139, 92, 246, 0.15); color: var(--purple); border: 1px solid var(--purple); }
+
+        /* ==================== SCREEN 2: CHECKOUT ESCROW (MOCK-J-CL-03) ==================== */
+        .checkout-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 860px;
+            margin: 0 auto 3rem auto;
+            box-shadow: var(--shadow);
+        }
+
+        .summary-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            margin-bottom: 2.25rem;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.65rem 0;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+        }
+
+        .summary-row:last-child { border-bottom: none; padding-bottom: 0; }
+        .summary-row.total { font-weight: 800; font-size: 1.25rem; color: var(--text-accent); border-top: 2px solid var(--border-color); padding-top: 1rem; margin-top: 0.5rem; }
+
+        .checkout-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.35rem;
+            margin-bottom: 2.25rem;
+        }
+
+        .checkout-tab {
+            padding: 0.85rem;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            border-radius: calc(var(--radius) - 4px);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+
+        .checkout-tab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .radio-method {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .radio-method.active {
+            border-color: var(--border-focus);
+            background: rgba(59, 130, 246, 0.08);
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .form-input:focus { outline: none; border-color: var(--border-focus); }
+
+        .btn-submit {
+            width: 100%;
+            background: var(--success);
+            color: #fff;
+            border: none;
+            padding: 1.1rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-submit:hover { background: #059669; }
+
+        /* ==================== SCREEN 3: PAYMENT INSTRUCTION & RECEIPT (MOCK-J-CL-03B) ==================== */
+        .invoice-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .payment-card {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .qris-box {
+            background: #fff;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            text-align: center;
+            margin: 1.5rem auto;
+            width: 220px;
+            height: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border: 4px solid var(--bg-base);
+        }
+
+        .va-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .btn-copy {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+        }
+
+        .btn-copy:hover { border-color: var(--border-focus); background: var(--bg-card-hover); }
+
+        .status-alert {
+            display: none;
+            background: rgba(16, 185, 129, 0.15);
+            border: 2px solid var(--success);
+            border-radius: var(--radius);
+            padding: 2rem;
+            text-align: center;
+            margin-top: 3rem;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .status-alert.active { display: block; }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('CL-02A')">
+            <span>⚖️ JUSTICA</span>
+            <span class="brand-subtitle">Portal Klien: Dasbor, Checkout & Escrow (Batch 1.3)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" id="nav-btn-cl02a" onclick="switchScreen('CL-02A')">1. Dasbor (`CL-02A`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl03" onclick="switchScreen('CL-03')">2. Checkout (`CL-03`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl03b" onclick="switchScreen('CL-03B')">3. Resi (`CL-03B`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a class="btn-back-nav" href="JUSTICA_Proto_1.2_Client_Catalog_Booking.html">
+                <span>&lt; Katalog/Booking (`CL-02`)</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: CLIENT DASHBOARD (MOCK-J-CL-02A) ==================== -->
+    <section id="CL-02A" class="screen-pane active">
+        <div class="container">
+            <div class="dashboard-header">
+                <div>
+                    <h1 class="welcome-title">=== HALO, BUDI SANTOSO (`CL-02A`)</h1>
+                    <p class="welcome-desc">Kelola sesi konsultasi aktif, unduh dokumen hukum Anda, atau jadwalkan sesi baru bersama advokat terverifikasi.</p>
+                </div>
+                <div style="text-align: right;">
+                    <span style="font-size: 0.8rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Status Akun Klien:</span>
+                    <div style="font-weight: 800; color: var(--success); font-size: 1.1rem; margin-top: 0.2rem;">✅ NIK Terverifikasi Dukcapil</div>
+                </div>
+            </div>
+
+            <div class="action-strip">
+                <a class="btn-action-main" href="JUSTICA_Proto_1.2_Client_Catalog_Booking.html">
+                    <span>+ KONSULTASI BARU (CARI ADVOKAT)</span>
+                    <span>→</span>
+                </a>
+                <button class="btn-action-alt" onclick="switchScreen('CL-03'); switchCheckoutTab('probono')">
+                    <span>⚖️ Layanan Pro Bono Gratis (`J-UC15`)</span>
+                </button>
+                <button style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0 1.5rem; border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="alert('Membuka Pusat Sengketa (`CL-08` / `CL-09`) yang akan dibangun di Batch 1.5!')">🛡️ Pusat Sengketa Escrow</button>
+            </div>
+
+            <!-- SECTION 1: KONSULTASI HUKUM AKTIF (Exact mapping lines 31-37) -->
+            <div class="section-box">
+                <h2 class="section-title">
+                    <span>🔴 KONSULTASI HUKUM AKTIF (`Sesi Berjalan / Dalam Proses`)</span>
+                </h2>
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th style="width: 32%;">ADVOKAT MITRA</th>
+                            <th style="width: 25%;">SPESIALISASI</th>
+                            <th style="width: 25%;">STATUS LAYANAN</th>
+                            <th style="width: 18%; text-align: right;">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 800; color: var(--text-main);">Dr. Mahendra Kusuma, S.H., M.H.</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">SIPP MA: 18293/PERADI/2015</div>
+                            </td>
+                            <td>Hukum Bisnis & Sengketa Komersial</td>
+                            <td>
+                                <span class="badge-status badge-active">⚡ Sesi Berjalan (44:12 - E2EE Active)</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <button style="background:var(--primary); color:#fff; border:none; padding:0.6rem 1.1rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('🌐 MEMBUKA RUANG OBROLAN E2EE (`MOCK-J-CL-04` - Batch 1.4)\n\nEnkripsi AES-GCM 256-Bit Aktif. Kunci dekripsi hanya ada di perangkat Anda dan advokat!')">Buka Ruang Obrolan →</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <div style="font-weight: 800; color: var(--text-main);">Anita Wulandari, S.H., M.H.</div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted);">SIPP MA: 09211/AAI/2018</div>
+                            </td>
+                            <td>Hukum Ketenagakerjaan & PHK</td>
+                            <td>
+                                <span class="badge-status badge-doc">📝 Penyusunan Dokumen Opinion</span>
+                            </td>
+                            <td style="text-align: right;">
+                                <button style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0.6rem 1.1rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('📄 MEMBUKA RUANG ASINKRON (`MOCK-J-CL-06` - Batch 1.4)\n\nMenampilkan draf awal Legal Opinion ber-eMeterai SHA-256 yang sedang direview.')">Lihat Dokumen →</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- SECTION 2: RIWAYAT DOKUMEN & KONSULTASI SELESAI (Exact mapping lines 41-47) -->
+            <div class="section-box">
+                <h2 class="section-title">
+                    <span>📁 RIWAYAT DOKUMEN & KONSULTASI SELESAI (`Arsip WORM Tamper-Proof`)</span>
+                </h2>
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th style="width: 18%;">TANGGAL</th>
+                            <th style="width: 28%;">ADVOKAT MITRA</th>
+                            <th style="width: 34%;">LAYANAN & DOKUMEN HUKUM</th>
+                            <th style="width: 20%; text-align: right;">UNDUHAN</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>02/07/2026</td>
+                            <td><b style="color:var(--text-main);">Dr. Mahendra Kusuma, S.H.</b></td>
+                            <td>Legal Opinion Kontrak NDA (`#DLV-441` • SHA-256 Verified)</td>
+                            <td style="text-align: right;">
+                                <button style="background:rgba(139,92,246,0.15); color:var(--purple); border:1px solid var(--purple); padding:0.5rem 1rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('Mengunduh berkas Legal Opinion PDF ber-eMeterai Peruri...')">Unduh Dokumen PDF</button>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>18/06/2026</td>
+                            <td><b style="color:var(--text-main);">Budi Hartono, S.H., M.H.</b></td>
+                            <td>Konsultasi Tatap Muka Luring (`#TRX-9882` • Escrow Released)</td>
+                            <td style="text-align: right;">
+                                <button style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0.5rem 1rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('Mengunduh Bukti Transaksi Resi Escrow WORM...')">Unduh Bukti Transaksi</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: CHECKOUT ESCROW & PRO BONO (MOCK-J-CL-03) ==================== -->
+    <section id="CL-03" class="screen-pane">
+        <div class="container">
+            <div class="checkout-box">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <span style="background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.35rem 1rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🔒 Perlindungan Rekening Bersama (Escrow ACID)</span>
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.1rem; font-weight: 800; color: var(--text-main); margin-top: 0.75rem;">KONFIRMASI PEMESANAN KONSULTASI</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem;">Dana Anda dilindungi dengan aman dalam Rekening Bersama (Escrow) dan baru diteruskan ke advokat setelah sesi konsultasi selesai.</p>
+                </div>
+
+                <!-- ORDER SUMMARY (Exact mapping lines 26-30) -->
+                <div class="summary-card">
+                    <div class="summary-row">
+                        <span style="color:var(--text-muted);">Advokat Mitra Terpilih:</span>
+                        <b style="color:var(--text-main);">Dr. Mahendra Kusuma, S.H., M.H.</b>
+                    </div>
+                    <div class="summary-row">
+                        <span style="color:var(--text-muted);">Layanan Dipilih:</span>
+                        <b style="color:var(--text-main);">Konsultasi Hukum Mendalam (45 Menit)</b>
+                    </div>
+                    <div class="summary-row">
+                        <span style="color:var(--text-muted);">Jadwal Pertemuan:</span>
+                        <b style="color:var(--text-main);">Hari Ini, 10 Juli 2026 — 10:30 WIB</b>
+                    </div>
+                    <div class="summary-row">
+                        <span style="color:var(--text-muted);">Biaya Konsultasi Dasar:</span>
+                        <span>Rp 450.000</span>
+                    </div>
+                    <div class="summary-row">
+                        <span style="color:var(--text-muted);">Biaya Perlindungan Escrow & PPN (11%):</span>
+                        <span>Rp 49.500</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total Pembayaran Escrow:</span>
+                        <span id="display-total-price">Rp 499.500</span>
+                    </div>
+                </div>
+
+                <!-- CHECKOUT TABS (Lines 33: PEMBAYARAN ESCROW | PENGAJUAN PRO BONO) -->
+                <div class="checkout-tabs">
+                    <button class="checkout-tab active" id="tab-checkout-escrow" onclick="switchCheckoutTab('escrow')">[ 💳 PEMBAYARAN ESCROW ]</button>
+                    <button class="checkout-tab" id="tab-checkout-probono" onclick="switchCheckoutTab('probono')">[ ⚖️ PENGAJUAN BANTUAN PRO BONO (Rp 0) ]</button>
+                </div>
+
+                <!-- TAB 2A: PEMBAYARAN ESCROW (Lines 36-45) -->
+                <div id="pane-checkout-escrow">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.15rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.25rem;">PILIH METODE PEMBAYARAN INSTAN</h3>
+
+                    <div class="radio-method active" onclick="selectPaymentMethod(this)">
+                        <input type="radio" name="pay_method" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                        <div>
+                            <div>📱 QRIS Instan (Gopay, OVO, DANA, ShopeePay, Mobile Banking)</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">Verifikasi otomatis seketika dalam < 5 detik.</div>
+                        </div>
+                    </div>
+
+                    <div class="radio-method" onclick="selectPaymentMethod(this)">
+                        <input type="radio" name="pay_method" style="width:18px; height:18px; accent-color:var(--primary);">
+                        <div>
+                            <div>🏦 Virtual Account Bank (BCA, Mandiri, BNI, BRI)</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">Transfer otomatis dengan nomor rekening khusus VA.</div>
+                        </div>
+                    </div>
+
+                    <div class="radio-method" onclick="selectPaymentMethod(this)">
+                        <input type="radio" name="pay_method" style="width:18px; height:18px; accent-color:var(--primary);">
+                        <div>
+                            <div>💳 Kartu Kredit / Debit Visa & Mastercard</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); font-weight:normal;">Dilengkapi pengaman 3D-Secure & enkripsi PCI-DSS.</div>
+                        </div>
+                    </div>
+
+                    <label style="display:flex; align-items:center; gap:0.65rem; font-size:0.88rem; color:var(--text-muted); cursor:pointer; margin-top:1.5rem;">
+                        <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                        <span>Saya menyetujui Ketentuan Layanan Rekening Bersama Justica (Escrow ACID Lock Transaksional)</span>
+                    </label>
+
+                    <button class="btn-submit" onclick="executeEscrowPay()">
+                        <span>🔒 BAYAR SEKARANG — Rp 499.500 (`CL-03B`) →</span>
+                    </button>
+                </div>
+
+                <!-- TAB 2B: PENGAJUAN PRO BONO (Lines 48-55) -->
+                <div id="pane-checkout-probono" style="display: none;">
+                    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid var(--primary); border-radius: var(--radius); padding: 1.25rem; margin-bottom: 1.75rem;">
+                        <b style="color: var(--text-accent);">ℹ️ PERSYARATAN BANTUAN HUKUM CUMA-CUMA (UU NO. 18/2003 ADVOKAT):</b>
+                        <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.35rem; line-height: 1.6;">
+                            Klien yang terdaftar dalam Data Terpadu Kesejahteraan Sosial (DTKS Kemensos) atau memiliki Surat Keterangan Tidak Mampu (SKTM) berhak memperoleh pendampingan advokat berlisensi secara <b>100% GRATIS (Rp 0)</b>.
+                        </p>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display:block; font-weight:700; font-size:0.88rem; color:var(--text-main); margin-bottom:0.5rem;">Nomor NIK KTP Terverifikasi:</label>
+                        <input type="text" class="form-input" style="font-family:var(--font-mono);" value="3171234567890001" readonly>
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display:block; font-weight:700; font-size:0.88rem; color:var(--text-main); margin-bottom:0.5rem;">Nomor Surat Keterangan Tidak Mampu (SKTM Kelurahan):</label>
+                        <input type="text" class="form-input" style="font-family:var(--font-mono);" value="SKTM/2026/VII/0921">
+                    </div>
+
+                    <div class="form-group">
+                        <label style="display:block; font-weight:700; font-size:0.88rem; color:var(--text-main); margin-bottom:0.5rem;">Unggah Berkas Foto/Scan SKTM Asli (.PDF / .JPG):</label>
+                        <div style="background:var(--bg-base); border:2px dashed var(--border-color); border-radius:var(--radius); padding:2rem; text-align:center; cursor:pointer;" onclick="alert('Berkas SKTM_Budi_Santoso_2026.pdf (1.2 MB) berhasil dilampirkan!')">
+                            <div style="font-size:2rem; margin-bottom:0.5rem;">📑</div>
+                            <div style="font-weight:700; color:var(--text-main);">SKTM_Budi_Santoso_2026.pdf (Terlampir)</div>
+                            <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.25rem;">Klik untuk mengganti berkas lampiran</div>
+                        </div>
+                    </div>
+
+                    <button class="btn-submit" style="background: var(--primary);" onclick="executeProBonoSubmit()">
+                        <span>⚖️ AJUKAN KONSULTASI PRO BONO (Rp 0) (`CL-03B`) →</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: PAYMENT INSTRUCTIONS & RECEIPT (MOCK-J-CL-03B) ==================== -->
+    <section id="CL-03B" class="screen-pane">
+        <div class="container">
+            <div style="text-align: center; margin-bottom: 2.5rem;">
+                <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); padding: 0.4rem 1.25rem; border-radius: 999px; font-weight: 800; font-size: 0.85rem; margin-bottom: 1rem;">
+                    <span>⏳ SISA WAKTU PEMBAYARAN ESCROW:</span>
+                    <span id="countdown-timer" style="font-family: var(--font-mono);">14:28</span>
+                </div>
+                <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main);">INSTRUKSI PEMBAYARAN REKENING BERSAMA</h1>
+                <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Selesaikan pembayaran atau transfer sebelum batas waktu berakhir agar jadwal slot konsultasi Anda tetap terkunci mutlak.</p>
+            </div>
+
+            <!-- INVOICE INFO BAR -->
+            <div style="background:var(--bg-surface); border:1px solid var(--border-color); border-radius:var(--radius); padding:1.5rem 2.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1.5rem; margin-bottom:2.5rem; box-shadow:var(--shadow);">
+                <div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">ID TAGIHAN ESCROW:</div>
+                    <div style="font-family:var(--font-mono); font-weight:800; font-size:1.15rem; color:var(--text-main);">INV-202607-003</div>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">ADVOKAT MITRA & LAYANAN:</div>
+                    <div style="font-weight:800; font-size:1.05rem; color:var(--text-main);">Dr. Mahendra Kusuma (Konsultasi Mendalam 45 Menit)</div>
+                </div>
+                <div>
+                    <div style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">TOTAL PEMBAYARAN:</div>
+                    <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.45rem; color:var(--text-accent);">Rp 499.500</div>
+                </div>
+            </div>
+
+            <!-- PAYMENT OPTIONS GRID (Exact mapping lines 33-45) -->
+            <div class="invoice-grid">
+                <!-- LEFT CARD: QRIS INSTAN -->
+                <div class="payment-card">
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); text-align: center;">KODE QRIS INSTAN (`All e-Wallet / M-Banking`)</h3>
+                        <div class="qris-box">
+                            <div style="font-size: 4.5rem; line-height: 1;">📱</div>
+                            <div style="font-family: var(--font-mono); font-weight: 800; font-size: 0.85rem; color: #111827; margin-top: 0.5rem;">[ KODE QRIS INSTAN ]</div>
+                            <div style="font-size: 0.7rem; color: #4b5563;">Scan dengan Gopay, OVO, DANA, BCA Mobile</div>
+                        </div>
+                        <p style="text-align: center; font-size: 0.88rem; color: var(--text-muted);">Arahkan kamera atau aplikasi pembayaran Anda ke kode QR di atas. Verifikasi status berlangsung otomatis.</p>
+                    </div>
+                    <button class="btn-action-main" style="width: 100%; justify-content: center; margin-top: 1.5rem;" onclick="simulatePaymentSuccess('escrow')">
+                        <span>⚡ SIMULASI: PEMBAYARAN DITERIMA →</span>
+                    </button>
+                </div>
+
+                <!-- RIGHT CARD: VIRTUAL ACCOUNT -->
+                <div class="payment-card">
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">TRANSFER VIRTUAL ACCOUNT BANK</h3>
+
+                        <div class="va-box">
+                            <div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 700;">Virtual Account Bank BCA:</div>
+                                <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem; color: var(--text-main); margin-top: 0.2rem;">88921 081234567890</div>
+                            </div>
+                            <button class="btn-copy" onclick="alert('Nomor VA BCA 88921081234567890 berhasil disalin!')">Salin Nomor</button>
+                        </div>
+
+                        <div class="va-box">
+                            <div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 700;">Virtual Account Bank Mandiri:</div>
+                                <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem; color: var(--text-main); margin-top: 0.2rem;">89022 081234567890</div>
+                            </div>
+                            <button class="btn-copy" onclick="alert('Nomor VA Mandiri 89022081234567890 berhasil disalin!')">Salin Nomor</button>
+                        </div>
+
+                        <div class="va-box">
+                            <div>
+                                <div style="font-size: 0.82rem; color: var(--text-muted); font-weight: 700;">Virtual Account Bank BNI:</div>
+                                <div style="font-family: var(--font-mono); font-weight: 800; font-size: 1.15rem; color: var(--text-main); margin-top: 0.2rem;">88099 081234567890</div>
+                            </div>
+                            <button class="btn-copy" onclick="alert('Nomor VA BNI 88099081234567890 berhasil disalin!')">Salin Nomor</button>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                        <button style="flex:1; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0.9rem; border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="alert('Unduhan Bukti Tagihan INV-202607-003.pdf sedang dimulai!')">📄 Unduh Tagihan</button>
+                        <button style="flex:1; background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.9rem; border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="simulatePaymentSuccess('probono')">⚖️ Simulasi Pro Bono</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SIMULATED SUCCESS ALERTS (Exact mapping lines 52-57) -->
+            <div id="status-success-escrow" class="status-alert">
+                <div style="font-size: 3rem; color: var(--success); margin-bottom: 0.5rem;">✅</div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--success);">PEMBAYARAN DITERIMA & DANA DIAMANKAN DI ESCROW!</h2>
+                <p style="font-size: 1rem; color: var(--text-muted); max-width: 720px; margin: 0.5rem auto 2rem auto;">
+                    Rekening Bersama Justica (ACID Lock #TRX-9901) telah menahan dana Anda senilai Rp 499.500. Advokat Dr. Mahendra Kusuma siap menyambut Anda di ruang konsultasi.
+                </p>
+                <button class="btn-action-main" style="margin: 0 auto; padding: 1.1rem 2.5rem; font-size: 1.1rem;" onclick="openE2EEChatRoomAlert()">
+                    <span>🌐 MASUK KE RUANG KONSULTASI E2EE SEKARANG (`CL-04` - Batch 1.4)</span>
+                    <span>→</span>
+                </button>
+            </div>
+
+            <div id="status-success-probono" class="status-alert" style="border-color: var(--primary); background: rgba(59, 130, 246, 0.12);">
+                <div style="font-size: 3rem; color: var(--text-accent); margin-bottom: 0.5rem;">⚖️</div>
+                <h2 style="font-family: 'Outfit', sans-serif; font-size: 1.85rem; font-weight: 800; color: var(--text-accent);">PENGAJUAN PRO BONO SKTM DISETUJUI (Rp 0)!</h2>
+                <p style="font-size: 1rem; color: var(--text-muted); max-width: 720px; margin: 0.5rem auto 2rem auto;">
+                    Verifikasi DTKS Kemensos & SKTM berhasil valid 100%. Biaya konsultasi ditanggung penuh oleh Kuota Bantuan Hukum Rakyat Justica (`#PBN-1120`).
+                </p>
+                <button class="btn-action-main" style="margin: 0 auto; padding: 1.1rem 2.5rem; font-size: 1.1rem; background: var(--primary);" onclick="openE2EEChatRoomAlert()">
+                    <span>🌐 MASUK KE RUANG PRO BONO SEKARANG (`CL-04` - Batch 1.4)</span>
+                    <span>→</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // TAB SWITCHER
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'CL-02A') document.getElementById('nav-btn-cl02a').classList.add('active');
+            if (screenId === 'CL-03') document.getElementById('nav-btn-cl03').classList.add('active');
+            if (screenId === 'CL-03B') document.getElementById('nav-btn-cl03b').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function switchCheckoutTab(tabType) {
+            document.getElementById('tab-checkout-escrow').classList.toggle('active', tabType === 'escrow');
+            document.getElementById('tab-checkout-probono').classList.toggle('active', tabType === 'probono');
+            document.getElementById('pane-checkout-escrow').style.display = tabType === 'escrow' ? 'block' : 'none';
+            document.getElementById('pane-checkout-probono').style.display = tabType === 'probono' ? 'block' : 'none';
+        }
+
+        function selectPaymentMethod(elem) {
+            document.querySelectorAll('.radio-method').forEach(box => {
+                box.classList.remove('active');
+                box.querySelector('input[type="radio"]').checked = false;
+            });
+            elem.classList.add('active');
+            elem.querySelector('input[type="radio"]').checked = true;
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function executeEscrowPay() {
+            alert('💳 MEMPROSES CHECKOUT ESCROW (`MOCK-J-CL-03` -> `CL-03B`)\n\nTagihan INV-202607-003 telah dibuat dengan ACID Mutex Lock.\nSilakan lakukan scan QRIS atau transfer VA di halaman instruksi.');
+            switchScreen('CL-03B');
+            document.getElementById('status-success-escrow').classList.remove('active');
+            document.getElementById('status-success-probono').classList.remove('active');
+        }
+
+        function executeProBonoSubmit() {
+            alert('⚖️ PENGAJUAN PRO BONO DIKIRIM (`MOCK-J-CL-03` -> `CL-03B`)\n\nDokumen SKTM & NIK Anda telah tervalidasi otomatis oleh sistem Kemensos DTKS.\nMengarahkan ke halaman konfirmasi persetujuan Pro Bono (Rp 0).');
+            switchScreen('CL-03B');
+            simulatePaymentSuccess('probono');
+        }
+
+        function simulatePaymentSuccess(type) {
+            document.getElementById('status-success-escrow').classList.remove('active');
+            document.getElementById('status-success-probono').classList.remove('active');
+
+            if (type === 'escrow') {
+                document.getElementById('status-success-escrow').classList.add('active');
+                document.getElementById('status-success-escrow').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            } else {
+                document.getElementById('status-success-probono').classList.add('active');
+                document.getElementById('status-success-probono').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }
+
+        function openE2EEChatRoomAlert() {
+            alert('🌐 MASUK KE RUANG KONSULTASI (`MOCK-J-CL-04` / `CL-05` / `CL-06` - Batch 1.4)\n\nSesi obrolan terenkripsi E2EE AES-GCM dengan Dr. Mahendra Kusuma akan dibuka pada Batch 1.4 berikutnya!');
+        }
+
+        // Simple Countdown simulation
+        let time = 14 * 60 + 28;
+        setInterval(() => {
+            if (time > 0) {
+                time--;
+                const mins = Math.floor(time / 60).toString().padStart(2, '0');
+                const secs = (time % 60).toString().padStart(2, '0');
+                const el = document.getElementById('countdown-timer');
+                if (el) el.textContent = `${mins}:${secs}`;
+            }
+        }, 1000);
+    </script>
+</body>
+</html>
