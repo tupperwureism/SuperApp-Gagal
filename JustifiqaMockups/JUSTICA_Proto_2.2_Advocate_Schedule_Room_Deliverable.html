@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Ruang Kerja Advokat: Jadwal, Konsultasi E2EE, Deliverable & Dompet (Batch 2.2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* CARD CONTAINERS */
+        .card-surface {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.15rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.65rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 0.98rem;
+            margin-top: 0.35rem;
+        }
+
+        /* BUTTONS */
+        .btn-main {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1rem 1.75rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 0.98rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+        }
+
+        .btn-main:hover { background: var(--primary-hover); }
+
+        .btn-outline {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 1rem 1.75rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .btn-outline:hover { border-color: var(--border-focus); background: var(--bg-card-hover); }
+
+        /* SCHEDULE TABLE */
+        .schedule-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.25rem 1.5rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+
+        /* CHAT ROOM (AD-04) */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            height: 440px;
+            overflow-y: auto;
+            margin: 1.5rem 0;
+        }
+
+        .chat-bubble {
+            max-width: 75%;
+            padding: 1.1rem 1.35rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        .chat-bubble.client {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-bubble.advocate {
+            background: rgba(37, 99, 235, 0.15);
+            border: 1px solid var(--primary);
+            color: var(--text-main);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-meta {
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-bottom: 0.35rem;
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::top {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR (Strictly isolated to Advocate Domain) -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('AD-03')">
+            <span>⚖️ JUSTICA</span>
+            <span class="brand-subtitle">Ruang Kerja Advokat: Jadwal, Konsultasi E2EE, Deliverable & Dompet (Batch 2.2)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" id="nav-btn-ad03" onclick="switchScreen('AD-03')">1. Jadwal (`AD-03`)</button>
+                <button class="nav-tab-btn" id="nav-btn-ad04" onclick="switchScreen('AD-04')">2. Ruang Konsultasi (`AD-04`)</button>
+                <button class="nav-tab-btn" id="nav-btn-ad05" onclick="switchScreen('AD-05')">3. Deliverable (`AD-05`)</button>
+                <button class="nav-tab-btn" id="nav-btn-ad06" onclick="switchScreen('AD-06')">4. Dompet & Honor (`AD-06`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a href="JUSTICA_Proto_2.1_Advocate_Portal_KYC_Command.html" style="background:transparent; border:1px solid var(--border-color); color:var(--text-main); padding:0.5rem 1rem; border-radius:var(--radius); font-weight:700; font-size:0.85rem; text-decoration:none;">
+                &lt; Command Center (`AD-02A`)
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: SCHEDULE & SLOTS (MOCK-J-AD-03) ==================== -->
+    <section id="AD-03" class="screen-pane active">
+        <div class="container">
+            <div class="card-surface">
+                <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.5rem; margin-bottom:2rem;">
+                    <span style="background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">📅 Kalender Praktik Advokat</span>
+                    <h1 class="section-title">=== ATUR JADWAL KONSULTASI ANDA (`AD-03`)</h1>
+                    <p class="section-subtitle">Tentukan hari dan jam operasional untuk konsultasi daring E2EE dan pertemuan luring agar dapat dipesan oleh klien.</p>
+                </div>
+
+                <!-- SCHEDULE LIST (Exact mapping lines 27-30) -->
+                <div style="margin-bottom:2.5rem;">
+                    <div class="schedule-row">
+                        <label style="display:flex; align-items:center; gap:1rem; font-weight:700; font-size:1.05rem; cursor:pointer;">
+                            <input type="checkbox" checked style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Senin</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <input type="text" value="09:00 - 15:00 WIB" style="font-family:var(--font-mono); background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-main); padding:0.6rem 1rem; border-radius:8px; font-weight:700;">
+                            <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.8rem; border-radius:6px; font-size:0.78rem; font-weight:800;">AKTIF & TERSEDIA</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-row">
+                        <label style="display:flex; align-items:center; gap:1rem; font-weight:700; font-size:1.05rem; cursor:pointer;">
+                            <input type="checkbox" checked style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Selasa</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <input type="text" value="09:00 - 16:00 WIB" style="font-family:var(--font-mono); background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-main); padding:0.6rem 1rem; border-radius:8px; font-weight:700;">
+                            <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.8rem; border-radius:6px; font-size:0.78rem; font-weight:800;">AKTIF & TERSEDIA</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-row">
+                        <label style="display:flex; align-items:center; gap:1rem; font-weight:700; font-size:1.05rem; cursor:pointer;">
+                            <input type="checkbox" checked style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Rabu</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <input type="text" value="10:00 - 14:00 WIB" style="font-family:var(--font-mono); background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-main); padding:0.6rem 1rem; border-radius:8px; font-weight:700;">
+                            <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.8rem; border-radius:6px; font-size:0.78rem; font-weight:800;">AKTIF & TERSEDIA</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-row" style="opacity:0.65;">
+                        <label style="display:flex; align-items:center; gap:1rem; font-weight:700; font-size:1.05rem; cursor:pointer;">
+                            <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Kamis</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <input type="text" value="10:00 - 16:00 WIB" disabled style="font-family:var(--font-mono); background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-muted); padding:0.6rem 1rem; border-radius:8px; font-weight:700;">
+                            <span style="background:var(--bg-card); color:var(--text-muted); border:1px solid var(--border-color); padding:0.35rem 0.8rem; border-radius:6px; font-size:0.78rem; font-weight:800;">TUTUP / LIBUR</span>
+                        </div>
+                    </div>
+
+                    <div class="schedule-row" style="opacity:0.65;">
+                        <label style="display:flex; align-items:center; gap:1rem; font-weight:700; font-size:1.05rem; cursor:pointer;">
+                            <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Jumat</span>
+                        </label>
+                        <div style="display:flex; align-items:center; gap:1rem;">
+                            <input type="text" value="09:00 - 11:30 WIB" disabled style="font-family:var(--font-mono); background:var(--bg-surface); border:1px solid var(--border-color); color:var(--text-muted); padding:0.6rem 1rem; border-radius:8px; font-weight:700;">
+                            <span style="background:var(--bg-card); color:var(--text-muted); border:1px solid var(--border-color); padding:0.35rem 0.8rem; border-radius:6px; font-size:0.78rem; font-weight:800;">TUTUP / LIBUR</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION (Exact mapping line 33) -->
+                <button class="btn-main" onclick="alert('💾 JADWAL PRAKTIK BERHASIL DISIMPAN (`MOCK-J-AD-03`)\n\nKalender operasional Anda untuk Senin, Selasa, dan Rabu telah diperbarui ke Katalog Advokat (`CL-02`).')">
+                    <span>💾 SIMPAN JADWAL PRAKTIK (`AD-03`)</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: ADVOCATE CONSULTATION ROOM (MOCK-J-AD-04) ==================== -->
+    <section id="AD-04" class="screen-pane">
+        <div class="container">
+            <div class="card-surface">
+                <div style="display:flex; justify-content:space-between; align-items:flex-end; border-bottom:1px solid var(--border-color); padding-bottom:1.5rem; margin-bottom:1.5rem; flex-wrap:wrap; gap:1.5rem;">
+                    <div>
+                        <span style="background:rgba(139,92,246,0.15); color:var(--purple); border:1px solid var(--purple); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🛡️ AES-GCM 256-Bit E2EE Encrypted</span>
+                        <h1 class="section-title">=== SESI KONSULTASI HUKUM AKTIF (`AD-04`)</h1>
+                        <p class="section-subtitle">Klien: PT Mitra Jaya (REQ-202607-001) • Layanan Tier 2 (Konsultasi Mendalam 45 Menit).</p>
+                    </div>
+                    <div style="text-align:right;">
+                        <div style="font-size:0.8rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">SISA WAKTU SLA FAIR-CLOCK:</div>
+                        <div id="clock-display" style="font-family:var(--font-mono); font-size:2rem; font-weight:800; color:var(--success); margin-top:0.25rem;">44:12</div>
+                        <div id="clock-status-badge" style="font-size:0.78rem; font-weight:800; color:var(--success); margin-top:0.25rem;">● ARAL DIJALANKAN (ACTIVE)</div>
+                    </div>
+                </div>
+
+                <!-- FAIR-CLOCK ADVOCATE CONTROL NOTICE (Corrective Honesty UX Fix) -->
+                <div style="background:rgba(59,130,246,0.1); border:1px solid var(--primary); border-radius:var(--radius); padding:1.25rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div style="flex:1;">
+                        <b style="color:var(--text-main); font-size:0.92rem;">⚡ KONTROL FAIR-CLOCK ADVOKAT (PAUSE CLOCK):</b>
+                        <p style="color:var(--text-muted); font-size:0.85rem; margin-top:0.25rem;">Anda memiliki wewenang penuh menghentikan sementara arloji hitung mundur saat meninjau dokumen atau lampiran kontrak rumit agar tidak memakan kuota waktu klien.</p>
+                    </div>
+                    <button id="btn-pause-clock" class="btn-outline" style="border-color:var(--warning); color:var(--warning); font-weight:800;" onclick="toggleAdvocateClock()">
+                        <span>⏸️ JEDA SESI (PAUSE CLOCK MENINJAU BERKAS)</span>
+                    </button>
+                </div>
+
+                <!-- CHAT LOG (Exact mapping lines 27-29) -->
+                <div class="chat-container">
+                    <div class="chat-bubble client">
+                        <div class="chat-meta">
+                            <span style="color:var(--text-accent);">PT Mitra Jaya (Klien)</span>
+                            <span style="color:var(--text-muted);">10:30 WIB</span>
+                        </div>
+                        <div>Selamat pagi Pak Advokat. Saya butuh arahan terkait klausa wanprestasi dan pengamanan kontrak NDA vendor kami yang melanggar pasal kesepakatan waktu pengiriman barang.</div>
+                    </div>
+
+                    <div class="chat-bubble advocate">
+                        <div class="chat-meta">
+                            <span style="color:#fff;">Dr. Mahendra Kusuma (Anda)</span>
+                            <span style="color:rgba(255,255,255,0.7);">10:31 WIB</span>
+                        </div>
+                        <div>Selamat pagi, siap membantu. Silakan unggah draf perjanjian eksisting serta bukti keterlambatan agar dapat saya telusuri poin batas tanggung jawab dan klausa sanksinya sekarang juga.</div>
+                    </div>
+                </div>
+
+                <!-- ACTIONS (Exact mapping line 32) -->
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div style="display:flex; gap:0.75rem; flex:1;">
+                        <input type="text" placeholder="Ketik tanggapan atau analisis hukum Anda..." style="flex:1; background:var(--bg-base); border:1px solid var(--border-color); color:var(--text-main); padding:0.85rem 1.25rem; border-radius:var(--radius); font-size:0.95rem;">
+                        <button class="btn-main" onclick="alert('Pesan terkirim dengan enkripsi E2EE AES-GCM')">Kirim</button>
+                    </div>
+                    <div style="display:flex; gap:1rem;">
+                        <button class="btn-outline" style="border-color:var(--danger); color:var(--danger);" onclick="alert('🛑 SESI KONSULTASI DIAKHIRI\n\nRekam jejak waktu ter-lock di WORM Vault. Anda kini dapat menerbitkan deliverable akhir atau menutup perkara.')">Akhiri Sesi</button>
+                        <button class="btn-main" style="background:var(--success);" onclick="switchScreen('AD-05')">
+                            <span>📄 BUAT DOKUMEN DELIVERABLE (`AD-05`) →</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: DELIVERABLE ISSUANCE (MOCK-J-AD-05) ==================== -->
+    <section id="AD-05" class="screen-pane">
+        <div class="container">
+            <div class="card-surface">
+                <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.5rem; margin-bottom:2rem;">
+                    <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🔏 e-Meterai Peruri KMS Ready</span>
+                    <h1 class="section-title">=== PENERBITAN OPINI HUKUM & E-METERAI (`AD-05`)</h1>
+                    <p class="section-subtitle">Unggah dokumen opini hukum dan kontrak resmi Anda ber-eMeterai untuk diverifikasi serta diunduh oleh klien.</p>
+                </div>
+
+                <!-- METADATA BOX (Exact mapping lines 27-28) -->
+                <div style="background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:2rem; margin-bottom:2rem;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem;">
+                        <div>
+                            <label style="font-size:0.82rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">BERKAS DOKUMEN SIAP TERBIT:</label>
+                            <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:700; color:var(--text-main); margin-top:0.45rem; display:flex; align-items:center; gap:0.5rem;">
+                                <span>📄 Legal_Opinion_NDA_v1.pdf</span>
+                                <span style="font-size:0.8rem; background:var(--bg-card); padding:0.2rem 0.6rem; border-radius:4px; color:var(--text-muted);">2.4 MB</span>
+                            </div>
+                            <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.35rem; font-family:var(--font-mono);">SHA-256: e8f9a0c2b4d6e8f0a2c4e6f8a0b2d4c6e8f0a2c4e6f8</div>
+                        </div>
+                        <div>
+                            <label style="font-size:0.82rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">STATUS E-METERAI PERURI & KMS:</label>
+                            <div style="font-size:1.1rem; font-weight:800; color:var(--success); margin-top:0.45rem;">
+                                SIAP DIBUBUHKAN (Peruri SHA-256 Digital Signature)
+                            </div>
+                            <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.35rem;">Meterai terotentikasi langsung dengan portal Peruri & Mahkamah Agung.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- UPLOAD ZONE -->
+                <div style="border:2px dashed var(--border-color); border-radius:var(--radius); padding:3rem 2rem; text-align:center; background:var(--bg-base); margin-bottom:2.5rem; cursor:pointer;" onclick="alert('Pilih berkas PDF baru dari komputer Anda...')">
+                    <div style="font-size:2.5rem; margin-bottom:0.75rem;">📎</div>
+                    <b style="color:var(--text-main); font-size:1.1rem;">Ganti atau Perbarui Berkas Opini Hukum (PDF Max 25 MB)</b>
+                    <p style="color:var(--text-muted); font-size:0.9rem; margin-top:0.35rem;">Sistem akan secara otomatis menghitung ulang SHA-256 Hash dan menempelkan e-Meterai pada halaman tanda tangan.</p>
+                </div>
+
+                <!-- ACTION (Exact mapping line 32) -->
+                <button class="btn-main" style="background:var(--success); width:100%; padding:1.25rem; font-size:1.1rem;" onclick="issueDeliverable()">
+                    <span>🔏 TERBITKAN DOKUMEN BER-eMETERAI SEKARANG (`AD-05` -> `CL-06`)</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: ADVOCATE WALLET & WITHDRAWAL (MOCK-J-AD-06) ==================== -->
+    <section id="AD-06" class="screen-pane">
+        <div class="container">
+            <div class="card-surface">
+                <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.5rem; margin-bottom:2rem;">
+                    <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">💸 BI-FAST Instant Payout Active</span>
+                    <h1 class="section-title">=== DOMPET ADVOKAT & PENCAIRAN HONOR (`AD-06`)</h1>
+                    <p class="section-subtitle">Kelola saldo honorarium bersih dan lakukan penarikan dana ke rekening bank terdaftar Anda secara instan.</p>
+                </div>
+
+                <!-- STATS GRID (Exact mapping lines 27-28) -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div style="font-size:0.82rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">SALDO TERSEDIA SIAP CAIR</div>
+                        <div style="font-family:'Outfit', sans-serif; font-size:2.25rem; font-weight:800; color:var(--success); margin-top:0.5rem;">Rp 12.500.000</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Dapat ditarik ke Bank Mandiri 123-00-9876543-2 kapan saja.</div>
+                    </div>
+                    <div class="stat-card" style="border-color:rgba(59,130,246,0.3);">
+                        <div style="font-size:0.82rem; font-weight:800; color:var(--text-muted); text-transform:uppercase;">SALDO TERTAHAN ESCROW (ACID LOCKED)</div>
+                        <div style="font-family:'Outfit', sans-serif; font-size:2.25rem; font-weight:800; color:var(--text-accent); margin-top:0.5rem;">Rp 4.200.000</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.5rem;">Menunggu verifikasi akhir & persetujuan dokumen oleh Klien (`CL-06`).</div>
+                    </div>
+                </div>
+
+                <!-- BANK DETAILS BOX -->
+                <div style="background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:1.75rem; margin:2rem 0; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                    <div>
+                        <b style="color:var(--text-main); font-size:1.02rem;">🏦 Rekening Pencairan Honor Terverifikasi:</b>
+                        <div style="font-family:var(--font-mono); font-size:1.15rem; color:var(--text-accent); font-weight:700; margin-top:0.35rem;">BANK MANDIRI — 123-00-9876543-2</div>
+                        <div style="font-size:0.85rem; color:var(--text-muted); margin-top:0.15rem;">Atas Nama: Dr. Mahendra Kusuma, S.H., M.H. (`SIPP Sesuai KYC AD-01B`)</div>
+                    </div>
+                    <button class="btn-outline" onclick="alert('Mengubah rekening tujuan memerlukan verifikasi ulang biometrik wajah (`AD-01B`) untuk keamanan antikorupsi & pencucian uang.')">Ubah Rekening Bank</button>
+                </div>
+
+                <!-- ACTION (Exact mapping line 32) -->
+                <button class="btn-main" style="background:var(--success); width:100%; padding:1.25rem; font-size:1.1rem;" onclick="executeWalletPayout()">
+                    <span>💸 CAIRKAN DANA (Rp 12.500.000) KE BANK MANDIRI VIA BI-FAST (`AD-06`)</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // TAB SWITCHER
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'AD-03') document.getElementById('nav-btn-ad03').classList.add('active');
+            if (screenId === 'AD-04') document.getElementById('nav-btn-ad04').classList.add('active');
+            if (screenId === 'AD-05') document.getElementById('nav-btn-ad05').classList.add('active');
+            if (screenId === 'AD-06') document.getElementById('nav-btn-ad06').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        // ADVOCATE PAUSE CLOCK TOGGLE
+        let isClockPaused = false;
+        function toggleAdvocateClock() {
+            const btn = document.getElementById('btn-pause-clock');
+            const display = document.getElementById('clock-display');
+            const badge = document.getElementById('clock-status-badge');
+
+            if (!isClockPaused) {
+                isClockPaused = true;
+                btn.innerHTML = '<span>▶️ LANJUTKAN SESI (RESUME CLOCK)</span>';
+                btn.style.borderColor = 'var(--success)';
+                btn.style.color = 'var(--success)';
+                display.style.color = 'var(--warning)';
+                badge.style.color = 'var(--warning)';
+                badge.textContent = '● ⏳ ARLOJI DIJEDAKAN ADVOKAT (MENINJAU BERKAS)';
+                alert('⏳ ARLOJI FAIR-CLOCK DIJEDAKAN (`AD-04` -> `CL-04`)\n\nPenghitungan waktu konsultasi 45 menit kini dihentikan sementara. Klien mendapat notifikasi bahwa Anda sedang meninjau lampiran kontrak secara mendalam.');
+            } else {
+                isClockPaused = false;
+                btn.innerHTML = '<span>⏸️ JEDA SESI (PAUSE CLOCK MENINJAU BERKAS)</span>';
+                btn.style.borderColor = 'var(--warning)';
+                btn.style.color = 'var(--warning)';
+                display.style.color = 'var(--success)';
+                badge.style.color = 'var(--success)';
+                badge.textContent = '● ARAL DIJALANKAN (ACTIVE)';
+                alert('▶️ ARLOJI FAIR-CLOCK DILANJUTKAN (`AD-04`)\n\nPenghitungan waktu konsultasi berjalan kembali.');
+            }
+        }
+
+        function issueDeliverable() {
+            alert('🔏 DOKUMEN OPINI HUKUM BER-eMETERAI BERHASIL DITERBITKAN (`AD-05` -> `CL-06`)\n\nSHA-256 Hash tercatat permanen di WORM Vault dan e-Meterai Peruri telah dibubuhkan secara sah.\n\nKlien PT Mitra Jaya kini dapat mengunduh dan menyetujui dokumen di Ruang Kerja Dokumen (`CL-06`) untuk mencairkan sisa saldo Escrow Anda.');
+            switchScreen('AD-06');
+        }
+
+        function executeWalletPayout() {
+            alert('💸 PENCAIRAN SALDO HONOR BERHASIL (`MOCK-J-AD-06`)\n\nDana sebesar Rp 12.500.000 telah ditransfer secara instan via BI-FAST ke Bank Mandiri 123-00-9876543-2 atas nama Dr. Mahendra Kusuma, S.H., M.H.\n\nResi transaksi tercatat abadi di WORM Vault dan dipotong pajak sesuai regulasi.');
+        }
+    </script>
+</body>
+</html>
