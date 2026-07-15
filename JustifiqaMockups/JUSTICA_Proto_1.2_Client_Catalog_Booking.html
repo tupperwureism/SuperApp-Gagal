@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Portal Klien: Auth, Katalog & Booking (Batch 1.2)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover {
+            color: var(--text-main);
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-back-nav {
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--text-accent);
+            border: 1px solid var(--primary);
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-back-nav:hover {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ==================== SCREEN 1: CLIENT AUTH (MOCK-J-CL-01) ==================== */
+        .auth-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 680px;
+            margin: 0 auto 3rem auto;
+            box-shadow: var(--shadow);
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .auth-desc {
+            font-size: 0.95rem;
+            color: var(--text-muted);
+        }
+
+        .auth-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.3rem;
+            margin-bottom: 2.25rem;
+        }
+
+        .auth-tab {
+            padding: 0.75rem;
+            text-align: center;
+            font-weight: 700;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            border-radius: calc(var(--radius) - 4px);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+
+        .auth-tab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-input {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.85rem 1.1rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        }
+
+        .form-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 0.65rem;
+            font-size: 0.88rem;
+            color: var(--text-muted);
+            cursor: pointer;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-checkbox input {
+            width: 18px;
+            height: 18px;
+            accent-color: var(--primary);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background-color: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-submit:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .alert-box {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-top: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        /* ==================== SCREEN 2: LAWYER CATALOG (MOCK-J-CL-02) ==================== */
+        .filter-bar {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 1.5rem;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.25rem;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .filter-select {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.75rem 1.15rem;
+            border-radius: var(--radius);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .catalog-table {
+            width: 100%;
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            border-collapse: separate;
+            border-spacing: 0;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .catalog-table th {
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            padding: 1.25rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .catalog-table td {
+            padding: 1.75rem 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: top;
+        }
+
+        .catalog-table tr:last-child td { border-bottom: none; }
+        .catalog-table tr:hover td { background: var(--bg-card-hover); }
+
+        .lawyer-name {
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-bottom: 0.35rem;
+        }
+
+        .badge-sipp {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border: 1px solid var(--success);
+            font-size: 0.72rem;
+            font-weight: 800;
+            padding: 0.2rem 0.6rem;
+            border-radius: 6px;
+            display: inline-block;
+            margin-top: 0.4rem;
+        }
+
+        .service-list {
+            list-style: none;
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            line-height: 1.8;
+        }
+
+        .service-list li::before {
+            content: "• ";
+            color: var(--text-accent);
+            font-weight: bold;
+        }
+
+        .btn-action-small {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.4rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .btn-action-small:hover { background: var(--primary-hover); }
+
+        /* ==================== SCREEN 3: PROFILE & BOOKING (MOCK-J-CL-02B) ==================== */
+        .profile-container {
+            display: grid;
+            grid-template-columns: 2fr 1.2fr;
+            gap: 2.5rem;
+            margin-bottom: 4rem;
+        }
+
+        .profile-main, .booking-panel {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 2.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .profile-header {
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1.75rem;
+            margin-bottom: 1.75rem;
+        }
+
+        .slot-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.8rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.88rem;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .slot-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .slot-btn.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: var(--bg-card);
+            border-color: transparent;
+        }
+
+        .radio-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .radio-box.active {
+            border-color: var(--border-focus);
+            background: rgba(59, 130, 246, 0.08);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('CL-02')">
+            <span>⚖️ JUSTICA</span>
+            <span class="brand-subtitle">Portal Klien: Autentikasi, Katalog & Booking (Batch 1.2)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn" id="nav-btn-cl01" onclick="switchScreen('CL-01')">1. Auth (`CL-01`)</button>
+                <button class="nav-tab-btn active" id="nav-btn-cl02" onclick="switchScreen('CL-02')">2. Katalog (`CL-02`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl02b" onclick="switchScreen('CL-02B')">3. Booking (`CL-02B`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a class="btn-back-nav" href="JUSTICA_Proto_1.1_Gateway_and_Verifier.html">
+                <span>&lt; Gerbang Utama (`GATEWAY-01`)</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: CLIENT AUTH (MOCK-J-CL-01) ==================== -->
+    <section id="CL-01" class="screen-pane">
+        <div class="container">
+            <div class="auth-box">
+                <div class="auth-header">
+                    <h1 class="auth-title">MASUK KE PORTAL KLIEN</h1>
+                    <p class="auth-desc">Silakan masuk atau daftarkan identitas NIK Anda untuk memulai konsultasi hukum terverifikasi resmi.</p>
+                </div>
+
+                <div class="auth-tabs">
+                    <button class="auth-tab active" id="tab-login-btn" onclick="toggleAuthTab('login')">[ Masuk Akun ]</button>
+                    <button class="auth-tab" id="tab-register-btn" onclick="toggleAuthTab('register')">[ Daftar Baru (NIK) ]</button>
+                </div>
+
+                <!-- LOGIN FORM -->
+                <div id="auth-login-pane">
+                    <div class="form-group">
+                        <label class="form-label">Email atau NIK Terdaftar:</label>
+                        <input type="text" class="form-input" value="budi.santoso@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Kata Sandi:</label>
+                        <input type="password" class="form-input" value="••••••••••••••••••••••••">
+                    </div>
+                    <label class="form-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Ingat saya di perangkat ini (Cookie JWT HttpOnly TLS 1.3 Sesi Aman)</span>
+                    </label>
+
+                    <div style="border-top: 1px dashed var(--border-color); padding-top: 1.5rem; margin-top: 1.5rem;">
+                        <label class="form-label">Kode Keamanan OTP MFA (6-Digit dari WhatsApp/SMS):</label>
+                        <div style="display: flex; gap: 0.75rem; margin-bottom: 1rem;">
+                            <input type="text" class="form-input" style="font-family: var(--font-mono); letter-spacing: 0.4em; font-weight:800; text-align:center;" value="8 4 9 2 0 1">
+                            <button style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0 1.2rem; border-radius:var(--radius); font-weight:600; cursor:pointer; white-space:nowrap;" onclick="alert('Kode OTP baru telah dikirimkan ke WhatsApp +62812***890')">Kirim Ulang (00:59)</button>
+                        </div>
+                    </div>
+
+                    <button class="btn-submit" onclick="executeLogin()">
+                        <span>🔒 MASUK SEKARANG KE KATALOG (`CL-02`)</span>
+                    </button>
+                </div>
+
+                <!-- REGISTER FORM -->
+                <div id="auth-register-pane" style="display: none;">
+                    <div class="form-group">
+                        <label class="form-label">Nomor Induk Kependudukan (NIK 16-Digit):</label>
+                        <div style="display: flex; gap: 0.5rem;">
+                            <input type="text" class="form-input" style="font-family: var(--font-mono);" value="3171234567890001">
+                            <span style="background:rgba(16,185,129,0.15); color:var(--success); border:1px solid var(--success); border-radius:var(--radius); padding:0 1rem; display:flex; align-items:center; font-size:0.8rem; font-weight:800; white-space:nowrap;">✅ Terverifikasi Dukcapil</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nama Lengkap Sesuai KTP:</label>
+                        <input type="text" class="form-input" value="Budi Santoso">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Nomor WhatsApp Terverifikasi:</label>
+                        <input type="text" class="form-input" value="+6281234567890">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Alamat Email Aktif & Kata Sandi Baru:</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+                            <input type="email" class="form-input" value="budi.santoso@email.com">
+                            <input type="password" class="form-input" value="••••••••••••••••••••••••">
+                        </div>
+                    </div>
+                    <label class="form-checkbox">
+                        <input type="checkbox" checked>
+                        <span>Saya menyetujui Ketentuan Layanan & Informed Consent Pemrosesan Data Pribadi (UU PDP No. 27/2022 SHA-256 Hash Saved)</span>
+                    </label>
+
+                    <button class="btn-submit" onclick="executeRegister()">
+                        <span>📝 DAFTAR SEKARANG & MULAI KONSULTASI</span>
+                    </button>
+                </div>
+
+                <!-- DUE PROCESS NOTICE (Exact 1-to-1 with MOCK-J-CL-01 line 57) -->
+                <div class="alert-box">
+                    <span style="font-size: 1.5rem;">⚠️</span>
+                    <div>
+                        <div style="font-weight: 800; color: var(--danger); font-size: 0.92rem; margin-bottom: 0.25rem;">INFORMASI AKUN & DUE PROCESS (`J-UC17`):</div>
+                        <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.6;">
+                            Jika akun Anda berstatus <code>SUSPENDED</code> karena pelanggaran kode etik atau sengketa pembayaran, sistem akan menolak login dan memberikan hak masa sanggah/banding resmi selama <b>14 Hari Kerja</b> sebelum penutupan permanen.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: LAWYER CATALOG (MOCK-J-CL-02) ==================== -->
+    <section id="CL-02" class="screen-pane active">
+        <div class="container">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2rem;">
+                <div>
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main);">PILIH ADVOKAT TERVERIFIKASI (`CL-02`)</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Seluruh advokat mitra Justica berlisensi resmi Mahkamah Agung & PERADI serta siap membantu permasalahan hukum Anda.</p>
+                </div>
+                <button style="background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0.75rem 1.25rem; border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="alert('Membuka Dasbor Klien (`MOCK-J-CL-02A` - Batch 1.3)')">📁 Dasbor Riwayat Saya (`CL-02A`)</button>
+            </div>
+
+            <!-- FILTER BAR (Exact 1-to-1 with MOCK-J-CL-02 line 27) -->
+            <div class="filter-bar">
+                <input type="text" placeholder="Cari nama advokat atau keahlian..." class="form-input" style="flex: 1; min-width: 250px;" id="catalog-search-input">
+                <select class="filter-select">
+                    <option>Spesialisasi Hukum: Semua Spesialisasi</option>
+                    <option>Hukum Bisnis & Sengketa Komersial</option>
+                    <option>Hukum Ketenagakerjaan & PHK</option>
+                    <option>Hukum Perdata, Waris & Keluarga</option>
+                    <option>Hukum Pidana & Penundaan Kewajiban</option>
+                </select>
+                <select class="filter-select">
+                    <option>Tier Layanan: Semua Pilihan Tarif</option>
+                    <option>Pro Bono Rp 0 (Gratis untuk Rakyat)</option>
+                    <option>Konsultasi Awal Gratis (15 Menit)</option>
+                    <option>Tier 1 Reguler (Rp 300.000 - Rp 450.000)</option>
+                    <option>Tier 3 Spesialis Senior (> Rp 1.500.000)</option>
+                </select>
+                <label style="display: flex; align-items: center; gap: 0.5rem; font-weight: 700; font-size: 0.88rem; cursor: pointer;">
+                    <input type="checkbox" checked style="width: 18px; height: 18px; accent-color: var(--primary);">
+                    <span>Advokat Online Saat Ini</span>
+                </label>
+                <button class="btn-action-small" onclick="alert('Filter katalog diterapkan! Menampilkan advokat yang cocok.')">🔍 CARI ADVOKAT</button>
+            </div>
+
+            <!-- CATALOG TABLE (Exact 1-to-1 mapping with saltwireframe lines 33-61) -->
+            <table class="catalog-table">
+                <thead>
+                    <tr>
+                        <th style="width: 32%;">NAMA & LISENSI ADVOKAT</th>
+                        <th style="width: 25%;">SPESIALISASI & PENGALAMAN</th>
+                        <th style="width: 28%;">PILIHAN LAYANAN & TARIF</th>
+                        <th style="width: 15%; text-align: center;">AKSI</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ADVOCATE 1: Dr. Mahendra Kusuma -->
+                    <tr>
+                        <td>
+                            <div class="lawyer-name">Dr. Mahendra Kusuma, S.H., M.H.</div>
+                            <div style="font-size: 0.88rem; color: var(--text-muted);">Lisensi PERADI • ★ 4.9 (124 Ulasan Klien)</div>
+                            <span class="badge-sipp">🛡️ SIPP MA: 18293/PERADI/2015</span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Hukum Bisnis & Sengketa Komersial</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Pengalaman Praktik 15 Tahun • Eks-Konsultan Hukum Korporasi</div>
+                        </td>
+                        <td>
+                            <ul class="service-list">
+                                <li>Konsultasi Awal (15 Menit Gratis)</li>
+                                <li>Konsultasi Lengkap (Rp 450.000 / sesi)</li>
+                                <li>Analisis & Pembuatan Dokumen Legal</li>
+                            </ul>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn-action-small" onclick="switchScreen('CL-02B')">Lihat Profil & Jadwal →</button>
+                        </td>
+                    </tr>
+
+                    <!-- ADVOCATE 2: Anita Wulandari -->
+                    <tr>
+                        <td>
+                            <div class="lawyer-name">Anita Wulandari, S.H., M.H.</div>
+                            <div style="font-size: 0.88rem; color: var(--text-muted);">Lisensi AAI • ★ 4.8 (88 Ulasan Klien)</div>
+                            <span class="badge-sipp">🛡️ SIPP MA: 09211/AAI/2018</span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Hukum Ketenagakerjaan & PHK</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Pengalaman Praktik 10 Tahun • Spesialis Hubungan Industrial</div>
+                        </td>
+                        <td>
+                            <ul class="service-list">
+                                <li>Konsultasi Awal (15 Menit Gratis)</li>
+                                <li>Konsultasi Lengkap (Rp 350.000 / sesi)</li>
+                                <li>Analisis & Pembuatan Dokumen PHI</li>
+                            </ul>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn-action-small" onclick="switchScreen('CL-02B')">Lihat Profil & Jadwal →</button>
+                        </td>
+                    </tr>
+
+                    <!-- ADVOCATE 3: Adv. Rina Kartika (Added for Pro Bono completeness) -->
+                    <tr>
+                        <td>
+                            <div class="lawyer-name">Adv. Rina Kartika, S.H., M.Kn.</div>
+                            <div style="font-size: 0.88rem; color: var(--text-muted);">Lisensi PERADI • ★ 4.9 (95 Ulasan Klien)</div>
+                            <span class="badge-sipp" style="background:rgba(59,130,246,0.15); color:var(--text-accent); border-color:var(--primary);">⚖️ KUOTA PRO BONO TERSEDIA</span>
+                        </td>
+                        <td>
+                            <div style="font-weight: 700; color: var(--text-main); font-size: 0.95rem;">Hukum Perdata, Waris & Bantuan Hukum</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.25rem;">Pengalaman Praktik 12 Tahun • LBH Mitra Advokasi Rakyat</div>
+                        </td>
+                        <td>
+                            <ul class="service-list">
+                                <li><b style="color:var(--success);">Pro Bono 100% Gratis (Bantuan Rakyat)</b></li>
+                                <li>Konsultasi Reguler (Rp 300.000 / sesi)</li>
+                                <li>Penyusunan Akta Perdamaian & Mediasi</li>
+                            </ul>
+                        </td>
+                        <td style="text-align: center;">
+                            <button class="btn-action-small" onclick="switchScreen('CL-02B')">Lihat Profil & Jadwal →</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: PROFILE & BOOKING (MOCK-J-CL-02B) ==================== -->
+    <section id="CL-02B" class="screen-pane">
+        <div class="container">
+            <div style="margin-bottom: 2rem;">
+                <button style="background:transparent; border:1px solid var(--border-color); color:var(--text-main); padding:0.6rem 1.1rem; border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="switchScreen('CL-02')">
+                    &lt; Kembali ke Daftar Katalog Advokat (`CL-02`)
+                </button>
+            </div>
+
+            <div class="profile-container">
+                <!-- LEFT MAIN PROFILE -->
+                <div class="profile-main">
+                    <div class="profile-header">
+                        <span class="badge-sipp" style="margin-top:0; margin-bottom:0.75rem;">🛡️ ADVOKAT TERVERIFIKASI RESMI MAHKAMAH AGUNG</span>
+                        <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem;">DR. MAHENDRA KUSUMA, S.H., M.H.</h1>
+                        <p style="font-size: 1.1rem; color: var(--text-accent); font-weight: 600;">Spesialis Hukum Bisnis, Sengketa Komersial, & Hak Kekayaan Intelektual</p>
+                        <div style="display: flex; gap: 1.5rem; margin-top: 1rem; font-size: 0.9rem; color: var(--text-muted); font-weight: 600;">
+                            <span>Anggota PERADI (No. 18293/PERADI/2015)</span>
+                            <span>•</span>
+                            <span style="color: var(--warning);">★ 4.9 dari 124 Ulasan Klien</span>
+                            <span>•</span>
+                            <span>15 Tahun Pengalaman Praktik</span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">PROFIL & PENGALAMAN PROFESIONAL</h3>
+                        <p style="font-size: 0.98rem; color: var(--text-muted); line-height: 1.8; margin-bottom: 2rem;">
+                            Berpengalaman lebih dari 15 tahun mendampingi klien korporasi nasional maupun individu dalam penyelesaian sengketa komersial, negosiasi kontrak bisnis, kepatuhan regulasi, serta litigasi perdata di Pengadilan Negeri dan Badan Arbitrase Nasional Indonesia (BANI). Seluruh sesi konsultasi dijaga ketat di bawah perlindungan kerahasiaan hubungan advokat-klien (*Attorney-Client Privilege*).
+                        </p>
+
+                        <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">1. PILIH PAKET LAYANAN KONSULTASI (`MOCK-J-CL-02B`)</h3>
+                        
+                        <!-- OPTION 1 -->
+                        <div class="radio-box" onclick="selectServiceOption(this, 'Konsultasi Awal (15 Menit)', 'Rp 0')">
+                            <input type="radio" name="service_option" style="margin-top: 0.25rem;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">Konsultasi Awal (15 Menit) — GRATIS Rp 0</div>
+                                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">Penilaian awal kasus hukum Anda secara singkat untuk menentukan kelayakan litigasi atau mediasi.</p>
+                            </div>
+                        </div>
+
+                        <!-- OPTION 2 -->
+                        <div class="radio-box active" onclick="selectServiceOption(this, 'Konsultasi Mendalam (45 Menit)', 'Rp 450.000')">
+                            <input type="radio" name="service_option" checked style="margin-top: 0.25rem;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">Konsultasi Mendalam (45 Menit) — Rp 450.000</div>
+                                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">Analisis dokumen bukti awal, pembahasan strategi hukum mendetail, dan saran tindak lanjut terstruktur.</p>
+                            </div>
+                        </div>
+
+                        <!-- OPTION 3 -->
+                        <div class="radio-box" onclick="selectServiceOption(this, 'Konsultasi & Pembuatan Dokumen', 'Rp 3.500.000')">
+                            <input type="radio" name="service_option" style="margin-top: 0.25rem;">
+                            <div>
+                                <div style="font-weight: 800; font-size: 1rem; color: var(--text-main);">Konsultasi & Pembuatan Dokumen — Rp 3.500.000</div>
+                                <p style="font-size: 0.88rem; color: var(--text-muted); margin-top: 0.25rem;">Penyusunan pendapat hukum (*Legal Opinion*) resmi ber-eMeterai atau draf kontrak perjanjian beserta 2x revisi.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- RIGHT BOOKING PANEL -->
+                <div class="booking-panel">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.5rem;">2. METODE & JADWAL PERTEMUAN</h3>
+
+                    <div class="form-group">
+                        <label class="form-label">Metode Pertemuan Konsultasi:</label>
+                        <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem;">
+                            <button class="slot-btn active" style="flex:1;" onclick="selectMode(this, 'Konsultasi Online (E2EE Video/Chat)')">🌐 Online (E2EE)</button>
+                            <button class="slot-btn" style="flex:1;" onclick="selectMode(this, 'Konsultasi Tatap Muka (Luring di Kantor Advokat)')">🏢 Luring (Tatap Muka)</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Tanggal Pertemuan:</label>
+                        <input type="date" class="form-input" value="2026-07-10">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Pilihan Slot Jam Tersedia (Real-Time Slot Lock):</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-top: 0.5rem;">
+                            <button class="slot-btn disabled">09:00 WIB (Penuh)</button>
+                            <button class="slot-btn active" onclick="selectSlot(this, '10:30 WIB')">10:30 WIB (Tersedia)</button>
+                            <button class="slot-btn" onclick="selectSlot(this, '14:00 WIB')">14:00 WIB (Tersedia)</button>
+                            <button class="slot-btn" onclick="selectSlot(this, '16:30 WIB')">16:30 WIB (Tersedia)</button>
+                        </div>
+                    </div>
+
+                    <div style="background: var(--bg-base); border: 1px solid var(--border-color); border-radius: var(--radius); padding: 1.25rem; margin: 2rem 0 1.5rem 0;">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <span>Layanan Terpilih:</span>
+                            <span id="summary-service-name" style="font-weight: 700; color: var(--text-main);">Konsultasi Mendalam</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.88rem; color: var(--text-muted); margin-bottom: 0.5rem;">
+                            <span>Jadwal Sesi:</span>
+                            <span id="summary-slot-time" style="font-weight: 700; color: var(--text-main);">10 Juli 2026 • 10:30 WIB</span>
+                        </div>
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 0.75rem; margin-top: 0.75rem; display: flex; justify-content: space-between; align-items: center;">
+                            <span style="font-weight: 800; color: var(--text-main);">Total Estimasi Biaya:</span>
+                            <span id="summary-price" style="font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 1.35rem; color: var(--text-accent);">Rp 450.000</span>
+                        </div>
+                    </div>
+
+                    <button class="btn-submit" style="background: var(--success);" onclick="proceedToCheckout()">
+                        <span>🔒 LANJUTKAN KE PEMBAYARAN ESCROW (`CL-03`) →</span>
+                    </button>
+                    <p style="font-size: 0.75rem; color: var(--text-muted); text-align: center; margin-top: 0.85rem;">
+                        Dana Anda diamankan 100% di Rekening Bersama (Escrow) & baru diteruskan setelah sesi konsultasi selesai.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // TAB SWITCHER
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'CL-01') document.getElementById('nav-btn-cl01').classList.add('active');
+            if (screenId === 'CL-02') document.getElementById('nav-btn-cl02').classList.add('active');
+            if (screenId === 'CL-02B') document.getElementById('nav-btn-cl02b').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function toggleAuthTab(tabName) {
+            document.getElementById('tab-login-btn').classList.toggle('active', tabName === 'login');
+            document.getElementById('tab-register-btn').classList.toggle('active', tabName === 'register');
+            document.getElementById('auth-login-pane').style.display = tabName === 'login' ? 'block' : 'none';
+            document.getElementById('auth-register-pane').style.display = tabName === 'register' ? 'block' : 'none';
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function executeLogin() {
+            alert('✅ AUTENTIKASI KLIEN BERHASIL (`MOCK-J-CL-01`)\n\nToken JWT sesi Anda telah diamankan di HttpOnly Cookie TLS 1.3.\nSistem sekarang mengarahkan Anda ke Katalog Advokat (`CL-02`).');
+            switchScreen('CL-02');
+        }
+
+        function executeRegister() {
+            alert('📝 REGISTRASI NIK BERHASIL (`MOCK-J-CL-01`)\n\nInformed Consent Anda (UU PDP No. 27/2022) telah dicatat dengan hash SHA-256.\nSilakan masuk ke Katalog Advokat (`CL-02`).');
+            switchScreen('CL-02');
+        }
+
+        function selectServiceOption(elem, serviceName, price) {
+            document.querySelectorAll('.radio-box').forEach(box => {
+                box.classList.remove('active');
+                box.querySelector('input[type="radio"]').checked = false;
+            });
+            elem.classList.add('active');
+            elem.querySelector('input[type="radio"]').checked = true;
+            document.getElementById('summary-service-name').textContent = serviceName;
+            document.getElementById('summary-price').textContent = price;
+        }
+
+        function selectMode(btn, modeText) {
+            btn.parentElement.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            alert(`Metode konsultasi diubah ke: ${modeText}`);
+        }
+
+        function selectSlot(btn, timeText) {
+            if (btn.classList.contains('disabled')) return;
+            btn.parentElement.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            document.getElementById('summary-slot-time').textContent = `10 Juli 2026 • ${timeText}`;
+        }
+
+        function proceedToCheckout() {
+            const serviceName = document.getElementById('summary-service-name').textContent;
+            const timeSlot = document.getElementById('summary-slot-time').textContent;
+            const price = document.getElementById('summary-price').textContent;
+            alert(`🔒 PROSES BOOKING & CHECKOUT ESCROW (` + '`MOCK-J-CL-03`' + ` - Batch 1.3)\n\nAdvokat: Dr. Mahendra Kusuma, S.H., M.H.\nLayanan: ${serviceName}\nJadwal: ${timeSlot}\nTotal Biaya: ${price}\n\nAnda akan diarahkan ke halaman Rincian Pembayaran Escrow & Resi QRIS di Batch 1.3!`);
+        }
+    </script>
+</body>
+</html>
