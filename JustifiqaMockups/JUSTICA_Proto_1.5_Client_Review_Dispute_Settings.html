@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Portal Klien: Ulasan, Dispute Escrow & Pengaturan Privasi (Batch 1.5)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        .btn-back-nav {
+            background: rgba(59, 130, 246, 0.12);
+            color: var(--text-accent);
+            border: 1px solid var(--primary);
+            padding: 0.55rem 1.15rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .btn-back-nav:hover { background: var(--primary); color: #fff; }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* ==================== SCREEN 1: RATING MODAL (MOCK-J-CL-07) ==================== */
+        .rating-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 680px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .star-picker {
+            display: flex;
+            justify-content: center;
+            gap: 0.75rem;
+            margin: 2rem 0;
+        }
+
+        .star-btn {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-muted);
+            padding: 1rem 1.35rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+        .star-btn.active {
+            background: var(--warning);
+            color: #111827;
+            border-color: var(--warning);
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+        }
+
+        .form-textarea {
+            width: 100%;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 1rem;
+            border-radius: var(--radius);
+            font-size: 0.95rem;
+            min-height: 130px;
+            font-family: var(--font-sans);
+            margin-bottom: 1.25rem;
+        }
+
+        .form-textarea:focus { outline: none; border-color: var(--border-focus); }
+
+        .btn-main-action {
+            width: 100%;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1.1rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+            margin-top: 1.5rem;
+        }
+
+        .btn-main-action:hover { background: var(--primary-hover); }
+
+        /* ==================== SCREEN 2: DISPUTE FORM (MOCK-J-CL-08) ==================== */
+        .dispute-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 860px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .radio-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            margin-bottom: 0.85rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .radio-box.active {
+            border-color: var(--danger);
+            background: rgba(239, 68, 68, 0.08);
+        }
+
+        /* ==================== SCREEN 3: DISPUTE TRACKING CENTER (MOCK-J-CL-09) ==================== */
+        .tracking-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 980px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0 2.5rem 0;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 1rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td {
+            padding: 1.25rem 1rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.92rem;
+            vertical-align: middle;
+        }
+
+        .timeline-box {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2rem;
+            margin: 1.5rem 0;
+        }
+
+        .timeline-item {
+            display: flex;
+            gap: 1.25rem;
+            margin-bottom: 1.25rem;
+            font-size: 0.92rem;
+            line-height: 1.6;
+        }
+
+        .timeline-item:last-child { margin-bottom: 0; }
+        .timeline-time { font-family: var(--font-mono); font-weight: 800; color: var(--text-muted); white-space: nowrap; }
+
+        /* ==================== SCREEN 4: SETTINGS & PRIVACY (MOCK-J-CL-10) ==================== */
+        .settings-box {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3rem;
+            max-width: 920px;
+            margin: 0 auto;
+            box-shadow: var(--shadow);
+        }
+
+        .inner-tabs {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 0.35rem;
+            margin-bottom: 2.25rem;
+        }
+
+        .inner-tab {
+            padding: 0.85rem;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            border-radius: calc(var(--radius) - 4px);
+            cursor: pointer;
+            border: none;
+            background: transparent;
+        }
+
+        .inner-tab.active {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        .alert-delete-zone {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--danger);
+            border-radius: var(--radius);
+            padding: 1.75rem;
+            margin-top: 2.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('CL-07')">
+            <span>⚖️ JUSTICA</span>
+            <span class="brand-subtitle">Portal Klien: Ulasan, Dispute & Pengaturan Privasi (Batch 1.5)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" id="nav-btn-cl07" onclick="switchScreen('CL-07')">1. Ulasan (`CL-07`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl08" onclick="switchScreen('CL-08')">2. Pelaporan (`CL-08`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl09" onclick="switchScreen('CL-09')">3. Mediasi (`CL-09`)</button>
+                <button class="nav-tab-btn" id="nav-btn-cl10" onclick="switchScreen('CL-10')">4. Pengaturan (`CL-10`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+            <a class="btn-back-nav" href="JUSTICA_Proto_1.4_Client_Consultation_Room.html">
+                <span>&lt; Ruang Obrolan/Dokumen (`CL-04/06`)</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: MODAL RATING & ULASAN (MOCK-J-CL-07) ==================== -->
+    <section id="CL-07" class="screen-pane active">
+        <div class="container">
+            <div class="rating-box">
+                <div style="text-align: center;">
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.15rem; font-weight: 800; color: var(--text-main);">=== BAGIKAN PENGALAMAN KONSULTASI ANDA (`CL-07`)</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.5rem;">Bantu pencari keadilan lain dengan memberikan penilaian atas layanan hukum Dr. Mahendra Kusuma, S.H., M.H.</p>
+                </div>
+
+                <!-- STAR PICKER (Exact mapping lines 28) -->
+                <div style="text-align: center; margin-top: 2rem;">
+                    <span style="font-weight: 800; font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">PILIH PENILAIAN BINTANG KINERJA:</span>
+                    <div class="star-picker">
+                        <button class="star-btn" onclick="selectStar(this, 1)">★ 1</button>
+                        <button class="star-btn" onclick="selectStar(this, 2)">★ 2</button>
+                        <button class="star-btn" onclick="selectStar(this, 3)">★ 3</button>
+                        <button class="star-btn" onclick="selectStar(this, 4)">★ 4</button>
+                        <button class="star-btn active" id="star-btn-5" onclick="selectStar(this, 5)">★ 5 SANGAT MEMUASKAN</button>
+                    </div>
+                </div>
+
+                <!-- REVIEW TEXT (Exact mapping lines 32-35) -->
+                <div>
+                    <label style="display:block; font-weight:800; font-size:0.88rem; color:var(--text-main); margin-bottom:0.5rem;">ULASAN SINGKAT PENGALAMAN ANDA (OPSIONAL):</label>
+                    <textarea class="form-textarea">Dr. Mahendra sangat profesional dan penjelasan hukumnya sangat terstruktur. Pendapat hukum yang disusun langsung menghentikan sengketa kami secara damai.</textarea>
+
+                    <label style="display:flex; align-items:center; gap:0.65rem; font-size:0.88rem; color:var(--text-muted); cursor:pointer;">
+                        <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--primary);">
+                        <span>Tampilkan sebagai Klien Terverifikasi (Nama disamarkan / Anonimasi otomatis)</span>
+                    </label>
+                </div>
+
+                <div style="display:flex; gap:1rem; margin-top:2rem;">
+                    <button class="btn-main-action" style="flex:3; margin-top:0;" onclick="submitFeedback()">
+                        <span>🌟 KIRIM PENILAIAN & KEMBALI KE DASBOR (`CL-02A`)</span>
+                    </button>
+                    <button style="flex:1; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="switchScreen('CL-08')">Lewati</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: FORM WHISTLEBLOWING & DISPUTE (MOCK-J-CL-08) ==================== -->
+    <section id="CL-08" class="screen-pane">
+        <div class="container">
+            <div class="dispute-box">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <span style="background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid var(--danger); padding:0.35rem 1rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🚨 Pembekuan Otomatis Rekening Bersama</span>
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.15rem; font-weight: 800; color: var(--text-main); margin-top: 0.75rem;">=== FORMULIR PELAPORAN SENGKETA & WHISTLEBLOWING ETIK (`CL-08`)</h1>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 0.35rem;">Laporan Anda langsung membekukan penarikan dana Escrow advokat secara otomatis hingga mediasi selesai.</p>
+                </div>
+
+                <!-- STEP 1 (Exact mapping lines 27-30) -->
+                <div style="background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:1.5rem; margin-bottom:2rem;">
+                    <b style="color:var(--text-main); font-size:1rem;">1. PILIH SESI / PERKARA YANG BERMASALAH:</b>
+                    <div style="margin-top:0.75rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;">
+                        <span style="font-family:var(--font-mono); font-weight:800; color:var(--text-accent);">#REQ-202607-001 — Dr. Mahendra Kusuma, S.H. (Hukum Bisnis - Tier 2)</span>
+                        <span style="background:rgba(239,68,68,0.2); color:var(--danger); border:1px solid var(--danger); padding:0.4rem 1rem; border-radius:8px; font-weight:800; font-size:0.8rem;">ESCROW HELD — SIAP DIBEKUKAN (FREEZE)</span>
+                    </div>
+                </div>
+
+                <!-- STEP 2 (Exact mapping lines 32-36) -->
+                <div>
+                    <b style="color:var(--text-main); font-size:1rem; display:block; margin-bottom:1rem;">2. KATEGORI LAPORAN SENGKETA / PELANGGARAN ETIK ADVOKAT:</b>
+                    
+                    <div class="radio-box" onclick="selectDisputeCategory(this)">
+                        <input type="radio" name="dispute_cat" style="width:18px; height:18px; accent-color:var(--danger);">
+                        <span>Advokat Tidak Hadir / Tidak Responsif Melebihi SLA Fair-Clock</span>
+                    </div>
+
+                    <div class="radio-box active" onclick="selectDisputeCategory(this)">
+                        <input type="radio" name="dispute_cat" checked style="width:18px; height:18px; accent-color:var(--danger);">
+                        <span>Kualitas Deliverable Tidak Sesuai Spesifikasi / Hukum yang Berlaku</span>
+                    </div>
+
+                    <div class="radio-box" onclick="selectDisputeCategory(this)">
+                        <input type="radio" name="dispute_cat" style="width:18px; height:18px; accent-color:var(--danger);">
+                        <span>Pelanggaran Kode Etik Advokat / Permintaan Biaya Tambahan di Luar Escrow</span>
+                    </div>
+
+                    <div class="radio-box" onclick="selectDisputeCategory(this)">
+                        <input type="radio" name="dispute_cat" style="width:18px; height:18px; accent-color:var(--danger);">
+                        <span>Dugaan Konflik Kepentingan / Pelanggaran Kerahasiaan Sesi</span>
+                    </div>
+                </div>
+
+                <!-- STEP 3 (Exact mapping lines 38-46) -->
+                <div style="margin-top:2rem;">
+                    <b style="color:var(--text-main); font-size:1rem; display:block; margin-bottom:0.75rem;">3. KRONOLOGI & BUKTI PENDUKUNG:</b>
+                    <textarea class="form-textarea" style="border-color:var(--danger);">Advokat tidak merespons revisi perjanjian selama 48 jam dan dokumen yang dikirimkan keliru mencantumkan pasal UU PT yang sudah dicabut...</textarea>
+
+                    <div style="background:var(--bg-base); border:2px dashed var(--border-color); border-radius:var(--radius); padding:1.75rem; text-align:center; cursor:pointer; margin-bottom:1.5rem;" onclick="alert('Lampiran Bukti_Sengketa_Revisi.pdf (4.2 MB) berhasil dilampirkan!')">
+                        <div style="font-size:1.8rem;">📑</div>
+                        <b style="color:var(--text-main);">Unggah Bukti Pendukung (Tangkapan Layar/Dokumen PDF/JPG Max 15MB)</b>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:0.2rem;">Klik untuk memilih berkas bukti awal Anda</div>
+                    </div>
+
+                    <label style="display:flex; align-items:center; gap:0.65rem; font-size:0.88rem; color:var(--text-muted); cursor:pointer;">
+                        <input type="checkbox" checked style="width:18px; height:18px; accent-color:var(--danger);">
+                        <span>Saya menyatakan laporan ini benar dan menyetujui penahanan sementara dana Escrow selama investigasi etik berlangsung.</span>
+                    </label>
+
+                    <div style="display:flex; gap:1rem; margin-top:2rem;">
+                        <button class="btn-main-action" style="background:var(--danger); flex:3; margin-top:0;" onclick="submitDispute()">
+                            <span>🚨 KIRIM LAPORAN & BEKUKAN ESCROW SEKARANG (`CL-09`)</span>
+                        </button>
+                        <button style="flex:1; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="switchScreen('CL-09')">Batal</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 3: PUSAT PEMANTAUAN DISPUTE (MOCK-J-CL-09) ==================== -->
+    <section id="CL-09" class="screen-pane">
+        <div class="container">
+            <div class="tracking-box">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main);">=== PUSAT PEMANTAUAN SENGKETA & MEDIASI ESCROW (`CL-09`)</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Pantau perkembangan investigasi sengketa Anda dan rekomendasi mediasi resmi dari Dewan Kepatuhan Justica.</p>
+                </div>
+
+                <!-- TABLE 1 (Exact mapping lines 27-32) -->
+                <div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">1. DAFTAR TIKET SENGKETA AKTIF ANDA</h3>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>ID DISPUTE</th>
+                                <th>PERKARA TERKAIT</th>
+                                <th>ADVOKAT TERLAPOR</th>
+                                <th>STATUS ESCROW</th>
+                                <th>TAHAP INVESTIGASI</th>
+                                <th style="text-align:center;">AKSI</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b style="font-family:var(--font-mono); color:var(--text-main);">DSP-202607-001</b></td>
+                                <td style="font-family:var(--font-mono);">REQ-202607-001</td>
+                                <td>Dr. Mahendra K., S.H.</td>
+                                <td><b style="color:var(--danger); background:rgba(239,68,68,0.15); padding:0.3rem 0.65rem; border-radius:6px; border:1px solid var(--danger);">ESCROW FROZEN</b></td>
+                                <td><b style="color:var(--warning);">MEDIASI DALAM PROSES</b></td>
+                                <td style="text-align:center;">
+                                    <button style="background:var(--primary); color:#fff; border:none; padding:0.5rem 1rem; border-radius:6px; font-weight:700; cursor:pointer;" onclick="alert('Menampilkan rincian log investigasi untuk tiket #DSP-202607-001')">LIHAT MEDIASI</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- SECTION 2: RUANG MEDIASI & REKAM JEJAK (Lines 36-49) -->
+                <div style="margin-top:3rem;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main);">2. RUANG MEDIASI & REKAM JEJAK INVESTIGASI (#DSP-202607-001)</h3>
+
+                    <div class="timeline-box">
+                        <div style="display:flex; justify-content:space-between; flex-wrap:wrap; gap:1.5rem; border-bottom:1px solid var(--border-color); padding-bottom:1.25rem; margin-bottom:1.5rem;">
+                            <div>
+                                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">MEDIATOR DITUNJUK:</span>
+                                <div style="font-weight:800; color:var(--text-main); margin-top:0.2rem;">Dewan Kepatuhan Justica (Sertifikasi Arbiter BANI #8812)</div>
+                            </div>
+                            <div>
+                                <span style="font-size:0.8rem; color:var(--text-muted); font-weight:700;">NOMINAL ESCROW DITAHAN:</span>
+                                <div style="font-family:'Outfit', sans-serif; font-weight:800; font-size:1.25rem; color:var(--danger); margin-top:0.2rem;">Rp 450.000 (100% Secured in Escrow)</div>
+                            </div>
+                        </div>
+
+                        <!-- TIMELINE LOG -->
+                        <div class="timeline-item">
+                            <span class="timeline-time">[10/07 14:10]</span>
+                            <div><b style="color:var(--text-main);">Klien:</b> Mengajukan laporan sengketa atas kualitas deliverable dan ketidaksesuaian pasal kontrak.</div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <span class="timeline-time">[10/07 14:12]</span>
+                            <div><b style="color:var(--danger);">Sistem Justica:</b> Rekening Escrow resmi DIBEKUKAN otomatis (`FROZEN MUTEX LOCK`). Pencairan ke advokat ditolak.</div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <span class="timeline-time">[10/07 14:25]</span>
+                            <div><b style="color:var(--text-accent);">Mediator Justica:</b> Memeriksa log E2EE (Hash SHA-256) & bukti revisi berkas yang dilampirkan klien dan advokat.</div>
+                        </div>
+
+                        <div class="timeline-item">
+                            <span class="timeline-time">[10/07 14:40]</span>
+                            <div><b style="color:var(--success);">Rekomendasi Mediator:</b> Pengembalian dana (*Refund Escrow 100%*) ke Rekening Klien karena advokat terbukti melampaui SLA masa tanggap 48 jam.</div>
+                        </div>
+                    </div>
+
+                    <!-- ACTIONS (Exact mapping line 48) -->
+                    <div style="display:flex; gap:1.25rem; margin-top:2rem;">
+                        <button class="btn-main-action" style="background:var(--success); flex:2; margin-top:0;" onclick="executeRefundEscrow()">
+                            <span>✅ SETUJUI REKOMENDASI & CAIRKAN REFUND 100% (`Refund to Client`)</span>
+                        </button>
+                        <button style="flex:1; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); border-radius:var(--radius); font-weight:700; cursor:pointer;" onclick="alert('⚖️ PENGAJUAN BANDING KE DEWAN ETIK (`ADM-02`)\n\nTiket perkara #DSP-202607-001 telah diteruskan ke sidang pleno Dewan Etik Pusat.')">Ajukan Banding ke Dewan Etik</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 4: PENGATURAN AKUN & PRIVASI (MOCK-J-CL-10) ==================== -->
+    <section id="CL-10" class="screen-pane">
+        <div class="container">
+            <div class="settings-box">
+                <div style="text-align: center; margin-bottom: 2.5rem;">
+                    <h1 style="font-family: 'Outfit', sans-serif; font-size: 2.25rem; font-weight: 800; color: var(--text-main);">=== PENGATURAN IDENTITAS, MFA, & PRIVASI UU PDP (`CL-10`)</h1>
+                    <p style="color: var(--text-muted); font-size: 1rem; margin-top: 0.35rem;">Kelola kredensial keamanan akun Anda serta kontrol visibilitas data pribadi sesuai amanat Undang-Undang Perlindungan Data Pribadi.</p>
+                </div>
+
+                <!-- INNER TABS (Exact mapping line 26) -->
+                <div class="inner-tabs">
+                    <button class="inner-tab active" id="inner-tab-1-btn" onclick="switchInnerTab('mfa')">[ TAB 1: KEAMANAN & MFA ]</button>
+                    <button class="inner-tab" id="inner-tab-2-btn" onclick="switchInnerTab('privacy')">[ TAB 2: IDENTITAS & PRIVASI UU PDP ]</button>
+                </div>
+
+                <!-- INNER TAB 1: MFA & KREDENSIAL (Lines 29-41) -->
+                <div id="pane-inner-mfa">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.25rem;">TAB 1: KREDENSIAL & AUTENTIKASI MULTI-FAKTOR (MFA)</h3>
+
+                    <div style="background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:1.75rem; margin-bottom:2rem;">
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:1rem; margin-bottom:1rem;">
+                            <span style="color:var(--text-muted);">Status MFA Saat Ini:</span>
+                            <b style="color:var(--success);">AKTIF (WHATSAPP & AUTHENTICATOR APP)</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border-color); padding-bottom:1rem; margin-bottom:1rem;">
+                            <span style="color:var(--text-muted);">Nomor WhatsApp Terdaftar:</span>
+                            <b style="font-family:var(--font-mono); color:var(--text-main);">+6281234567890 (Verified)</b>
+                        </div>
+                        <div style="display:flex; justify-content:space-between;">
+                            <span style="color:var(--text-muted);">Kata Sandi Akses:</span>
+                            <b style="font-family:var(--font-mono); color:var(--text-main);">••••••••••••••••••••••••</b>
+                        </div>
+                        <div style="display:flex; gap:1rem; margin-top:1.5rem;">
+                            <button style="flex:1; background:var(--primary); color:#fff; border:none; padding:0.8rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('Memperbarui Kata Sandi Utama dengan enkripsi Argon2id TLS 1.3')">UBAH KATA SANDI UTAMA</button>
+                            <button style="flex:1; background:var(--bg-card); color:var(--text-main); border:1px solid var(--border-color); padding:0.8rem; border-radius:8px; font-weight:700; cursor:pointer;" onclick="alert('Mengatur ulang pasangan kode QR Authenticator OTP')">ATUR ULANG PERANGKAT MFA</button>
+                        </div>
+                    </div>
+
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">DAFTAR PERANGKAT BER-TOKEN AES-256 AKTIF</h3>
+                    <table class="table-custom" style="margin-top:0;">
+                        <thead>
+                            <tr>
+                                <th>PERANGKAT & BROWSER</th>
+                                <th>IP ADDRESS & LOKASI</th>
+                                <th>AKTIVITAS TERAKHIR</th>
+                                <th style="text-align:right;">AKSI KEAMANAN</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><b style="color:var(--text-main);">Windows 11 (Chrome 126)</b></td>
+                                <td style="font-family:var(--font-mono);">103.28.12.91 (Jakarta, ID)</td>
+                                <td style="color:var(--success); font-weight:700;">Sesi Ini (Aktif Sekarang)</td>
+                                <td style="text-align:right;">
+                                    <span style="background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.35rem 0.8rem; border-radius:6px; font-weight:800; font-size:0.75rem;">PERANGKAT INI</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td><b style="color:var(--text-main);">iPhone 15 Pro (Safari)</b></td>
+                                <td style="font-family:var(--font-mono);">103.28.12.44 (Jakarta, ID)</td>
+                                <td>09 Juli 2026 — 19:40 WIB</td>
+                                <td style="text-align:right;">
+                                    <button style="background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid var(--danger); padding:0.4rem 0.9rem; border-radius:6px; font-weight:800; font-size:0.78rem; cursor:pointer;" onclick="alert('Akses token JWT untuk perangkat iPhone 15 Pro telah dicabut seketika!')">CABUT AKSES</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- INNER TAB 2: PRIVASI UU PDP (Lines 45-53) -->
+                <div id="pane-inner-privacy" style="display: none;">
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.25rem; font-weight: 800; color: var(--text-main); margin-bottom: 1.25rem;">TAB 2: KONTROL DATA PRIBADI & RIGHT TO BE FORGOTTEN (UU PDP)</h3>
+
+                    <div style="background:var(--bg-base); border:1px solid var(--border-color); border-radius:var(--radius); padding:1.75rem; margin-bottom:2rem;">
+                        <label style="display:flex; align-items:center; gap:0.85rem; font-weight:700; font-size:0.95rem; color:var(--text-main); cursor:pointer; margin-bottom:1.25rem;">
+                            <input type="checkbox" checked style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Izinkan anonimisasi nama saya pada ulasan publik advokat secara *default*.</span>
+                        </label>
+
+                        <label style="display:flex; align-items:center; gap:0.85rem; font-weight:700; font-size:0.95rem; color:var(--text-main); cursor:pointer;">
+                            <input type="checkbox" style="width:20px; height:20px; accent-color:var(--primary);">
+                            <span>Kirimkan ringkasan analitis sesi konsultasi ke email pribadi saya.</span>
+                        </label>
+                    </div>
+
+                    <!-- RIGHT TO BE FORGOTTEN ALERT ZONE (Lines 50-53) -->
+                    <div class="alert-delete-zone">
+                        <div style="display:flex; gap:1rem; align-items:flex-start;">
+                            <span style="font-size:2rem;">⚠️</span>
+                            <div>
+                                <h4 style="font-family:'Outfit', sans-serif; font-size:1.15rem; font-weight:800; color:var(--danger); margin-bottom:0.35rem;">ZONA PENGHAPUSAN AKUN (`RIGHT TO BE FORGOTTEN`):</h4>
+                                <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.6;">
+                                    Sesuai <b>Undang-Undang Perlindungan Data Pribadi (UU PDP No. 27/2022 Pasal 8)</b>, Anda berhak mengajukan penghapusan seluruh riwayat data pribadi setelah semua perkara hukum dan kewajiban Escrow selesai mutlak.
+                                </p>
+                            </div>
+                        </div>
+
+                        <button style="background:var(--danger); color:#fff; border:none; padding:1.1rem; border-radius:var(--radius); font-weight:800; font-size:1rem; cursor:pointer; width:100%; margin-top:1.5rem; display:flex; align-items:center; justify-content:center; gap:0.65rem;" onclick="confirmAccountDeletion()">
+                            <span>🗑️ AJUKAN PENGHAPUSAN DATA PRIBADI & TUTUP AKUN (`Permanent Wipe`)</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // TAB SWITCHER
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'CL-07') document.getElementById('nav-btn-cl07').classList.add('active');
+            if (screenId === 'CL-08') document.getElementById('nav-btn-cl08').classList.add('active');
+            if (screenId === 'CL-09') document.getElementById('nav-btn-cl09').classList.add('active');
+            if (screenId === 'CL-10') document.getElementById('nav-btn-cl10').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function switchInnerTab(tabName) {
+            document.getElementById('inner-tab-1-btn').classList.toggle('active', tabName === 'mfa');
+            document.getElementById('inner-tab-2-btn').classList.toggle('active', tabName === 'privacy');
+            document.getElementById('pane-inner-mfa').style.display = tabName === 'mfa' ? 'block' : 'none';
+            document.getElementById('pane-inner-privacy').style.display = tabName === 'privacy' ? 'block' : 'none';
+        }
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function selectStar(btn, rating) {
+            document.querySelectorAll('.star-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            alert(`Anda memilih rating: ★ ${rating} Bintang`);
+        }
+
+        function selectDisputeCategory(elem) {
+            document.querySelectorAll('.dispute-box .radio-box').forEach(box => box.classList.remove('active'));
+            elem.classList.add('active');
+        }
+
+        function submitFeedback() {
+            alert('🌟 PENILAIAN BINTANG & ULASAN BERHASIL DIKIRIM (`MOCK-J-CL-07`)\n\nTerima kasih telah berkontribusi menjaga transparansi reputasi advokat di Justica!\nMengarahkan kembali ke Dasbor Klien.');
+            switchScreen('CL-08');
+        }
+
+        function submitDispute() {
+            alert('🚨 LAPORAN SENGKETA BERHASIL DIKIRIM (`MOCK-J-CL-08` -> `CL-09`)\n\nRekening Bersama Escrow (#TRX-9901) resmi DIBEKUKAN otomatis oleh sistem.\nMengarahkan ke Pusat Pemantauan & Mediasi (`CL-09`).');
+            switchScreen('CL-09');
+        }
+
+        function executeRefundEscrow() {
+            alert('✅ PENCAIRAN REFUND ESCROW 100% DISETUJUI (`MOCK-J-CL-09`)\n\nDana sebesar Rp 450.000 telah dikembalikan secara utuh ke rekening bank Anda sesuai rekomendasi Mediator Dewan Kepatuhan Justica (#DSP-202607-001).');
+        }
+
+        function confirmAccountDeletion() {
+            if (confirm('🚨 PERINGATAN UU PDP NO. 27/2022 (RIGHT TO BE FORGOTTEN)\n\nApakah Anda yakin ingin menghapus permanen seluruh riwayat identitas NIK dan berkas konsultasi Anda dari WORM Vault Justica? Tindakan ini tidak dapat dibatalkan!')) {
+                alert('✅ PERMINTAAN PENGHAPUSAN DICATAT\n\nSistem akan melakukan wipe data pribadi dalam waktu 1x24 jam setelah proses verifikasi akhir selesai.');
+            }
+        }
+    </script>
+</body>
+</html>
