@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JUSTICA • Portal Admin Kepatuhan SLA, Audit WORM & Pusat Mediasi Escrow (Batch 3 - ADM-01 & ADM-02)</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Professional Corporate Slate UI (Dark Mode) */
+            --bg-base: #0b0f19;
+            --bg-surface: #111827;
+            --bg-card: #1f2937;
+            --bg-card-hover: #374151;
+            --border-color: #374151;
+            --border-focus: #3b82f6;
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --text-accent: #60a5fa;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --purple: #8b5cf6;
+            --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+            --font-mono: 'JetBrains Mono', monospace;
+            --radius: 12px;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
+        }
+
+        [data-theme="light"] {
+            /* Professional Corporate Slate UI (Light Mode) */
+            --bg-base: #f3f4f6;
+            --bg-surface: #ffffff;
+            --bg-card: #f9fafb;
+            --bg-card-hover: #f3f4f6;
+            --border-color: #e5e7eb;
+            --border-focus: #2563eb;
+            --text-main: #111827;
+            --text-muted: #4b5563;
+            --text-accent: #2563eb;
+            --shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+            line-height: 1.5;
+        }
+
+        /* TOP NAVIGATION BAR (Strictly Isolated to Admin Domain) */
+        .topbar {
+            background-color: var(--bg-surface);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.15rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: var(--shadow);
+        }
+
+        .brand-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.85rem;
+            font-family: 'Outfit', sans-serif;
+            font-weight: 800;
+            font-size: 1.45rem;
+            letter-spacing: -0.02em;
+            color: var(--text-main);
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .brand-subtitle {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-left: 2px solid var(--border-color);
+            padding-left: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .controls-group {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 0.5rem;
+            margin-right: 1rem;
+        }
+
+        .nav-tab-btn {
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius);
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+        }
+
+        .nav-tab-btn.active {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border-color: var(--border-color);
+        }
+
+        .nav-tab-btn:hover { color: var(--text-main); }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            color: var(--text-main);
+            padding: 0.55rem 1rem;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-toggle:hover {
+            border-color: var(--border-focus);
+            background: var(--bg-card-hover);
+        }
+
+        /* SCREEN PANES */
+        .screen-pane {
+            display: none;
+            flex: 1;
+            padding: 3.5rem 2rem;
+            animation: fadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .screen-pane.active { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .container {
+            max-width: 1180px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        /* CARD CONTAINERS */
+        .card-surface {
+            background: var(--bg-surface);
+            border: 1px solid var(--border-color);
+            border-radius: calc(var(--radius) + 4px);
+            padding: 3.5rem;
+            box-shadow: var(--shadow);
+        }
+
+        .section-title {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.25rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.65rem;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 1.02rem;
+            margin-top: 0.35rem;
+        }
+
+        /* STATS CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.75rem;
+            margin: 2.5rem 0;
+        }
+
+        .stat-card {
+            background: var(--bg-base);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius);
+            padding: 2.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::top {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.82rem;
+            font-weight: 800;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        .stat-value {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.35rem;
+            font-weight: 800;
+            color: var(--text-main);
+            margin-top: 0.55rem;
+        }
+
+        /* BUTTONS */
+        .btn-main {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            padding: 1.15rem 2rem;
+            border-radius: var(--radius);
+            font-weight: 800;
+            font-size: 1.05rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.65rem;
+        }
+
+        .btn-main:hover { background: var(--primary-hover); }
+
+        .btn-outline {
+            background: var(--bg-card);
+            color: var(--text-main);
+            border: 1px solid var(--border-color);
+            padding: 0.85rem 1.5rem;
+            border-radius: var(--radius);
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+        }
+
+        .btn-outline:hover { border-color: var(--border-focus); background: var(--bg-card-hover); }
+
+        /* TABLES */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0 2.5rem 0;
+        }
+
+        .table-custom th {
+            text-align: left;
+            padding: 1.15rem 1.25rem;
+            background: var(--bg-card);
+            color: var(--text-muted);
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .table-custom td {
+            padding: 1.35rem 1.25rem;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 0.95rem;
+            vertical-align: middle;
+        }
+
+        .badge-status {
+            display: inline-block;
+            padding: 0.35rem 0.85rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+        }
+
+        .badge-verified { background: rgba(16, 185, 129, 0.15); color: var(--success); border: 1px solid var(--success); }
+        .badge-frozen { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid var(--danger); }
+        .badge-warning { background: rgba(245, 158, 11, 0.15); color: var(--warning); border: 1px solid var(--warning); }
+    </style>
+</head>
+<body>
+
+    <!-- TOPBAR (Strictly isolated to Admin Domain according to MOCK-J-ADM-01 & MOCK-J-ADM-02) -->
+    <header class="topbar">
+        <div class="brand-logo" onclick="switchScreen('ADM-01')">
+            <span>⚖️ JUSTICA ADMIN</span>
+            <span class="brand-subtitle">Portal Kepatuhan SLA, Audit Trail WORM & Pusat Mediasi Escrow (Batch 3)</span>
+        </div>
+        <div class="controls-group">
+            <nav class="nav-links">
+                <button class="nav-tab-btn active" id="nav-btn-adm01" onclick="switchScreen('ADM-01')">1. Kepatuhan & Audit (`ADM-01`)</button>
+                <button class="nav-tab-btn" id="nav-btn-adm02" onclick="switchScreen('ADM-02')">2. Pusat Mediasi Sengketa (`ADM-02`)</button>
+            </nav>
+            <button class="theme-toggle" onclick="toggleTheme()">
+                <span id="theme-icon">☾</span> <span id="theme-text">Dark Mode</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== SCREEN 1: SLA COMPLIANCE & AUDIT TRAIL (MOCK-J-ADM-01) ==================== -->
+    <section id="ADM-01" class="screen-pane active">
+        <div class="container">
+            <div class="card-surface">
+                <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.75rem; margin-bottom:2.25rem;">
+                    <span style="background:rgba(59,130,246,0.15); color:var(--text-accent); border:1px solid var(--primary); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🔒 WORM Immutable Vault Monitored</span>
+                    <h1 class="section-title">=== PENGAWASAN KEPATUHAN SLA & AUDIT TRAIL (`ADM-01`)</h1>
+                    <p class="section-subtitle">Pantau kepatuhan standar SLA platform dan integritas catatan audit WORM secara transparan bagi regulator dan internal.</p>
+                </div>
+
+                <!-- STATS CARDS (Exact mapping lines 27-28 of MOCK-J-ADM-01) -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">KEPATUHAN SLA PLATFORM (FAIR-CLOCK MONITOR)</div>
+                        <div class="stat-value" style="color:var(--success);">98.4% <span style="font-size:1.2rem; font-weight:600; color:var(--text-muted);">On-Time Responsiveness</span></div>
+                        <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                            Rata-rata waktu respons Advokat $< 2$ menit. Target SLA minimum $= 95.0\%$.
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-color:rgba(139,92,246,0.3);">
+                        <div class="stat-label">STATUS LOG WORM (IMMUTABLE AUDIT VAULT)</div>
+                        <div class="stat-value" style="color:var(--purple); font-size:1.85rem; margin-top:0.75rem;">100% VALID & IMMUTABLE</div>
+                        <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                            Zero tamper detection pada pangkalan data PostgreSQL & SHA-256 Hash Vault.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTON (Exact mapping line 32 of MOCK-J-ADM-01) -->
+                <div style="margin-bottom:3.5rem;">
+                    <button class="btn-main" style="background:var(--primary); width:100%; padding:1.35rem; font-size:1.15rem;" onclick="exportAuditReport()">
+                        <span>📥 EKSPORT LAPORAN AUDIT TRAIL & KEPATUHAN (`ADM-01`)</span>
+                    </button>
+                </div>
+
+                <!-- DETAILED WORM AUDIT LOGS TABLE -->
+                <div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">JEJAK AUDIT REAL-TIME WORM VAULT (`J-UC08` / `J-UC11`)</h3>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>TIMESTAMP & KODE LOG</th>
+                                <th>PERISTIWA TRANSAKSIONAL / SLA</th>
+                                <th>ENKRIPSI HASH SHA-256</th>
+                                <th>STATUS INTEGRITAS</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td style="font-family:var(--font-mono); color:var(--text-accent);">2026-07-15 10:30:12<br><span style="font-size:0.8rem; color:var(--text-muted);">LOG-2026-0701</span></td>
+                                <td>Aktivasi Sesi E2EE Ruang Konsultasi (`AD-04` - `CL-04`) PT Mitra Jaya</td>
+                                <td style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">a8f0...c4e6 (AES-GCM 256-Bit Key Exchange)</td>
+                                <td><span class="badge-status badge-verified">VERIFIED WORM</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:var(--font-mono); color:var(--text-accent);">2026-07-15 11:15:44<br><span style="font-size:0.8rem; color:var(--text-muted);">LOG-2026-0702</span></td>
+                                <td>Penerbitan Opini Hukum ber-eMeterai Peruri (`AD-05`) Dr. Mahendra Kusuma</td>
+                                <td style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">e8f9...c8a0 (Peruri KMS SHA-256 Signed)</td>
+                                <td><span class="badge-status badge-verified">VERIFIED WORM</span></td>
+                            </tr>
+                            <tr>
+                                <td style="font-family:var(--font-mono); color:var(--text-accent);">2026-07-15 11:40:02<br><span style="font-size:0.8rem; color:var(--text-muted);">LOG-2026-0703</span></td>
+                                <td>Pencairan Honor BI-FAST Instan (`AD-06`) ke Bank Mandiri Rp 12.500.000</td>
+                                <td style="font-family:var(--font-mono); font-size:0.82rem; color:var(--text-muted);">f4b2...9901 (ACID Transaction Mutex Locked)</td>
+                                <td><span class="badge-status badge-verified">VERIFIED WORM</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ==================== SCREEN 2: MEDIATION CENTER & DISPUTE (MOCK-J-ADM-02) ==================== -->
+    <section id="ADM-02" class="screen-pane">
+        <div class="container">
+            <div class="card-surface">
+                <div style="border-bottom:1px solid var(--border-color); padding-bottom:1.75rem; margin-bottom:2.25rem;">
+                    <span style="background:rgba(239,68,68,0.15); color:var(--danger); border:1px solid var(--danger); padding:0.35rem 0.95rem; border-radius:999px; font-size:0.75rem; font-weight:800; text-transform:uppercase;">🚨 Dewan Mediator & Whistleblowing Center</span>
+                    <h1 class="section-title">=== MEDIASI SENGKETA & INVESTIGASI WHISTLEBLOWING (`ADM-02`)</h1>
+                    <p class="section-subtitle">Kelola sengketa layanan antara klien dan advokat, serta putuskan pencairan atau pengembalian dana Escrow yang tertahan.</p>
+                </div>
+
+                <!-- STATS CARDS (Exact mapping lines 27-28 of MOCK-J-ADM-02) -->
+                <div class="stats-grid">
+                    <div class="stat-card" style="border-color:rgba(239,68,68,0.3);">
+                        <div class="stat-label">KASUS SENGKETA AKTIF DALAM MEDIASI</div>
+                        <div class="stat-value" style="color:var(--danger);">3 Kasus <span style="font-size:1.2rem; font-weight:600; color:var(--text-muted);">Under Investigation</span></div>
+                        <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                            Seluruh log obrolan dan riwayat dokumen sedang diperiksa oleh Dewan Mediator.
+                        </div>
+                    </div>
+
+                    <div class="stat-card" style="border-color:rgba(245,158,11,0.3);">
+                        <div class="stat-label">DANA ESCROW TERTAHAN (ACID MUTEX FROZEN)</div>
+                        <div class="stat-value" style="color:var(--warning);">Rp 18.400.000</div>
+                        <div style="font-size:0.88rem; color:var(--text-muted); margin-top:0.65rem;">
+                            Dana terkunci aman di rekening konsinyasi Escrow hingga putusan mediasi final.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ACTION BUTTONS (Exact mapping line 32 of MOCK-J-ADM-02) -->
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; margin-bottom:3.5rem;">
+                    <button class="btn-main" style="background:var(--danger); padding:1.35rem; font-size:1.1rem;" onclick="executeGlobalRefund()">
+                        <span>🔄 EKSEKUSI REFUND KLIEN (`ADM-02`)</span>
+                    </button>
+                    <button class="btn-main" style="background:var(--success); padding:1.35rem; font-size:1.1rem;" onclick="executeGlobalRelease()">
+                        <span>💸 EKSEKUSI RELEASE ADVOKAT (`ADM-02`)</span>
+                    </button>
+                </div>
+
+                <!-- DETAILED ACTIVE DISPUTE CASES TABLE -->
+                <div>
+                    <h3 style="font-family: 'Outfit', sans-serif; font-size: 1.35rem; font-weight: 800; color: var(--text-main); margin-bottom: 1rem;">DAFTAR KASUS SENGKETA ESCROW TERTAHAN (`J-UC15` / `J-UC21`)</h3>
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>KODE SENGKETA & PARA PIHAK</th>
+                                <th>POKOK SENGKETA & KLAIM SLA</th>
+                                <th>SALDO ESCROW TERTAHAN</th>
+                                <th>STATUS INVESTIGASI AUDIT</th>
+                                <th style="text-align:right;">PUTUSAN MEDIATOR</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <b style="color:var(--text-main);">DISP-2026-01</b>
+                                    <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.25rem;">PT Sentosa vs Advokat X (`AD-ID: 1092`)</div>
+                                </td>
+                                <td>Klaim keterlambatan pengiriman opini hukum $> 48$ jam dari batas waktu.</td>
+                                <td style="font-family:var(--font-mono); font-weight:800; color:var(--warning);">Rp 6.500.000</td>
+                                <td><span class="badge-status badge-frozen">FROZEN (INVESTIGATING LOG)</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-outline" style="border-color:var(--danger); color:var(--danger); padding:0.45rem 0.85rem; font-size:0.78rem;" onclick="alert('🔄 REFUND 100% (Rp 6.500.000) DIEKSEKUSI KE PT SENTOSA\n\nBerdasarkan log WORM, Advokat X terbukti terlambat tanpa pemberitahuan. Dana dikembalikan ke rekening klien.')">Refund Klien</button>
+                                    <button class="btn-outline" style="border-color:var(--success); color:var(--success); padding:0.45rem 0.85rem; font-size:0.78rem; margin-left:0.35rem;" onclick="alert('💸 RELEASE DANA (Rp 6.500.000) KE ADVOKAT X\n\nPutusan menolak klaim sengketa.')">Release Advokat</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b style="color:var(--text-main);">DISP-2026-02</b>
+                                    <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.25rem;">CV Makmur vs Advokat Y (`AD-ID: 2104`)</div>
+                                </td>
+                                <td>Sengketa ketidaksesuaian lingkup draf perjanjian dengan kesepakatan awal.</td>
+                                <td style="font-family:var(--font-mono); font-weight:800; color:var(--warning);">Rp 7.900.000</td>
+                                <td><span class="badge-status badge-frozen">FROZEN (MEDIATION BOARD)</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-outline" style="border-color:var(--danger); color:var(--danger); padding:0.45rem 0.85rem; font-size:0.78rem;" onclick="alert('🔄 REFUND 100% (Rp 7.900.000) DIEKSEKUSI KE CV MAKMUR')">Refund Klien</button>
+                                    <button class="btn-outline" style="border-color:var(--success); color:var(--success); padding:0.45rem 0.85rem; font-size:0.78rem; margin-left:0.35rem;" onclick="alert('💸 RELEASE DANA (Rp 7.900.000) KE ADVOKAT Y\n\nDiberikan kepada advokat setelah perbaikan draf disetujui.')">Release Advokat</button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <td>
+                                    <b style="color:var(--text-main);">DISP-2026-03</b>
+                                    <div style="font-size:0.82rem; color:var(--text-muted); margin-top:0.25rem;">Klien Z vs Advokat W (`AD-ID: 3319`)</div>
+                                </td>
+                                <td>Laporan Whistleblowing indikasi ajakan transaksi offline (DLP Alert Level 2).</td>
+                                <td style="font-family:var(--font-mono); font-weight:800; color:var(--warning);">Rp 4.000.000</td>
+                                <td><span class="badge-status badge-frozen">FROZEN (WORM AUDIT TRAIL)</span></td>
+                                <td style="text-align:right;">
+                                    <button class="btn-outline" style="border-color:var(--danger); color:var(--danger); padding:0.45rem 0.85rem; font-size:0.78rem;" onclick="alert('🔄 REFUND 100% + SANKSI PEMBEKUAN AKUN ADVOKAT W\n\nTerbukti melanggar pasal antisuap dan kebijakan platform.')">Refund Klien</button>
+                                    <button class="btn-outline" style="border-color:var(--success); color:var(--success); padding:0.45rem 0.85rem; font-size:0.78rem; margin-left:0.35rem;" onclick="alert('💸 RELEASE DANA (Rp 4.000.000) KE ADVOKAT W')">Release Advokat</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen-pane').forEach(pane => pane.classList.remove('active'));
+            const targetPane = document.getElementById(screenId);
+            if (targetPane) targetPane.classList.add('active');
+
+            document.querySelectorAll('.nav-tab-btn').forEach(btn => btn.classList.remove('active'));
+            if (screenId === 'ADM-01') document.getElementById('nav-btn-adm01').classList.add('active');
+            if (screenId === 'ADM-02') document.getElementById('nav-btn-adm02').classList.add('active');
+
+            window.scrollTo(0, 0);
+        }
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            const text = document.getElementById('theme-text');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                icon.textContent = '☀';
+                text.textContent = 'Light Mode';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                icon.textContent = '☾';
+                text.textContent = 'Dark Mode';
+            }
+        }
+
+        function exportAuditReport() {
+            alert('📥 LAPORAN AUDIT TRAIL & KEPATUHAN BERHASIL DIEKSPORT (`MOCK-J-ADM-01`)\n\nNama Berkas: WORM_Compliance_Audit_Report_20260715.json\nIntegritas Hash: SHA-256 Validated\n\nLaporan mencakup 1.482 log aktivitas sesi E2EE, transaksi Escrow ACID, dan rekam jejak kepatuhan SLA seluruh Advokat & Klien Justica.');
+        }
+
+        function executeGlobalRefund() {
+            alert('🔄 EKSEKUSI REFUND GLOBAL (`MOCK-J-ADM-02`)\n\nSeluruh atau sebagian dari dana Escrow tertahan (Rp 18.400.000) akan dikembalikan ke rekening Klien berdasarkan putusan akhir Dewan Mediator.');
+        }
+
+        function executeGlobalRelease() {
+            alert('💸 EKSEKUSI RELEASE GLOBAL (`MOCK-J-ADM-02`)\n\nDana Escrow tertahan (Rp 18.400.000) dicairkan ke rekening mitra Advokat setelah verifikasi kepatuhan dan mediasi selesai.');
+        }
+    </script>
+</body>
+</html>
