@@ -59,8 +59,8 @@ export const GatewayPage: React.FC = () => {
       {/* 2. SCREEN 1: GERBANG UTAMA (GATEWAY-01 GOLDEN MASTER) */}
       {activeScreen === 'gateway' && (
         <main className="flex-1 w-full flex flex-col items-center justify-between px-4 sm:px-6 md:px-8">
-          {/* MASTER VERTICAL RHYTHM CONTAINER: 80px to 128px spacing between major sections */}
-          <div className="w-full flex flex-col items-center gap-20 sm:gap-28 lg:gap-32 py-10 sm:py-16 max-w-7xl mx-auto">
+          {/* HARMONIOUS BALANCED SPACING: gap-16 (64px) to gap-20 (80px) between Hero, Portal Grid, and Trust Bar */}
+          <div className="w-full flex flex-col items-center gap-16 sm:gap-20 py-8 sm:py-12 max-w-7xl mx-auto">
             <HeroSearchSection
               isDark={isDark}
               searchQuery={searchQuery}
@@ -71,32 +71,32 @@ export const GatewayPage: React.FC = () => {
 
             {/* QUICK PREVIEW POPUP SIMULATION */}
             {showSearchPreview && (
-              <Card className="w-full max-w-4xl mx-auto -mt-12 p-6 md:p-8 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-6">
-                <div className="flex items-center justify-between pb-4 border-b border-white/15">
+              <Card className="w-full max-w-4xl mx-auto -mt-8 p-6 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-5">
+                <div className="flex items-center justify-between pb-3 border-b border-white/15">
                   <span className="font-extrabold text-sm md:text-base text-blue-400 font-heading">
                     ⚡ HASIL PENCARIAN CEPAT ADVOKAT TERVERIFIKASI (`CL-02`)
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowSearchPreview(false)}
-                    className="text-xs text-slate-400 hover:text-white cursor-pointer font-bold px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
+                    className="text-xs text-slate-400 hover:text-white cursor-pointer font-bold px-3 py-1 rounded-lg hover:bg-white/10 transition-colors"
                   >
                     ✖ Tutup Preview
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                  <div className="p-5 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-4 shadow-md">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="p-4 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-3 shadow-md">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-white">
+                      <div className="flex items-center justify-between font-bold text-sm text-white">
                         <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
                         <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
                       </div>
-                      <p className="text-xs mt-2 leading-relaxed text-slate-300">
+                      <p className="text-xs mt-1.5 leading-relaxed text-slate-300">
                         Spesialisasi: Hukum Perdata &amp; Sengketa Bisnis • SIPP MA Terverifikasi
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-white/10">
                       <span className="font-extrabold text-sm text-amber-400">
                         Rp 350.000 / sesi
                       </span>
@@ -105,31 +105,31 @@ export const GatewayPage: React.FC = () => {
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'Perdata')}`)
                         }
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 shadow-md"
+                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 px-3 shadow-md"
                       >
                         Pilih Advokat →
                       </Button>
                     </div>
                   </div>
 
-                  <div className="p-5 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-4 shadow-md">
+                  <div className="p-4 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-3 shadow-md">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-white">
+                      <div className="flex items-center justify-between font-bold text-sm text-white">
                         <span>Adv. Rina Kartika, S.H., M.Kn.</span>
                         <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
                       </div>
-                      <p className="text-xs mt-2 leading-relaxed text-slate-300">
+                      <p className="text-xs mt-1.5 leading-relaxed text-slate-300">
                         Spesialisasi: Hukum Ketenagakerjaan &amp; PHK • Kuota Pro Bono Tersedia
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                    <div className="flex items-center justify-between pt-2.5 border-t border-white/10">
                       <span className="font-extrabold text-sm text-emerald-400 font-mono">PRO BONO (Rp 0)</span>
                       <Button
                         size="sm"
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'PHK')}`)
                         }
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 shadow-md"
+                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 px-3 shadow-md"
                       >
                         Pilih Advokat →
                       </Button>
@@ -140,9 +140,9 @@ export const GatewayPage: React.FC = () => {
             )}
 
             <PortalCardsGrid isDark={isDark} />
-          </div>
 
-          <TrustBarSection isDark={isDark} />
+            <TrustBarSection isDark={isDark} />
+          </div>
         </main>
       )}
 
@@ -154,7 +154,7 @@ export const GatewayPage: React.FC = () => {
       )}
 
       {/* 4. FOOTER */}
-      <footer className="py-8 px-6 text-center border-t border-white/10 bg-slate-950 text-slate-400 text-xs md:text-sm font-medium mt-16">
+      <footer className="py-8 px-6 text-center border-t border-white/10 bg-slate-950 text-slate-400 text-xs md:text-sm font-medium mt-8">
         © 2026 JUSTICA Legal Platform • Seluruh sesi konsultasi dilindungi kerahasiaan hubungan
         advokat-klien (Attorney-Client Privilege) &amp; WORM Audit Trail.
       </footer>
