@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { IracCard } from './IracCard';
 import { MockIracService } from '../services/mockIracService';
 import type { IracAnalysis } from '../types/irac';
-import { Sparkles, Loader2, FileText, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Sparkles, Loader2, FileText, AlertCircle } from 'lucide-react';
 
 interface IracSectionProps {
   onProceedToDraft: (analysis: IracAnalysis) => void;

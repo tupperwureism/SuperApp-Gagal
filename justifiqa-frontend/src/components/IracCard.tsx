@@ -1,5 +1,5 @@
 import React from 'react';
-import { HelpCircle, BookOpen, Scale, CheckCircle2, Sparkles, ShieldCheck, ArrowRight } from 'lucide-react';
+import { HelpCircle, BookOpen, Scale, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import type { IracAnalysis } from '../types/irac';
 
 interface IracCardProps {
