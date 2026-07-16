@@ -2,12 +2,15 @@ import React, { useState } from 'react';
 import { BaseLayout } from './components/BaseLayout';
 import { ConsultationSection } from './components/ConsultationSection';
 import { ConsultationBookingModal } from './components/ConsultationBookingModal';
+import { IracSection } from './components/IracSection';
 import type { ConsultationTier, EscrowTransaction } from './types/consultation';
+import type { IracAnalysis } from './types/irac';
 import { Scale, Sparkles, ArrowRight, CheckCircle2, Key, Database } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<ConsultationTier | null>(null);
   const [latestTransaction, setLatestTransaction] = useState<EscrowTransaction | null>(null);
+  const [activeIrac, setActiveIrac] = useState<IracAnalysis | null>(null);
 
   const handleSelectTier = (tier: ConsultationTier) => {
     setSelectedTier(tier);
@@ -17,6 +20,12 @@ export const App: React.FC = () => {
   const handleBookingSuccess = (tx: EscrowTransaction) => {
     setLatestTransaction(tx);
     console.log('Dummy Escrow checkout completed successfully:', tx);
+  };
+
+  const handleProceedToDraft = (analysis: IracAnalysis) => {
+    setActiveIrac(analysis);
+    console.log('Proceeding to Document Generator Draft for IRAC:', analysis);
+    // In Batch 3.3, this will open our Document Draft Builder & Preview Modal!
   };
 
   return (
@@ -47,10 +56,10 @@ export const App: React.FC = () => {
                   <span>Mulai Konsultasi &amp; Reservasi Tier</span>
                   <ArrowRight className="w-4 h-4" />
                 </a>
-                <button className="btn btn-secondary-glass">
+                <a href="#irac-generator" className="btn btn-secondary-glass">
                   <Scale className="w-4 h-4 text-amber-400" />
                   <span>Buka Generator IRAC &amp; Draf Dokumen</span>
-                </button>
+                </a>
               </div>
 
               {/* Status banner when a ticket is HELD */}
@@ -80,12 +89,30 @@ export const App: React.FC = () => {
                   </span>
                 </div>
               )}
+
+              {/* Status banner when IRAC is selected for drafting */}
+              {activeIrac && (
+                <div className="mt-4 p-4 rounded-xl bg-blue-500/15 border border-blue-500/40 flex items-center justify-between gap-3 animate-fade-in">
+                  <div className="flex items-center gap-2.5 text-xs text-blue-300 font-medium">
+                    <CheckCircle2 className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <span>Analisis IRAC Siap Draf: <strong className="text-white">{activeIrac.caseTitle}</strong> (Keyakinan AI: {activeIrac.confidenceScore}%)</span>
+                  </div>
+                  <span className="text-xs text-muted hidden sm:inline">
+                    (Modal Draf Surat akan aktif di Batch 3.3)
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Consultation Tiers Section (Batch 2.2) */}
           <div id="consultation-tiers">
             <ConsultationSection onSelectTier={handleSelectTier} />
+          </div>
+
+          {/* IRAC Generator Section (Batch 3.2) */}
+          <div id="irac-generator">
+            <IracSection onProceedToDraft={handleProceedToDraft} />
           </div>
 
           {/* Consultation Booking & Dummy Escrow Modal (Batch 2.3) */}
