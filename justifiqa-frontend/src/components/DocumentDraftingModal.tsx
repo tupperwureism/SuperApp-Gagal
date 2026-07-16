@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { X, FileText, Download, Loader2, Database, ShieldCheck, CheckCircle2, Sparkles, AlertCircle } from 'lucide-react';
 import type { IracAnalysis, LegalDocumentDraft, LegalDocumentTemplateId } from '../types/irac';
 import type { AuthSession } from '../types/auth';
@@ -36,7 +36,7 @@ export const DocumentDraftingModal: React.FC<DocumentDraftingModalProps> = ({
   onDraftDownloaded,
 }) => {
   const [selectedTemplate, setSelectedTemplate] = useState<LegalDocumentTemplateId>('SOMASI_TERBUKA');
-  const [opponentName, setOpponentName] = useState<string>('PT Mitra Solusi / Pihak yang Bersangkutan');
+  const [opponentName, setOpponentName] = useState<string>('PT Mitra Tergugat Nusantara');
   const [advocateName, setAdvocateName] = useState<string>('Dr. Hendra Wijaya, S.H., M.H. & Rekan');
   const [draft, setDraft] = useState<LegalDocumentDraft | null>(null);
   const [isGenerating, setIsGenerating] = useState<boolean>(false);
@@ -44,37 +44,37 @@ export const DocumentDraftingModal: React.FC<DocumentDraftingModalProps> = ({
   const [downloadSuccessHash, setDownloadSuccessHash] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
 
+  const handleGenerateDraft = useCallback(
+    async (templateId: LegalDocumentTemplateId, opponent: string, advocate: string) => {
+      if (!analysis) return;
+      setErrorMsg('');
+      setIsGenerating(true);
+      try {
+        const result = await MockIracService.generateDocumentDraft(
+          templateId,
+          analysis,
+          session.userName,
+          advocate,
+          opponent
+        );
+        setDraft(result);
+      } catch (err) {
+        setErrorMsg('Gagal merakit draf dokumen hukum. Silakan coba lagi.');
+        console.error(err);
+      } finally {
+        setIsGenerating(false);
+      }
+    },
+    [analysis, session.userName]
+  );
+
   useEffect(() => {
     if (analysis) {
       handleGenerateDraft(selectedTemplate, opponentName, advocateName);
     }
-  }, [analysis, selectedTemplate]);
+  }, [analysis, selectedTemplate, opponentName, advocateName, handleGenerateDraft]);
 
   if (!analysis) return null;
-
-  const handleGenerateDraft = async (
-    templateId: LegalDocumentTemplateId,
-    opponent: string,
-    advocate: string
-  ) => {
-    setErrorMsg('');
-    setIsGenerating(true);
-    try {
-      const result = await MockIracService.generateDocumentDraft(
-        templateId,
-        analysis,
-        session.userName,
-        advocate,
-        opponent
-      );
-      setDraft(result);
-    } catch (err) {
-      setErrorMsg('Gagal merakit draf dokumen hukum. Silakan coba lagi.');
-      console.error(err);
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleOpponentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setOpponentName(e.target.value);
