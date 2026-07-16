@@ -75,33 +75,33 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
   const selectedSlot = slots.find((s) => s.id === selectedSlotId);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="glass-card w-full max-w-3xl border border-amber-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto max-h-[90vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="bg-slate-900 w-full max-w-3xl border-2 border-amber-500/60 shadow-[0_0_60px_rgba(0,0,0,0.95)] rounded-2xl my-auto max-h-[90vh] flex flex-col overflow-hidden text-slate-100">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-amber-500/15 text-amber-400 border border-amber-500/30">
-              <Lock className="w-5 h-5" />
+        <div className="flex items-center justify-between p-6 bg-slate-950/80 border-b border-white/15 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 shadow-sm">
+              <Lock className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-heading font-bold text-lg text-white">
+              <h3 className="font-heading font-extrabold text-xl text-white tracking-tight">
                 Reservasi &amp; Checkout Escrow Mutex
               </h3>
-              <p className="text-xs text-secondary">
+              <p className="text-xs sm:text-sm text-slate-200 mt-0.5 font-medium">
                 {tier.title} &middot; <span className="text-amber-400 font-bold">{tier.priceLabel}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-secondary hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/15 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="py-6 space-y-6 overflow-y-auto flex-grow pr-1">
+        <div className="p-6 space-y-6 overflow-y-auto flex-grow">
           {transaction ? (
             /* SUCCESS VIEW: TICKET & ESCROW HELD STATUS */
             <div className="space-y-6 animate-fade-in text-center py-4">
@@ -110,40 +110,40 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
               </div>
 
               <div className="space-y-2">
-                <span className="badge badge-success">Dana Escrow HELD (Terkunci Mutex)</span>
-                <h4 className="text-2xl font-bold text-white">Simulasi Pembayaran Berhasil!</h4>
-                <p className="text-xs text-secondary max-w-md mx-auto">
+                <span className="badge badge-success font-bold px-3 py-1 text-xs">Dana Escrow HELD (Terkunci Mutex)</span>
+                <h4 className="text-2xl font-extrabold text-white">Simulasi Pembayaran Berhasil!</h4>
+                <p className="text-xs sm:text-sm text-slate-200 max-w-md mx-auto leading-relaxed">
                   Dana konsultasi sejumlah <strong className="text-white">{tier.priceLabel}</strong> telah dikunci oleh sistem menggunakan PostgreSQL Row-Lock Mutex dan baru akan dicairkan ke advokat setelah sesi konsultasi selesai.
                 </p>
               </div>
 
               {/* Ticket Details Box */}
-              <div className="bg-[#0b0f19] border border-white/10 rounded-xl p-4 text-left space-y-3 max-w-lg mx-auto text-xs font-mono">
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-muted">ID Transaksi Escrow:</span>
-                  <span className="text-amber-400 font-semibold">{transaction.id}</span>
+              <div className="bg-slate-950 border border-white/15 rounded-xl p-5 text-left space-y-3.5 max-w-lg mx-auto text-xs font-mono shadow-inner">
+                <div className="flex justify-between border-b border-white/10 pb-2.5">
+                  <span className="text-slate-400">ID Transaksi Escrow:</span>
+                  <span className="text-amber-400 font-bold">{transaction.id}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-muted">Advokat Terpilih:</span>
-                  <span className="text-white">{transaction.advocateName}</span>
+                <div className="flex justify-between border-b border-white/10 pb-2.5">
+                  <span className="text-slate-400">Advokat Terpilih:</span>
+                  <span className="text-white font-bold">{transaction.advocateName}</span>
                 </div>
-                <div className="flex justify-between border-b border-white/5 pb-2">
-                  <span className="text-muted">Status Mutex Lock:</span>
-                  <span className="text-emerald-400 font-bold flex items-center gap-1">
-                    <Key className="w-3.5 h-3.5" />
+                <div className="flex justify-between border-b border-white/10 pb-2.5">
+                  <span className="text-slate-400">Status Mutex Lock:</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1.5">
+                    <Key className="w-4 h-4" />
                     SELECT ... FOR UPDATE (VERIFIED)
                   </span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-muted">WORM Vault Trail Hash:</span>
-                  <span className="text-blue-400 break-all text-[11px]">{transaction.wormAuditHash}</span>
+                <div className="flex justify-between items-start gap-2">
+                  <span className="text-slate-400 shrink-0">WORM Vault Trail Hash:</span>
+                  <span className="text-blue-400 break-all text-[11px] font-semibold">{transaction.wormAuditHash}</span>
                 </div>
               </div>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <button
                   onClick={onClose}
-                  className="btn btn-primary-gold w-full sm:w-auto"
+                  className="btn btn-primary-gold w-full sm:w-auto px-8 py-3 rounded-xl font-bold text-black"
                 >
                   <span>Selesai &amp; Kembali ke Portal</span>
                 </button>
@@ -153,15 +153,15 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
             /* BOOKING FORM VIEW */
             <form onSubmit={handleCheckout} className="space-y-6">
               {errorMsg && (
-                <div className="p-3 rounded-xl bg-red-500/15 border border-red-500/30 flex items-center gap-2 text-xs text-red-300">
-                  <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+                <div className="p-3.5 rounded-xl bg-red-500/20 border border-red-500/40 flex items-center gap-2.5 text-xs sm:text-sm text-red-200 font-semibold">
+                  <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
                   <span>{errorMsg}</span>
                 </div>
               )}
 
               {/* Slot Selection Grid */}
               <div className="space-y-3">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted block">
+                <label className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-300 block">
                   1. Pilih Jadwal &amp; Advokat Spesialis:
                 </label>
                 <div className="grid grid-cols-1 gap-3">
@@ -169,30 +169,30 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
                     <div
                       key={slot.id}
                       onClick={() => setSelectedSlotId(slot.id)}
-                      className={`p-3.5 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
+                      className={`p-4 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-4 ${
                         selectedSlotId === slot.id
-                          ? 'bg-amber-500/15 border-amber-500 text-white shadow-md'
-                          : 'bg-white/5 border-white/10 text-slate-300 hover:border-white/20'
+                          ? 'bg-amber-500/20 border-amber-400 text-white shadow-md ring-1 ring-amber-400'
+                          : 'bg-slate-800/80 border-white/15 text-slate-200 hover:border-white/30 hover:bg-slate-800'
                       }`}
                     >
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-bold text-sm text-white">{slot.advocateName}</span>
-                          <span className="flex items-center gap-0.5 text-xs text-amber-400 font-semibold bg-amber-500/10 px-1.5 py-0.5 rounded">
-                            <Star className="w-3 h-3 fill-amber-400" />
+                        <div className="flex items-center gap-2.5">
+                          <span className="font-bold text-sm sm:text-base text-white">{slot.advocateName}</span>
+                          <span className="flex items-center gap-1 text-xs text-amber-300 font-bold bg-amber-500/15 px-2 py-0.5 rounded border border-amber-500/30">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                             {slot.advocateRating}
                           </span>
                         </div>
-                        <p className="text-xs text-secondary">{slot.advocateTitle}</p>
-                        <p className="text-[11px] text-blue-400 font-medium flex items-center gap-1 mt-1">
-                          <Clock className="w-3 h-3" />
+                        <p className="text-xs sm:text-sm text-slate-300 font-medium">{slot.advocateTitle}</p>
+                        <p className="text-xs text-blue-300 font-bold flex items-center gap-1.5 mt-1.5">
+                          <Clock className="w-3.5 h-3.5" />
                           <span>{slot.slotTimeLabel} &middot; {slot.specialty}</span>
                         </p>
                       </div>
 
-                      <div className="w-5 h-5 rounded-full border border-white/30 flex items-center justify-center flex-shrink-0">
+                      <div className="w-6 h-6 rounded-full border-2 border-white/40 flex items-center justify-center flex-shrink-0">
                         {selectedSlotId === slot.id && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
+                          <div className="w-3 h-3 rounded-full bg-amber-400" />
                         )}
                       </div>
                     </div>
@@ -201,8 +201,8 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
               </div>
 
               {/* Case Summary Input */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold uppercase tracking-wider text-muted block">
+              <div className="space-y-2.5">
+                <label className="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-300 block">
                   2. Ringkasan Fakta Permasalahan Hukum (Story of Facts):
                 </label>
                 <textarea
@@ -210,30 +210,30 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
                   value={caseSummary}
                   onChange={(e) => setCaseSummary(e.target.value)}
                   placeholder="Contoh: Perusahaan mitra melanggar klausul pembayaran kontrak proyek konstruksi senilai Rp 800 Juta yang seharusnya jatuh tempo bulan lalu..."
-                  className="w-full rounded-xl bg-[#0b0f19] border border-white/15 p-3.5 text-xs text-white placeholder:text-muted focus:outline-none focus:border-amber-400 transition-colors resize-none"
+                  className="w-full rounded-xl bg-slate-950 border border-white/20 p-4 text-xs sm:text-sm text-white placeholder:text-slate-400 focus:outline-none focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-colors resize-none font-medium leading-relaxed"
                 />
               </div>
 
               {/* Security & ACID Row-Lock Assurance Box */}
-              <div className="bg-[#111827] border border-white/10 rounded-xl p-4 space-y-2.5 text-xs text-secondary">
-                <div className="flex items-center justify-between text-white font-semibold border-b border-white/5 pb-2">
+              <div className="bg-slate-950 border-2 border-emerald-500/40 rounded-xl p-4.5 space-y-3 text-xs sm:text-sm text-slate-200 shadow-inner">
+                <div className="flex items-center justify-between text-white font-bold border-b border-white/10 pb-2.5">
                   <span>Rincian Pembayaran (Simulasi Bypass):</span>
-                  <span className="text-amber-400 font-bold text-sm">{tier.priceLabel}</span>
+                  <span className="text-amber-400 font-extrabold text-base">{tier.priceLabel}</span>
                 </div>
                 {selectedSlot && (
-                  <div className="flex items-center justify-between text-[11px] text-blue-300 pb-1">
+                  <div className="flex items-center justify-between text-xs text-blue-300 font-semibold pb-1">
                     <span>Advokat Terpilih:</span>
-                    <span className="font-medium">{selectedSlot.advocateName}</span>
+                    <span className="text-white font-bold">{selectedSlot.advocateName}</span>
                   </div>
                 )}
-                <div className="space-y-1.5 text-[11px] text-muted">
-                  <div className="flex items-center gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                    <span>Dana dikunci dengan <strong className="text-slate-200">ACID Mutex Lock (`status: HELD`)</strong>.</span>
+                <div className="space-y-2 text-xs text-slate-300 font-medium pt-1">
+                  <div className="flex items-center gap-2.5">
+                    <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+                    <span>Dana dikunci dengan <strong className="text-white">ACID Mutex Lock (`status: HELD`)</strong>.</span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Database className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
-                    <span>Audit trail langsung diinskripsikan ke <strong className="text-slate-200">WORM Immutable Vault</strong>.</span>
+                  <div className="flex items-center gap-2.5">
+                    <Database className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                    <span>Audit trail langsung diinskripsikan ke <strong className="text-white">WORM Immutable Vault</strong>.</span>
                   </div>
                 </div>
               </div>
@@ -242,7 +242,7 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full btn btn-primary-gold py-3.5 shadow-lg text-base"
+                className="w-full btn btn-primary-gold py-4 rounded-xl shadow-lg text-base font-extrabold text-black flex items-center justify-center gap-2.5 transition-all hover:scale-[1.01]"
               >
                 {isProcessing ? (
                   <>

@@ -101,26 +101,26 @@ export const DocumentDraftingModal: React.FC<DocumentDraftingModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md animate-fade-in overflow-y-auto">
-      <div className="glass-card w-full max-w-4xl border border-blue-500/30 shadow-[0_0_50px_rgba(0,0,0,0.8)] my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md animate-fade-in overflow-y-auto">
+      <div className="bg-slate-900 w-full max-w-4xl border-2 border-blue-500/60 shadow-[0_0_60px_rgba(0,0,0,0.95)] rounded-2xl my-auto max-h-[92vh] flex flex-col overflow-hidden text-slate-100">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-white/10 flex-shrink-0">
-          <div className="flex items-center gap-2.5">
-            <div className="p-2 rounded-lg bg-blue-500/15 text-blue-400 border border-blue-500/30">
-              <FileText className="w-5 h-5" />
+        <div className="flex items-center justify-between p-6 bg-slate-950/80 border-b border-white/15 flex-shrink-0">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/40 shadow-sm">
+              <FileText className="w-6 h-6" />
             </div>
             <div>
-              <h3 className="font-heading font-bold text-lg text-white">
+              <h3 className="font-heading font-extrabold text-xl text-white tracking-tight">
                 Perakitan Draf Dokumen Hukum (Document Builder Engine)
               </h3>
-              <p className="text-xs text-secondary">
+              <p className="text-xs sm:text-sm text-slate-200 mt-0.5 font-medium">
                 Rujukan IRAC: <strong className="text-amber-400">{analysis.caseTitle}</strong> &middot; ID: {analysis.id}
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-secondary hover:text-white hover:bg-white/10 transition-colors"
+            className="p-2 rounded-xl text-slate-300 hover:text-white hover:bg-white/15 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
