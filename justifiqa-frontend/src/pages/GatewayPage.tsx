@@ -43,7 +43,11 @@ export const GatewayPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 bg-background text-foreground">
+    <div className="min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 bg-slate-950 text-foreground selection:bg-blue-500/30 relative overflow-x-hidden">
+      {/* Background Aesthetic Watermarks & Gradients */}
+      <div className="absolute top-0 left-1/4 w-[800px] h-[600px] bg-blue-600/10 rounded-full blur-[180px] pointer-events-none -z-10" />
+      <div className="absolute top-1/3 right-1/4 w-[700px] h-[500px] bg-amber-500/10 rounded-full blur-[180px] pointer-events-none -z-10" />
+
       {/* 1. TOPBAR GATEWAY ORCHESTRATOR */}
       <NavbarGateway
         isDark={isDark}
@@ -52,10 +56,11 @@ export const GatewayPage: React.FC = () => {
         onVerifyClick={() => setActiveScreen('verifier')}
       />
 
-      {/* 2. SCREEN 1: GERBANG UTAMA (GATEWAY-01) */}
+      {/* 2. SCREEN 1: GERBANG UTAMA (GATEWAY-01 GOLDEN MASTER) */}
       {activeScreen === 'gateway' && (
         <main className="flex-1 w-full flex flex-col items-center justify-between px-4 sm:px-6 md:px-8">
-          <div className="w-full flex flex-col items-center">
+          {/* MASTER VERTICAL RHYTHM CONTAINER: 80px to 128px spacing between major sections */}
+          <div className="w-full flex flex-col items-center gap-20 sm:gap-28 lg:gap-32 py-10 sm:py-16 max-w-7xl mx-auto">
             <HeroSearchSection
               isDark={isDark}
               searchQuery={searchQuery}
@@ -66,33 +71,33 @@ export const GatewayPage: React.FC = () => {
 
             {/* QUICK PREVIEW POPUP SIMULATION */}
             {showSearchPreview && (
-              <Card className="w-full max-w-4xl mx-auto -mt-6 mb-12 p-6 rounded-2xl border border-accent bg-card/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-4">
-                <div className="flex items-center justify-between pb-3.5 border-b border-border">
-                  <span className="font-extrabold text-sm md:text-base text-accent font-heading">
+              <Card className="w-full max-w-4xl mx-auto -mt-12 p-6 md:p-8 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-6">
+                <div className="flex items-center justify-between pb-4 border-b border-white/15">
+                  <span className="font-extrabold text-sm md:text-base text-blue-400 font-heading">
                     ⚡ HASIL PENCARIAN CEPAT ADVOKAT TERVERIFIKASI (`CL-02`)
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowSearchPreview(false)}
-                    className="text-xs text-muted-foreground hover:text-foreground cursor-pointer font-semibold"
+                    className="text-xs text-slate-400 hover:text-white cursor-pointer font-bold px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors"
                   >
                     ✖ Tutup Preview
                   </button>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between gap-3">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                  <div className="p-5 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-4 shadow-md">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-foreground">
+                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-white">
                         <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
-                        <span className="text-emerald-500 text-xs font-bold">● ONLINE</span>
+                        <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
                       </div>
-                      <p className="text-xs mt-1 leading-relaxed text-muted-foreground">
+                      <p className="text-xs mt-2 leading-relaxed text-slate-300">
                         Spesialisasi: Hukum Perdata &amp; Sengketa Bisnis • SIPP MA Terverifikasi
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <span className="font-extrabold text-sm text-accent">
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                      <span className="font-extrabold text-sm text-amber-400">
                         Rp 350.000 / sesi
                       </span>
                       <Button
@@ -100,31 +105,31 @@ export const GatewayPage: React.FC = () => {
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'Perdata')}`)
                         }
-                        className="rounded-lg bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs"
+                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 shadow-md"
                       >
                         Pilih Advokat →
                       </Button>
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between gap-3">
+                  <div className="p-5 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-4 shadow-md">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-foreground">
+                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-white">
                         <span>Adv. Rina Kartika, S.H., M.Kn.</span>
-                        <span className="text-emerald-500 text-xs font-bold">● ONLINE</span>
+                        <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
                       </div>
-                      <p className="text-xs mt-1 leading-relaxed text-muted-foreground">
+                      <p className="text-xs mt-2 leading-relaxed text-slate-300">
                         Spesialisasi: Hukum Ketenagakerjaan &amp; PHK • Kuota Pro Bono Tersedia
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
-                      <span className="font-extrabold text-sm text-emerald-500">PRO BONO (Rp 0)</span>
+                    <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                      <span className="font-extrabold text-sm text-emerald-400 font-mono">PRO BONO (Rp 0)</span>
                       <Button
                         size="sm"
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'PHK')}`)
                         }
-                        className="rounded-lg bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs"
+                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-9 px-4 shadow-md"
                       >
                         Pilih Advokat →
                       </Button>
@@ -143,13 +148,13 @@ export const GatewayPage: React.FC = () => {
 
       {/* 3. SCREEN 2: VERIFIKASI DOKUMEN (PUBLIC-VERIFY) */}
       {activeScreen === 'verifier' && (
-        <main className="flex-1 w-full">
+        <main className="flex-1 w-full max-w-7xl mx-auto px-4 py-12">
           <VerifierPanel isDark={isDark} onBackToGateway={() => setActiveScreen('gateway')} />
         </main>
       )}
 
       {/* 4. FOOTER */}
-      <footer className="py-8 px-4 text-center border-t border-border bg-background text-muted-foreground text-xs md:text-sm font-medium mt-8">
+      <footer className="py-8 px-6 text-center border-t border-white/10 bg-slate-950 text-slate-400 text-xs md:text-sm font-medium mt-16">
         © 2026 JUSTICA Legal Platform • Seluruh sesi konsultasi dilindungi kerahasiaan hubungan
         advokat-klien (Attorney-Client Privilege) &amp; WORM Audit Trail.
       </footer>

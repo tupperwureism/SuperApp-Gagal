@@ -1,4 +1,5 @@
 import React from 'react';
+import { ShieldCheck, Lock, KeyRound } from 'lucide-react';
 
 interface TrustBarSectionProps {
   isDark?: boolean;
@@ -7,31 +8,39 @@ interface TrustBarSectionProps {
 export const TrustBarSection: React.FC<TrustBarSectionProps> = () => {
   const TRUST_ITEMS = [
     {
-      icon: '🛡️',
+      icon: ShieldCheck,
       text: 'Advokat Berlisensi Resmi (SIPP MA Terverifikasi)',
+      color: 'text-blue-400',
     },
     {
-      icon: '🔒',
+      icon: Lock,
       text: 'Rekening Bersama (Escrow ACID) Aman Terjamin',
+      color: 'text-amber-400',
     },
     {
-      icon: '🗝️',
+      icon: KeyRound,
       text: 'Kerahasiaan Sesi Terjamin (Zero-Knowledge E2EE)',
+      color: 'text-emerald-400',
     },
   ];
 
   return (
-    <section className="w-full max-w-6xl mx-auto pb-8 px-4 sm:px-6">
-      <div className="w-full rounded-xl border border-border bg-card/85 backdrop-blur-md p-6 shadow-sm flex flex-wrap items-center justify-around gap-6 transition-colors">
-        {TRUST_ITEMS.map((item, idx) => (
-          <div
-            key={idx}
-            className="flex items-center gap-3 font-bold text-sm md:text-base text-foreground shrink-0"
-          >
-            <span className="text-xl md:text-2xl shrink-0">{item.icon}</span>
-            <span>{item.text}</span>
-          </div>
-        ))}
+    <section className="w-full max-w-6xl mx-auto pb-12 pt-4 px-4 sm:px-6">
+      <div className="w-full rounded-2xl border border-white/15 bg-slate-900/80 backdrop-blur-xl p-6 md:p-8 shadow-xl flex flex-wrap items-center justify-around gap-8 transition-colors">
+        {TRUST_ITEMS.map((item, idx) => {
+          const IconComp = item.icon;
+          return (
+            <div
+              key={idx}
+              className="flex items-center gap-3.5 font-bold text-xs sm:text-sm md:text-base text-slate-200 shrink-0"
+            >
+              <div className={`p-2.5 rounded-xl bg-white/5 border border-white/10 ${item.color}`}>
+                <IconComp className="w-5 h-5 shrink-0" />
+              </div>
+              <span>{item.text}</span>
+            </div>
+          );
+        })}
       </div>
     </section>
   );
