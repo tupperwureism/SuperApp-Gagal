@@ -21,6 +21,7 @@
 - **Supremasi Physical & Logical Crow's Foot ERD:** Seluruh diagram relasi entitas WAJIB ditulis secara eksplisit mencantumkan tipe data fisik PostgreSQL/Supabase (`UUID`, `VARCHAR(N)`, `TIMESTAMPTZ`, `NUMERIC(15,2)`, `JSONB`), status *Primary Key* (`PK`), *Foreign Key* (`FK`), serta rasio kardinalitas presisi (`1 ||--o{ N`).
 - **Aturan ACID Transaksional & Concurrency Mutex Lock:** Seluruh tabel sensitif finansial & jadwal (`escrow_transactions`, `consultation_slots`, `wallet_balances`) WAJIB mendefinisikan mekanisme penguncian baris (`SELECT ... FOR UPDATE` / Optimistic Versioning) untuk mencegah *double-booking* dan *race condition*.
 - **Decoupled Storage Tiers & Zero-Knowledge E2EE Isolation:** Pemisahan mutlak antara tabel transaksional OLTP dengan tabel jejak audit *WORM Immutable Vault* (`audit_logs_worm`), serta larangan menyimpan *plaintext message / private key* E2EE pada database server utama.
+- **PL/pgSQL Function & Procedure Security Hardening (`proconfig & proacl Supremacy`):** Seluruh fungsi (`FUNCTION` / Stored Procedure) PL/pgSQL WAJIB mendefinisikan `SET search_path = public` pada *header* fungsinya secara eksplisit untuk mencegah celah *Search Path Hijacking / Trojan Horse* (`function_search_path_mutable`). Untuk seluruh fungsi bertipe `SECURITY DEFINER`, WAJIB mencabut hak eksekusi langsung dari peran `PUBLIC`, `anon`, dan `authenticated` (`REVOKE ALL ON FUNCTION ... FROM PUBLIC, anon, authenticated;`) dan hanya memberikan otorisasi kepada `service_role` / `postgres` guna mencegah eksploitasi RPC publik (`anon/authenticated_security_definer_function_executable`).
 
 ## 4. PERMANENT MEMORY & SYSTEMIC ADAPTATION
 - **Git as Single Source of Truth:** Catat dan permanenkan setiap keputusan arsitektur serta koreksi melalui Git commit (`git add ; git commit -m "..."`). Tidak perlu lagi memelihara file duplikasi log manual seperti `decision_log.md`.
@@ -29,6 +30,7 @@
 
 ## 5. MANDATORY FORENSIC SELF-AUDIT ("EAGLE-EYE / FORGET-LESS SYSTEM")
 - **Anti-Macro Assumption Mandate:** DILARANG KERAS menyatakan sebuah pekerjaan/fase "selesai 100%" atau "siap migrasi" hanya berdasarkan abstraksi memori makro atau asumsi umum.
-- **Automatic 360-Degree Forensic Check:** Sebelum memberikan pernyataan penyelesaian akhir atau meminta *sign-off* penutupan fase, WAJIB SECARA OTOMATIS DAN MANDIRI mengeksekusi pemindaian mikro baris-demi-baris (*micro line-by-line forensic audit*) terhadap seluruh file master/sumber terkait menggunakan SOP pada skill `forensic-audit`.
+- **Automatic 360-Degree Forensic Check:** Sebelum memberikan pernyataan penyelesaian akhir atau meminta *sign-off* penutupan fase, WAJIB SECARA OTOMATIS DAN MANDIRI mengeksekusi pemindaian mikro baris-demi-baris (*micro line-by-line forensic audit*) terhadap seluruh file master/sumber terkait menggunakan SOP pada skill `forensic-audit` (termasuk inspeksi fisik metadata katalog `pg_proc` untuk verifikasi `search_path` dan `proacl`).
 - **Traceability Mapping Proof & Zero-Omission Certification:** Klaim kesiapan 100% WAJIB disertai bukti verifikasi forensik 1-to-1 (*Verification Matrix*) yang membuktikan angka 0 celah (*zero missing entities/rules*).
+
 
