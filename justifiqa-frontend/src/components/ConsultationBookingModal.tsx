@@ -220,6 +220,12 @@ export const ConsultationBookingModal: React.FC<ConsultationBookingModalProps> =
                   <span>Rincian Pembayaran (Simulasi Bypass):</span>
                   <span className="text-amber-400 font-bold text-sm">{tier.priceLabel}</span>
                 </div>
+                {selectedSlot && (
+                  <div className="flex items-center justify-between text-[11px] text-blue-300 pb-1">
+                    <span>Advokat Terpilih:</span>
+                    <span className="font-medium">{selectedSlot.advocateName}</span>
+                  </div>
+                )}
                 <div className="space-y-1.5 text-[11px] text-muted">
                   <div className="flex items-center gap-2">
                     <ShieldCheck className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
