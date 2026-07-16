@@ -1,4 +1,5 @@
 import React from 'react';
+import { Button } from '@/components/ui/button';
 
 interface NavbarGatewayProps {
   isDark: boolean;
@@ -14,43 +15,43 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
   onVerifyClick,
 }) => {
   return (
-    <header className="topbar-gateway">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-xl px-4 sm:px-8 py-4 flex items-center justify-between shadow-sm transition-colors">
       <div
         onClick={onLogoClick}
-        className="topbar-brand group"
+        className="flex items-center gap-3 font-heading font-extrabold text-xl sm:text-2xl text-foreground cursor-pointer group shrink-0"
         role="button"
         tabIndex={0}
       >
         <span className="transition-transform group-hover:scale-[1.02]">
           ⚖️ JUSTICA
         </span>
-        <span className="topbar-subtitle hidden sm:flex">
+        <span className="hidden sm:flex items-center text-xs sm:text-sm font-medium text-muted-foreground border-l-2 border-border pl-3">
           Platform Konsultasi &amp; Layanan Hukum Profesional
         </span>
       </div>
 
-      <div className="flex items-center gap-3 sm:gap-4 flex-shrink-0">
-        <button
+      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={onToggleTheme}
-          className={`btn-topbar-toggle border ${
-            isDark
-              ? 'bg-[#1F2937] border-[#374151] hover:border-[#3B82F6] hover:bg-[#374151] text-[#F9FAFB]'
-              : 'bg-slate-100 border-slate-300 hover:border-[#3B82F6] hover:bg-slate-200 text-slate-800'
-          }`}
+          className="gap-2 font-semibold shrink-0"
         >
           <span>{isDark ? '🌙' : '☀️'}</span>
           <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
-        </button>
+        </Button>
 
-        <button
+        <Button
           type="button"
+          variant="default"
+          size="sm"
           onClick={onVerifyClick}
-          className="btn-topbar-action border border-[#8B5CF6] bg-[#8B5CF6]/15 hover:bg-[#8B5CF6] text-[#8B5CF6] hover:text-white"
+          className="gap-2 font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
         >
           <span>🛡️</span>
           <span>Verifikasi Dokumen SHA-256</span>
-        </button>
+        </Button>
       </div>
     </header>
   );

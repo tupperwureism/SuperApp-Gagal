@@ -4,7 +4,7 @@ interface TrustBarSectionProps {
   isDark?: boolean;
 }
 
-export const TrustBarSection: React.FC<TrustBarSectionProps> = ({ isDark = true }) => {
+export const TrustBarSection: React.FC<TrustBarSectionProps> = () => {
   const TRUST_ITEMS = [
     {
       icon: '🛡️',
@@ -21,21 +21,15 @@ export const TrustBarSection: React.FC<TrustBarSectionProps> = ({ isDark = true 
   ];
 
   return (
-    <section className="w-full max-w-[1180px] mx-auto pb-8">
-      <div
-        className={`trust-bar-gateway transition-all duration-300 shadow-md ${
-          isDark
-            ? 'bg-[#111827]/85 border-[#374151]'
-            : 'bg-white/85 border-slate-200 shadow-slate-200/50'
-        }`}
-      >
+    <section className="w-full max-w-6xl mx-auto pb-8 px-4 sm:px-6">
+      <div className="w-full rounded-xl border border-border bg-card/85 backdrop-blur-md p-6 shadow-sm flex flex-wrap items-center justify-around gap-6 transition-colors">
         {TRUST_ITEMS.map((item, idx) => (
           <div
             key={idx}
-            className="flex items-center justify-center gap-3 font-bold text-sm md:text-[0.95rem] box-border flex-shrink-0"
+            className="flex items-center gap-3 font-bold text-sm md:text-base text-foreground shrink-0"
           >
-            <span className="text-xl md:text-2xl flex-shrink-0">{item.icon}</span>
-            <span className={isDark ? 'text-[#F9FAFB]' : 'text-[#111827]'}>{item.text}</span>
+            <span className="text-xl md:text-2xl shrink-0">{item.icon}</span>
+            <span>{item.text}</span>
           </div>
         ))}
       </div>
