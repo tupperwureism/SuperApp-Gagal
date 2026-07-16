@@ -26,3 +26,4 @@ Thumbs.db
 skills-lock.json
 .agents/skills/*
 !.agents/skills/forensic-audit/
+!.agents/skills/frontend-ui-engineering/
