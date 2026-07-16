@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
-import { UserRole, AuthSession, DEFAULT_SESSIONS } from '../types/auth';
+import type { UserRole, AuthSession } from '../types/auth';
+import { DEFAULT_SESSIONS } from '../types/auth';
 
 interface BaseLayoutProps {
   children: (session: AuthSession, onRoleChange: (newRole: UserRole) => void) => React.ReactNode;

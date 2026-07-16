@@ -1,6 +1,6 @@
 import React from 'react';
 import { Scale, ShieldCheck, User, Sparkles, Briefcase } from 'lucide-react';
-import { UserRole, AuthSession, DEFAULT_SESSIONS } from '../types/auth';
+import type { UserRole, AuthSession } from '../types/auth';
 
 interface NavbarProps {
   currentSession: AuthSession;
