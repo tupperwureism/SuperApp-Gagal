@@ -11,10 +11,12 @@ Setiap langkah dalam skill ini **WAJIB dieksekusi secara berurutan dan disiplin*
 
 ---
 
-## SOP 1: PRE-EXECUTION MANDATORY CHECK (FASE BACA ULANG & ANALISIS)
+## SOP 1: PRE-EXECUTION MANDATORY CHECK (FASE BACA ULANG & ANALISIS - `Zero Blind UI Generation Rule`)
 
-Sebelum menulis baris kode pertama atau memodifikasi file `.tsx` apa pun:
-1. **Baca Spesifikasi Master:** Jalankan `view_file` pada [MOCK-J-FRONTEND-STANDARD.md](file:///d:/justificadll/MOCK-J-FRONTEND-STANDARD.md) untuk menyegarkan kembali parameter token, ukuran kontainer `max-w-[1180px]`, dan aturan dekopel komponen.
+Sebelum menulis baris kode pertama atau memodifikasi file `.tsx` / `.css` apa pun:
+1. **Baca Spesifikasi Master & Kamus Geometri:** Jalankan `view_file` secara fisik pada 2 dokumen master:
+   - [MOCK-J-FRONTEND-STANDARD.md](file:///d:/justificadll/MOCK-J-FRONTEND-STANDARD.md) (aturan makro, token warna, arsitektur terdekopel)
+   - [MOCK-J-UI-COMPONENT-SPECS.md](file:///d:/justificadll/MOCK-J-UI-COMPONENT-SPECS.md) (kamus spesifikasi angka mutlak dimensi `min-height`, `padding`, dan `box-sizing` untuk pil, lencana, tombol, dan kartu agar tidak pernah terpotong atau menyempit).
 2. **Baca Prototipe HTML Referensi:** Jika tugas berkaitan dengan fidelity prototipe (misal: Gateway, Verifier, atau Dashboard), jalankan `view_file` pada berkas HTML master terkait (`JUSTICA_Proto_1.1_Gateway_and_Verifier.html` atau `SuperApp_Justifiqa_Interactive_Prototype.html`) pada bagian yang relevan untuk memeriksa struktur CSS asli (`.portal-card`, `.trust-bar`, `.search-container`, dsb.).
 3. **Analisis Deklarasi Prinsip (Principle Gate):** Sajikan kepada pengguna rencana arsitektur modular yang akan diterapkan (daftar komponen mikro yang akan dibuat dan kelas CSS yang akan didaftarkan di `index.css`).
 
