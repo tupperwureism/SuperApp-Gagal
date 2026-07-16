@@ -1,5 +1,8 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Card, CardHeader, CardContent, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface PortalCardItemProps {
   badge: string;
@@ -22,53 +25,43 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
   btnClass,
   to,
   topStripeClass,
-  isDark = true,
 }) => {
   return (
-    <div
-      className={`portal-card-gateway relative overflow-hidden transition-all duration-300 ${
-        isDark
-          ? 'bg-[#111827] border-[#374151] hover:border-[#3B82F6]'
-          : 'bg-white border-slate-200 hover:border-[#2563EB]'
-      }`}
-    >
+    <Card className="flex flex-col gap-6 p-6 md:p-8 rounded-2xl border border-border bg-card/85 backdrop-blur-xl shadow-lg h-full relative overflow-hidden transition-all hover:-translate-y-1 hover:border-primary hover:shadow-2xl group">
       {/* Top decorative stripe (5px height exactly as in JUSTICA_Proto_1.1 line 306) */}
       <div className={`absolute top-0 left-0 right-0 h-[5px] ${topStripeClass}`} />
 
-      <div className="flex flex-col flex-1">
-        <span
-          className={`badge-portal-card border ${badgeClass}`}
+      <CardHeader className="p-0 pt-2 flex flex-col items-start gap-3">
+        <Badge
+          variant="outline"
+          className={`px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider ${badgeClass}`}
         >
           {badge}
-        </span>
+        </Badge>
 
-        <h3
-          className={`text-2xl md:text-[1.65rem] font-extrabold mb-4 ${
-            isDark ? 'text-[#F9FAFB]' : 'text-[#111827]'
-          }`}
-          style={{ fontFamily: "'Outfit', sans-serif" }}
-        >
+        <h3 className="text-2xl md:text-3xl font-extrabold text-foreground font-heading tracking-tight">
           {title}
         </h3>
+      </CardHeader>
 
-        <p
-          className={`text-sm md:text-[0.98rem] leading-[1.7] mb-8 font-normal flex-1 ${
-            isDark ? 'text-[#9CA3AF]' : 'text-slate-600'
-          }`}
-        >
+      <CardContent className="p-0 flex-1">
+        <p className="text-sm md:text-base leading-relaxed text-muted-foreground font-normal">
           {description}
         </p>
-      </div>
+      </CardContent>
 
-      <div className="mt-auto pt-2">
-        <Link
-          to={to}
-          className={`btn-portal-cta shadow-md active:scale-95 ${btnClass}`}
+      <CardFooter className="p-0 mt-auto pt-4">
+        <Button
+          asChild
+          size="lg"
+          className={`w-full h-12 rounded-xl font-bold text-base gap-2 shadow-md transition-all ${btnClass}`}
         >
-          <span>{btnText}</span>
-          <span>→</span>
-        </Link>
-      </div>
-    </div>
+          <Link to={to}>
+            <span>{btnText}</span>
+            <span>→</span>
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 };

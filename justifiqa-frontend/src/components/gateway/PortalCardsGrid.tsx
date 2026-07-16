@@ -7,49 +7,40 @@ interface PortalCardsGridProps {
 
 export const PortalCardsGrid: React.FC<PortalCardsGridProps> = ({ isDark = true }) => {
   return (
-    <section className="w-full max-w-[1180px] mx-auto flex flex-col items-center">
+    <section className="w-full max-w-6xl mx-auto flex flex-col items-center">
       <div className="flex items-center justify-center gap-4 mb-8 w-full">
-        <div className={`h-px w-16 sm:w-20 ${isDark ? 'bg-[#374151]' : 'bg-slate-300'}`} />
-        <h2
-          className={`text-center font-extrabold text-base md:text-[1.35rem] uppercase tracking-[0.08em] ${
-            isDark ? 'text-[#F9FAFB]' : 'text-[#111827]'
-          }`}
-          style={{ fontFamily: "'Outfit', sans-serif" }}
-        >
+        <div className="h-px w-16 sm:w-20 bg-border" />
+        <h2 className="text-center font-extrabold text-base md:text-xl uppercase tracking-widest text-foreground font-heading">
           PILIH AKSES PORTAL
         </h2>
-        <div className={`h-px w-16 sm:w-20 ${isDark ? 'bg-[#374151]' : 'bg-slate-300'}`} />
+        <div className="h-px w-16 sm:w-20 bg-border" />
       </div>
 
-      <div className="portal-cards-grid mb-14">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full items-stretch mb-14">
         {/* CARD 1: KLIEN HUKUM */}
         <PortalCardItem
           isDark={isDark}
           badge="👤 PORTAL PENCARI KEADILAN"
-          badgeClass="bg-[#3B82F6]/15 text-[#60A5FA] border border-[#2563EB]"
+          badgeClass="bg-blue-500/15 text-blue-400 border-blue-500/40"
           title="KLIEN HUKUM"
           description="Temukan advokat berlisensi, mulai konsultasi hukum daring (E2EE) maupun luring, tangani sengketa, atau ajukan bantuan hukum Pro Bono secara aman dengan perlindungan Escrow."
           btnText="Masuk / Daftar sebagai Klien"
-          btnClass="bg-[#2563EB] hover:bg-[#1D4ED8] text-white"
+          btnClass="bg-blue-600 hover:bg-blue-700 text-white border-0"
           to="/client/auth"
-          topStripeClass="bg-gradient-to-r from-[#2563EB] to-[#60A5FA]"
+          topStripeClass="bg-gradient-to-r from-blue-600 to-blue-400"
         />
 
         {/* CARD 2: MITRA ADVOKAT */}
         <PortalCardItem
           isDark={isDark}
           badge="⚖️ PORTAL PRAKTISI HUKUM"
-          badgeClass="bg-[#10B981]/15 text-[#10B981] border border-[#10B981]"
+          badgeClass="bg-emerald-500/15 text-emerald-400 border-emerald-500/40"
           title="MITRA ADVOKAT"
-          description="Kelola praktik profesional Anda, verifikasi SIPP Mahkamah Agung RI, jadwalkan sesi konsultasi, terbitkan opini hukum ber-eMeterai SHA-256, dan cairkan honor honorarium via BI-FAST."
+          description="Kelola praktik profesional Anda, verifikasi SIPP Mahkamah Agung RI, jadwalkan sesi konsultasi, terbitkan opini hukum ber-eMeterai SHA-256, dan cairkan honorarium via BI-FAST."
           btnText="Masuk / Daftar Mitra Advokat"
-          btnClass={
-            isDark
-              ? 'bg-[#1F2937] hover:bg-[#374151] border border-[#374151] hover:border-[#10B981] text-[#F9FAFB] hover:text-[#10B981]'
-              : 'bg-slate-100 hover:bg-slate-200 border border-slate-300 hover:border-[#10B981] text-slate-800 hover:text-[#10B981]'
-          }
+          btnClass="bg-secondary hover:bg-secondary/80 border border-border text-secondary-foreground hover:border-emerald-500 hover:text-emerald-400"
           to="/advocate/auth"
-          topStripeClass="bg-gradient-to-r from-[#10B981] to-[#059669]"
+          topStripeClass="bg-gradient-to-r from-emerald-500 to-emerald-600"
         />
       </div>
     </section>

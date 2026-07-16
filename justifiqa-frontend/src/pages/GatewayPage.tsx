@@ -5,6 +5,8 @@ import { HeroSearchSection } from '../components/gateway/HeroSearchSection';
 import { PortalCardsGrid } from '../components/gateway/PortalCardsGrid';
 import { TrustBarSection } from '../components/gateway/TrustBarSection';
 import { VerifierPanel } from '../components/gateway/VerifierPanel';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 export const GatewayPage: React.FC = () => {
   const navigate = useNavigate();
@@ -17,12 +19,8 @@ export const GatewayPage: React.FC = () => {
     const root = document.documentElement;
     if (isDark) {
       root.classList.add('dark');
-      document.body.style.backgroundColor = '#0B0F19';
-      document.body.style.color = '#F9FAFB';
     } else {
       root.classList.remove('dark');
-      document.body.style.backgroundColor = '#F8FAFC';
-      document.body.style.color = '#1E293B';
     }
   }, [isDark]);
 
@@ -45,11 +43,7 @@ export const GatewayPage: React.FC = () => {
   };
 
   return (
-    <div
-      className={`min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 ${
-        isDark ? 'bg-[#0B0F19] text-[#F9FAFB]' : 'bg-[#F8FAFC] text-[#1E293B]'
-      }`}
-    >
+    <div className="min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 bg-background text-foreground">
       {/* 1. TOPBAR GATEWAY ORCHESTRATOR */}
       <NavbarGateway
         isDark={isDark}
@@ -72,94 +66,72 @@ export const GatewayPage: React.FC = () => {
 
             {/* QUICK PREVIEW POPUP SIMULATION */}
             {showSearchPreview && (
-              <div
-                className={`w-full max-w-[880px] mx-auto -mt-8 mb-12 p-6 rounded-[16px] border shadow-2xl z-40 animate-fade-in ${
-                  isDark
-                    ? 'bg-[#111827] border-[#3B82F6]'
-                    : 'bg-white border-[#2563EB] shadow-slate-300'
-                }`}
-              >
-                <div className="flex items-center justify-between pb-3.5 mb-4 border-b border-[#374151]">
-                  <span className="font-extrabold text-sm md:text-[0.95rem] text-[#60A5FA]">
+              <Card className="w-full max-w-4xl mx-auto -mt-6 mb-12 p-6 rounded-2xl border border-accent bg-card/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-4">
+                <div className="flex items-center justify-between pb-3.5 border-b border-border">
+                  <span className="font-extrabold text-sm md:text-base text-accent font-heading">
                     ⚡ HASIL PENCARIAN CEPAT ADVOKAT TERVERIFIKASI (`CL-02`)
                   </span>
                   <button
                     type="button"
                     onClick={() => setShowSearchPreview(false)}
-                    className="text-xs text-gray-400 hover:text-white cursor-pointer font-semibold"
+                    className="text-xs text-muted-foreground hover:text-foreground cursor-pointer font-semibold"
                   >
                     ✖ Tutup Preview
                   </button>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div
-                    className={`p-4 rounded-[12px] border flex flex-col justify-between gap-3 ${
-                      isDark ? 'bg-[#0B0F19] border-[#374151]' : 'bg-slate-50 border-slate-200'
-                    }`}
-                  >
+                  <div className="p-4 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between gap-3">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-[0.95rem]">
+                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-foreground">
                         <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
-                        <span className="text-[#10B981] text-xs font-bold">● ONLINE</span>
+                        <span className="text-emerald-500 text-xs font-bold">● ONLINE</span>
                       </div>
-                      <p
-                        className={`text-xs mt-1 leading-relaxed ${
-                          isDark ? 'text-gray-400' : 'text-slate-500'
-                        }`}
-                      >
+                      <p className="text-xs mt-1 leading-relaxed text-muted-foreground">
                         Spesialisasi: Hukum Perdata &amp; Sengketa Bisnis • SIPP MA Terverifikasi
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                      <span className="font-extrabold text-sm text-[#60A5FA]">
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <span className="font-extrabold text-sm text-accent">
                         Rp 350.000 / sesi
                       </span>
-                      <button
-                        type="button"
+                      <Button
+                        size="sm"
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'Perdata')}`)
                         }
-                        className="px-3.5 py-1.5 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs transition-all cursor-pointer"
+                        className="rounded-lg bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs"
                       >
                         Pilih Advokat →
-                      </button>
+                      </Button>
                     </div>
                   </div>
 
-                  <div
-                    className={`p-4 rounded-[12px] border flex flex-col justify-between gap-3 ${
-                      isDark ? 'bg-[#0B0F19] border-[#374151]' : 'bg-slate-50 border-slate-200'
-                    }`}
-                  >
+                  <div className="p-4 rounded-xl border border-border bg-secondary/30 flex flex-col justify-between gap-3">
                     <div>
-                      <div className="flex items-center justify-between font-bold text-sm md:text-[0.95rem]">
+                      <div className="flex items-center justify-between font-bold text-sm md:text-base text-foreground">
                         <span>Adv. Rina Kartika, S.H., M.Kn.</span>
-                        <span className="text-[#10B981] text-xs font-bold">● ONLINE</span>
+                        <span className="text-emerald-500 text-xs font-bold">● ONLINE</span>
                       </div>
-                      <p
-                        className={`text-xs mt-1 leading-relaxed ${
-                          isDark ? 'text-gray-400' : 'text-slate-500'
-                        }`}
-                      >
+                      <p className="text-xs mt-1 leading-relaxed text-muted-foreground">
                         Spesialisasi: Hukum Ketenagakerjaan &amp; PHK • Kuota Pro Bono Tersedia
                       </p>
                     </div>
-                    <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                      <span className="font-extrabold text-sm text-[#10B981]">PRO BONO (Rp 0)</span>
-                      <button
-                        type="button"
+                    <div className="flex items-center justify-between pt-2 border-t border-border/50">
+                      <span className="font-extrabold text-sm text-emerald-500">PRO BONO (Rp 0)</span>
+                      <Button
+                        size="sm"
                         onClick={() =>
                           navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'PHK')}`)
                         }
-                        className="px-3.5 py-1.5 rounded-[8px] bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold text-xs transition-all cursor-pointer"
+                        className="rounded-lg bg-accent hover:bg-accent/90 text-accent-foreground font-semibold text-xs"
                       >
                         Pilih Advokat →
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 </div>
-              </div>
+              </Card>
             )}
 
             <PortalCardsGrid isDark={isDark} />
@@ -177,13 +149,7 @@ export const GatewayPage: React.FC = () => {
       )}
 
       {/* 4. FOOTER */}
-      <footer
-        className={`py-8 px-4 text-center border-t text-xs md:text-sm font-medium mt-8 ${
-          isDark
-            ? 'border-[#374151] text-[#9CA3AF] bg-[#0B0F19]'
-            : 'border-slate-200 text-slate-500 bg-[#F8FAFC]'
-        }`}
-      >
+      <footer className="py-8 px-4 text-center border-t border-border bg-background text-muted-foreground text-xs md:text-sm font-medium mt-8">
         © 2026 JUSTICA Legal Platform • Seluruh sesi konsultasi dilindungi kerahasiaan hubungan
         advokat-klien (Attorney-Client Privilege) &amp; WORM Audit Trail.
       </footer>
