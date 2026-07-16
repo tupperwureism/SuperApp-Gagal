@@ -41,10 +41,10 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
 
       <form
         onSubmit={onSearchSubmit}
-        className="w-full max-w-[800px] mx-auto flex flex-col sm:flex-row items-center gap-3 mt-2"
+        className="search-container-hero mt-2"
       >
-        <div className="relative flex-1 w-full">
-          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-lg">
+        <div className="relative flex-1 w-full flex items-center">
+          <span className="pl-3 pr-2 text-gray-400 text-lg flex-shrink-0">
             🔍
           </span>
           <input
@@ -52,23 +52,20 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari layanan hukum, advokat spesialis, atau verifikasi berkas..."
-            className={`w-full h-[54px] pl-12 pr-4 rounded-[14px] border text-sm sm:text-base outline-none transition-all ${
-              isDark
-                ? 'bg-[#1F2937]/90 border-[#374151] focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 text-[#F9FAFB] placeholder-gray-400'
-                : 'bg-white border-slate-300 focus:border-[#D4AF37] focus:ring-2 focus:ring-[#D4AF37]/20 text-slate-800 placeholder-slate-400'
-            }`}
+            className="w-full py-2 bg-transparent border-none text-sm sm:text-base outline-none text-inherit placeholder-gray-400"
           />
         </div>
         <button
           type="submit"
-          className="btn btn-primary-gold h-[54px] px-8 rounded-[14px] font-bold text-sm sm:text-base flex-shrink-0 w-full sm:w-auto shadow-lg hover:shadow-xl transition-all cursor-pointer"
+          className="btn-search-hero w-full sm:w-auto"
         >
-          CARI ADVOKAT
+          <span>CARI ADVOKAT</span>
+          <span>→</span>
         </button>
       </form>
 
-      <div className="flex flex-wrap items-center justify-center gap-2 max-w-[800px] mx-auto mt-1">
-        <span className="text-xs text-gray-400 font-semibold uppercase tracking-wider mr-1">
+      <div className="flex flex-wrap items-center justify-center gap-3 max-w-[880px] mx-auto mt-1">
+        <span className="text-xs sm:text-sm text-gray-300 font-bold uppercase tracking-wider mr-1">
           Layanan Populer:
         </span>
         {POPULAR_CHIPS.map((chip) => (
@@ -76,10 +73,10 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
             key={chip.topic}
             type="button"
             onClick={() => onChipClick(chip.topic)}
-            className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-all cursor-pointer ${
+            className={`chip-gateway ${
               isDark
-                ? 'bg-[#1F2937]/80 border-[#374151] hover:border-[#D4AF37] hover:text-[#D4AF37] text-gray-300'
-                : 'bg-slate-100 border-slate-300 hover:border-[#D4AF37] hover:text-[#D4AF37] text-slate-700'
+                ? 'bg-[#1F2937]/80 border-[#374151] hover:border-[#3B82F6] hover:bg-blue-500/15 text-gray-200'
+                : 'bg-slate-100 border-slate-300 hover:border-[#3B82F6] hover:bg-blue-50 text-slate-800'
             }`}
           >
             {chip.label}

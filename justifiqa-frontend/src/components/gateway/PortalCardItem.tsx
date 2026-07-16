@@ -37,7 +37,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
 
       <div className="flex flex-col flex-1">
         <span
-          className={`px-3.5 py-1.5 rounded-full text-xs font-extrabold uppercase tracking-[0.08em] mb-5 w-fit ${badgeClass}`}
+          className={`badge-portal-card border ${badgeClass}`}
         >
           {badge}
         </span>
@@ -60,10 +60,10 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         </p>
       </div>
 
-      <div className="mt-auto pt-4">
+      <div className="mt-auto pt-2">
         <Link
           to={to}
-          className={`w-full py-[1.05rem] px-6 rounded-[12px] font-bold text-base text-center transition-all flex items-center justify-center gap-3 shadow-md active:scale-95 cursor-pointer box-border flex-shrink-0 ${btnClass}`}
+          className={`btn-portal-cta shadow-md active:scale-95 ${btnClass}`}
         >
           <span>{btnText}</span>
           <span>→</span>
