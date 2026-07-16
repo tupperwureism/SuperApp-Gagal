@@ -3,14 +3,19 @@ import { BaseLayout } from './components/BaseLayout';
 import { ConsultationSection } from './components/ConsultationSection';
 import { ConsultationBookingModal } from './components/ConsultationBookingModal';
 import { IracSection } from './components/IracSection';
+import { DocumentDraftingModal } from './components/DocumentDraftingModal';
 import type { ConsultationTier, EscrowTransaction } from './types/consultation';
-import type { IracAnalysis } from './types/irac';
-import { Scale, Sparkles, ArrowRight, CheckCircle2, Key, Database } from 'lucide-react';
+import type { IracAnalysis, LegalDocumentDraft } from './types/irac';
+import { Scale, Sparkles, ArrowRight, CheckCircle2, Key, Database, FileText } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<ConsultationTier | null>(null);
   const [latestTransaction, setLatestTransaction] = useState<EscrowTransaction | null>(null);
   const [activeIrac, setActiveIrac] = useState<IracAnalysis | null>(null);
+  const [downloadedDraftInfo, setDownloadedDraftInfo] = useState<{
+    title: string;
+    wormHash: string;
+  } | null>(null);
 
   const handleSelectTier = (tier: ConsultationTier) => {
     setSelectedTier(tier);
@@ -24,8 +29,15 @@ export const App: React.FC = () => {
 
   const handleProceedToDraft = (analysis: IracAnalysis) => {
     setActiveIrac(analysis);
-    console.log('Proceeding to Document Generator Draft for IRAC:', analysis);
-    // In Batch 3.3, this will open our Document Draft Builder & Preview Modal!
+    console.log('Opening Document Drafting Modal for IRAC:', analysis);
+  };
+
+  const handleDraftDownloaded = (draft: LegalDocumentDraft, wormHash: string) => {
+    setDownloadedDraftInfo({
+      title: draft.title,
+      wormHash,
+    });
+    console.log('Document draft downloaded & locked in WORM:', draft.title, wormHash);
   };
 
   return (
@@ -90,15 +102,23 @@ export const App: React.FC = () => {
                 </div>
               )}
 
-              {/* Status banner when IRAC is selected for drafting */}
-              {activeIrac && (
-                <div className="mt-4 p-4 rounded-xl bg-blue-500/15 border border-blue-500/40 flex items-center justify-between gap-3 animate-fade-in">
-                  <div className="flex items-center gap-2.5 text-xs text-blue-300 font-medium">
-                    <CheckCircle2 className="w-5 h-5 text-blue-400 flex-shrink-0" />
-                    <span>Analisis IRAC Siap Draf: <strong className="text-white">{activeIrac.caseTitle}</strong> (Keyakinan AI: {activeIrac.confidenceScore}%)</span>
+              {/* Status banner when a document is downloaded & WORM locked */}
+              {downloadedDraftInfo && (
+                <div className="mt-4 p-4 rounded-xl bg-blue-500/15 border border-blue-500/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 animate-fade-in">
+                  <div className="flex items-start gap-2.5 text-xs text-blue-300 font-medium">
+                    <FileText className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-bold text-white text-sm">Draf Dokumen Hukum Terverifikasi &amp; Terkunci WORM</p>
+                      <p className="text-slate-300 mt-0.5">
+                        Dokumen: <strong>{downloadedDraftInfo.title}</strong>
+                      </p>
+                      <p className="text-[11px] text-amber-400 font-mono mt-1 break-all">
+                        Hash Audit: {downloadedDraftInfo.wormHash}
+                      </p>
+                    </div>
                   </div>
-                  <span className="text-xs text-muted hidden sm:inline">
-                    (Modal Draf Surat akan aktif di Batch 3.3)
+                  <span className="badge badge-blue flex-shrink-0 self-start sm:self-center">
+                    Status: WORM_VERIFIED
                   </span>
                 </div>
               )}
@@ -121,6 +141,14 @@ export const App: React.FC = () => {
             session={session}
             onClose={() => setSelectedTier(null)}
             onBookingSuccess={handleBookingSuccess}
+          />
+
+          {/* Document Drafting Builder & Preview Modal (Batch 3.3) */}
+          <DocumentDraftingModal
+            analysis={activeIrac}
+            session={session}
+            onClose={() => setActiveIrac(null)}
+            onDraftDownloaded={handleDraftDownloaded}
           />
         </div>
       )}
