@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { BaseLayout } from './components/BaseLayout';
 import { ConsultationSection } from './components/ConsultationSection';
 import type { ConsultationTier } from './types/consultation';
-import { Scale, Sparkles, ArrowRight } from 'lucide-react';
+import { Scale, Sparkles, ArrowRight, CheckCircle2 } from 'lucide-react';
 
 export const App: React.FC = () => {
   const [selectedTier, setSelectedTier] = useState<ConsultationTier | null>(null);
@@ -10,7 +10,6 @@ export const App: React.FC = () => {
   const handleSelectTier = (tier: ConsultationTier) => {
     setSelectedTier(tier);
     console.log('Selected Tier for booking/navigation:', tier);
-    // In Batch 2.3, clicking Tier 2/3 will open the Booking & Dummy Escrow Modal!
   };
 
   return (
@@ -46,6 +45,19 @@ export const App: React.FC = () => {
                   <span>Buka Generator IRAC &amp; Draf Dokumen</span>
                 </button>
               </div>
+
+              {/* Status banner when a tier is selected */}
+              {selectedTier && (
+                <div className="mt-4 p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-between animate-fade-in">
+                  <div className="flex items-center gap-2 text-sm text-amber-300 font-medium">
+                    <CheckCircle2 className="w-4 h-4 text-amber-400" />
+                    <span>Tier Terpilih: <strong>{selectedTier.title}</strong></span>
+                  </div>
+                  <span className="text-xs text-muted">
+                    (Modal Booking Escrow akan aktif di Batch 2.3)
+                  </span>
+                </div>
+              )}
             </div>
           </div>
 
