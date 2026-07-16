@@ -1,8 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { BaseLayout } from './components/BaseLayout';
+import { ConsultationSection } from './components/ConsultationSection';
+import type { ConsultationTier } from './types/consultation';
 import { Scale, Sparkles, ArrowRight } from 'lucide-react';
 
 export const App: React.FC = () => {
+  const [selectedTier, setSelectedTier] = useState<ConsultationTier | null>(null);
+
+  const handleSelectTier = (tier: ConsultationTier) => {
+    setSelectedTier(tier);
+    console.log('Selected Tier for booking/navigation:', tier);
+    // In Batch 2.3, clicking Tier 2/3 will open the Booking & Dummy Escrow Modal!
+  };
+
   return (
     <BaseLayout>
       {(session) => (
@@ -27,16 +37,21 @@ export const App: React.FC = () => {
               </p>
 
               <div className="pt-4 flex flex-wrap items-center gap-4">
-                <button className="btn btn-primary-gold">
+                <a href="#consultation-tiers" className="btn btn-primary-gold">
                   <span>Mulai Konsultasi &amp; Reservasi Tier</span>
                   <ArrowRight className="w-4 h-4" />
-                </button>
+                </a>
                 <button className="btn btn-secondary-glass">
                   <Scale className="w-4 h-4 text-amber-400" />
                   <span>Buka Generator IRAC &amp; Draf Dokumen</span>
                 </button>
               </div>
             </div>
+          </div>
+
+          {/* Consultation Tiers Section (Batch 2.2) */}
+          <div id="consultation-tiers">
+            <ConsultationSection onSelectTier={handleSelectTier} />
           </div>
         </div>
       )}
