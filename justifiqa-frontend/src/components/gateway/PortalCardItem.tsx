@@ -45,31 +45,34 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         }`}
       />
 
-      <CardHeader className="p-0 pt-3 flex flex-col items-start gap-3.5">
-        <Badge
-          variant="outline"
-          className={`px-3 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-sm max-w-full ${badgeClass}`}
-        >
-          {BadgeIcon && <BadgeIcon className="w-3.5 h-3.5 flex-shrink-0" />}
-          <span className="truncate">{badge}</span>
-        </Badge>
+      <CardHeader className="p-0 pt-3 flex flex-col items-start gap-4 w-full">
+        {/* Isolated flex container wrapper prevents any grid/flex boundary clipping on left border */}
+        <div className="w-full flex items-center justify-start overflow-hidden">
+          <Badge
+            variant="outline"
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm shrink-0 border ${badgeClass}`}
+          >
+            {BadgeIcon && <BadgeIcon className="w-3.5 h-3.5 shrink-0" />}
+            <span className="font-semibold">{badge}</span>
+          </Badge>
+        </div>
 
         <h3 className="text-2xl md:text-3xl font-black text-white font-heading tracking-tight">
           {title}
         </h3>
       </CardHeader>
 
-      <CardContent className="p-0 flex-1 space-y-5">
+      <CardContent className="p-0 flex-1 space-y-5 w-full">
         <p className="text-sm md:text-base leading-relaxed text-slate-300 font-normal">
           {description}
         </p>
 
         {features.length > 0 && (
-          <div className="space-y-2.5 pt-3 border-t border-white/10">
+          <div className="space-y-2.5 pt-3 border-t border-white/10 w-full">
             {features.map((item, idx) => (
               <div key={idx} className="flex items-start gap-2.5 text-xs md:text-sm text-slate-200">
                 <CheckCircle2
-                  className={`w-4 h-4 flex-shrink-0 mt-0.5 ${
+                  className={`w-4 h-4 shrink-0 mt-0.5 ${
                     accentColor === 'blue' ? 'text-blue-400' : 'text-emerald-400'
                   }`}
                 />
@@ -80,7 +83,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         )}
       </CardContent>
 
-      <CardFooter className="p-0 mt-auto pt-4">
+      <CardFooter className="p-0 mt-auto pt-4 w-full">
         <Button
           asChild
           size="lg"

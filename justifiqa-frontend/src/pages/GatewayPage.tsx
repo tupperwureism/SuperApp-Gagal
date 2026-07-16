@@ -71,7 +71,7 @@ export const GatewayPage: React.FC = () => {
 
             {/* QUICK PREVIEW POPUP SIMULATION */}
             {showSearchPreview && (
-              <Card className="w-full max-w-4xl mx-auto -mt-8 p-6 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-5">
+              <Card className="w-full max-w-4xl mx-auto -mt-6 p-6 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-5">
                 <div className="flex items-center justify-between pb-3 border-b border-white/15">
                   <span className="font-extrabold text-sm md:text-base text-blue-400 font-heading">
                     ⚡ HASIL PENCARIAN CEPAT ADVOKAT TERVERIFIKASI (`CL-02`)
