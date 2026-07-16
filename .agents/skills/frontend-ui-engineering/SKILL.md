@@ -43,42 +43,40 @@ src/components/<domain>/
 
 ---
 
-## SOP 3: DESIGN TOKEN & CSS CLASS ABSTRACTION
+## SOP 3: SHADCN V4 PRIMITIVE SUPREMACY & DESIGN TOKEN ALIGNMENT
 
-Untuk menjamin konsistensi visual dan mencegah penumpukan *inline utility bracket* yang rentan bentrok:
-1. **Periksa `index.css`:** Sebelum menulis *inline style* ad-hoc (`bg-[#111827] max-w-[1180px] p-[2.5rem] rounded-[16px]`), cek apakah token warna atau kelas komponen tersebut sudah ada di `index.css`.
-2. **Abstraksi Komponen Berulang:** Jika suatu struktur kartu, tombol ber-glow, atau kontainer kaca (*glassmorphism*) digunakan berkali-kali atau memiliki definisi kompleks, daftarkan sebagai kelas komponen di `index.css`:
-
-```css
-@layer components {
-  .card-premium-glass {
-    background: var(--bg-obsidian-card);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--border-glass-light);
-    border-radius: 16px;
-    padding: 2.5rem;
-    box-shadow: var(--shadow-glass);
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-  
-  .card-premium-glass:hover {
-    transform: translateY(-4px);
-    border-color: var(--accent-legal-gold);
-    box-shadow: var(--shadow-gold-glow);
-  }
-}
-```
-
-3. **Gunakan Kelas CSS di JSX:** Panggil kelas abstrak tersebut pada komponen (`<div className="card-premium-glass flex flex-col justify-between">`).
+Untuk menjamin konsistensi visual enterprise-class dan mencegah penumpukan *inline utility bracket* atau *ad-hoc utility classes*:
+1. **Larangan Ad-Hoc Utilities & Arbitrary Brackets:** DILARANG KERAS membuat *utility class* custom di `index.css` (`@layer components`) seperti `.portal-card-gateway`, `min-height: 420px justify-between`, atau `.btn-topbar-action`. DILARANG KERAS menggunakan *inline brackets* tebakan (`bg-[#111827] max-w-[1180px] p-[2.5rem]`).
+2. **Wajib Memanggil Primitives dari `src/components/ui/`:** Seluruh elemen UI atomik (tombol, kartu, lencana, input) **WAJIB** diimpor dari folder `src/components/ui/` yang merupakan turunan resmi dari Shadcn v4:
+   ```tsx
+   import { Button } from "@/components/ui/button"
+   import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card"
+   import { Badge } from "@/components/ui/badge"
+   import { Input } from "@/components/ui/input"
+   ```
+3. **Zero Void Card Architecture (`Anti-Kopong Rule`):** Untuk komponen kartu portal atau kontainer informasi, dilarang memasang `min-height` statis raksasa yang dipadukan dengan `justify-between`. Gunakan hierarki natural proporsional:
+   ```tsx
+   <Card className="flex flex-col gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-card/90 shadow-md h-full">
+     <CardHeader className="gap-2 p-0">
+       <Badge variant="outline" className="w-fit">...</Badge>
+       <CardTitle className="text-2xl font-bold">...</CardTitle>
+     </CardHeader>
+     <CardContent className="p-0 flex-1 text-base text-muted-foreground leading-relaxed">...</CardContent>
+     <CardFooter className="p-0 mt-auto pt-4">
+       <Button variant="default" size="lg" className="w-full h-12 rounded-xl">...</Button>
+     </CardFooter>
+   </Card>
+   ```
+4. **Pemetaan Token Semantik di `index.css`:** Seluruh variabel warna dan dimensi dikendalikan oleh variabel CSS semantik (`--background`, `--foreground`, `--card`, `--primary`, `--border`, `--ring`) sesuai kamus kontrak `MOCK-J-UI-COMPONENT-SPECS.md`.
 
 ---
 
 ## SOP 4: PRESERVASI SPASIAL & BOX MODEL PRESERVATION
 
-Saat merakit komponen agar tidak mengalami penyusutan (*squished* / rata kiri gepeng) di browser:
-1. **Aturan Kontainer Pembatas:** Seluruh section utama wajib dibungkus kontainer terpusat: `max-w-[1180px] mx-auto w-full px-[2.5rem]`.
-2. **Aturan Grid & Gap Simetris:** Untuk susunan kartu ganda atau modular, gunakan `grid grid-cols-1 lg:grid-cols-2 gap-[2.5rem] w-full`.
-3. **Isolasi Flex Item:** Untuk ikon, lencana, dan tombol CTA di dalam kontainer flex, tambahkan `flex-shrink-0 box-border` dan pastikan tinggi elemen interaktif terpatok stabil (misal: input `h-[54px]`, tombol `h-[48px]`).
+Saat merakit kontainer makro agar tidak mengalami keruntuhan tata letak (*clipped* atau *squished*):
+1. **Aturan Kontainer Pembatas:** Seluruh section utama wajib dibungkus kontainer terpusat: `max-w-7xl mx-auto w-full px-6 sm:px-12`.
+2. **Aturan Grid & Gap Simetris:** Untuk susunan kartu ganda atau modular, gunakan `grid grid-cols-1 lg:grid-cols-2 gap-8 sm:gap-10 w-full`.
+3. **Isolasi Box Model Primitives:** Komponen dari `src/components/ui/` (`Button`, `Badge`) secara bawaan telah memiliki `inline-flex shrink-0 items-center justify-center whitespace-nowrap box-border overflow-hidden`. Jangan pernah menimpa atau merusak properti proteksi geometri ini dengan style *inline* sembarangan.
 
 ---
 
