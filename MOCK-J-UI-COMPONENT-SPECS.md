@@ -1,138 +1,111 @@
-# MOCK-J-UI-COMPONENT-SPECS.md — Kamus Spesifikasi Geometri & Token UI (Intermediate Design Contract)
+# MOCK-J-UI-COMPONENT-SPECS.md — Kamus Pemetaan Primitives & Token UI (Shadcn v4 Contract)
 
-> **Status Dokumen:** `SINGLE SOURCE OF TRUTH (LAPIS 2 - INTERMEDIATE DESIGN CONTRACT — FORENSICALLY CERTIFIED)`  
-> **Kepatuhan Sistemik:** Wajib dipatuhi 100% oleh seluruh agen AI dan *Frontend Engineer* sebelum menulis atau merefaktorisasi kode JSX / CSS pada repositori `justifiqa-frontend`. DILARANG KERAS melakukan tebak-tebakan proporsi (*arbitrary size guessing*) yang menghasilkan elemen terpotong (*clipped*), menyempit (*squished*), ataupun tidak proporsional.  
-> **Sertifikasi Forensik:** Telah direkonsiliasi secara matematis (*Bi-Directional Set Equality*) 1:1 terhadap `JUSTICA_Proto_1.1_Gateway_and_Verifier.html` dan `MOCK-J-FRONTEND-STANDARD.md`.
-
----
-
-## 1. Filosofi & Penegakan Hukum Geometri UI (`Box-Model Supremacy`)
-
-Seluruh antarmuka (*User Interface*) pada platform **JUSTICA** dibangun berdasarkan **Box-Model Supremacy & Precision Geometry**.  
-Aturan mendasar untuk setiap elemen atomik yang diprogram:
-1. **Zero-Clipping & Zero-Squishing Guarantee:** Seluruh kontainer tombol (`button`, `a`), lencana (`badge`), dan pil (`chip/pill`) **WAJIB** menerapkan properti perlindungan geometri:
-   - `box-sizing: border-box`
-   - `flex-shrink: 0`
-   - `white-space: nowrap` (untuk teks 1 baris pada tombol/lencana/pil agar tidak pernah terpotong oleh border lengkung saat resolusi layar berubah)
-2. **Minimum Touch Target & Vertical Rhythm:** Setiap elemen interaktif yang dapat diklik **WAJIB** memiliki tinggi minimum (*minimum height*) yang terstandardisasi. DILARANG menggunakan `py-1` atau `py-1.5` sembarangan untuk tombol/pil interaktif.
-3. **Strict Flex & Alignment:** Penggabungan ikon (emoji/SVG) dengan teks dalam satu tombol atau lencana **WAJIB** berada dalam kontainer `display: inline-flex` atau `display: flex` dengan `align-items: center` dan rasio `gap` yang pasti (`gap-1.5`, `gap-2`, `gap-3`). DILARANG menaruh ikon dan teks secara *inline* polos tanpa *flex wrapper*.
-4. **Universal Radius Standard:** Sesuai prototipe master `JUSTICA_Proto_1.1` baris 30, nilai standar border-radius (`--radius`) adalah **`12px`** (`rounded-[12px]`), dengan pengecualian kontainer kartu portal & search input yang menggunakan `calc(var(--radius) + 4px) = 16px` (`rounded-[16px]`), serta lencana/chips yang menggunakan `999px` (`rounded-full`).
+> **Status Dokumen:** `SINGLE SOURCE OF TRUTH (LAPIS 2 - SHADCN V4 PRIMITIVE MAPPING CONTRACT)`  
+> **Kepatuhan Sistemik:** Wajib dipatuhi 100% oleh seluruh agen AI dan *Frontend Engineer* sebelum menulis atau merefaktorisasi kode JSX / CSS pada repositori `justifiqa-frontend`. DILARANG KERAS melakukan tebak-tebakan proporsi (*arbitrary size guessing*) ataupun membuat kelas CSS *ad-hoc* manual untuk tombol, kartu, lencana, dan input.  
+> **Sertifikasi Arsitektur:** Telah diselaraskan 1:1 terhadap standar *primitives* resmi Shadcn/ui v4 (`d:\justificadll\ui\apps\v4\registry\new-york-v4\ui\`) untuk mengeliminasi kesalahan "kartu kopong" (*hollow void cards*), "pil sekecil semut", dan "tombol gepeng".
 
 ---
 
-## 2. Katalog Geometri & Spesifikasi Token Atomik (Exact 1:1 Reconciliation)
+## 1. Filosofi & Penegakan Paradigma Shadcn v4 (`Primitive Supremacy`)
 
-### 2.1. Topbar & Navbar Action Buttons (`.btn-verify-nav`, `.theme-toggle`)
-Digunakan pada `NavbarGateway` (`Verifikasi Dokumen SHA-256`, `Dark Mode`, atau `Login`).
-* **Tinggi Minimum (Min-Height):** `42px` (`min-h-[42px]` / `h-[42px]`)
-* **Padding Spasial 1:1:** `padding: 0.55rem 1.15rem` (`py-[0.55rem] px-[1.15rem]`) untuk tombol aksi utama; `padding: 0.55rem 1rem` (`py-[0.55rem] px-[1rem]`) untuk toggle tema.
-* **Border Radius:** `border-radius: 12px` (`rounded-[12px]`)
-* **Tipografi:** `font-size: 0.85rem` (`13.6px`), `font-weight: 700` (`font-bold`) untuk tombol verifikasi; `font-weight: 600` (`font-semibold`) untuk toggle tema.
-* **Struktur Flex & Proteksi Box:** `inline-flex items-center justify-center gap-2 white-space-nowrap box-border flex-shrink-0 cursor-pointer transition-all active:scale-95`
-* **Perlindungan Terhadap Pemotongan Teks:** Karena tombol topbar berada di pojok kanan layar, kontainer `.topbar` **WAJIB** menggunakan `display: flex; justify-content: space-between; align-items: center; width: 100%; box-sizing: border-box; padding: 1.15rem 3rem;` (`px-4 sm:px-8 lg:px-12 py-[1.15rem]`) dan melarang pemaksaan lebar (*zero squeezing*) pada kelompok tombol kanan (`.controls-group flex items-center gap-4 flex-shrink-0`).
-
----
-
-### 2.2. Interactive Pills & Chips (`.chip-gateway` / Layanan Populer)
-Digunakan pada komponen `HeroSearchSection` (Layanan Populer) atau tag filter.
-* **Tinggi Minimum (Min-Height):** `38px` (`min-h-[38px]` / `h-[38px]`)
-* **Padding Spasial:** `padding: 0.5rem 1.15rem` (`px-4.5 py-2`) — *DILARANG `px-3 py-1.5`*
-* **Tipografi:** `font-size: 0.85rem` (`13.6px`), `font-weight: 600` (`font-semibold`), `line-height: 1.4`
-* **Struktur Flex:** `inline-flex items-center gap-2 white-space-nowrap box-border flex-shrink-0 cursor-pointer rounded-full`
-* **Efek Visual:** Border `1px` (`border-gray-600/40`) dengan latar belakang kaca bergelap dan efek hover (`hover:border-[#3B82F6] hover:bg-blue-500/10 transition-all`).
-
----
-
-### 2.3. Hero Search Input & Submit Button (`.search-container`, `.btn-search`)
-Digunakan pada `HeroSearchSection` di layar gerbang utama.
-* **Dimensi Kontainer Input (`.search-container` / wrapper):**
-  - `max-width: 880px`, `width: 100%`, `margin: 0 auto 3.5rem auto`
-  - `padding: 0.65rem` (`p-[0.65rem]`)
-  - `border-radius: 16px` (`rounded-[16px]`), `border: 2px solid var(--border-color)`
-  - `display: flex; flex-direction: row; align-items: center; gap: 0.75rem; box-sizing: border-box; box-shadow: var(--shadow);` (Pada layar ponsel `< 640px`, beralih ke `flex-col sm:flex-row`).
-* **Input Field (`.search-input`):** `flex: 1; width: 100%; background: transparent; border: none; font-size: 1.05rem (16.8px); padding: 0.6rem 0.75rem; color: inherit; focus:outline-none;`
-* **Tombol Submit (`.btn-search` / `CARI ADVOKAT →`):**
-  - **Tinggi Seragam:** `min-height: 46px` (`h-[46px] sm:h-[48px]`)
-  - **Padding Spasial 1:1:** `padding: 0.85rem 2rem` (`py-[0.85rem] px-[2rem]`)
-  - **Border Radius:** `border-radius: 12px` (`rounded-[12px]`)
-  - **Tipografi:** `font-size: 0.95rem` (`15.2px`), `font-weight: 700` (`font-bold`), `letter-spacing: 0.02em`
-  - **Struktur Flex:** `w-full sm:w-auto inline-flex items-center justify-center gap-2 bg-[#2563EB] hover:bg-[#1D4ED8] text-white box-border flex-shrink-0 cursor-pointer transition-all active:scale-95 white-space-nowrap`
+Seluruh antarmuka (*User Interface*) pada platform **JUSTICA** kini berfokus pada **Primitive Supremacy & Design Token Alignment**.  
+Aturan mendasar yang tidak boleh dilanggar:
+1. **Zero Handmade Ad-Hoc Utilities Ban:** DILARANG KERAS membuat *utility class* custom di `index.css` (`@layer components`) atau *inline brackets* untuk tombol (`.btn-topbar-action`, `min-h-[52px]`), lencana (`.badge-portal-card`), atau kartu (`.portal-card-gateway`, `min-h-[420px] justify-between`). Seluruh elemen atomik wajib memanggil komponen dari `src/components/ui/` (`<Button>`, `<Card>`, `<Badge>`, `<Input>`).
+2. **Zero Void Card Architecture (`Anti-Kopong Rule`):** DILARANG KERAS memasang `min-height` statis raksasa (seperti `420px` atau `500px`) yang dipadukan dengan `justify-between` pada komponen kartu yang isinya ringkas. Kartu di Shadcn v4 **WAJIB** dibangun menggunakan struktur hierarki alami:
+   ```tsx
+   <Card className="flex flex-col gap-6 p-6 h-full transition-all hover:border-primary shadow-sm">
+     <CardHeader className="gap-2 p-0">
+       <Badge variant="outline" className="w-fit">...</Badge>
+       <CardTitle className="text-2xl font-bold">...</CardTitle>
+     </CardHeader>
+     <CardContent className="p-0 flex-1 text-base text-muted-foreground leading-relaxed">
+       ...
+     </CardContent>
+     <CardFooter className="p-0 mt-auto pt-4">
+       <Button className="w-full">...</Button>
+     </CardFooter>
+   </Card>
+   ```
+   Dengan struktur `gap-6 p-6 flex-1 mt-auto` ini, kartu selalu terlihat padat, proporsional, dan tidak memiliki ruang hampa gelap (*dark void*) di tengah, berapapun resolusi layar atau skala zoom pengguna.
+3. **Box-Model & Overflow Protection:** Setiap *primitive* resmi dari Shadcn v4 (`Button`, `Badge`, `Card`) secara bawaan telah menerapkan `inline-flex shrink-0 items-center justify-center whitespace-nowrap box-border overflow-hidden`. AI dilarang menimpa properti proteksi ini dengan *style ad-hoc*.
 
 ---
 
-### 2.4. Card Badges & Status Tags (`.portal-badge`, `.badge-client`, `.badge-advocate`)
-Digunakan pada `PortalCardItem` (`👤 PORTAL PENCARI KEADILAN`, `⚖️ PORTAL PRAKTISI HUKUM`) dan kartu konsultasi E2EE.
-* **Tinggi Minimum (Min-Height):** `32px`
-* **Padding Spasial 1:1:** `padding: 0.3rem 0.75rem` (`py-[0.3rem] px-[0.75rem]`)
-* **Border Radius:** `border-radius: 999px` (`rounded-full`)
-* **Tipografi 1:1:** `font-size: 0.72rem` (`11.5px`), `font-weight: 800` (`font-extrabold`), `text-transform: uppercase`, `letter-spacing: 0.08em` (`tracking-[0.08em]`), `line-height: 1.4`
-* **Struktur Flex:** `inline-flex items-center gap-1.5 white-space-nowrap box-border flex-shrink-0 w-fit mb-5 border`
-* **Proporsi Ikon:** Ikon emoji (`👤`, `⚖️`) berukuran `text-[13px]` di dalam wrapper `inline-flex items-center justify-center` sehingga tidak menabrak border atas-bawah.
+## 2. Katalog Pemetaan Primitives & Token Varian (Shadcn v4 Mapping)
+
+### 2.1. Topbar & Action Buttons (`NavbarGateway`)
+* **Primitive Resmi:** `<Button>` dari `src/components/ui/button`
+* **Pemetaan Varian & Ukuran:**
+  - **Tombol Toggle Tema:** `<Button variant="outline" size="sm" className="gap-2 font-semibold">`
+  - **Tombol Verifikasi SHA-256:** `<Button variant="default" size="sm" className="gap-2 font-bold bg-[#8B5CF6] hover:bg-[#7C3AED] text-white">`
+* **Kontainer Topbar:** `topbar-gateway flex items-center justify-between px-6 sm:px-12 py-3.5 bg-background/80 backdrop-blur-md border-b border-border sticky top-0 z-50`
 
 ---
 
-### 2.5. Portal Card Container & Anti-Plank CTA Button (`.portal-card`, `.btn-portal`)
-Digunakan pada `PortalCardsGrid` dan `PortalCardItem`.
-* **Dimensi Kontainer Kartu (`.portal-card`):**
-  - **Tinggi Minimum (Min-Height):** `min-height: 420px` (`min-h-[420px]`) — *Krusial untuk mencegah kesan kartu yang terlalu horizontal/pendek*.
-  - **Padding Spasial 1:1:** `padding: 2.5rem` (`p-[2rem] sm:p-[2.5rem]`)
-  - **Border Radius:** `border-radius: 16px` (`rounded-[16px]`), `border: 1px solid var(--border-color)`
-  - **Struktur Flex & Distribusi:** `display: flex; flex-direction: column; justify-content: space-between; position: relative; overflow: hidden; box-sizing: border-box; box-shadow: var(--shadow);`
-  - **Pita Atas (`::before` / topStripeClass):** `position: absolute; top: 0; left: 0; right: 0; height: 5px;`
-* **Tipografi Kartu:**
-  - **Judul (`.portal-title`):** `font-family: Outfit; font-size: 1.65rem (26.4px); font-weight: 800; margin-bottom: 1rem;`
-  - **Deskripsi (`.portal-desc`):** `font-size: 0.98rem (15.68px); line-height: 1.7; margin-bottom: 2.25rem;` (`mb-9`)
-* **Tombol Aksi Bawah Kartu (`.btn-portal` / Anti-Plank Rule):**
-  - Karena kartu memiliki `min-height: 420px` dan `padding: 2.5rem` dengan `justify-content: space-between`, tombol diletakkan di dasar kartu (`mt-auto`).
-  - **Tinggi Minimum:** `min-height: 52px` (`min-h-[52px]` / `h-[52px]`)
-  - **Padding Spasial 1:1:** `padding: 1.05rem 1.5rem` (`py-[1.05rem] px-[1.5rem]`)
-  - **Border Radius:** `border-radius: 12px` (`rounded-[12px]`)
-  - **Tipografi:** `font-size: 1rem` (`16px`), `font-weight: 700` (`font-bold`)
-  - **Struktur Flex:** `width: 100% (w-full); display: flex; align-items: center; justify-content: center; gap: 0.75rem; box-sizing: border-box; flex-shrink: 0; cursor: pointer; transition: all 0.25s ease;`
+### 2.2. Interactive Pills / Chips (`HeroSearchSection` - Layanan Populer)
+* **Primitive Resmi:** `<Badge>` atau `<Button>` dari `src/components/ui/`
+* **Pemetaan Varian & Ukuran:**
+  - Gunakan `<Button variant="outline" size="sm" className="rounded-full px-4 py-1.5 text-sm font-semibold gap-2 border-border hover:border-primary hover:text-primary transition-all">`
+  - *DILARANG* menggunakan `text-xs py-1` yang membuat tombol sekecil semut dan sulit diklik.
 
 ---
 
-### 2.6. Trust Bar & Advantage Strip (`.advantage-strip`)
-Digunakan pada `TrustBarSection` di dasar halaman Gateway (`Advokat Berlisensi Resmi`, `Rekening Bersama Escrow ACID`, `Kerahasiaan Sesi E2EE`).
-* **Dimensi Kontainer (`.advantage-strip`):**
-  - `max-width: 1180px`, `width: 100%`, `margin: 0 auto 3rem auto`
-  - `padding: 1.5rem 2rem` (`py-6 px-8 sm:px-10`)
-  - `border-radius: 12px` (`rounded-[12px]`), `border: 1px solid var(--border-color)`
-  - `display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-around; gap: 2rem (32px); box-sizing: border-box;`
-* **Item Jaminan (`Trust Item`):**
-  - **Struktur Flex:** `inline-flex items-center justify-center gap-3.5 box-border flex-shrink-0`
-  - **Ikon SVG / Emoji:** `text-2xl` (`24px` / `flex-shrink-0`)
-  - **Teks Jaminan:** `font-size: 0.95rem` (`15.2px`), `font-weight: 700` (`font-bold`), `line-height: 1.5`, warna `text-[#F9FAFB]` (dark) atau `text-slate-800` (light).
+### 2.3. Hero Search Input & Submit Button (`HeroSearchSection`)
+* **Primitive Resmi:** `<Input>` dan `<Button>` dari `src/components/ui/`
+* **Pemetaan Struktur:**
+  - Kontainer Wrapper: `<div className="w-full max-w-[880px] mx-auto flex flex-col sm:flex-row items-center gap-3 p-2 rounded-2xl border-2 border-border bg-card shadow-lg">`
+  - Input Field: `<Input type="text" placeholder="..." className="h-12 border-none bg-transparent pl-12 pr-4 text-base focus-visible:ring-0 shadow-none" />`
+  - Tombol Cari: `<Button variant="default" size="lg" className="h-12 px-8 rounded-xl font-bold text-base bg-blue-600 hover:bg-blue-700 text-white shadow-md">CARI ADVOKAT →</Button>`
 
 ---
 
-## 3. Matriks Pemetaan Kepatuhan Kelas CSS (`index.css` Layer Components)
-
-Setiap spesifikasi geometri di atas **WAJIB** didaftarkan sebagai kelas abstrak di `src/index.css` (`@layer components`) pada **Sub-Batch 5.9.2** agar dapat dipanggil secara bersih tanpa *arbitrary utility clutter*:
-
-| Nama Spesifikasi | Kelas Komponen CSS (`@layer components`) | Penggunaan pada Berkas Komponen React |
-| :--- | :--- | :--- |
-| **Topbar Action Button** | `.btn-topbar-action` | `NavbarGateway.tsx` (Tombol Verifikasi SHA-256 & Dark Mode) |
-| **Interactive Pill / Chip** | `.chip-gateway` | `HeroSearchSection.tsx` (Layanan Populer) |
-| **Hero Search Submit Button** | `.btn-search-hero` | `HeroSearchSection.tsx` (Tombol CARI ADVOKAT →) |
-| **Card Badge** | `.badge-portal-card` | `PortalCardItem.tsx` (Lencana Atas Kartu) |
-| **Card CTA Button** | `.btn-portal-cta` | `PortalCardItem.tsx` (Tombol Masuk / Daftar) |
-| **Trust Bar Container** | `.trust-bar-gateway` | `TrustBarSection.tsx` (Bilah Jaminan Keamanan Bawah) |
+### 2.4. Card Badges & Status Tags (`PortalCardItem` / E2EE / Escrow)
+* **Primitive Resmi:** `<Badge>` dari `src/components/ui/badge`
+* **Pemetaan Varian & Ukuran:**
+  - `<Badge variant="outline" className="rounded-full px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider border-primary/40 bg-primary/10 text-primary">`
+  - Ikon dan teks berada dalam proporsi sejajar berkat bawaan `inline-flex shrink-0 items-center gap-1.5` dari `badgeVariants`.
 
 ---
 
-## 4. Responsi Layar & Breakpoint Standard (`Responsive Rules`)
-1. **Mobile (`< 640px` / `sm:`):**
-   - Topbar padding berkurang menjadi `px-4 py-3`. Tombol aksi topbar menyembunyikan teks sekunder atau menyesuaikan `px-3 py-1.5 text-xs` namun tetap mempertahankan `box-sizing: border-box white-space-nowrap`.
-   - `PortalCardsGrid` wajib `grid-cols-1 gap-6`.
-   - `HeroSearchSection` input dan tombol submit berubah menjadi susunan vertikal (`flex-col gap-3`).
-2. **Tablet & Desktop (`>= 768px` / `md:` dan `>= 1024px` / `lg:`):**
-   - `PortalCardsGrid` menerapkan `grid-cols-2 gap-[2.5rem]`.
-   - `TrustBarSection` menyebar item dengan `justify-around gap-8`.
+### 2.5. Portal Card Container & CTA Button (`PortalCardItem`)
+* **Primitive Resmi:** `<Card>`, `<CardHeader>`, `<CardTitle>`, `<CardContent>`, `<CardFooter>`, dan `<Button>`
+* **Pemetaan Anti-Kopong (`Zero Void Rule`):**
+  - **Kontainer Utama:** `<Card className="flex flex-col gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-card/90 backdrop-blur-sm shadow-md hover:shadow-xl hover:border-primary transition-all duration-300 h-full relative overflow-hidden">`
+  - **Pita Warna Atas (Top Stripe):** `<div className="absolute top-0 left-0 right-0 h-[5px] bg-gradient-to-r from-amber-500 to-amber-700" />`
+  - **Header & Judul:** `<CardHeader className="gap-3 p-0">` dengan `<CardTitle className="text-2xl sm:text-[1.65rem] font-extrabold font-heading">`
+  - **Deskripsi:** `<CardContent className="p-0 flex-1 text-base text-muted-foreground leading-relaxed">`
+  - **Tombol Masuk/Daftar (CTA):** `<CardFooter className="p-0 mt-auto pt-4">` berisi `<Button asChild variant="default" size="lg" className="w-full h-12 rounded-xl font-bold text-base shadow-sm"><Link to={to}>...</Link></Button>`
 
 ---
 
-## 5. SOP Wajib Sebelum Koding UI (*Zero Blind UI Generation Rule*)
-1. **Baca Kontrak Ini (`view_file MOCK-J-UI-COMPONENT-SPECS.md`):** Sebelum menyentuh atau menulis file `*.tsx` maupun `*.css`, agen wajib memeriksa angka presisi pada kamus ini.
-2. **Periksa Box-Model Protection:** Pastikan setiap kontainer tombol dan lencana memiliki `box-sizing: border-box`, `flex-shrink: 0`, dan `white-space: nowrap`.
-3. **Verifikasi Terminal (`tsc -b && vite build` & `oxlint`):** Setelah menerapkan kelas-kelas dari spesifikasi ini, lakukan audit terminal untuk memastikan 0 error, 0 warning, dan geometri tampilan 1:1 sempurna.
+### 2.6. Trust Bar & Advantage Strip (`TrustBarSection`)
+* **Pemetaan Kontainer:**
+  - `<div className="w-full max-w-[1180px] mx-auto p-6 rounded-xl border border-border bg-card/80 backdrop-blur-md flex flex-wrap items-center justify-around gap-6 shadow-sm">`
+  - Item jaminan: `<div className="flex items-center gap-3 font-bold text-sm sm:text-base text-foreground">`
+
+---
+
+## 3. Matriks Pemetaan Sistem Token Semantik (`index.css` Theme Tokens)
+
+Dalam paradigma Shadcn v4, seluruh warna **WAJIB** dikendalikan oleh *Design Tokens* variabel CSS semantik di `index.css` (`:root` dan `.dark`), yang dipetakan ke palet korporat **JUSTICA** (*Obsidian Dark, Legal Gold, Cyber Blue*):
+
+| Token Semantik Shadcn | Nilai di Tema Dark (`.dark` / default JUSTICA) | Nilai di Tema Light (`:root`) | Peran & Penggunaan |
+| :--- | :--- | :--- | :--- |
+| `--background` | `#090D16` (Obsidian Deep) | `#F8FAFC` (Slate Light) | Latar belakang utama seluruh halaman (`body`) |
+| `--foreground` | `#F8FAFC` | `#0F172A` | Warna teks primer (`h1`, `h2`, teks utama) |
+| `--card` | `#0F172A` (Obsidian Surface) | `#FFFFFF` | Latar belakang kartu (`<Card>`, `<Input>` wrapper) |
+| `--card-foreground` | `#F8FAFC` | `#0F172A` | Warna teks di dalam kartu |
+| `--primary` | `#D4AF37` (Legal Gold) | `#C59B27` | Warna aksen utama, hover border, lencana keadilan |
+| `--primary-foreground`| `#000000` | `#FFFFFF` | Teks di atas tombol primer |
+| `--secondary` | `#1E293B` | `#F1F5F9` | Latar belakang tombol/elemen sekunder |
+| `--muted` | `#1E293B` | `#F1F5F9` | Latar belakang seksi non-aktif / border ringan |
+| `--muted-foreground` | `#94A3B8` (Slate 400) | `#64748B` | Teks deskripsi kartu, subjudul, placeholder |
+| `--border` | `rgba(255, 255, 255, 0.12)` | `#E2E8F0` | Garis batas (*border*) seluruh kartu, input, topbar |
+| `--ring` | `#D4AF37` | `#C59B27` | Garis fokus (*focus ring*) saat elemen interaktif aktif |
+
+---
+
+## 4. SOP Wajib Sebelum Koding UI (*Zero Blind & Zero Ad-Hoc Rule*)
+1. **Baca Kontrak Pemetaan Ini (`view_file MOCK-J-UI-COMPONENT-SPECS.md`):** Pastikan komponen yang akan dibuat telah menggunakan *primitives* resmi dari `src/components/ui/`.
+2. **Larangan Rakitan Ad-Hoc:** Jangan pernah membuat class CSS baru di `index.css` atau *inline style* tebakan untuk tombol dan kartu.
+3. **Verifikasi Terminal (`tsc -b && vite build` & `oxlint`):** Pastikan kompilasi bersih dari error dan warning setelah pemanggilan *primitives* Shadcn v4.
