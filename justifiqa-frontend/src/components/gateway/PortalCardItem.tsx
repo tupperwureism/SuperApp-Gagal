@@ -56,8 +56,8 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         }`}
       />
 
-      {/* INNER SAFE-ZONE WRAPPER: Enforcing massive 56px-64px (`px-10 sm:px-16 py-12 sm:py-16`) physical margin from all outer walls */}
-      <div className="relative z-20 px-10 sm:px-16 py-12 sm:py-16 flex h-full flex-col justify-between gap-12">
+      {/* INNER SAFE-ZONE WRAPPER: Enforcing massive sovereign physical margin (`portal-card-safe-wrapper` from index.css) */}
+      <div className="portal-card-safe-wrapper">
         <div className="flex flex-col gap-8">
           <div className={`inline-flex w-fit items-center gap-2.5 rounded-full border px-4.5 py-2 text-xs font-extrabold uppercase tracking-widest shadow-md backdrop-blur-md ${badgeClass}`}>
             {BadgeIcon && <BadgeIcon className="h-4 w-4 shrink-0" />}

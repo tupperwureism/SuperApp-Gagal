@@ -18,8 +18,8 @@ export const SearchPreviewCard: React.FC<SearchPreviewCardProps> = ({
         {/* Top Glowing Accent Stripe conforming to outer border-radius */}
         <div className="absolute left-0 right-0 top-0 h-[6px] bg-gradient-to-r from-amber-500 via-yellow-400 to-blue-500 z-30 pointer-events-none" />
 
-        {/* INNER SAFE-ZONE WRAPPER: Enforcing massive 56px-64px (`px-10 sm:px-16 py-12 sm:py-16`) physical clearance from all outer walls */}
-        <div className="relative z-20 px-10 sm:px-16 py-12 sm:py-16 flex flex-col gap-9">
+        {/* INNER SAFE-ZONE WRAPPER: Enforcing massive sovereign physical clearance (`preview-card-safe-wrapper` from index.css) */}
+        <div className="preview-card-safe-wrapper">
           {/* Header Bar */}
           <div className="flex items-center justify-between pb-6 border-b border-white/[0.08] pt-2">
             <div className="flex items-center gap-3">

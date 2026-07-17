@@ -308,6 +308,37 @@ a {
     box-sizing: border-box;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
+
+  /* Sovereign Physical Safe-Zone Wrappers (Guaranteed 64px / 4rem absolute margin from outer box walls) */
+  .portal-card-safe-wrapper {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 100%;
+    padding: 3rem 2.75rem !important;
+    gap: 3rem;
+  }
+  @media (min-width: 640px) {
+    .portal-card-safe-wrapper {
+      padding: 4rem 4rem !important;
+    }
+  }
+
+  .preview-card-safe-wrapper {
+    position: relative;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    padding: 3rem 2.75rem !important;
+    gap: 2.5rem;
+  }
+  @media (min-width: 640px) {
+    .preview-card-safe-wrapper {
+      padding: 4rem 4rem !important;
+    }
+  }
 }
 
 /* ==========================================================================
