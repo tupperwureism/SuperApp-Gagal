@@ -56,15 +56,15 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         }`}
       />
 
-      {/* INNER SAFE-ZONE WRAPPER (Guaranteed physical 32px-56px margin from outer walls) */}
-      <div className="relative z-20 p-8 sm:p-12 md:p-14 flex h-full flex-col justify-between gap-10">
-        <div className="flex flex-col gap-7">
-          <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest shadow-md backdrop-blur-md ${badgeClass}`}>
+      {/* INNER SAFE-ZONE WRAPPER: Enforcing massive 56px-64px (`px-10 sm:px-16 py-12 sm:py-16`) physical margin from all outer walls */}
+      <div className="relative z-20 px-10 sm:px-16 py-12 sm:py-16 flex h-full flex-col justify-between gap-12">
+        <div className="flex flex-col gap-8">
+          <div className={`inline-flex w-fit items-center gap-2.5 rounded-full border px-4.5 py-2 text-xs font-extrabold uppercase tracking-widest shadow-md backdrop-blur-md ${badgeClass}`}>
             {BadgeIcon && <BadgeIcon className="h-4 w-4 shrink-0" />}
             <span>{badge}</span>
           </div>
 
-          <h3 className="text-3xl sm:text-4xl font-black tracking-tight text-white font-heading drop-shadow-md">
+          <h3 className="text-3xl sm:text-4xl lg:text-[2.5rem] font-black tracking-tight text-white font-heading drop-shadow-md leading-tight">
             {title}
           </h3>
 
@@ -73,9 +73,9 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
           </p>
 
           {features.length > 0 && (
-            <div className="mt-1 flex flex-col gap-4 border-t border-white/[0.1] pt-7">
+            <div className="mt-2 flex flex-col gap-4.5 border-t border-white/[0.1] pt-8">
               {features.map((item, idx) => (
-                <div key={idx} className="flex items-start gap-3.5">
+                <div key={idx} className="flex items-start gap-4">
                   <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checkColor}`} />
                   <p className="text-sm sm:text-base leading-relaxed text-slate-200 font-medium">{item}</p>
                 </div>
@@ -85,7 +85,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         </div>
 
         {/* BOTTOM ACTION BUTTON */}
-        <Link to={to} className={`portal-btn-cta shadow-2xl group/btn ${btnClass}`}>
+        <Link to={to} className={`portal-btn-cta shadow-2xl group/btn mt-4 ${btnClass}`}>
           <span>{btnText}</span>
           <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-2" />
         </Link>

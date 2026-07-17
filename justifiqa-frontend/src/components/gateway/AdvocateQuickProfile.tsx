@@ -13,19 +13,19 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
   const queryLabel = searchQuery.trim() || 'Hukum Perdata & Bisnis';
 
   return (
-    <div className="flex flex-col gap-7 pb-2">
+    <div className="flex flex-col gap-8 pb-3">
       {/* Top Status & Badges */}
       <div className="flex flex-wrap items-center justify-between gap-4">
-        <div className="flex items-center gap-3.5">
-          <div className="w-13 h-13 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 shadow-inner p-3">
+        <div className="flex items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-blue-500/15 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0 shadow-inner p-3.5">
             <Scale className="w-7 h-7" />
           </div>
-          <div className="flex flex-wrap items-center gap-2.5">
-            <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-extrabold px-3.5 py-1 text-xs gap-1.5 rounded-full shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+          <div className="flex flex-wrap items-center gap-3">
+            <Badge className="bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-extrabold px-4 py-1.5 text-xs gap-2 rounded-full shadow-sm">
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
               ONLINE
             </Badge>
-            <Badge variant="outline" className="border-amber-500/40 text-amber-300 font-extrabold px-3.5 py-1 text-xs rounded-full bg-amber-500/10 shadow-sm">
+            <Badge variant="outline" className="border-amber-500/40 text-amber-300 font-extrabold px-4 py-1.5 text-xs rounded-full bg-amber-500/10 shadow-sm">
               SIPP TERVERIFIKASI
             </Badge>
           </div>
@@ -36,8 +36,8 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
       </div>
 
       {/* Advocate Name & Location */}
-      <div className="flex flex-col gap-2">
-        <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-heading drop-shadow-sm">
+      <div className="flex flex-col gap-2.5">
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white font-heading drop-shadow-sm">
           Dr. Aryo Wibisono, S.H., M.H.
         </h3>
         <p className="text-sm sm:text-base text-slate-300 font-medium flex items-center gap-2">
@@ -47,42 +47,42 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
       </div>
 
       {/* Stats Section (Spacious pure typography without borders/boxes) */}
-      <div className="grid grid-cols-3 divide-x divide-white/[0.08] py-5 my-1 border-y border-white/[0.08]">
+      <div className="grid grid-cols-3 divide-x divide-white/[0.08] py-6 my-1 border-y border-white/[0.08]">
         <div className="preview-stat-box">
           <div className="flex items-center gap-2 text-amber-400 font-black text-xl sm:text-2xl">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
             <span>4.97</span>
           </div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">RATING</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">RATING</span>
         </div>
         <div className="preview-stat-box">
           <div className="flex items-center gap-2 text-white font-black text-xl sm:text-2xl">
             <Briefcase className="w-5 h-5 text-blue-400" />
             <span>312</span>
           </div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">KASUS</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">KASUS</span>
         </div>
         <div className="preview-stat-box">
           <div className="flex items-center gap-2 text-emerald-400 font-black text-xl sm:text-2xl">
             <Clock className="w-5 h-5 text-emerald-400" />
             <span>&lt; 2 Jam</span>
           </div>
-          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1">RESPON</span>
+          <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">RESPON</span>
         </div>
       </div>
 
       {/* Specialization Tags */}
       <div className="flex flex-wrap items-center gap-3 pt-1">
         {['Somasi Terbuka', 'Gugatan Perdata', 'Perjanjian Bisnis', 'Mediasi Sengketa'].map((tag) => (
-          <span key={tag} className="preview-chip-pill">
+          <span key={tag} className="preview-chip-pill px-4 py-2 text-xs">
             {tag}
           </span>
         ))}
       </div>
 
       {/* Price Highlight Row */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-4 px-6 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/25 text-foreground shadow-sm my-1">
-        <div className="flex items-center gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-6 sm:px-8 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/25 text-foreground shadow-sm my-1">
+        <div className="flex items-center gap-3.5">
           <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
           <span className="text-sm sm:text-base font-bold text-slate-200">Konsultasi pertama terenkripsi E2EE</span>
         </div>
@@ -92,7 +92,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
       </div>
 
       {/* Action CTA */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
         <Button
           variant="outline"
           onClick={() => navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}
