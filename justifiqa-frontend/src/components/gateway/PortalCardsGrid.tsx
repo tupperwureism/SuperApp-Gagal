@@ -10,7 +10,7 @@ export const PortalCardsGrid: React.FC<PortalCardsGridProps> = ({ isDark = true 
   return (
     <section className="w-full max-w-6xl mx-auto flex flex-col items-center">
       {/* Section Header with Balanced Spacing mb-16 sm:mb-20 */}
-      <div className="flex items-center justify-center gap-6 mb-16 sm:mb-20 w-full">
+      <div className="portal-section-header-wrapper">
         <div className="h-px w-20 sm:w-32 bg-gradient-to-r from-transparent via-white/30 to-white/10" />
         <h2 className="text-center font-black text-base md:text-xl uppercase tracking-[0.2em] text-white font-heading">
           PILIH AKSES PORTAL

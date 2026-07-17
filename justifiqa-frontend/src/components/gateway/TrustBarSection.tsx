@@ -26,7 +26,7 @@ export const TrustBarSection: React.FC<TrustBarSectionProps> = () => {
 
   return (
     <section className="w-full max-w-6xl mx-auto pb-12 pt-4 px-4 sm:px-6">
-      <div className="w-full rounded-2xl border border-white/15 bg-slate-900/80 backdrop-blur-xl p-6 md:p-8 shadow-xl flex flex-wrap items-center justify-around gap-8 transition-colors">
+      <div className="w-full rounded-2xl border border-white/15 bg-slate-900/80 backdrop-blur-xl shadow-xl trust-bar-safe-wrapper transition-colors">
         {TRUST_ITEMS.map((item, idx) => {
           const IconComp = item.icon;
           return (
