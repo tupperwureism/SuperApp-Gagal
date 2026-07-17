@@ -1,7 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { CheckCircle2, ArrowRight } from 'lucide-react';
 
 interface PortalCardItemProps {
@@ -33,69 +31,70 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
   accentColor = 'blue',
 }) => {
   return (
-    /* DIRECT NATIVE CONTAINER: pt-10 pb-8 px-8 sm:px-10 xl:px-12 directly on the root card element.
-       Bypasses all Shadcn <Card> tailwind-merge (cn) abstraction layers. 
-       Ensures 100% exact 40px top padding and 32px-48px horizontal padding for every single letter and badge! */
-    <div className="flex flex-col justify-between pt-10 pb-8 px-8 sm:px-10 xl:px-12 gap-6 rounded-3xl border border-white/15 bg-slate-900/90 backdrop-blur-2xl shadow-2xl min-h-[500px] h-full relative overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:border-white/40 hover:shadow-[0_25px_60px_rgba(0,0,0,0.7)] group">
-      {/* Top decorative gradient stripe (6px height) at absolute top z-20 */}
-      <div className={`absolute top-0 left-0 right-0 h-[6px] ${topStripeClass} z-20`} />
+    /* LAYER 1: OUTER SHELL (Murni Kulit Visual, TANPA PADDING)
+       Menjamin batas border, background, rounded-3xl, dan overflow terbebas dari intervensi padding */
+    <div
+      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/15 bg-slate-900/90 shadow-2xl backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-white/40 ${
+        accentColor === 'blue'
+          ? 'hover:shadow-blue-900/40 hover:border-blue-400/40'
+          : 'hover:shadow-emerald-900/40 hover:border-emerald-400/40'
+      }`}
+    >
+      {/* Top decorative gradient stripe (6px height) at absolute top */}
+      <div className={`absolute left-0 right-0 top-0 h-[6px] rounded-t-3xl ${topStripeClass} z-20`} />
 
       {/* Subtle background glow effect */}
       <div
-        className={`absolute -right-16 -top-16 w-64 h-64 rounded-full blur-[100px] pointer-events-none transition-opacity duration-300 opacity-20 group-hover:opacity-40 ${
+        className={`absolute -right-16 -top-16 w-64 h-64 rounded-full blur-[100px] pointer-events-none transition-opacity duration-300 opacity-20 group-hover:opacity-40 z-10 ${
           accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'
         }`}
       />
 
-      {/* HEADER SECTION */}
-      <div className="flex flex-col items-start gap-4 w-full relative z-10">
-        <Badge
-          variant="outline"
-          className={`px-3.5 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-2 shadow-sm border ${badgeClass}`}
-        >
-          {BadgeIcon && <BadgeIcon className="w-3.5 h-3.5 shrink-0" />}
-          <span>{badge}</span>
-        </Badge>
-
-        <h3 className="text-2xl sm:text-3xl font-black text-white font-heading tracking-tight">
-          {title}
-        </h3>
-      </div>
-
-      {/* CONTENT SECTION */}
-      <div className="flex-1 space-y-5 w-full relative z-10">
-        <p className="text-sm sm:text-base leading-relaxed text-slate-300 font-normal">
-          {description}
-        </p>
-
-        {features.length > 0 && (
-          <div className="space-y-3 pt-3 border-t border-white/10 w-full">
-            {features.map((item, idx) => (
-              <div key={idx} className="flex items-start gap-3 text-xs sm:text-sm text-slate-200">
-                <CheckCircle2
-                  className={`w-4 h-4 shrink-0 mt-0.5 ${
-                    accentColor === 'blue' ? 'text-blue-400' : 'text-emerald-400'
-                  }`}
-                />
-                <span className="leading-snug font-medium">{item}</span>
-              </div>
-            ))}
+      {/* LAYER 2: INNER WRAPPER (Murni Geometri & Bantalan Interior: p-8 pt-10 sm:p-10 sm:pt-12)
+          Mengunci seluruh anak-anak elemen agar mutlak berada di dalam jarak aman 32px-48px dari batas kotak */}
+      <div className="relative z-20 flex h-full flex-col justify-between gap-8 p-8 pt-10 sm:p-10 sm:pt-12">
+        {/* LAYER 3A: TOP STACK (Badge, Judul, Deskripsi, Checklist) */}
+        <div className="flex flex-col gap-6">
+          {/* Lencana berkelas inline-flex w-fit agar tidak melebar & tidak terlempar ke pojok */}
+          <div
+            className={`inline-flex w-fit items-center gap-2 rounded-full border px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider ${badgeClass}`}
+          >
+            {BadgeIcon && <BadgeIcon className="h-3.5 w-3.5 shrink-0" />}
+            <span>{badge}</span>
           </div>
-        )}
-      </div>
 
-      {/* FOOTER ACTION SECTION */}
-      <div className="pt-4 w-full mt-auto relative z-10">
-        <Button
-          asChild
-          size="lg"
-          className={`w-full h-13 py-3.5 rounded-2xl font-extrabold text-sm sm:text-base gap-3 shadow-xl transition-all ${btnClass}`}
+          <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-heading">
+            {title}
+          </h3>
+
+          <p className="text-sm sm:text-base leading-relaxed text-slate-300 font-normal">
+            {description}
+          </p>
+
+          {features.length > 0 && (
+            <div className="mt-2 flex flex-col gap-3 border-t border-white/10 pt-5">
+              {features.map((item, idx) => (
+                <div key={idx} className="flex items-start gap-3">
+                  <CheckCircle2
+                    className={`mt-0.5 h-5 w-5 shrink-0 ${
+                      accentColor === 'blue' ? 'text-blue-400' : 'text-emerald-400'
+                    }`}
+                  />
+                  <p className="text-sm sm:text-base leading-relaxed text-slate-200">{item}</p>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* LAYER 3B: BOTTOM ACTION (Tombol Masuk/Daftar) */}
+        <Link
+          to={to}
+          className={`flex w-full items-center justify-center gap-3 rounded-2xl py-4 text-sm sm:text-base font-extrabold text-white transition-all shadow-xl ${btnClass}`}
         >
-          <Link to={to} className="flex items-center justify-center">
-            <span>{btnText}</span>
-            <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-          </Link>
-        </Button>
+          <span>{btnText}</span>
+          <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+        </Link>
       </div>
     </div>
   );
