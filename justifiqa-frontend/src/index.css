@@ -114,7 +114,7 @@ body {
   background-color: var(--background);
   color: var(--foreground);
   line-height: 1.6;
-  overflow-x: hidden;
+  overflow-x: clip;
   min-height: 100vh;
   background-image: 
     radial-gradient(circle at 15% 15%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
@@ -188,7 +188,135 @@ a {
 }
 
 /* ==========================================================================
-   5. HIGH-CONTRAST TYPOGRAPHY OVERRIDES (WCAG AAA HARDENING)
+   5. DESIGN SYSTEM FIRST COMPONENT MASTER LAYER (CLAUDE'S 4 RULES SUPREMACY)
+   ========================================================================== */
+@layer components {
+  /* --- Gateway Navbar --- */
+  .gateway-navbar-shell {
+    @apply sticky top-0 z-50 w-full border-b border-border/40 bg-background/85 backdrop-blur-xl transition-all duration-300;
+    min-height: 80px;
+    display: flex;
+    align-items: center;
+  }
+
+  .navbar-brand-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 44px;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+  }
+
+  .navbar-btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+
+  /* --- Hero Section & Chips --- */
+  .hero-section-container {
+    @apply max-w-4xl mx-auto w-full text-center py-12 sm:py-16 px-4 flex flex-col items-center gap-8;
+  }
+
+  .chip-service-item {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    padding: 0.625rem 1.25rem;
+    border-radius: 9999px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--foreground);
+    font-size: 0.875rem;
+    font-weight: 500;
+    box-shadow: var(--shadow-sm);
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .chip-service-item:hover, .chip-service-item.active {
+    border-color: var(--primary);
+    background: rgba(197, 155, 39, 0.12);
+    color: var(--primary);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(197, 155, 39, 0.2);
+  }
+
+  /* --- Search Preview Card --- */
+  .preview-card-gateway {
+    @apply max-w-4xl mx-auto w-full p-6 sm:p-8 rounded-2xl border border-amber-500/35 bg-card/95 backdrop-blur-xl flex flex-col gap-6 relative transition-all duration-300;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+  }
+
+  .preview-chip-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 36px;
+    padding: 0.5rem 1rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    background: var(--secondary);
+    color: var(--secondary-foreground);
+    border: 1px solid var(--border);
+    box-sizing: border-box;
+  }
+
+  .preview-stat-box {
+    @apply flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-muted/40 min-h-[72px];
+    box-sizing: border-box;
+  }
+
+  /* --- Portal Cards --- */
+  .portal-card-shell {
+    @apply flex flex-col justify-between p-6 sm:p-8 rounded-2xl border border-border bg-card/90 transition-all duration-300 hover:-translate-y-1 h-full;
+    box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+  }
+
+  .portal-btn-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 48px;
+    width: 100%;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+  }
+}
+
+/* ==========================================================================
+   6. HIGH-CONTRAST TYPOGRAPHY OVERRIDES (WCAG AAA HARDENING)
    Prevents utility collision between background secondary/muted box colors
    and text colors across all components. Forces crisp visibility.
    ========================================================================== */

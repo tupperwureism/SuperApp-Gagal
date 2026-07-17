@@ -15,43 +15,45 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
   onVerifyClick,
 }) => {
   return (
-    <header className="sticky top-0 z-50 w-full min-h-[80px] border-b border-border bg-background/85 backdrop-blur-xl px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between shadow-sm transition-colors">
-      <div
-        onClick={onLogoClick}
-        className="flex items-center gap-3 font-heading font-extrabold text-xl sm:text-2xl text-foreground cursor-pointer group shrink-0"
-        role="button"
-        tabIndex={0}
-      >
-        <span className="transition-transform group-hover:scale-[1.02]">
-          ⚖️ JUSTICA
-        </span>
-        <span className="hidden sm:flex items-center text-xs sm:text-sm font-medium text-muted-foreground border-l-2 border-border pl-3">
-          Platform Konsultasi &amp; Layanan Hukum Profesional
-        </span>
-      </div>
-
-      <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-        <Button
-          type="button"
-          variant="outline"
-          size="default"
-          onClick={onToggleTheme}
-          className="gap-2.5 font-bold h-10 sm:h-11 px-5 sm:px-6 rounded-full border-border bg-card/80 hover:bg-accent/80 text-foreground shadow-sm shrink-0 whitespace-nowrap transition-all"
+    <header className="gateway-navbar-shell">
+      <div className="max-w-7xl mx-auto w-full px-6 sm:px-12 flex items-center justify-between gap-4">
+        {/* Brand Logo & Subtitle */}
+        <div
+          onClick={onLogoClick}
+          className="navbar-brand-pill cursor-pointer group transition-transform hover:scale-[1.01]"
+          role="button"
+          tabIndex={0}
         >
-          <span>{isDark ? '🌙' : '☀️'}</span>
-          <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
-        </Button>
+          <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-foreground">
+            ⚖️ JUSTICA
+          </span>
+          <span className="hidden lg:inline-flex items-center text-xs sm:text-sm font-semibold text-muted border-l-2 border-border/80 pl-3">
+            Platform Konsultasi &amp; Layanan Hukum Profesional
+          </span>
+        </div>
 
-        <Button
-          type="button"
-          variant="default"
-          size="default"
-          onClick={onVerifyClick}
-          className="gap-2.5 font-bold h-10 sm:h-11 px-6 sm:px-7 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shrink-0 whitespace-nowrap transition-all"
-        >
-          <span>🛡️</span>
-          <span>Verifikasi Dokumen SHA-256</span>
-        </Button>
+        {/* Action Buttons */}
+        <div className="flex items-center gap-3 shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onToggleTheme}
+            className="navbar-btn-action bg-card hover:bg-accent text-foreground border-border"
+          >
+            <span>{isDark ? '🌙' : '☀️'}</span>
+            <span className="hidden sm:inline">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
+          </Button>
+
+          <Button
+            type="button"
+            variant="default"
+            onClick={onVerifyClick}
+            className="navbar-btn-action bg-primary text-primary-foreground hover:bg-primary/90 shadow-md"
+          >
+            <span>🛡️</span>
+            <span>Verifikasi Dokumen SHA-256</span>
+          </Button>
+        </div>
       </div>
     </header>
   );

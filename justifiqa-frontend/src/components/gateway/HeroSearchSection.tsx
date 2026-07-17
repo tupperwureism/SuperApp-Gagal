@@ -1,7 +1,6 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Search, ArrowRight, ShieldCheck, Scale, FileText, Hash } from 'lucide-react';
 
 interface HeroSearchSectionProps {
@@ -26,65 +25,65 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
   onChipClick,
 }) => {
   return (
-    <section className="flex flex-col items-center text-center gap-10 w-full animate-fade-in max-w-5xl mx-auto">
+    <section className="hero-section-container animate-fade-in">
       {/* Title & Subtitle */}
       <div className="flex flex-col gap-4 max-w-[900px] mx-auto">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-heading text-white">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-heading text-foreground">
           Akses Keadilan &amp;{' '}
-          <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">
+          <span className="text-gradient-gold">
             Praktik Hukum Digital Tanpa Batas
           </span>
         </h1>
-        <p className="text-base sm:text-lg md:text-xl max-w-[780px] mx-auto font-normal leading-relaxed text-slate-300">
+        <p className="text-base sm:text-lg md:text-xl max-w-[780px] mx-auto font-normal leading-relaxed text-muted">
           Satu gerbang terpadu untuk verifikasi integritas berkas digital (SHA-256),
           konsultasi advokat berlisensi PERADI, dan transaksi escrow aman tersertifikasi.
         </p>
       </div>
 
-      {/* Hero Search Box (Generous height h-16 and clean shadow) */}
+      {/* Hero Search Box */}
       <form
         onSubmit={onSearchSubmit}
-        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-2.5 rounded-3xl border border-white/20 bg-slate-900/90 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-500/20"
+        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-2.5 rounded-3xl border border-border bg-card/95 backdrop-blur-2xl shadow-xl transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
       >
         <div className="relative flex-1 w-full flex items-center">
-          <div className="pl-4 pr-3 text-slate-400 flex items-center justify-center">
-            <Search className="w-6 h-6 text-blue-400" />
+          <div className="pl-4 pr-3 text-muted flex items-center justify-center">
+            <Search className="w-6 h-6 text-primary" />
           </div>
           <Input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari layanan hukum, advokat spesialis, atau verifikasi berkas..."
-            className="w-full h-14 border-none bg-transparent shadow-none px-2 text-base sm:text-lg text-white placeholder:text-slate-400 focus-visible:ring-0 font-medium"
+            className="w-full h-14 border-none bg-transparent shadow-none px-2 text-base sm:text-lg text-foreground placeholder:text-muted focus-visible:ring-0 font-medium"
           />
         </div>
         <Button
           type="submit"
           size="lg"
-          className="w-full sm:w-auto h-14 px-10 font-extrabold text-sm gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white shadow-lg transition-all shrink-0"
+          className="w-full sm:w-auto h-14 px-10 font-extrabold text-sm gap-2.5 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transition-all shrink-0"
         >
           <span>CARI ADVOKAT</span>
           <ArrowRight className="w-5 h-5" />
         </Button>
       </form>
 
-      {/* Layanan Populer Pills Container (Generous spacing pt-2 gap-3 sm:gap-4) */}
-      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 max-w-4xl mx-auto pt-4">
-        <span className="text-xs sm:text-sm text-muted-foreground font-extrabold uppercase tracking-widest mr-2 flex items-center shrink-0">
+      {/* Layanan Populer Chips Container (`Design System First & Anti-Wrap`) */}
+      <div className="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto pt-2">
+        <span className="text-xs sm:text-sm text-muted font-extrabold uppercase tracking-widest mr-2 flex items-center shrink-0">
           ⚡ LAYANAN POPULER:
         </span>
         {POPULAR_CHIPS.map((chip) => {
           const IconComp = chip.icon;
           return (
-            <Badge
+            <button
               key={chip.topic}
-              variant="outline"
+              type="button"
               onClick={() => onChipClick(chip.topic)}
-              className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[40px] rounded-full text-xs sm:text-sm font-bold tracking-wide cursor-pointer border border-border bg-card/90 text-foreground hover:border-primary hover:bg-primary/15 hover:text-primary transition-all shadow-md flex items-center gap-2.5 shrink-0 whitespace-nowrap"
+              className="chip-service-item"
             >
               <IconComp className="w-4 h-4 text-primary shrink-0" />
               <span>{chip.label}</span>
-            </Badge>
+            </button>
           );
         })}
       </div>

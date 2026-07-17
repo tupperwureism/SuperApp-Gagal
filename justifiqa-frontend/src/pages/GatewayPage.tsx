@@ -56,8 +56,8 @@ export const GatewayPage: React.FC = () => {
       {/* 2. SCREEN 1: GERBANG UTAMA (GATEWAY-01 GOLDEN MASTER) */}
       {activeScreen === 'gateway' && (
         <main className="flex-1 w-full flex flex-col items-center justify-between px-4 sm:px-6 md:px-8">
-          {/* HARMONIOUS BALANCED SPACING: gap-24 sm:gap-32 (96px-128px) between Hero, Portal Grid, and Trust Bar */}
-          <div className="w-full flex flex-col items-center gap-24 sm:gap-32 pt-12 pb-24 sm:pt-16 sm:pb-32 max-w-7xl mx-auto">
+          {/* HARMONIOUS BALANCED SPACING: gap-12 sm:gap-16 between Hero, Portal Grid, and Trust Bar */}
+          <div className="w-full flex flex-col items-center gap-12 sm:gap-16 pt-8 pb-16 sm:pt-12 sm:pb-24 max-w-7xl mx-auto">
             <HeroSearchSection
               isDark={isDark}
               searchQuery={searchQuery}
@@ -89,7 +89,7 @@ export const GatewayPage: React.FC = () => {
       )}
 
       {/* 4. FOOTER */}
-      <footer className="py-8 px-6 text-center border-t border-white/10 bg-slate-950 text-slate-400 text-xs md:text-sm font-medium mt-8">
+      <footer className="py-8 px-6 text-center border-t border-border bg-background text-muted text-xs md:text-sm font-medium mt-8 transition-colors">
         © 2026 JUSTICA Legal Platform • Seluruh sesi konsultasi dilindungi kerahasiaan hubungan
         advokat-klien (Attorney-Client Privilege) &amp; WORM Audit Trail.
       </footer>
