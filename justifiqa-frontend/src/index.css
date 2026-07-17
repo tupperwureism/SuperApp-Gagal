@@ -200,18 +200,7 @@ a {
   }
 
   .navbar-brand-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    white-space: nowrap;
-    flex-shrink: 0;
-    min-height: 44px;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    background: var(--card);
-    border: 1px solid var(--border);
-    box-shadow: var(--shadow-sm);
-    box-sizing: border-box;
+    @apply inline-flex items-center gap-3 select-none;
   }
 
   .navbar-btn-action {
@@ -266,8 +255,7 @@ a {
 
   /* --- Search Preview Card --- */
   .preview-card-gateway {
-    @apply max-w-4xl mx-auto w-full p-6 sm:p-8 rounded-2xl border border-amber-500/35 bg-card/95 backdrop-blur-xl flex flex-col gap-6 relative transition-all duration-300;
-    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.6);
+    @apply max-w-4xl mx-auto w-full p-6 sm:p-8 rounded-2xl border border-border/80 bg-card/95 backdrop-blur-xl flex flex-col gap-6 relative transition-all duration-300 shadow-2xl;
   }
 
   .preview-chip-pill {
@@ -276,20 +264,18 @@ a {
     justify-content: center;
     white-space: nowrap;
     flex-shrink: 0;
-    min-height: 36px;
-    padding: 0.5rem 1rem;
-    border-radius: 9999px;
-    font-size: 0.8125rem;
+    min-height: 32px;
+    padding: 0.375rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.75rem;
     font-weight: 600;
-    background: var(--secondary);
-    color: var(--secondary-foreground);
-    border: 1px solid var(--border);
+    background: var(--muted);
+    color: var(--muted-foreground);
     box-sizing: border-box;
   }
 
   .preview-stat-box {
-    @apply flex flex-col items-center justify-center p-4 rounded-xl border border-border/50 bg-muted/40 min-h-[72px];
-    box-sizing: border-box;
+    @apply flex flex-col items-center justify-center py-2 px-3 text-center;
   }
 
   /* --- Portal Cards --- */

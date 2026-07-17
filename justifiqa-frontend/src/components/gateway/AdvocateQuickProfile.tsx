@@ -13,7 +13,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
   const queryLabel = searchQuery.trim() || 'Hukum Perdata & Bisnis';
 
   return (
-    <div className="flex flex-col gap-6 p-6 sm:p-8 rounded-2xl border border-border bg-card shadow-inner">
+    <div className="flex flex-col gap-6">
       {/* Top Status & Badges */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -46,8 +46,8 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
         </p>
       </div>
 
-      {/* Stats Box (Using `.preview-stat-box` from index.css) */}
-      <div className="grid grid-cols-3 gap-3 sm:gap-4 p-2 rounded-xl border border-border bg-muted/20">
+      {/* Stats Section (`Lovable Breathable Layout without Nested Box Clutter`) */}
+      <div className="grid grid-cols-3 divide-x divide-border/40 py-3 my-1 border-y border-border/40">
         <div className="preview-stat-box">
           <div className="flex items-center gap-1.5 text-amber-400 font-black text-lg sm:text-xl">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
@@ -71,7 +71,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
         </div>
       </div>
 
-      {/* Specialization Tags (`Design System First & Anti-Wrap`) */}
+      {/* Specialization Tags */}
       <div className="flex flex-wrap items-center gap-2.5 pt-1">
         {['Somasi Terbuka', 'Gugatan Perdata', 'Perjanjian Bisnis', 'Mediasi Sengketa'].map((tag) => (
           <span key={tag} className="preview-chip-pill">
@@ -80,8 +80,8 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
         ))}
       </div>
 
-      {/* Price Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-xl border border-primary/30 bg-primary/10">
+      {/* Price Highlight Row (`Lovable Clean Emphasis without Heavy Borders`) */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 py-3 px-4 rounded-xl bg-accent/30 text-foreground">
         <div className="flex items-center gap-2.5">
           <CheckCircle2 className="w-5 h-5 text-primary shrink-0" />
           <span className="text-sm sm:text-base font-bold text-foreground">Konsultasi pertama terenkripsi E2EE</span>
