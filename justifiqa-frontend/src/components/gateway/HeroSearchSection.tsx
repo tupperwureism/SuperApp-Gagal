@@ -43,7 +43,7 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
       {/* Hero Search Box (Glowing Obsidian Glass Container) */}
       <form
         onSubmit={onSearchSubmit}
-        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-3 rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.7)] transition-all focus-within:border-amber-500/60 focus-within:ring-2 focus-within:ring-amber-500/20"
+        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-3 rounded-3xl border border-border bg-card backdrop-blur-2xl shadow-[var(--shadow-glass)] transition-all focus-within:border-amber-500/60 focus-within:ring-2 focus-within:ring-amber-500/20"
       >
         <div className="relative flex-1 w-full flex items-center">
           <div className="pl-4 pr-3 text-muted flex items-center justify-center">

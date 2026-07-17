@@ -64,20 +64,20 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
             <span>{badge}</span>
           </div>
 
-          <h3 className="text-3xl sm:text-4xl lg:text-[2.5rem] font-black tracking-tight text-white font-heading drop-shadow-md leading-tight">
+          <h3 className="text-3xl sm:text-4xl lg:text-[2.5rem] font-black tracking-tight text-foreground font-heading drop-shadow-md leading-tight transition-colors">
             {title}
           </h3>
 
-          <p className="text-base sm:text-lg leading-relaxed text-slate-300 font-normal">
+          <p className="text-base sm:text-lg leading-relaxed text-muted-foreground font-normal transition-colors">
             {description}
           </p>
 
           {features.length > 0 && (
-            <div className="mt-2 flex flex-col gap-4.5 border-t border-white/[0.1] pt-8">
+            <div className="mt-2 flex flex-col gap-4.5 border-t border-border pt-8 transition-colors">
               {features.map((item, idx) => (
                 <div key={idx} className="flex items-start gap-4">
                   <CheckCircle2 className={`mt-0.5 h-5 w-5 shrink-0 ${checkColor}`} />
-                  <p className="text-sm sm:text-base leading-relaxed text-slate-200 font-medium">{item}</p>
+                  <p className="text-sm sm:text-base leading-relaxed text-foreground font-medium transition-colors">{item}</p>
                 </div>
               ))}
             </div>

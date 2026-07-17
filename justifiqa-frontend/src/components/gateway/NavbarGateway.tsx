@@ -25,11 +25,11 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
         >
           <div className="flex items-center gap-2.5">
             <span className="text-2xl sm:text-3xl filter drop-shadow-[0_0_10px_rgba(212,175,55,0.4)]">⚖️</span>
-            <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-white drop-shadow-sm">
+            <span className="font-heading font-black text-xl sm:text-2xl tracking-tight text-foreground drop-shadow-sm transition-colors">
               JUSTICA
             </span>
           </div>
-          <span className="hidden lg:inline-flex items-center text-xs sm:text-sm font-semibold text-slate-300 border-l-2 border-white/[0.12] pl-3.5 tracking-wide">
+          <span className="hidden lg:inline-flex items-center text-xs sm:text-sm font-semibold text-muted-foreground border-l-2 border-border pl-3.5 tracking-wide transition-colors">
             Platform Konsultasi &amp; Layanan Hukum Profesional
           </span>
         </div>
@@ -39,7 +39,7 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
           <button
             type="button"
             onClick={onToggleTheme}
-            className="navbar-btn-action bg-white/[0.04] hover:bg-white/[0.1] text-slate-200 hover:text-white border border-white/[0.1] shadow-sm cursor-pointer"
+            className="navbar-btn-action bg-secondary hover:bg-secondary/80 text-foreground border border-border shadow-sm cursor-pointer transition-colors"
           >
             <span>{isDark ? '🌙' : '☀️'}</span>
             <span className="hidden sm:inline">{isDark ? 'Dark Mode' : 'Light Mode'}</span>

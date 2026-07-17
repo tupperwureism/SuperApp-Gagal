@@ -100,6 +100,35 @@
   --shadow-blue-glow: 0 0 20px var(--accent-cyber-blue-glow);
 }
 
+:root:not(.dark), .light {
+  --background: #f8fafc;
+  --foreground: #0f172a;
+  --card: rgba(255, 255, 255, 0.88);
+  --card-foreground: #0f172a;
+  --popover: rgba(255, 255, 255, 0.95);
+  --popover-foreground: #0f172a;
+  --primary: var(--accent-legal-gold);
+  --primary-foreground: #ffffff;
+  --secondary: #f1f5f9;
+  --secondary-foreground: #0f172a;
+  --muted: #f1f5f9;
+  --muted-foreground: #475569;
+  --accent: var(--accent-cyber-blue);
+  --accent-foreground: #ffffff;
+  --destructive: var(--status-error);
+  --destructive-foreground: #ffffff;
+  --border: rgba(15, 23, 42, 0.12);
+  --input: rgba(15, 23, 42, 0.12);
+  --ring: var(--accent-legal-gold);
+
+  --text-primary: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --shadow-glass: 0 15px 40px -10px rgba(15, 23, 42, 0.12);
+  --border-glass-light: rgba(15, 23, 42, 0.08);
+  --border-glass-medium: rgba(15, 23, 42, 0.14);
+}
+
 /* ==========================================================================
    3. BASE RESET & BODY SETUP
    ========================================================================== */
@@ -154,9 +183,6 @@ a {
   background: var(--primary);
 }
 
-/* ==========================================================================
-   4. ANIMATIONS & TEXT GRADIENT UTILITIES
-   ========================================================================== */
 @keyframes pulseGlowGold {
   0%, 100% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.2); }
   50% { box-shadow: 0 0 30px rgba(212, 175, 55, 0.5); }
@@ -175,25 +201,51 @@ a {
   animation: pulseGlowGold 3s infinite ease-in-out;
 }
 
-.text-gradient-gold {
-  background: var(--accent-gold-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-}
+/* ==========================================================================
+   4. UTILITY & ACCESSIBILITY HELPER CLASSES
+   ========================================================================== */
+@layer utilities {
+  .text-gradient-gold {
+    background: var(--accent-gold-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 
-.text-gradient-blue {
-  background: var(--accent-blue-gradient);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  .text-gradient-blue {
+    background: var(--accent-blue-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .bg-glass-obsidian {
+    background-color: var(--bg-obsidian-card);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid var(--border-glass-medium);
+  }
+
+  .border-glass {
+    border-color: var(--border-glass-light);
+  }
+
+  .glow-gold {
+    box-shadow: var(--shadow-gold-glow);
+  }
+
+  .glow-blue {
+    box-shadow: var(--shadow-blue-glow);
+  }
 }
 
 /* ==========================================================================
-   5. DESIGN SYSTEM FIRST COMPONENT MASTER LAYER (CLAUDE'S 4 RULES SUPREMACY)
+   5. COMPONENT PRIMITIVES (Sovereign Box Engine)
    ========================================================================== */
 @layer components {
   /* --- Gateway Navbar --- */
   .gateway-navbar-shell {
-    @apply sticky top-0 z-50 w-full border-b border-white/[0.08] bg-slate-950/75 backdrop-blur-2xl transition-all duration-300 shadow-lg;
+    @apply sticky top-0 z-50 w-full backdrop-blur-2xl transition-all duration-300 shadow-lg;
+    background-color: var(--card);
+    border-bottom: 1px solid var(--border);
     min-height: 80px;
     display: flex;
     align-items: center;
@@ -234,12 +286,12 @@ a {
     min-height: 42px;
     padding: 0.625rem 1.35rem;
     border-radius: 9999px;
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--card);
+    border: 1px solid var(--border);
     color: var(--text-secondary);
     font-size: 0.875rem;
     font-weight: 600;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
     box-sizing: border-box;
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
@@ -255,8 +307,10 @@ a {
 
   /* --- Search Preview Card (Sovereign Structural Outer Shell) --- */
   .preview-card-gateway {
-    @apply max-w-4xl mx-auto w-full p-0 rounded-3xl border border-white/[0.14] bg-slate-900/90 backdrop-blur-3xl relative transition-all duration-300 overflow-hidden;
-    box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15);
+    @apply max-w-4xl mx-auto w-full p-0 rounded-3xl backdrop-blur-3xl relative transition-all duration-300 overflow-hidden;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-glass);
   }
 
   .preview-chip-pill {
@@ -270,9 +324,9 @@ a {
     border-radius: 10px;
     font-size: 0.75rem;
     font-weight: 700;
-    background: rgba(255, 255, 255, 0.06);
-    color: #E2E8F0;
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    background: var(--secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
     box-sizing: border-box;
     transition: all 0.2s ease;
   }
@@ -289,8 +343,10 @@ a {
 
   /* --- Portal Cards (Sovereign Structural Outer Shell) --- */
   .portal-card-shell {
-    @apply flex flex-col justify-between p-0 rounded-3xl border border-white/[0.1] bg-slate-900/80 backdrop-blur-3xl transition-all duration-300 hover:-translate-y-2 h-full overflow-hidden;
-    box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75);
+    @apply flex flex-col justify-between p-0 rounded-3xl backdrop-blur-3xl transition-all duration-300 hover:-translate-y-2 h-full overflow-hidden;
+    background-color: var(--card);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-glass);
   }
 
   .portal-btn-cta {

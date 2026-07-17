@@ -21,7 +21,7 @@ export const SearchPreviewCard: React.FC<SearchPreviewCardProps> = ({
         {/* INNER SAFE-ZONE WRAPPER: Enforcing massive sovereign physical clearance (`preview-card-safe-wrapper` from index.css) */}
         <div className="preview-card-safe-wrapper">
           {/* Header Bar */}
-          <div className="flex items-center justify-between pb-6 border-b border-white/[0.08] pt-2">
+          <div className="flex items-center justify-between pb-6 border-b border-border pt-2 transition-colors">
             <div className="flex items-center gap-3">
               <span className="flex h-3 w-3 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_12px_rgba(16,185,129,0.8)] shrink-0" />
               <span className="font-extrabold text-sm sm:text-base text-amber-400 font-heading tracking-tight drop-shadow-sm">
@@ -31,7 +31,7 @@ export const SearchPreviewCard: React.FC<SearchPreviewCardProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="flex items-center gap-2 text-xs sm:text-sm text-slate-300 hover:text-white cursor-pointer font-bold px-4 py-2 rounded-xl bg-white/[0.05] hover:bg-white/[0.12] border border-white/[0.08] transition-all shadow-sm shrink-0"
+              className="flex items-center gap-2 text-xs sm:text-sm text-muted-foreground hover:text-foreground cursor-pointer font-bold px-4 py-2 rounded-xl bg-secondary hover:bg-secondary/80 border border-border transition-all shadow-sm shrink-0"
             >
               <X className="w-4 h-4 shrink-0" />
               <span>Tutup Preview</span>

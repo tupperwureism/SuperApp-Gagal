@@ -37,17 +37,17 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
 
       {/* Advocate Name & Location */}
       <div className="flex flex-col gap-2.5">
-        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-white font-heading drop-shadow-sm">
+        <h3 className="text-2xl sm:text-3xl lg:text-4xl font-black tracking-tight text-foreground font-heading drop-shadow-sm transition-colors">
           Dr. Aryo Wibisono, S.H., M.H.
         </h3>
-        <p className="text-sm sm:text-base text-slate-300 font-medium flex items-center gap-2">
+        <p className="text-sm sm:text-base text-muted-foreground font-medium flex items-center gap-2 transition-colors">
           <MapPin className="w-4 h-4 text-amber-400 shrink-0" />
           <span>Jakarta Pusat • Spesialis {queryLabel}</span>
         </p>
       </div>
 
       {/* Stats Section (Spacious pure typography without borders/boxes) */}
-      <div className="grid grid-cols-3 divide-x divide-white/[0.08] py-6 my-1 border-y border-white/[0.08]">
+      <div className="grid grid-cols-3 divide-x divide-border py-6 my-1 border-y border-border transition-colors">
         <div className="preview-stat-box">
           <div className="flex items-center gap-2 text-amber-400 font-black text-xl sm:text-2xl">
             <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
@@ -56,7 +56,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
           <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mt-1.5">RATING</span>
         </div>
         <div className="preview-stat-box">
-          <div className="flex items-center gap-2 text-white font-black text-xl sm:text-2xl">
+          <div className="flex items-center gap-2 text-foreground font-black text-xl sm:text-2xl transition-colors">
             <Briefcase className="w-5 h-5 text-blue-400" />
             <span>312</span>
           </div>
@@ -84,7 +84,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-5 px-6 sm:px-8 rounded-2xl bg-gradient-to-r from-amber-500/15 via-amber-500/5 to-transparent border border-amber-500/25 text-foreground shadow-sm my-1">
         <div className="flex items-center gap-3.5">
           <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
-          <span className="text-sm sm:text-base font-bold text-slate-200">Konsultasi pertama terenkripsi E2EE</span>
+          <span className="text-sm sm:text-base font-bold text-foreground transition-colors">Konsultasi pertama terenkripsi E2EE</span>
         </div>
         <span className="text-base sm:text-lg font-black text-amber-400 font-heading">
           Gratis <span className="text-xs font-bold text-slate-400">/ 30 mnt</span>
@@ -96,7 +96,7 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
         <Button
           variant="outline"
           onClick={() => navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}
-          className="w-full h-14 rounded-2xl font-bold text-base border-white/15 bg-white/[0.03] hover:bg-white/[0.08] text-white transition-all shadow-sm cursor-pointer"
+          className="w-full h-14 rounded-2xl font-bold text-base border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all shadow-sm cursor-pointer"
         >
           Lihat Profil Lengkap
         </Button>
