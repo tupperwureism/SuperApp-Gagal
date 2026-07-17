@@ -1,0 +1,150 @@
+import React from 'react';
+import { Clock, Database, MessageSquare, FileText, Download } from 'lucide-react';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import type { ClientTabType } from './ClientHeaderAndTabs';
+
+export interface ClientOverviewTablesProps {
+  onTabChange: (tab: ClientTabType) => void;
+}
+
+export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTabChange }) => {
+  return (
+    <div className="space-y-8">
+      {/* Table 1: KONSULTASI HUKUM AKTIF (MOCK-J-CL-02A) */}
+      <Card className="rounded-3xl bg-card border border-border shadow-xl">
+        <div className="client-banner-safe-wrapper flex-col gap-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <h2 className="text-base font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+              <Clock className="w-4 h-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
+              <span>KONSULTASI HUKUM AKTIF</span>
+            </h2>
+            <span className="text-xs text-muted-foreground">Sinkronisasi Escrow Mutex Real-Time</span>
+          </div>
+
+          <div className="overflow-x-auto rounded-2xl border border-border bg-secondary/30">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-border bg-secondary/60 text-muted-foreground font-bold uppercase tracking-wider">
+                  <th className="p-4">Advokat Mitra</th>
+                  <th className="p-4">Spesialisasi</th>
+                  <th className="p-4">Status Layanan &amp; Durasi</th>
+                  <th className="p-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 text-foreground font-medium">
+                <tr className="hover:bg-secondary/40 transition-colors">
+                  <td className="p-4 font-bold text-foreground flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse flex-shrink-0" />
+                    <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
+                  </td>
+                  <td className="p-4 text-muted-foreground">Hukum Bisnis &amp; Sengketa</td>
+                  <td className="p-4">
+                    <Badge variant="outline" className="px-2.5 py-1 rounded-full bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold">
+                      Sesi Berjalan (44:12) • Escrow HELD
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-right">
+                    <Button
+                      type="button"
+                      size="sm"
+                      onClick={() => alert('Membuka Ruang Obrolan E2EE (MOCK-J-CL-04)...')}
+                      className="px-3.5 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs transition-all gap-1.5 shadow-sm whitespace-nowrap min-h-[34px]"
+                    >
+                      <MessageSquare className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Buka Ruang Obrolan</span>
+                    </Button>
+                  </td>
+                </tr>
+                <tr className="hover:bg-secondary/40 transition-colors">
+                  <td className="p-4 font-bold text-foreground flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-blue-500 dark:bg-blue-400 flex-shrink-0" />
+                    <span>Anita Wulandari, S.H., M.H.</span>
+                  </td>
+                  <td className="p-4 text-muted-foreground">Hukum Ketenagakerjaan &amp; PHK</td>
+                  <td className="p-4">
+                    <Badge variant="outline" className="px-2.5 py-1 rounded-full bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400 font-mono text-[11px] font-bold">
+                      Penyusunan Dokumen Draf
+                    </Badge>
+                  </td>
+                  <td className="p-4 text-right">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onTabChange('irac')}
+                      className="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all gap-1.5 whitespace-nowrap min-h-[34px]"
+                    >
+                      <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Lihat Dokumen</span>
+                    </Button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Card>
+
+      {/* Table 2: RIWAYAT DOKUMEN & KONSULTASI SELESAI (WORM IMMUTABLE) */}
+      <Card className="rounded-3xl bg-card border border-border shadow-xl">
+        <div className="client-banner-safe-wrapper flex-col gap-4">
+          <h2 className="text-base font-bold text-foreground uppercase tracking-wider flex items-center gap-2">
+            <Database className="w-4 h-4 text-blue-500 dark:text-blue-400 flex-shrink-0" />
+            <span>RIWAYAT DOKUMEN &amp; KONSULTASI SELESAI (WORM IMMUTABLE)</span>
+          </h2>
+
+          <div className="overflow-x-auto rounded-2xl border border-border bg-secondary/30">
+            <table className="w-full text-left text-xs">
+              <thead>
+                <tr className="border-b border-border bg-secondary/60 text-muted-foreground font-bold uppercase tracking-wider">
+                  <th className="p-4">Tanggal</th>
+                  <th className="p-4">Advokat Mitra</th>
+                  <th className="p-4">Layanan &amp; Dokumen</th>
+                  <th className="p-4 text-right">Unduhan WORM</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40 text-foreground font-medium">
+                <tr className="hover:bg-secondary/40 transition-colors">
+                  <td className="p-4 font-mono text-muted-foreground">02/07/2026</td>
+                  <td className="p-4 font-bold text-foreground">Dr. Mahendra Kusuma, S.H., M.H.</td>
+                  <td className="p-4 text-foreground">Legal Opinion Kontrak NDA (e-Meterai Peruri)</td>
+                  <td className="p-4 text-right">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => alert('Mengunduh Dokumen PDF terverifikasi SHA-256 WORM Vault...')}
+                      className="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all gap-1.5 text-blue-600 dark:text-blue-400 hover:text-blue-500 whitespace-nowrap min-h-[34px]"
+                    >
+                      <Download className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Unduh Dokumen PDF</span>
+                    </Button>
+                  </td>
+                </tr>
+                <tr className="hover:bg-secondary/40 transition-colors">
+                  <td className="p-4 font-mono text-muted-foreground">18/06/2026</td>
+                  <td className="p-4 font-bold text-foreground">Budi Hartono, S.H.</td>
+                  <td className="p-4 text-foreground">Konsultasi Tatap Muka &amp; Resi Escrow</td>
+                  <td className="p-4 text-right">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => alert('Mengunduh Bukti Transaksi Escrow Mutex HELD...')}
+                      className="px-3.5 py-1.5 rounded-lg font-bold text-xs transition-all gap-1.5 text-muted-foreground hover:text-foreground whitespace-nowrap min-h-[34px]"
+                    >
+                      <Download className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span>Unduh Bukti Transaksi</span>
+                    </Button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </Card>
+    </div>
+  );
+};
