@@ -40,7 +40,7 @@ export const GatewayPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 bg-slate-950 text-foreground selection:bg-blue-500/30 relative overflow-x-hidden">
+    <div className="min-h-screen flex flex-col justify-between font-sans transition-colors duration-300 bg-background text-foreground selection:bg-blue-500/30 relative overflow-x-clip">
       {/* Background Aesthetic Watermarks & Gradients */}
       <div className="absolute top-0 left-1/4 w-[800px] h-[600px] bg-blue-600/10 rounded-full blur-[180px] pointer-events-none -z-10" />
       <div className="absolute top-1/3 right-1/4 w-[700px] h-[500px] bg-amber-500/10 rounded-full blur-[180px] pointer-events-none -z-10" />

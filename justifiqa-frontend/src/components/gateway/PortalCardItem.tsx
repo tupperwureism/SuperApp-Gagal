@@ -14,7 +14,7 @@ interface PortalCardItemProps {
   to: string;
   topStripeClass: string;
   isDark?: boolean;
-  accentColor?: 'blue' | 'emerald';
+  accentColor?: 'blue' | 'emerald' | 'amber';
 }
 
 export const PortalCardItem: React.FC<PortalCardItemProps> = ({
@@ -34,10 +34,12 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
     /* LAYER 1: OUTER SHELL (Murni Kulit Visual, TANPA PADDING)
        Menjamin batas border, background, rounded-3xl, dan overflow terbebas dari intervensi padding */
     <div
-      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/15 bg-slate-900/90 shadow-2xl backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-white/40 ${
-        accentColor === 'blue'
-          ? 'hover:shadow-blue-900/40 hover:border-blue-400/40'
-          : 'hover:shadow-emerald-900/40 hover:border-emerald-400/40'
+      className={`group relative flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card/90 text-card-foreground shadow-2xl backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1.5 hover:border-border/80 ${
+        accentColor === 'amber'
+          ? 'hover:shadow-amber-900/20 hover:border-primary/50'
+          : accentColor === 'blue'
+            ? 'hover:shadow-blue-900/20 hover:border-blue-500/50'
+            : 'hover:shadow-emerald-900/20 hover:border-emerald-500/50'
       }`}
     >
       {/* Top decorative gradient stripe (6px height) at absolute top */}
@@ -46,7 +48,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
       {/* Subtle background glow effect */}
       <div
         className={`absolute -right-16 -top-16 w-64 h-64 rounded-full blur-[100px] pointer-events-none transition-opacity duration-300 opacity-20 group-hover:opacity-40 z-10 ${
-          accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'
+          accentColor === 'amber' ? 'bg-primary' : accentColor === 'blue' ? 'bg-blue-500' : 'bg-emerald-500'
         }`}
       />
 
@@ -63,24 +65,28 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
             <span>{badge}</span>
           </div>
 
-          <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-white font-heading">
+          <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground font-heading">
             {title}
           </h3>
 
-          <p className="text-sm sm:text-base leading-relaxed text-slate-300 font-normal">
+          <p className="text-sm sm:text-base leading-relaxed text-muted-foreground font-normal">
             {description}
           </p>
 
           {features.length > 0 && (
-            <div className="mt-2 flex flex-col gap-3 border-t border-white/10 pt-5">
+            <div className="mt-2 flex flex-col gap-3 border-t border-border pt-5">
               {features.map((item, idx) => (
                 <div key={idx} className="flex items-start gap-3">
                   <CheckCircle2
                     className={`mt-0.5 h-5 w-5 shrink-0 ${
-                      accentColor === 'blue' ? 'text-blue-400' : 'text-emerald-400'
+                      accentColor === 'amber'
+                        ? 'text-primary'
+                        : accentColor === 'blue'
+                          ? 'text-blue-500'
+                          : 'text-emerald-500'
                     }`}
                   />
-                  <p className="text-sm sm:text-base leading-relaxed text-slate-200">{item}</p>
+                  <p className="text-sm sm:text-base leading-relaxed text-foreground/90">{item}</p>
                 </div>
               ))}
             </div>

@@ -24,7 +24,7 @@ export const PortalCardsGrid: React.FC<PortalCardsGridProps> = ({ isDark = true 
         <PortalCardItem
           isDark={isDark}
           badge="PORTAL PENCARI KEADILAN"
-          badgeClass="bg-blue-500/20 text-blue-300 border-blue-500/40"
+          badgeClass="bg-primary/20 text-primary border-primary/40"
           badgeIcon={User}
           title="KLIEN HUKUM"
           description="Temukan advokat berlisensi, mulai konsultasi hukum daring (E2EE) maupun luring, tangani sengketa, atau ajukan bantuan hukum Pro Bono secara aman dengan perlindungan Escrow."
@@ -34,17 +34,17 @@ export const PortalCardsGrid: React.FC<PortalCardsGridProps> = ({ isDark = true 
             'Akses kuota bantuan hukum Pro Bono PERADI',
           ]}
           btnText="Masuk / Daftar sebagai Klien"
-          btnClass="bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-400 text-white font-extrabold shadow-xl border-0"
+          btnClass="bg-gradient-to-r from-amber-500 via-yellow-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-black font-black shadow-[0_4px_20px_rgba(212,175,55,0.4)] border-0"
           to="/client/auth"
-          topStripeClass="bg-gradient-to-r from-blue-600 via-blue-400 to-indigo-500"
-          accentColor="blue"
+          topStripeClass="bg-gradient-to-r from-primary via-amber-400 to-yellow-300"
+          accentColor="amber"
         />
 
         {/* CARD 2: MITRA ADVOKAT */}
         <PortalCardItem
           isDark={isDark}
           badge="PORTAL PRAKTISI HUKUM"
-          badgeClass="bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+          badgeClass="bg-blue-500/20 text-blue-400 border-blue-500/40"
           badgeIcon={Award}
           title="MITRA ADVOKAT"
           description="Kelola praktik profesional Anda, verifikasi SIPP Mahkamah Agung RI, jadwalkan sesi konsultasi, terbitkan opini hukum ber-eMeterai SHA-256, dan cairkan honorarium via BI-FAST."
@@ -54,10 +54,10 @@ export const PortalCardsGrid: React.FC<PortalCardsGridProps> = ({ isDark = true 
             'Pencairan honor instan BI-FAST tanpa potongan gelap',
           ]}
           btnText="Masuk / Daftar Mitra Advokat"
-          btnClass="bg-slate-900 hover:bg-slate-800 border-2 border-white/20 hover:border-emerald-500 text-white hover:text-emerald-300 font-extrabold shadow-xl"
+          btnClass="bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white font-black shadow-[0_4px_20px_rgba(59,130,246,0.4)] border-0"
           to="/advocate/auth"
-          topStripeClass="bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-500"
-          accentColor="emerald"
+          topStripeClass="bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400"
+          accentColor="blue"
         />
       </div>
     </section>
