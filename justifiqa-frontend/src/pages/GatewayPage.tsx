@@ -1,15 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { NavbarGateway } from '../components/gateway/NavbarGateway';
 import { HeroSearchSection } from '../components/gateway/HeroSearchSection';
 import { PortalCardsGrid } from '../components/gateway/PortalCardsGrid';
 import { TrustBarSection } from '../components/gateway/TrustBarSection';
 import { VerifierPanel } from '../components/gateway/VerifierPanel';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { SearchPreviewCard } from '../components/gateway/SearchPreviewCard';
 
 export const GatewayPage: React.FC = () => {
-  const navigate = useNavigate();
   const [activeScreen, setActiveScreen] = useState<'gateway' | 'verifier'>('gateway');
   const [isDark, setIsDark] = useState<boolean>(true);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -69,74 +66,12 @@ export const GatewayPage: React.FC = () => {
               onChipClick={handleChipClick}
             />
 
-            {/* QUICK PREVIEW POPUP SIMULATION */}
+            {/* QUICK PREVIEW MODULAR CARD (CL-02) */}
             {showSearchPreview && (
-              <Card className="w-full max-w-4xl mx-auto -mt-6 p-6 rounded-3xl border border-blue-500/40 bg-slate-900/95 shadow-2xl z-40 animate-fade-in flex flex-col gap-5">
-                <div className="flex items-center justify-between pb-3 border-b border-white/15">
-                  <span className="font-extrabold text-sm md:text-base text-blue-400 font-heading">
-                    ⚡ HASIL PENCARIAN CEPAT ADVOKAT TERVERIFIKASI (`CL-02`)
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setShowSearchPreview(false)}
-                    className="text-xs text-slate-400 hover:text-white cursor-pointer font-bold px-3 py-1 rounded-lg hover:bg-white/10 transition-colors"
-                  >
-                    ✖ Tutup Preview
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-3 shadow-md">
-                    <div>
-                      <div className="flex items-center justify-between font-bold text-sm text-white">
-                        <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
-                        <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
-                      </div>
-                      <p className="text-xs mt-1.5 leading-relaxed text-slate-300">
-                        Spesialisasi: Hukum Perdata &amp; Sengketa Bisnis • SIPP MA Terverifikasi
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-2.5 border-t border-white/10">
-                      <span className="font-extrabold text-sm text-amber-400">
-                        Rp 350.000 / sesi
-                      </span>
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'Perdata')}`)
-                        }
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 px-3 shadow-md"
-                      >
-                        Pilih Advokat →
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="p-4 rounded-2xl border border-white/15 bg-slate-950/80 flex flex-col justify-between gap-3 shadow-md">
-                    <div>
-                      <div className="flex items-center justify-between font-bold text-sm text-white">
-                        <span>Adv. Rina Kartika, S.H., M.Kn.</span>
-                        <span className="text-emerald-400 text-xs font-bold px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/30">● ONLINE</span>
-                      </div>
-                      <p className="text-xs mt-1.5 leading-relaxed text-slate-300">
-                        Spesialisasi: Hukum Ketenagakerjaan &amp; PHK • Kuota Pro Bono Tersedia
-                      </p>
-                    </div>
-                    <div className="flex items-center justify-between pt-2.5 border-t border-white/10">
-                      <span className="font-extrabold text-sm text-emerald-400 font-mono">PRO BONO (Rp 0)</span>
-                      <Button
-                        size="sm"
-                        onClick={() =>
-                          navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery || 'PHK')}`)
-                        }
-                        className="rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs h-8 px-3 shadow-md"
-                      >
-                        Pilih Advokat →
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </Card>
+              <SearchPreviewCard
+                searchQuery={searchQuery}
+                onClose={() => setShowSearchPreview(false)}
+              />
             )}
 
             <PortalCardsGrid isDark={isDark} />
