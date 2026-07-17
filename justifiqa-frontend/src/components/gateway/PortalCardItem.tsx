@@ -47,7 +47,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
   return (
     <div className={`portal-card-shell relative group ${hoverBorder}`}>
       {/* Top decorative gradient stripe conforming perfectly to card radius */}
-      <div className={`absolute left-0 right-0 top-0 h-[6px] rounded-t-3xl ${topStripeClass} z-30`} />
+      <div className={`absolute left-0 right-0 top-0 h-[6px] rounded-t-3xl ${topStripeClass} z-30 pointer-events-none`} />
 
       {/* Subtle background glow effect */}
       <div
@@ -56,8 +56,8 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         }`}
       />
 
-      {/* INNER CONTENT WRAPPER with guaranteed generous safe padding and margin */}
-      <div className="relative z-20 flex h-full flex-col justify-between gap-10">
+      {/* INNER SAFE-ZONE WRAPPER (Guaranteed physical 32px-56px margin from outer walls) */}
+      <div className="relative z-20 p-8 sm:p-12 md:p-14 flex h-full flex-col justify-between gap-10">
         <div className="flex flex-col gap-7">
           <div className={`inline-flex w-fit items-center gap-2 rounded-full border px-4 py-1.5 text-xs font-extrabold uppercase tracking-widest shadow-md backdrop-blur-md ${badgeClass}`}>
             {BadgeIcon && <BadgeIcon className="h-4 w-4 shrink-0" />}
@@ -87,7 +87,7 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         {/* BOTTOM ACTION BUTTON */}
         <Link to={to} className={`portal-btn-cta shadow-2xl group/btn ${btnClass}`}>
           <span>{btnText}</span>
-          <ArrowRight className="h-5 w-5 transition-transform duration-300 group-hover/btn:translate-x-2" />
+          <ArrowRight className="h-5 w-5 shrink-0 transition-transform duration-300 group-hover/btn:translate-x-2" />
         </Link>
       </div>
     </div>

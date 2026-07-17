@@ -253,9 +253,9 @@ a {
     box-shadow: 0 8px 25px rgba(245, 158, 11, 0.25);
   }
 
-  /* --- Search Preview Card (Sovereign Obsidian Glass Drawer with Geometric Continuity) --- */
+  /* --- Search Preview Card (Sovereign Structural Outer Shell) --- */
   .preview-card-gateway {
-    @apply max-w-4xl mx-auto w-full p-8 sm:p-10 rounded-3xl border border-white/[0.14] bg-slate-900/90 backdrop-blur-3xl flex flex-col gap-7 relative transition-all duration-300 overflow-hidden;
+    @apply max-w-4xl mx-auto w-full p-0 rounded-3xl border border-white/[0.14] bg-slate-900/90 backdrop-blur-3xl relative transition-all duration-300 overflow-hidden;
     box-shadow: 0 30px 80px -15px rgba(0, 0, 0, 0.85), 0 0 50px rgba(59, 130, 246, 0.15);
   }
 
@@ -287,9 +287,9 @@ a {
     @apply flex flex-col items-center justify-center py-2 px-4 text-center;
   }
 
-  /* --- Portal Cards (Sovereign Obsidian Cards with Generous Safe Padding) --- */
+  /* --- Portal Cards (Sovereign Structural Outer Shell) --- */
   .portal-card-shell {
-    @apply flex flex-col justify-between p-8 sm:p-12 rounded-3xl border border-white/[0.1] bg-slate-900/80 backdrop-blur-3xl transition-all duration-300 hover:-translate-y-2 h-full overflow-hidden;
+    @apply flex flex-col justify-between p-0 rounded-3xl border border-white/[0.1] bg-slate-900/80 backdrop-blur-3xl transition-all duration-300 hover:-translate-y-2 h-full overflow-hidden;
     box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.75);
   }
 
