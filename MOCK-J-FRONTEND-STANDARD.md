@@ -52,6 +52,23 @@ Seluruh variabel warna, tipografi, bayangan (*shadow/glow*), dan kelas komponen 
 }
 ```
 
+### 1.3 Mandat Proteksi Geometri Anti-Wrap & Anti-Gepeng (`Claude Rule #2`)
+Untuk mencegah keruntuhan proporsi visual (*squished / wrapped / clipped elements*) seperti chip yang terpotong ke baris bawah atau tombol yang menyusut saat viewport berubah:
+* Seluruh tombol CTA, chip layanan, pil spesialisasi, lencana/badge, dan item navigasi **WAJIB** dikunci geometri fisiknya dengan properti mutlak di `index.css`:
+  ```css
+  .chip-service, .pill-badge, .btn-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;          /* KRITIS: dilarang melipat/wrap ke bawah */
+    flex-shrink: 0;               /* KRITIS: dilarang menyusut/gepeng */
+    min-height: 40px;             /* KRITIS: standar kenyamanan sentuh & proporsi */
+    box-sizing: border-box;
+  }
+  ```
+* Aturan geometri fisik ini **TIDAK BOLEH DILANGGAR** berapapun jumlah chip atau ukuran layar browser.
+
 ---
 
 ## 2. PILAR UTAMA: DEKOPEL MODULAR ATOMIK (*ATOMIC DECOUPLED ARCHITECTURE*)
