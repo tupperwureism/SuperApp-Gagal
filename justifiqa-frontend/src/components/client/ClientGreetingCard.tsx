@@ -28,7 +28,11 @@ export const ClientGreetingCard: React.FC<ClientGreetingCardProps> = ({
                 HALO, {session.userName || 'BUDI SANTOSO'}
               </h1>
               <p className="text-xs text-blue-600 dark:text-blue-400 font-semibold">
-                Klien Hukum Terverifikasi • NIK 317123••••••0001
+                {session.role === 'CLIENT'
+                  ? 'Klien Hukum Terverifikasi • NIK 317123••••••0001'
+                  : session.role === 'ADVOCATE'
+                  ? 'Advokat Mitra Terverifikasi PERADI • NIA 109283••••••0088'
+                  : 'AI Legal Intelligence Engine • Quantum Core v4.2'}
               </p>
             </div>
           </div>

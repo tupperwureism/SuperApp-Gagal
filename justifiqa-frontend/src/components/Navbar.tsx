@@ -9,7 +9,7 @@ interface NavbarProps {
 
 export const Navbar: React.FC<NavbarProps> = ({ currentSession, onRoleChange }) => {
   return (
-    <header className="glass-navbar py-4 px-6 sm:px-12 md:px-16 flex flex-col md:flex-row items-center justify-between gap-4 w-full">
+    <header className="glass-navbar py-4 px-4 sm:px-8 md:px-10 flex flex-col md:flex-row items-center justify-between gap-4 w-full">
       {/* Brand & Logo */}
       <div className="flex items-center gap-3">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#f59e0b] via-[#d4af37] to-[#b45309] flex items-center justify-center shadow-[0_0_15px_rgba(212,175,55,0.4)] flex-shrink-0">
