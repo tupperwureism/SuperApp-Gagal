@@ -1,6 +1,6 @@
 import React from 'react';
 import { Clock, Database, MessageSquare, FileText, Download } from 'lucide-react';
-import { Card } from '@/components/ui/card';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import type { ClientTabType } from './ClientHeaderAndTabs';
@@ -13,46 +13,49 @@ export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTa
   return (
     <div className="space-y-8 w-full">
       {/* Table 1: KONSULTASI HUKUM AKTIF (MOCK-J-CL-02A) */}
-      <Card className="rounded-3xl bg-card border border-border shadow-xl w-full">
-        <div className="client-table-safe-wrapper">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full border-b border-border/60 pb-3">
-            <h2 className="text-base font-bold text-foreground uppercase tracking-wider flex items-center gap-2.5">
-              <Clock className="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
-              <span>KONSULTASI HUKUM AKTIF</span>
-            </h2>
-            <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
-              Sinkronisasi Escrow Mutex Real-Time
-            </span>
-          </div>
+      <Card className="flex flex-col gap-5 sm:gap-6 p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-xl w-full relative overflow-hidden">
+        {/* Top Stripe */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-600" />
 
-          <div className="w-full overflow-x-auto rounded-2xl border border-border bg-secondary/30">
-            <table className="w-full text-left text-xs min-w-[620px]">
+        <CardHeader className="p-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+          <h2 className="text-sm sm:text-base font-extrabold text-foreground uppercase tracking-wider flex items-center gap-2.5">
+            <Clock className="w-5 h-5 text-emerald-500 dark:text-emerald-400 flex-shrink-0" />
+            <span>KONSULTASI HUKUM AKTIF</span>
+          </h2>
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
+            Sinkronisasi Escrow Mutex Real-Time
+          </span>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto rounded-2xl border border-border/60 bg-secondary/20">
+            <table className="w-full text-left text-xs sm:text-sm min-w-[660px] table-auto">
               <thead>
-                <tr className="border-b border-border bg-secondary/60 text-muted-foreground font-bold uppercase tracking-wider">
-                  <th className="p-3.5 sm:px-4 min-w-[190px]">Advokat Mitra</th>
-                  <th className="p-3.5 sm:px-4 min-w-[150px]">Spesialisasi</th>
-                  <th className="p-3.5 sm:px-4 min-w-[160px]">Status Layanan &amp; Durasi</th>
-                  <th className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right min-w-[140px]">Aksi</th>
+                <tr className="border-b border-border/60 bg-secondary/50 text-muted-foreground font-bold uppercase tracking-wider">
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Advokat Mitra</th>
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Spesialisasi</th>
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Status Layanan &amp; Durasi</th>
+                  <th className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap font-bold">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 text-foreground font-medium">
                 <tr className="hover:bg-secondary/40 transition-colors">
-                  <td className="p-3.5 sm:px-4 font-bold text-foreground flex items-center gap-2.5 whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-bold text-foreground flex items-center gap-2.5 whitespace-nowrap">
                     <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 dark:bg-emerald-400 animate-pulse flex-shrink-0" />
                     <span>Dr. Mahendra Kusuma, S.H., M.H.</span>
                   </td>
-                  <td className="p-3.5 sm:px-4 text-muted-foreground whitespace-nowrap">
+                  <td className="p-4 sm:px-5 text-muted-foreground whitespace-nowrap font-medium">
                     Hukum Bisnis &amp; Sengketa
                   </td>
-                  <td className="p-3.5 sm:px-4 whitespace-nowrap">
+                  <td className="p-4 sm:px-5 whitespace-nowrap">
                     <Badge
                       variant="outline"
-                      className="px-3 py-1 rounded-full bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-[11px] font-bold"
+                      className="px-3.5 py-1 rounded-full bg-emerald-500/15 border-emerald-500/30 text-emerald-600 dark:text-emerald-400 font-mono text-xs font-bold"
                     >
                       Sesi Berjalan (44:12) • Escrow HELD
                     </Badge>
                   </td>
-                  <td className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right whitespace-nowrap">
+                  <td className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap">
                     <Button
                       type="button"
                       size="sm"
@@ -65,22 +68,22 @@ export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTa
                   </td>
                 </tr>
                 <tr className="hover:bg-secondary/40 transition-colors">
-                  <td className="p-3.5 sm:px-4 font-bold text-foreground flex items-center gap-2.5 whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-bold text-foreground flex items-center gap-2.5 whitespace-nowrap">
                     <div className="w-2.5 h-2.5 rounded-full bg-blue-500 dark:bg-blue-400 flex-shrink-0" />
                     <span>Anita Wulandari, S.H., M.H.</span>
                   </td>
-                  <td className="p-3.5 sm:px-4 text-muted-foreground whitespace-nowrap">
+                  <td className="p-4 sm:px-5 text-muted-foreground whitespace-nowrap font-medium">
                     Hukum Ketenagakerjaan &amp; PHK
                   </td>
-                  <td className="p-3.5 sm:px-4 whitespace-nowrap">
+                  <td className="p-4 sm:px-5 whitespace-nowrap">
                     <Badge
                       variant="outline"
-                      className="px-3 py-1 rounded-full bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400 font-mono text-[11px] font-bold"
+                      className="px-3.5 py-1 rounded-full bg-blue-500/15 border-blue-500/30 text-blue-600 dark:text-blue-400 font-mono text-xs font-bold"
                     >
                       Penyusunan Dokumen Draf
                     </Badge>
                   </td>
-                  <td className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right whitespace-nowrap">
+                  <td className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap">
                     <Button
                       type="button"
                       variant="outline"
@@ -96,44 +99,47 @@ export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTa
               </tbody>
             </table>
           </div>
-        </div>
+        </CardContent>
       </Card>
 
       {/* Table 2: RIWAYAT DOKUMEN & KONSULTASI SELESAI (WORM IMMUTABLE) */}
-      <Card className="rounded-3xl bg-card border border-border shadow-xl w-full">
-        <div className="client-table-safe-wrapper">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full border-b border-border/60 pb-3">
-            <h2 className="text-base font-bold text-foreground uppercase tracking-wider flex items-center gap-2.5">
-              <Database className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
-              <span>RIWAYAT DOKUMEN &amp; KONSULTASI SELESAI (WORM IMMUTABLE)</span>
-            </h2>
-            <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
-              SHA-256 Verified WORM Vault
-            </span>
-          </div>
+      <Card className="flex flex-col gap-5 sm:gap-6 p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-xl w-full relative overflow-hidden">
+        {/* Top Stripe */}
+        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-600" />
 
-          <div className="w-full overflow-x-auto rounded-2xl border border-border bg-secondary/30">
-            <table className="w-full text-left text-xs min-w-[640px]">
+        <CardHeader className="p-0 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
+          <h2 className="text-sm sm:text-base font-extrabold text-foreground uppercase tracking-wider flex items-center gap-2.5">
+            <Database className="w-5 h-5 text-blue-500 dark:text-blue-400 flex-shrink-0" />
+            <span>RIWAYAT DOKUMEN &amp; KONSULTASI SELESAI (WORM IMMUTABLE)</span>
+          </h2>
+          <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap">
+            SHA-256 Verified WORM Vault
+          </span>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div className="w-full overflow-x-auto rounded-2xl border border-border/60 bg-secondary/20">
+            <table className="w-full text-left text-xs sm:text-sm min-w-[660px] table-auto">
               <thead>
-                <tr className="border-b border-border bg-secondary/60 text-muted-foreground font-bold uppercase tracking-wider">
-                  <th className="p-3.5 sm:px-4 min-w-[100px]">Tanggal</th>
-                  <th className="p-3.5 sm:px-4 min-w-[180px]">Advokat Mitra</th>
-                  <th className="p-3.5 sm:px-4 min-w-[210px]">Layanan &amp; Dokumen</th>
-                  <th className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right min-w-[150px]">Unduhan WORM</th>
+                <tr className="border-b border-border/60 bg-secondary/50 text-muted-foreground font-bold uppercase tracking-wider">
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Tanggal</th>
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Advokat Mitra</th>
+                  <th className="p-4 sm:px-5 whitespace-nowrap font-bold">Layanan &amp; Dokumen</th>
+                  <th className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap font-bold">Unduhan WORM</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/40 text-foreground font-medium">
                 <tr className="hover:bg-secondary/40 transition-colors">
-                  <td className="p-3.5 sm:px-4 font-mono text-muted-foreground font-semibold whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-mono text-muted-foreground font-bold whitespace-nowrap">
                     02/07/2026
                   </td>
-                  <td className="p-3.5 sm:px-4 font-bold text-foreground whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-bold text-foreground whitespace-nowrap">
                     Dr. Mahendra Kusuma, S.H., M.H.
                   </td>
-                  <td className="p-3.5 sm:px-4 text-foreground whitespace-nowrap font-medium">
+                  <td className="p-4 sm:px-5 text-foreground whitespace-nowrap font-medium">
                     Legal Opinion Kontrak NDA (e-Meterai Peruri)
                   </td>
-                  <td className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right whitespace-nowrap">
+                  <td className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap">
                     <Button
                       type="button"
                       variant="outline"
@@ -147,16 +153,16 @@ export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTa
                   </td>
                 </tr>
                 <tr className="hover:bg-secondary/40 transition-colors">
-                  <td className="p-3.5 sm:px-4 font-mono text-muted-foreground font-semibold whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-mono text-muted-foreground font-bold whitespace-nowrap">
                     18/06/2026
                   </td>
-                  <td className="p-3.5 sm:px-4 font-bold text-foreground whitespace-nowrap">
+                  <td className="p-4 sm:px-5 font-bold text-foreground whitespace-nowrap">
                     Budi Hartono, S.H.
                   </td>
-                  <td className="p-3.5 sm:px-4 text-foreground whitespace-nowrap font-medium">
+                  <td className="p-4 sm:px-5 text-foreground whitespace-nowrap font-medium">
                     Konsultasi Tatap Muka &amp; Resi Escrow
                   </td>
-                  <td className="p-3.5 sm:px-4 pr-5 sm:pr-6 text-right whitespace-nowrap">
+                  <td className="p-4 sm:px-5 pr-6 text-right whitespace-nowrap">
                     <Button
                       type="button"
                       variant="outline"
@@ -172,7 +178,7 @@ export const ClientOverviewTables: React.FC<ClientOverviewTablesProps> = ({ onTa
               </tbody>
             </table>
           </div>
-        </div>
+        </CardContent>
       </Card>
     </div>
   );
