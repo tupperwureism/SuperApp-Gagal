@@ -27,27 +27,27 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
   return (
     <section className="hero-section-container animate-fade-in">
       {/* Title & Subtitle */}
-      <div className="flex flex-col gap-4 max-w-[900px] mx-auto">
-        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-heading text-foreground">
+      <div className="flex flex-col gap-5 max-w-[920px] mx-auto">
+        <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-[1.15] font-heading text-foreground">
           Akses Keadilan &amp;{' '}
-          <span className="text-gradient-gold">
+          <span className="text-gradient-gold drop-shadow-sm">
             Praktik Hukum Digital Tanpa Batas
           </span>
         </h1>
-        <p className="text-base sm:text-lg md:text-xl max-w-[780px] mx-auto font-normal leading-relaxed text-muted">
+        <p className="text-base sm:text-lg md:text-xl max-w-[800px] mx-auto font-normal leading-relaxed text-muted">
           Satu gerbang terpadu untuk verifikasi integritas berkas digital (SHA-256),
           konsultasi advokat berlisensi PERADI, dan transaksi escrow aman tersertifikasi.
         </p>
       </div>
 
-      {/* Hero Search Box */}
+      {/* Hero Search Box (Glowing Obsidian Glass Container) */}
       <form
         onSubmit={onSearchSubmit}
-        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-2.5 rounded-3xl border border-border bg-card/95 backdrop-blur-2xl shadow-xl transition-all focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20"
+        className="w-full max-w-4xl mx-auto flex flex-col sm:flex-row items-center gap-3 p-3 rounded-3xl border border-white/15 bg-slate-900/80 backdrop-blur-2xl shadow-[0_25px_60px_rgba(0,0,0,0.7)] transition-all focus-within:border-amber-500/60 focus-within:ring-2 focus-within:ring-amber-500/20"
       >
         <div className="relative flex-1 w-full flex items-center">
           <div className="pl-4 pr-3 text-muted flex items-center justify-center">
-            <Search className="w-6 h-6 text-primary" />
+            <Search className="w-6 h-6 text-primary animate-pulse" />
           </div>
           <Input
             type="text"
@@ -60,14 +60,14 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
         <Button
           type="submit"
           size="lg"
-          className="w-full sm:w-auto h-14 px-10 font-extrabold text-sm gap-2.5 rounded-2xl bg-accent hover:bg-accent/90 text-accent-foreground shadow-lg transition-all shrink-0"
+          className="w-full sm:w-auto h-14 px-10 font-extrabold text-sm sm:text-base gap-2.5 rounded-2xl bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white shadow-[0_10px_30px_rgba(37,99,235,0.4)] transition-all shrink-0"
         >
           <span>CARI ADVOKAT</span>
           <ArrowRight className="w-5 h-5" />
         </Button>
       </form>
 
-      {/* Layanan Populer Chips Container (`Design System First & Anti-Wrap`) */}
+      {/* Layanan Populer Chips Container */}
       <div className="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto pt-2">
         <span className="text-xs sm:text-sm text-muted font-extrabold uppercase tracking-widest mr-2 flex items-center shrink-0">
           ⚡ LAYANAN POPULER:
@@ -79,9 +79,9 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
               key={chip.topic}
               type="button"
               onClick={() => onChipClick(chip.topic)}
-              className="chip-service-item"
+              className="chip-service-item group"
             >
-              <IconComp className="w-4 h-4 text-primary shrink-0" />
+              <IconComp className="w-4 h-4 text-primary group-hover:scale-110 transition-transform shrink-0" />
               <span>{chip.label}</span>
             </button>
           );
