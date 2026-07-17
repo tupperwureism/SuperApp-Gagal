@@ -17,16 +17,13 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0e17] text-white">
-      {/* Top Navbar with Role Switcher */}
+    <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
       <Navbar currentSession={currentSession} onRoleChange={handleRoleChange} />
 
-      {/* Main Content Area */}
-      <main className="flex-grow max-w-7xl w-full mx-auto px-6 md:px-12 py-8">
+      <main className="flex-grow w-full max-w-[1600px] mx-auto px-6 sm:px-12 md:px-16 py-8">
         {children(currentSession, handleRoleChange)}
       </main>
 
-      {/* Footer */}
       <Footer />
     </div>
   );

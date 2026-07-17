@@ -22,7 +22,7 @@ export const ClientDashboardPage: React.FC = () => {
   return (
     <BaseLayout>
       {(session) => (
-        <div className="space-y-8 py-6 animate-fade-in font-sans">
+        <div className="space-y-8 py-6 animate-fade-in font-sans w-full">
           <EscrowStatusBanner
             latestTransaction={latestTransaction}
             downloadedDraftInfo={downloadedDraftInfo}

@@ -16,7 +16,7 @@ export const ClientOverviewTab: React.FC<ClientOverviewTabProps> = ({
   onTabChange,
 }) => {
   return (
-    <div className="space-y-8 animate-fade-in">
+    <div className="space-y-8 animate-fade-in w-full">
       <ClientGreetingCard session={session} onNavigateCatalog={onNavigateCatalog} />
       <ClientOverviewTables onTabChange={onTabChange} />
     </div>
