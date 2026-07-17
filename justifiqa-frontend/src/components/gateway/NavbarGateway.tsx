@@ -34,9 +34,9 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
         <Button
           type="button"
           variant="outline"
-          size="sm"
+          size="default"
           onClick={onToggleTheme}
-          className="gap-2 font-semibold shrink-0"
+          className="gap-2.5 font-bold h-10 sm:h-11 px-5 sm:px-6 rounded-full border-border bg-card/80 hover:bg-accent/80 text-foreground shadow-sm shrink-0 whitespace-nowrap transition-all"
         >
           <span>{isDark ? '🌙' : '☀️'}</span>
           <span>{isDark ? 'Dark Mode' : 'Light Mode'}</span>
@@ -45,9 +45,9 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
         <Button
           type="button"
           variant="default"
-          size="sm"
+          size="default"
           onClick={onVerifyClick}
-          className="gap-2 font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-sm shrink-0"
+          className="gap-2.5 font-bold h-10 sm:h-11 px-6 sm:px-7 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-md shrink-0 whitespace-nowrap transition-all"
         >
           <span>🛡️</span>
           <span>Verifikasi Dokumen SHA-256</span>

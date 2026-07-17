@@ -68,10 +68,10 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
         </Button>
       </form>
 
-      {/* Layanan Populer Pills Container (Generous spacing pt-2) */}
-      <div className="flex flex-wrap items-center justify-center gap-3 max-w-4xl mx-auto pt-2">
-        <span className="text-xs sm:text-sm text-slate-400 font-extrabold uppercase tracking-widest mr-2 flex items-center">
-          LAYANAN POPULER:
+      {/* Layanan Populer Pills Container (Generous spacing pt-2 gap-3 sm:gap-4) */}
+      <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-4 max-w-4xl mx-auto pt-4">
+        <span className="text-xs sm:text-sm text-muted-foreground font-extrabold uppercase tracking-widest mr-2 flex items-center shrink-0">
+          ⚡ LAYANAN POPULER:
         </span>
         {POPULAR_CHIPS.map((chip) => {
           const IconComp = chip.icon;
@@ -80,9 +80,9 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
               key={chip.topic}
               variant="outline"
               onClick={() => onChipClick(chip.topic)}
-              className="px-4 py-2 rounded-full text-xs sm:text-sm font-bold cursor-pointer border border-white/15 bg-slate-900/80 text-slate-200 hover:bg-blue-600/20 hover:border-blue-400 hover:text-blue-300 transition-all shadow-md flex items-center gap-2"
+              className="px-5 sm:px-6 py-2.5 sm:py-3 min-h-[40px] rounded-full text-xs sm:text-sm font-bold tracking-wide cursor-pointer border border-border bg-card/90 text-foreground hover:border-primary hover:bg-primary/15 hover:text-primary transition-all shadow-md flex items-center gap-2.5 shrink-0 whitespace-nowrap"
             >
-              <IconComp className="w-3.5 h-3.5 text-blue-400" />
+              <IconComp className="w-4 h-4 text-primary shrink-0" />
               <span>{chip.label}</span>
             </Badge>
           );
