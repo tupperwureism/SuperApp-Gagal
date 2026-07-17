@@ -15,7 +15,7 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
 }) => {
   return (
     <header className="gateway-navbar-shell">
-      <div className="max-w-7xl mx-auto w-full px-6 sm:px-12 flex items-center justify-between gap-4 py-2">
+      <div className="w-full px-8 sm:px-14 md:px-16 flex items-center justify-between gap-4 py-2">
         {/* Brand Logo & Subtitle */}
         <div
           onClick={onLogoClick}
