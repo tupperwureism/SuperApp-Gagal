@@ -13,67 +13,59 @@ export const TierSelectorCard: React.FC<TierSelectorCardProps> = ({
   isSelected = false,
   onSelect,
 }) => {
-  const getCardStyle = () => {
-    if (tier.highlightColor === 'gold') return 'glass-card glass-card-gold border-amber-500/50 bg-slate-900/90';
-    if (tier.highlightColor === 'red') return 'glass-card border-red-500/50 bg-slate-900/90 hover:border-red-500';
-    return 'glass-card glass-card-blue border-blue-500/40 bg-slate-900/90';
-  };
+  const isGold = tier.highlightColor === 'gold';
+  const isRed = tier.highlightColor === 'red';
 
-  const getBadgeStyle = () => {
-    if (tier.highlightColor === 'gold') return 'badge badge-gold font-bold';
-    if (tier.highlightColor === 'red') return 'badge bg-red-500/20 text-red-300 border border-red-500/50 font-bold';
-    return 'badge badge-blue font-bold';
-  };
+  const cardStyle = isGold
+    ? 'border-amber-500/60 bg-gradient-to-b from-card to-amber-950/20 shadow-xl'
+    : isRed
+    ? 'border-rose-500/60 bg-gradient-to-b from-card to-rose-950/20 hover:border-rose-500 shadow-xl'
+    : 'border-blue-500/40 bg-gradient-to-b from-card to-blue-950/20 shadow-xl';
 
   return (
     <div
-      className={`${getCardStyle()} flex flex-col justify-between h-full relative transition-all duration-300 p-6 rounded-2xl ${
-        isSelected ? 'ring-2 ring-amber-400 shadow-[0_0_35px_rgba(212,175,55,0.45)]' : ''
+      className={`flex flex-col justify-between h-full relative transition-all duration-300 p-6 rounded-2xl border ${cardStyle} ${
+        isSelected ? 'ring-2 ring-amber-400 shadow-[0_0_35px_rgba(212,175,55,0.4)]' : ''
       }`}
     >
-      {/* Top Banner & Badge */}
       <div className="space-y-4">
         <div className="flex items-center justify-between gap-2 flex-wrap">
-          <span className={getBadgeStyle()}>{tier.badgeText}</span>
+          <span className={`px-2.5 py-1 rounded-full text-[11px] font-bold tracking-wider uppercase border ${
+            isGold ? 'bg-amber-500/20 text-amber-600 dark:text-amber-400 border-amber-500/40' : isRed ? 'bg-rose-500/20 text-rose-600 dark:text-rose-400 border-rose-500/40' : 'bg-blue-500/20 text-blue-600 dark:text-blue-400 border-blue-500/40'
+          }`}>{tier.badgeText}</span>
           {tier.isEscrowRequired ? (
-            <span className="flex items-center gap-1 text-xs text-amber-300 font-bold bg-amber-500/15 px-2.5 py-1 rounded-md border border-amber-500/30">
-              <Lock className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1 text-xs text-amber-600 dark:text-amber-400 font-bold bg-amber-500/15 px-2.5 py-1 rounded-md border border-amber-500/30">
+              <Lock className="w-3.5 h-3.5 flex-shrink-0" />
               <span>Escrow Mutex Required</span>
             </span>
           ) : (
-            <span className="flex items-center gap-1 text-xs text-blue-300 font-bold bg-blue-500/15 px-2.5 py-1 rounded-md border border-blue-500/30">
-              <Sparkles className="w-3.5 h-3.5" />
+            <span className="flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 font-bold bg-blue-500/15 px-2.5 py-1 rounded-md border border-blue-500/30">
+              <Sparkles className="w-3.5 h-3.5 flex-shrink-0" />
               <span>Direct Instant Access</span>
             </span>
           )}
         </div>
 
-        {/* Title & Price */}
         <div>
-          <h3 className="text-xl font-extrabold text-white tracking-tight">{tier.title}</h3>
+          <h3 className="text-xl font-extrabold text-foreground tracking-tight">{tier.title}</h3>
           <div className="mt-2 flex items-baseline gap-1">
-            <span className={`text-2xl md:text-3xl font-extrabold ${
-              tier.highlightColor === 'gold' ? 'text-gradient-gold' : 'text-white'
-            }`}>
+            <span className={`text-2xl md:text-3xl font-extrabold ${isGold ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}>
               {tier.priceLabel}
             </span>
           </div>
-          <p className="text-xs sm:text-sm text-slate-200 mt-2.5 leading-relaxed font-medium">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed font-medium">
             {tier.description}
           </p>
         </div>
 
-        {/* Feature List */}
-        <div className="pt-4 border-t border-white/15 space-y-2.5">
-          <p className="text-xs uppercase tracking-wider text-amber-300 font-extrabold">
+        <div className="pt-4 border-t border-border space-y-2.5">
+          <p className="text-xs uppercase tracking-wider text-amber-600 dark:text-amber-400 font-extrabold">
             Spesifikasi Layanan:
           </p>
           <ul className="space-y-2">
             {tier.features.map((feature, idx) => (
-              <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-slate-100 font-medium leading-snug">
-                <CheckCircle2 className={`w-4 h-4 mt-0.5 flex-shrink-0 ${
-                  tier.highlightColor === 'gold' ? 'text-amber-400' : 'text-blue-400'
-                }`} />
+              <li key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-foreground font-medium leading-snug">
+                <CheckCircle2 className={`w-4 h-4 mt-0.5 flex-shrink-0 ${isGold ? 'text-amber-500 dark:text-amber-400' : 'text-blue-500 dark:text-blue-400'}`} />
                 <span>{feature}</span>
               </li>
             ))}
@@ -81,32 +73,32 @@ export const TierSelectorCard: React.FC<TierSelectorCardProps> = ({
         </div>
       </div>
 
-      {/* Recommended For & Action Button */}
-      <div className="mt-6 pt-4 border-t border-white/15 space-y-4">
-        <div className="bg-white/10 rounded-xl p-3.5 border border-white/15 text-xs text-slate-200 flex items-start gap-2.5">
-          {tier.highlightColor === 'red' ? (
-            <ShieldAlert className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
+      <div className="mt-6 pt-4 border-t border-border space-y-4">
+        <div className="bg-secondary/60 rounded-xl p-3.5 border border-border text-xs text-muted-foreground flex items-start gap-2.5">
+          {isRed ? (
+            <ShieldAlert className="w-4 h-4 text-rose-500 dark:text-rose-400 flex-shrink-0 mt-0.5" />
           ) : (
-            <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
+            <ShieldCheck className="w-4 h-4 text-emerald-500 dark:text-emerald-400 flex-shrink-0 mt-0.5" />
           )}
           <div>
-            <span className="font-extrabold text-white">Rekomendasi: </span>
-            <span className="font-medium text-slate-100">{tier.recommendedFor}</span>
+            <span className="font-extrabold text-foreground">Rekomendasi: </span>
+            <span className="font-medium text-foreground">{tier.recommendedFor}</span>
           </div>
         </div>
 
         <button
+          type="button"
           onClick={() => onSelect(tier)}
-          className={`w-full btn py-3.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 ${
-            tier.highlightColor === 'gold'
-              ? 'btn-primary-gold animate-pulse-gold text-black'
-              : tier.highlightColor === 'red'
-              ? 'bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-lg hover:from-red-500 hover:to-rose-500'
-              : 'btn-primary-blue text-white'
+          className={`w-full py-3.5 rounded-xl font-bold text-sm shadow-md transition-all flex items-center justify-center gap-2 min-h-[44px] whitespace-nowrap flex-shrink-0 ${
+            isGold
+              ? 'bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold shadow-amber-500/20'
+              : isRed
+              ? 'bg-gradient-to-r from-rose-600 to-red-600 hover:from-rose-700 hover:to-red-700 text-white shadow-rose-500/20'
+              : 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20'
           }`}
         >
           <span>Pilih {tier.id === 'TIER_1_AI' ? 'Navigasi AI' : 'Jadwal & Bayar Escrow'}</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </button>
       </div>
     </div>
