@@ -1,5 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
+@source "./**/*.tsx";
+@source "./**/*.ts";
+@source "../index.html";
 
 @theme inline {
   --font-sans: var(--font-sans);
@@ -205,5 +208,16 @@ a {
   .text-slate-400, .text-slate-500, .text-slate-600 {
     color: var(--text-secondary) !important;
     opacity: 1 !important;
+  }
+  /* Fail-safe padding utility for Lovable 2-layer portal cards to guarantee 32px-48px margin */
+  .portal-card-inner {
+    padding: 2rem !important;
+    padding-top: 2.5rem !important;
+  }
+  @media (min-width: 640px) {
+    .portal-card-inner {
+      padding: 2.5rem !important;
+      padding-top: 3rem !important;
+    }
   }
 }

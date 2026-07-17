@@ -50,9 +50,9 @@ export const PortalCardItem: React.FC<PortalCardItemProps> = ({
         }`}
       />
 
-      {/* LAYER 2: INNER WRAPPER (Murni Geometri & Bantalan Interior: p-8 pt-10 sm:p-10 sm:pt-12)
+      {/* LAYER 2: INNER WRAPPER (Murni Geometri & Bantalan Interior: p-8 pt-10 sm:p-10 sm:pt-12 + portal-card-inner)
           Mengunci seluruh anak-anak elemen agar mutlak berada di dalam jarak aman 32px-48px dari batas kotak */}
-      <div className="relative z-20 flex h-full flex-col justify-between gap-8 p-8 pt-10 sm:p-10 sm:pt-12">
+      <div className="portal-card-inner relative z-20 flex h-full flex-col justify-between gap-8 p-8 pt-10 sm:p-10 sm:pt-12">
         {/* LAYER 3A: TOP STACK (Badge, Judul, Deskripsi, Checklist) */}
         <div className="flex flex-col gap-6">
           {/* Lencana berkelas inline-flex w-fit agar tidak melebar & tidak terlempar ke pojok */}

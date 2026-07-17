@@ -30,9 +30,9 @@ export const HeroSearchSection: React.FC<HeroSearchSectionProps> = ({
       {/* Title & Subtitle */}
       <div className="flex flex-col gap-4 max-w-[900px] mx-auto">
         <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black tracking-tight leading-tight font-heading text-white">
-          Akses Hukum Profesional &amp;{' '}
+          Akses Keadilan &amp;{' '}
           <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-500">
-            Terverifikasi
+            Praktik Hukum Digital Tanpa Batas
           </span>
         </h1>
         <p className="text-base sm:text-lg md:text-xl max-w-[780px] mx-auto font-normal leading-relaxed text-slate-300">
