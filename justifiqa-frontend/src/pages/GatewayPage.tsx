@@ -59,8 +59,8 @@ export const GatewayPage: React.FC = () => {
       {/* 2. SCREEN 1: GERBANG UTAMA (GATEWAY-01 GOLDEN MASTER) */}
       {activeScreen === 'gateway' && (
         <main className="flex-1 w-full flex flex-col items-center justify-between px-4 sm:px-6 md:px-8">
-          {/* HARMONIOUS BALANCED SPACING: gap-16 (64px) to gap-20 (80px) between Hero, Portal Grid, and Trust Bar */}
-          <div className="w-full flex flex-col items-center gap-16 sm:gap-20 py-8 sm:py-12 max-w-7xl mx-auto">
+          {/* HARMONIOUS BALANCED SPACING: gap-24 sm:gap-32 (96px-128px) between Hero, Portal Grid, and Trust Bar */}
+          <div className="w-full flex flex-col items-center gap-24 sm:gap-32 pt-12 pb-24 sm:pt-16 sm:pb-32 max-w-7xl mx-auto">
             <HeroSearchSection
               isDark={isDark}
               searchQuery={searchQuery}

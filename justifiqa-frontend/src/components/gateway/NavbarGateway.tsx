@@ -15,7 +15,7 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
   onVerifyClick,
 }) => {
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/85 backdrop-blur-xl px-4 sm:px-8 py-4 flex items-center justify-between shadow-sm transition-colors">
+    <header className="sticky top-0 z-50 w-full min-h-[80px] border-b border-border bg-background/85 backdrop-blur-xl px-4 sm:px-8 py-5 sm:py-6 flex items-center justify-between shadow-sm transition-colors">
       <div
         onClick={onLogoClick}
         className="flex items-center gap-3 font-heading font-extrabold text-xl sm:text-2xl text-foreground cursor-pointer group shrink-0"
