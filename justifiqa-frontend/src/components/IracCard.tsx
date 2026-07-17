@@ -1,8 +1,10 @@
 import React from 'react';
 import { HelpCircle, BookOpen, Scale, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import { IracPillarCard } from './IracPillarCard';
+import { Card } from '@/components/ui/card';
 import type { IracAnalysis } from '../types/irac';
 
-interface IracCardProps {
+export interface IracCardProps {
   analysis: IracAnalysis;
   onProceedToDraft: (analysis: IracAnalysis) => void;
 }
@@ -10,107 +12,80 @@ interface IracCardProps {
 export const IracCard: React.FC<IracCardProps> = ({ analysis, onProceedToDraft }) => {
   return (
     <div className="space-y-6 animate-fade-in pt-4">
-      {/* Top Meta Summary */}
-      <div className="glass-card p-6 border border-amber-500/30 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="space-y-1">
-          <div className="flex items-center gap-2">
-            <span className="badge badge-gold">AI Neural Diagnosis</span>
-            <span className="text-xs text-emerald-400 font-semibold flex items-center gap-1">
-              <ShieldCheck className="w-3.5 h-3.5" />
-              Tingkat Keyakinan: {analysis.confidenceScore}%
+      <Card className="p-6 bg-card border border-amber-500/40 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="space-y-1.5">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="px-3 py-1 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-600 dark:text-amber-400 font-bold text-xs uppercase tracking-wider">
+              AI Neural Diagnosis
+            </span>
+            <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
+              <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
+              <span>Tingkat Keyakinan: {analysis.confidenceScore}%</span>
             </span>
           </div>
-          <h3 className="text-xl md:text-2xl font-bold text-white tracking-tight">
+          <h3 className="text-xl md:text-2xl font-extrabold text-foreground tracking-tight">
             {analysis.caseTitle}
           </h3>
-          <p className="text-xs text-muted">
+          <p className="text-xs text-muted-foreground">
             Diproses pada: {new Date(analysis.generatedAt).toLocaleString('id-ID')} &middot; Ontologi Hukum Terverifikasi
           </p>
         </div>
 
-        {/* Action button to proceed directly to drafting */}
         <button
+          type="button"
           onClick={() => onProceedToDraft(analysis)}
-          className="btn btn-primary-gold self-start md:self-center flex-shrink-0"
+          className="px-5 py-3.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold text-sm shadow-lg shadow-amber-500/20 transition-all flex items-center gap-2 self-start md:self-center flex-shrink-0 min-h-[44px] whitespace-nowrap"
         >
           <span>Buat Draf Somasi / Gugatan</span>
-          <ArrowRight className="w-4 h-4" />
+          <ArrowRight className="w-4 h-4 flex-shrink-0" />
         </button>
-      </div>
+      </Card>
 
-      {/* 4 Pillars Grid: I - R - A - C */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* I - ISSUE */}
-        <div className="glass-card p-5 border border-blue-500/30 space-y-3">
-          <div className="flex items-center gap-2.5 text-blue-400">
-            <div className="p-2 rounded-lg bg-blue-500/15 border border-blue-500/30">
-              <HelpCircle className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-heading font-bold text-base text-white">I &mdash; Issue (Rumusan Masalah)</h4>
-              <p className="text-[11px] text-muted">Inti pertanyaan yuridis atas fakta kasus</p>
-            </div>
-          </div>
-          <p className="text-xs text-slate-200 leading-relaxed bg-black/30 p-3.5 rounded-xl border border-white/5 font-medium">
-            {analysis.issue}
-          </p>
-        </div>
+        <IracPillarCard
+          letter="I"
+          title="Issue (Rumusan Masalah)"
+          subtitle="Inti pertanyaan yuridis atas fakta kasus"
+          content={analysis.issue}
+          icon={<HelpCircle className="w-5 h-5 flex-shrink-0" />}
+          colorClass="text-blue-600 dark:text-blue-400"
+          borderColorClass="border-blue-500/30"
+          bgIconClass="bg-blue-500/15"
+        />
 
-        {/* R - RULE */}
-        <div className="glass-card p-5 border border-amber-500/30 space-y-3">
-          <div className="flex items-center gap-2.5 text-amber-400">
-            <div className="p-2 rounded-lg bg-amber-500/15 border border-amber-500/30">
-              <BookOpen className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-heading font-bold text-base text-white">R &mdash; Rule (Dasar Hukum &amp; Pasal)</h4>
-              <p className="text-[11px] text-muted">Yurisprudensi dan pasal undang-undang terkait</p>
-            </div>
-          </div>
-          <div className="text-xs text-slate-200 leading-relaxed bg-black/30 p-3.5 rounded-xl border border-white/5 whitespace-pre-line font-medium">
-            {analysis.rule}
-          </div>
-          {/* Article Chips */}
-          <div className="flex flex-wrap gap-1.5 pt-1">
-            {analysis.relevantArticles.map((article, idx) => (
-              <span key={idx} className="text-[11px] px-2.5 py-1 rounded-md bg-amber-500/10 text-amber-300 border border-amber-500/20 font-semibold">
-                {article}
-              </span>
-            ))}
-          </div>
-        </div>
+        <IracPillarCard
+          letter="R"
+          title="Rule (Dasar Hukum &amp; Pasal)"
+          subtitle="Yurisprudensi dan pasal undang-undang terkait"
+          content={analysis.rule}
+          icon={<BookOpen className="w-5 h-5 flex-shrink-0" />}
+          colorClass="text-amber-600 dark:text-amber-400"
+          borderColorClass="border-amber-500/30"
+          bgIconClass="bg-amber-500/15"
+          articles={analysis.relevantArticles}
+        />
 
-        {/* A - APPLICATION */}
-        <div className="glass-card p-5 border border-purple-500/30 space-y-3">
-          <div className="flex items-center gap-2.5 text-purple-400">
-            <div className="p-2 rounded-lg bg-purple-500/15 border border-purple-500/30">
-              <Scale className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-heading font-bold text-base text-white">A &mdash; Application (Analisis &amp; Subsumsi)</h4>
-              <p className="text-[11px] text-muted">Penerapan aturan hukum pada kronologi nyata</p>
-            </div>
-          </div>
-          <p className="text-xs text-slate-200 leading-relaxed bg-black/30 p-3.5 rounded-xl border border-white/5 font-medium">
-            {analysis.application}
-          </p>
-        </div>
+        <IracPillarCard
+          letter="A"
+          title="Application (Analisis &amp; Subsumsi)"
+          subtitle="Penerapan aturan hukum pada kronologi nyata"
+          content={analysis.application}
+          icon={<Scale className="w-5 h-5 flex-shrink-0" />}
+          colorClass="text-purple-600 dark:text-purple-400"
+          borderColorClass="border-purple-500/30"
+          bgIconClass="bg-purple-500/15"
+        />
 
-        {/* C - CONCLUSION */}
-        <div className="glass-card p-5 border border-emerald-500/30 space-y-3">
-          <div className="flex items-center gap-2.5 text-emerald-400">
-            <div className="p-2 rounded-lg bg-emerald-500/15 border border-emerald-500/30">
-              <CheckCircle2 className="w-5 h-5" />
-            </div>
-            <div>
-              <h4 className="font-heading font-bold text-base text-white">C &mdash; Conclusion (Kesimpulan &amp; Solusi)</h4>
-              <p className="text-[11px] text-muted">Rekomendasi taktis langkah penyelesaian</p>
-            </div>
-          </div>
-          <p className="text-xs text-emerald-200 leading-relaxed bg-emerald-950/20 p-3.5 rounded-xl border border-emerald-500/20 font-semibold">
-            {analysis.conclusion}
-          </p>
-        </div>
+        <IracPillarCard
+          letter="C"
+          title="Conclusion (Kesimpulan &amp; Solusi)"
+          subtitle="Rekomendasi taktis langkah penyelesaian"
+          content={analysis.conclusion}
+          icon={<CheckCircle2 className="w-5 h-5 flex-shrink-0" />}
+          colorClass="text-emerald-600 dark:text-emerald-400"
+          borderColorClass="border-emerald-500/30"
+          bgIconClass="bg-emerald-500/15"
+        />
       </div>
     </div>
   );
