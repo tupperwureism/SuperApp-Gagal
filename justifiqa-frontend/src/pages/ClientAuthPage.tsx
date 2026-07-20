@@ -8,7 +8,6 @@ import {
   CheckCircle2,
   KeyRound,
   UserCheck,
-  AlertCircle,
   Sun,
   Moon,
   Mail,
@@ -70,8 +69,9 @@ export const ClientAuthPage: React.FC = () => {
       alert('Konfirmasi kata sandi tidak cocok.');
       return;
     }
-    localStorage.setItem('justica_auth_session', 'true');
-    navigate(redirectUrl);
+    setActiveTab('login');
+    setLoginIdentifier(regEmail || regPhone || regNik);
+    setShowStatusAlert(true);
   };
 
   return (
@@ -172,7 +172,16 @@ export const ClientAuthPage: React.FC = () => {
 
             {/* TAB 1: MASUK KE AKUN ANDA */}
             {activeTab === 'login' && (
-              <form onSubmit={handleLoginSubmit} className="space-y-4 animate-fade-in">
+              <>
+                {showStatusAlert && (
+                  <div role="status" className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-start gap-3 animate-fade-in text-xs">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    <p className="font-semibold leading-relaxed text-emerald-600 dark:text-emerald-300">
+                      Registrasi Klien berhasil &amp; data WORM tercatat! Silakan masuk menggunakan kata sandi Anda untuk memverifikasi kredensial dan melanjutkan ke dasbor.
+                    </p>
+                  </div>
+                )}
+                <form onSubmit={handleLoginSubmit} className="space-y-4 animate-fade-in">
                 <div className="space-y-1.5">
                   <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                     <span>Email atau NIK Terdaftar</span>
@@ -200,7 +209,7 @@ export const ClientAuthPage: React.FC = () => {
                     <label className="text-xs font-semibold text-foreground">Kata Sandi</label>
                     <button
                       type="button"
-                      onClick={() => setShowStatusAlert(true)}
+                      onClick={() => alert('Instruksi pemulihan kata sandi telah dikirim ke email dan WhatsApp terdaftar.')}
                       className="text-xs text-blue-400 hover:text-blue-300 transition-colors font-medium"
                     >
                       Lupa Kata Sandi?
@@ -268,7 +277,8 @@ export const ClientAuthPage: React.FC = () => {
                   <CheckCircle2 className="w-5 h-5" />
                   <span>MASUK SEKARANG</span>
                 </Button>
-              </form>
+                </form>
+              </>
             )}
 
             {/* TAB 2: PENDAFTARAN AKUN BARU */}
@@ -400,29 +410,6 @@ export const ClientAuthPage: React.FC = () => {
               </form>
             )}
 
-            {/* Compliance Review / Information Alert Box (`INFORMASI AKUN`) */}
-            {showStatusAlert && (
-              <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-start gap-3 animate-fade-in text-xs text-amber-300">
-                <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-foreground uppercase text-[11px] tracking-wider">INFORMASI AKUN:</p>
-                  <p className="text-muted-foreground mt-0.5 leading-relaxed">
-                    Akun Anda sedang dalam peninjauan oleh tim kepatuhan layanan. Silakan hubungi pusat bantuan atau
-                    periksa email terdaftar untuk aktivasi instan.
-                  </p>
-                </div>
-              </div>
-            )}
-
-            <div className="pt-3 border-t border-border text-center">
-              <button
-                type="button"
-                onClick={() => setShowStatusAlert(!showStatusAlert)}
-                className="text-[11px] text-muted-foreground hover:text-foreground underline transition-colors font-medium"
-              >
-                {showStatusAlert ? 'Sembunyikan Status Peninjauan' : 'Simulasikan Status Peninjauan Kepatuhan'}
-              </button>
-            </div>
           </div>
         </main>
 

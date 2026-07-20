@@ -14,13 +14,17 @@ import {
   Award,
   AlertTriangle,
   Database,
-  Key
+  Key,
+  FileUp,
+  Landmark,
+  LoaderCircle
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 
 export const AdvocateAuthPage: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [showHardwareModal, setShowHardwareModal] = useState(false);
   const navigate = useNavigate();
@@ -32,6 +36,12 @@ export const AdvocateAuthPage: React.FC = () => {
   const [mfaOtp, setMfaOtp] = useState('');
   const [kmsPin, setKmsPin] = useState('');
   const [hardwareBoundSession, setHardwareBoundSession] = useState(true);
+  const [regNik, setRegNik] = useState('');
+  const [regSipp, setRegSipp] = useState('');
+  const [regOrg, setRegOrg] = useState('PERADI');
+  const [regBank, setRegBank] = useState('');
+  const [syncStatus, setSyncStatus] = useState<'idle' | 'syncing' | 'verified'>('idle');
+  const [showRegSuccess, setShowRegSuccess] = useState(false);
 
   useEffect(() => {
     const root = document.documentElement;
@@ -48,7 +58,28 @@ export const AdvocateAuthPage: React.FC = () => {
 
   const handleAuthSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    localStorage.setItem('justica_advocate_session', 'true');
     navigate('/advocate/dashboard');
+  };
+
+  const handleKycSync = (e: React.FormEvent) => {
+    e.preventDefault();
+    setSyncStatus('syncing');
+    window.setTimeout(() => setSyncStatus('verified'), 800);
+  };
+
+  const completeOnboarding = () => {
+    setShowRegSuccess(true);
+    setActiveTab('login');
+    setNia(regSipp);
+  };
+
+  const validateLegalFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file && file.size > 10 * 1024 * 1024) {
+      alert('Ukuran dokumen legalitas maksimal 10MB.');
+      event.target.value = '';
+    }
   };
 
   return (
@@ -102,6 +133,15 @@ export const AdvocateAuthPage: React.FC = () => {
         {/* Center Form Container — items-center ensures box is CENTERED inside its 50% half */}
         <main className="flex-1 flex flex-col items-center justify-center py-8">
           <div className="w-full max-w-[440px] sm:max-w-[480px] mx-auto px-6 sm:px-8 py-6 bg-card text-card-foreground border border-border rounded-3xl shadow-glass space-y-6 animate-fade-in">
+            <div className="grid grid-cols-2 gap-1 p-1 bg-secondary border border-border rounded-2xl w-full">
+              <button type="button" onClick={() => setActiveTab('login')} className={`py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${activeTab === 'login' ? 'bg-emerald-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}>
+                MASUK SIPP (AD-01)
+              </button>
+              <button type="button" onClick={() => setActiveTab('register')} className={`py-2.5 px-3 rounded-xl font-extrabold text-xs transition-all cursor-pointer ${activeTab === 'register' ? 'bg-emerald-600 text-white shadow-md' : 'text-muted-foreground hover:text-foreground'}`}>
+                REGISTRASI KYC (AD-01B)
+              </button>
+            </div>
+
             {/* Title & Subtitle (MOCK-J-AD-01) */}
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto shadow-md">
@@ -109,17 +149,27 @@ export const AdvocateAuthPage: React.FC = () => {
               </div>
               <Badge variant="outline" className="px-3 py-1 rounded-full bg-emerald-500/15 border-emerald-500/30 text-[11px] font-bold text-emerald-400 tracking-wider uppercase gap-1.5">
                 <ShieldCheck className="w-3.5 h-3.5" />
-                <span>MOCK-J-AD-01 • Mitra Advokat PERADI</span>
+                <span>{activeTab === 'login' ? 'MOCK-J-AD-01 • Login KMS Advokat' : 'MOCK-J-AD-01B • Verifikasi KYC Advokat'}</span>
               </Badge>
               <h1 className="text-2xl font-extrabold text-foreground font-heading tracking-tight">
-                AUTENTIKASI MITRA ADVOKAT
+                {activeTab === 'login' ? 'AUTENTIKASI MITRA ADVOKAT' : 'VERIFIKASI IDENTITAS & SINKRONISASI LISENSI SIPP'}
               </h1>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
-                Khusus bagi Advokat tersumpah yang terdaftar resmi pada Sistem Informasi Penelusuran Perkara (SIPP) Mahkamah Agung.
+                {activeTab === 'login'
+                  ? 'Khusus bagi Advokat tersumpah yang terdaftar resmi pada Sistem Informasi Penelusuran Perkara (SIPP) Mahkamah Agung.'
+                  : 'Langkah wajib untuk memastikan seluruh advokat yang berpraktik di platform Justica berlisensi aktif dan sah.'}
               </p>
             </div>
 
-            <form onSubmit={handleAuthSubmit} className="space-y-4 animate-fade-in">
+            {activeTab === 'login' && (
+              <>
+                {showRegSuccess && (
+                  <div role="status" className="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-start gap-3 text-xs animate-fade-in">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" />
+                    <p className="font-semibold leading-relaxed text-emerald-600 dark:text-emerald-300">Verifikasi KYC &amp; sinkronisasi SIPP Mahkamah Agung berhasil! Silakan masuk dengan kredensial KMS Anda.</p>
+                  </div>
+                )}
+                <form onSubmit={handleAuthSubmit} className="space-y-4 animate-fade-in">
               <div className="space-y-1.5">
                 <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                   <span>Nomor Induk Advokat (NIA / SIPP)</span>
@@ -248,10 +298,72 @@ export const AdvocateAuthPage: React.FC = () => {
                 <CheckCircle2 className="w-5 h-5" />
                 <span>MASUK KE COMMAND CENTER ADVOKAT</span>
               </Button>
-            </form>
+                </form>
+              </>
+            )}
+
+            {activeTab === 'register' && (
+              <form onSubmit={handleKycSync} className="space-y-5 animate-fade-in">
+                <section className="space-y-3">
+                  <h2 className="text-xs font-black uppercase tracking-wider text-emerald-500">1. Data Identitas &amp; Kredensial Advokat</h2>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="space-y-1.5 text-xs font-semibold text-foreground">Nomor Induk Kependudukan (NIK KTP)
+                      <Input value={regNik} onChange={(e) => setRegNik(e.target.value)} placeholder="3171234567890001" maxLength={16} required className="h-11 rounded-xl bg-secondary border-border font-mono" />
+                    </label>
+                    <label className="space-y-1.5 text-xs font-semibold text-foreground">Nomor SIPP Mahkamah Agung RI
+                      <Input value={regSipp} onChange={(e) => setRegSipp(e.target.value)} placeholder="18293/PERADI/2015" required className="h-11 rounded-xl bg-secondary border-border font-mono" />
+                    </label>
+                    <label className="space-y-1.5 text-xs font-semibold text-foreground">Organisasi Advokat Menaungi
+                      <select value={regOrg} onChange={(e) => setRegOrg(e.target.value)} className="w-full h-11 rounded-xl border border-border bg-secondary px-3 text-sm text-foreground outline-none focus:border-emerald-500">
+                        {['PERADI', 'AAI', 'KAI', 'IKADIN'].map((organization) => <option key={organization}>{organization}</option>)}
+                      </select>
+                    </label>
+                    <label className="space-y-1.5 text-xs font-semibold text-foreground">Nomor Rekening Bank Pencairan
+                      <Input value={regBank} onChange={(e) => setRegBank(e.target.value)} placeholder="123-00-9876543-2 (Bank Mandiri/BCA/BNI)" required className="h-11 rounded-xl bg-secondary border-border" />
+                    </label>
+                  </div>
+                </section>
+
+                <section className="space-y-3 border-t border-border pt-4">
+                  <h2 className="text-xs font-black uppercase tracking-wider text-emerald-500">2. Unggah Dokumen Legalitas Fisik Terverifikasi</h2>
+                  <label className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/60 p-4 text-xs text-muted-foreground hover:border-emerald-500">
+                    <FileUp className="size-5 shrink-0 text-emerald-500" /><span><strong className="block text-foreground">Foto Kartu Anggota Organisasi Advokat</strong>JPG/PDF · Maksimal 10MB</span>
+                    <input type="file" accept=".jpg,.jpeg,.pdf" required className="sr-only" onChange={validateLegalFile} />
+                  </label>
+                  <label className="flex min-h-20 cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-secondary/60 p-4 text-xs text-muted-foreground hover:border-emerald-500">
+                    <FileUp className="size-5 shrink-0 text-emerald-500" /><span><strong className="block text-foreground">Foto Berita Acara Sumpah Advokat PT</strong>JPG/PDF · Maksimal 10MB</span>
+                    <input type="file" accept=".jpg,.jpeg,.pdf" required className="sr-only" onChange={validateLegalFile} />
+                  </label>
+                </section>
+
+                <Button type="submit" disabled={syncStatus === 'syncing'} className="w-full min-h-12 rounded-xl bg-emerald-600 text-white font-black text-[10px] sm:text-xs whitespace-nowrap overflow-x-auto hover:bg-emerald-700">
+                  {syncStatus === 'syncing' ? <LoaderCircle className="size-5 animate-spin" /> : <Landmark className="size-5" />}
+                  {syncStatus === 'syncing' ? 'SINKRONISASI SIPP SEDANG BERJALAN...' : 'SINKRONISASIKAN SECARA REAL-TIME KE API MAHKAMAH AGUNG'}
+                </Button>
+
+                {syncStatus === 'verified' && (
+                  <section className="space-y-3 rounded-2xl border border-emerald-500/40 bg-emerald-500/10 p-4 animate-fade-in">
+                    <h2 className="text-xs font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-300">Hasil Sinkronisasi API Mahkamah Agung RI</h2>
+                    <div className="overflow-x-auto">
+                      <table className="w-full min-w-[620px] text-left text-[11px]">
+                        <thead className="text-muted-foreground"><tr><th className="p-2">Parameter Pemeriksaan</th><th className="p-2">Status Pangkalan Data MA RI</th><th className="p-2">Hasil Kepatuhan Justica</th></tr></thead>
+                        <tbody className="font-semibold text-foreground">
+                          <tr className="border-t border-emerald-500/20"><td className="p-2">Status Lisensi SIPP</td><td className="p-2">AKTIF &amp; BERLAKU HINGGA 2028</td><td className="p-2 text-emerald-500">VERIFIED ACTIVE</td></tr>
+                          <tr className="border-t border-emerald-500/20"><td className="p-2">Kesesuaian Nama Advokat</td><td className="p-2">Dr. Mahendra Kusuma, S.H., M.H.</td><td className="p-2 text-emerald-500">MATCH 100%</td></tr>
+                          <tr className="border-t border-emerald-500/20"><td className="p-2">Catatan Pelanggaran Etik MA</td><td className="p-2">TIDAK ADA CATATAN PELANGGARAN</td><td className="p-2 text-emerald-500">CLEAN RECORD</td></tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <Button type="button" onClick={completeOnboarding} className="w-full min-h-12 rounded-xl bg-emerald-600 text-white font-black text-[10px] sm:text-xs whitespace-nowrap overflow-x-auto hover:bg-emerald-700">
+                      <CheckCircle2 className="size-5" />SELESAIKAN ONBOARDING &amp; MASUK KE LOGIN KMS
+                    </Button>
+                  </section>
+                )}
+              </form>
+            )}
 
             {/* Recovery Modal / Alert simulation */}
-            {showHardwareModal && (
+            {activeTab === 'login' && showHardwareModal && (
               <div className="p-3.5 rounded-2xl bg-blue-500/15 border border-blue-500/40 flex items-start gap-3 animate-fade-in text-xs text-blue-300">
                 <AlertTriangle className="w-5 h-5 text-blue-400 flex-shrink-0 mt-0.5" />
                 <div>
