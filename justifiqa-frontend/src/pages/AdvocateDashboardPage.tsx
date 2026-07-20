@@ -4,21 +4,16 @@ import {
   CheckCircle2,
   FileCheck,
   Wallet,
-  Clock,
-  Upload,
-  Lock,
-  Pause,
-  Play,
-  FileText,
-  AlertCircle
+  Upload
 } from 'lucide-react';
 import { Card } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { AdvocateHeaderAndTabs, type AdvocateTabKey } from '../components/advocate/AdvocateHeaderAndTabs';
 import { AdvocateGreetingCard } from '../components/advocate/AdvocateGreetingCard';
 import { CommandCenterActiveCasesTable } from '../components/advocate/CommandCenterActiveCasesTable';
 import { ScheduleManagementCard, type ScheduleSlots } from '../components/advocate/ScheduleManagementCard';
+import { AdvocateE2EEHeaderAndSla } from '../components/advocate/AdvocateE2EEHeaderAndSla';
+import { AdvocateE2EEChatPanel } from '../components/advocate/AdvocateE2EEChatPanel';
 
 export const AdvocateDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdvocateTabKey>('command_center');
@@ -130,114 +125,27 @@ export const AdvocateDashboardPage: React.FC = () => {
           {/* TAB 2 CONTENT: RUANG KONSULTASI ADVOKAT E2EE (MOCK-J-AD-04) */}
           {activeTab === 'e2ee_room' && (
             <div className="space-y-8 animate-fade-in">
-              <Card className="p-6 rounded-3xl bg-gradient-to-r from-card via-card to-blue-950/40 border border-border shadow-xl flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 rounded-2xl bg-blue-500/15 border border-blue-500/30 text-blue-400">
-                    <Lock className="w-6 h-6" />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-extrabold text-foreground uppercase tracking-tight">
-                      SESI KONSULTASI HUKUM AKTIF • PT MITRA JAYA
-                    </h2>
-                    <p className="text-xs text-muted-foreground">
-                      Percakapan diamankan dengan enkripsi E2EE AES-GCM 256-Bit &amp; Hardware-bound Session Token.
-                    </p>
-                  </div>
-                </div>
-
-                {/* Fair-Clock SLA Monitor Display */}
-                <div className="flex items-center gap-3 bg-secondary/40 p-3 rounded-2xl border border-border">
-                  <Clock className="w-5 h-5 text-emerald-400 animate-pulse" />
-                  <div>
-                    <p className="text-[10px] uppercase text-muted-foreground font-bold">Sisa Waktu Sesi (Fair-Clock)</p>
-                    <p className="text-lg font-mono font-extrabold text-foreground">{formatClock(clockSeconds)}</p>
-                  </div>
-                  <Button
-                    type="button"
-                    size="sm"
-                    variant={isClockPaused ? 'destructive' : 'outline'}
-                    onClick={handleTogglePauseClock}
-                    className="rounded-xl text-xs font-bold gap-1.5"
-                  >
-                    {isClockPaused ? <Play className="w-3.5 h-3.5" /> : <Pause className="w-3.5 h-3.5" />}
-                    <span>{isClockPaused ? 'Lanjutkan Sesi' : 'Jeda Sesi (Fair-Clock)'}</span>
-                  </Button>
-                </div>
-              </Card>
-
-              {/* SLA Guardrails 3-Layer Alert Box (MOCK-J-AD-04 section 3) */}
-              <Card className="p-4 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-start gap-3 text-xs text-amber-300">
-                <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
-                <div>
-                  <p className="font-bold text-white uppercase tracking-wider text-[11px]">
-                    ATURAN FAIR-CLOCK &amp; 3 LAPIS PENGAMAN SLA (SLA GUARDRAILS):
-                  </p>
-                  <ul className="list-disc list-inside space-y-1 mt-1 text-slate-300">
-                    <li><strong>Lapis 1 (Maks. 15 Menit/Jeda):</strong> Jika jeda melebihi 15 menit, arloji otomatis berjalan (*Auto-Resume*).</li>
-                    <li><strong>Lapis 2 (Maks. Akumulasi 30 Menit/Sesi):</strong> Anda telah menggunakan <span className="text-amber-400 font-bold">{pauseCount} / 2</span> kesempatan jeda.</li>
-                    <li><strong>Lapis 3 (Anti-Malpractice):</strong> Jeda digunakan untuk meninjau lampiran/bukti hukum Klien agar waktu berbayar tidak tergerus sia-sia.</li>
-                  </ul>
-                </div>
-              </Card>
-
-              {/* Chat Box Area */}
-              <Card className="p-6 rounded-3xl bg-card/90 border border-border shadow-2xl space-y-4">
-                <div className="h-72 overflow-y-auto space-y-3 p-4 rounded-2xl bg-secondary/30 border border-border/50">
-                  {chatMessages.map((msg, idx) => (
-                    <div key={idx} className="space-y-1">
-                      <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                        <span className="font-mono text-emerald-400">[{msg.time}]</span>
-                        <strong className="text-foreground">{msg.sender}:</strong>
-                      </div>
-                      <p className="text-sm text-foreground pl-14 bg-secondary/60 p-2.5 rounded-xl border border-border/50">
-                        {msg.text}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-
-                <form onSubmit={handleSendMessage} className="flex items-center gap-3">
-                  <Input
-                    type="text"
-                    value={newMessage}
-                    onChange={(e) => setNewMessage(e.target.value)}
-                    placeholder="Ketik analisis atau balasan hukum ber-enkripsi E2EE untuk Klien..."
-                    className="flex-1 h-12 rounded-xl bg-secondary/40 border-border text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-emerald-500"
-                  />
-                  <Button
-                    type="submit"
-                    className="px-6 h-12 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-sm shadow-md"
-                  >
-                    Kirim Pesan E2EE
-                  </Button>
-                </form>
-
-                <div className="pt-4 border-t border-border flex flex-wrap items-center justify-between gap-3">
-                  <Button
-                    type="button"
-                    onClick={() => setActiveTab('deliverable')}
-                    className="px-5 py-5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs gap-2 shadow-sm"
-                  >
-                    <FileText className="w-4 h-4" />
-                    <span>BUAT DOKUMEN DELIVERABLE</span>
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="destructive"
-                    onClick={() => {
-                      if (confirm('Akhiri sesi konsultasi? Saldo Escrow akan diteruskan ke dompet Anda.')) {
-                        setActiveTab('command_center');
-                      }
-                    }}
-                    className="px-5 py-5 rounded-xl font-bold text-xs shadow-sm"
-                  >
-                    Akhiri Sesi Konsultasi
-                  </Button>
-                </div>
-              </Card>
+              <AdvocateE2EEHeaderAndSla
+                clockSeconds={clockSeconds}
+                formatClock={formatClock}
+                isClockPaused={isClockPaused}
+                onTogglePause={handleTogglePauseClock}
+                pauseCount={pauseCount}
+              />
+              <AdvocateE2EEChatPanel
+                chatMessages={chatMessages}
+                newMessage={newMessage}
+                onNewMessageChange={setNewMessage}
+                onSendMessage={handleSendMessage}
+                onGoToDeliverable={() => setActiveTab('deliverable')}
+                onEndSession={() => {
+                  if (confirm('Akhiri sesi konsultasi? Saldo Escrow akan diteruskan ke dompet Anda.')) {
+                    setActiveTab('command_center');
+                  }
+                }}
+              />
             </div>
           )}
-
           {/* TAB 3 CONTENT: PENGATURAN JADWAL & SLOT PRAKTIK (MOCK-J-AD-03) */}
           {activeTab === 'schedule' && (
             <ScheduleManagementCard
