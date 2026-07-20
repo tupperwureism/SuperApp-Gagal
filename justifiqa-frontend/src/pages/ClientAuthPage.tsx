@@ -71,16 +71,16 @@ export const ClientAuthPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-foreground flex flex-col lg:flex-row font-sans transition-colors duration-300 selection:bg-blue-500/30 relative overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground flex flex-col lg:flex-row font-sans transition-colors duration-300 selection:bg-blue-500/30 relative overflow-x-hidden">
       {/* LEFT PANEL: 50% SPLIT — AUTHENTICATION TERMINAL */}
-      <div className="w-full lg:w-1/2 flex-shrink-0 min-h-screen bg-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/15 z-20 relative shadow-2xl">
+      <div className="w-full lg:w-1/2 flex-shrink-0 min-h-screen bg-background flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-border z-20 relative shadow-2xl">
         {/* Topbar inside Left Panel — px constrained so nothing bleeds into center divider */}
-        <header className="w-full px-5 sm:px-8 pt-5 pb-4 flex items-center justify-between border-b border-white/10 flex-shrink-0 min-h-[70px]">
+        <header className="w-full px-5 sm:px-8 pt-5 pb-4 flex items-center justify-between border-b border-border flex-shrink-0 min-h-[70px]">
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="p-2 rounded-xl bg-blue-600 text-white shadow-lg group-hover:scale-105 transition-transform">
               <Scale className="w-5 h-5" />
             </div>
-            <span className="font-extrabold text-lg tracking-tight text-white font-heading">JUSTICA</span>
+            <span className="font-extrabold text-lg tracking-tight text-foreground font-heading">JUSTICA</span>
           </Link>
 
           <div className="flex items-center gap-2 text-xs font-semibold">
@@ -89,7 +89,7 @@ export const ClientAuthPage: React.FC = () => {
               variant="outline"
               size="sm"
               onClick={handleToggleTheme}
-              className="rounded-full gap-1.5 transition-all bg-white/5 border-white/15 text-white hover:bg-white/15 h-8 px-3"
+              className="rounded-full gap-1.5 transition-all bg-secondary/60 border-border text-foreground hover:bg-secondary h-8 px-3"
             >
               {themeMode === 'dark' ? (
                 <>
@@ -108,10 +108,10 @@ export const ClientAuthPage: React.FC = () => {
               asChild
               variant="outline"
               size="sm"
-              className="rounded-full gap-1.5 transition-all bg-white/5 border-white/15 text-white hover:bg-white/15 h-8 px-3"
+              className="rounded-full gap-1.5 transition-all bg-secondary/60 border-border text-foreground hover:bg-secondary h-8 px-3"
             >
               <Link to="/">
-                <ArrowLeft className="w-3.5 h-3.5 text-slate-300" />
+                <ArrowLeft className="w-3.5 h-3.5 text-muted-foreground" />
                 <span>Gerbang</span>
               </Link>
             </Button>
@@ -120,7 +120,7 @@ export const ClientAuthPage: React.FC = () => {
 
         {/* Center Form Container — items-center ensures box is CENTERED inside its 50% half */}
         <main className="flex-1 flex flex-col items-center justify-center py-8">
-          <div className="w-full max-w-[440px] sm:max-w-[480px] mx-auto px-6 sm:px-8 space-y-6 animate-fade-in">
+          <div className="w-full max-w-[440px] sm:max-w-[480px] mx-auto px-6 sm:px-8 py-6 bg-card text-card-foreground border border-border rounded-3xl shadow-glass space-y-6 animate-fade-in">
             {/* Title & Subtitle (MOCK-J-CL-01) */}
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/40 flex items-center justify-center text-blue-400 mx-auto shadow-md">
@@ -130,23 +130,23 @@ export const ClientAuthPage: React.FC = () => {
                 <ShieldCheck className="w-3.5 h-3.5" />
                 <span>MOCK-J-CL-01 • Klien Hukum</span>
               </Badge>
-              <h1 className="text-2xl font-extrabold text-white font-heading tracking-tight">
+              <h1 className="text-2xl font-extrabold text-foreground font-heading tracking-tight">
                 MASUK KE PORTAL KLIEN
               </h1>
-              <p className="text-xs text-slate-300 leading-relaxed max-w-sm mx-auto">
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-sm mx-auto">
                 Silakan masuk atau daftarkan identitas Anda untuk memulai konsultasi hukum terverifikasi.
               </p>
             </div>
 
             {/* Tabs Switcher (`[ Masuk Akun ]` | `[ Daftar Baru ]`) */}
-            <div className="flex rounded-2xl bg-slate-900 p-1.5 border border-white/15 shadow-inner">
+            <div className="flex rounded-2xl bg-secondary p-1.5 border border-border shadow-inner">
               <button
                 type="button"
                 onClick={() => setActiveTab('login')}
                 className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'login'
                     ? 'bg-blue-600 text-white shadow-lg ring-1 ring-blue-400/50'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
                 }`}
               >
                 <Lock className="w-4 h-4" />
@@ -158,7 +158,7 @@ export const ClientAuthPage: React.FC = () => {
                 className={`flex-1 py-2.5 text-xs sm:text-sm font-bold rounded-xl transition-all flex items-center justify-center gap-2 ${
                   activeTab === 'register'
                     ? 'bg-blue-600 text-white shadow-lg ring-1 ring-blue-400/50'
-                    : 'text-slate-400 hover:text-white hover:bg-white/5'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-secondary/60'
                 }`}
               >
                 <FileText className="w-4 h-4" />
@@ -170,13 +170,13 @@ export const ClientAuthPage: React.FC = () => {
             {activeTab === 'login' && (
               <form onSubmit={handleLoginSubmit} className="space-y-4 animate-fade-in">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white flex items-center justify-between">
+                  <label className="text-xs font-semibold text-foreground flex items-center justify-between">
                     <span>Email atau NIK Terdaftar</span>
-                    <span className="text-[11px] text-slate-400 font-mono">16-Digit NIK / Email</span>
+                    <span className="text-[11px] text-muted-foreground font-mono">16-Digit NIK / Email</span>
                   </label>
                   {/* ZERO COLLISION INPUT WITH INLINE STYLE OVERRIDE */}
                   <div className="relative flex items-center">
-                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                       <Mail className="w-5 h-5" />
                     </div>
                     <Input
@@ -186,14 +186,14 @@ export const ClientAuthPage: React.FC = () => {
                       placeholder="budi.santoso@email.com"
                       required
                       style={{ paddingLeft: '3.25rem' }}
-                      className="w-full pr-4 h-12 rounded-xl bg-slate-900 border border-white/20 text-sm text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
+                      className="w-full pr-4 h-12 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-white">Kata Sandi</label>
+                    <label className="text-xs font-semibold text-foreground">Kata Sandi</label>
                     <button
                       type="button"
                       onClick={() => setShowStatusAlert(true)}
@@ -204,7 +204,7 @@ export const ClientAuthPage: React.FC = () => {
                   </div>
                   {/* ZERO COLLISION INPUT WITH INLINE STYLE OVERRIDE */}
                   <div className="relative flex items-center">
-                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                       <KeyRound className="w-5 h-5" />
                     </div>
                     <Input
@@ -214,26 +214,26 @@ export const ClientAuthPage: React.FC = () => {
                       placeholder="••••••••••••••••"
                       required
                       style={{ paddingLeft: '3.25rem' }}
-                      className="w-full pr-4 h-12 rounded-xl bg-slate-900 border border-white/20 text-sm text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
+                      className="w-full pr-4 h-12 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between pt-1">
-                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-200 select-none">
+                  <label className="flex items-center gap-2.5 cursor-pointer text-xs text-muted-foreground select-none">
                     <input
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="rounded border-white/20 bg-slate-900 text-blue-600 focus:ring-0 w-4 h-4"
+                      className="rounded border-border bg-secondary text-blue-600 focus:ring-0 w-4 h-4"
                     />
                     <span>Ingat saya di perangkat ini</span>
                   </label>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-slate-900/90 border border-white/15 space-y-2.5">
+                <div className="p-4 rounded-2xl bg-secondary/60 border border-border space-y-2.5">
                   <div className="flex justify-between items-center">
-                    <label className="text-xs font-semibold text-white flex items-center gap-1.5">
+                    <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                       <ShieldCheck className="w-4 h-4 text-blue-400 flex-shrink-0" />
                       <span>Kode Keamanan OTP (6-Digit)</span>
                     </label>
@@ -252,7 +252,7 @@ export const ClientAuthPage: React.FC = () => {
                     placeholder="8  4  9  2  0  1"
                     maxLength={6}
                     required
-                    className="w-full h-11 rounded-xl bg-slate-950 border border-white/25 text-base text-center text-blue-400 font-mono font-extrabold tracking-[0.5em] placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
+                    className="w-full h-11 rounded-xl bg-background border border-border text-base text-center text-blue-400 font-mono font-extrabold tracking-[0.5em] placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
                   />
                 </div>
 
@@ -271,9 +271,9 @@ export const ClientAuthPage: React.FC = () => {
             {activeTab === 'register' && (
               <form onSubmit={handleRegisterSubmit} className="space-y-3.5 animate-fade-in">
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white">Nomor Induk Kependudukan (NIK)</label>
+                  <label className="text-xs font-semibold text-foreground">Nomor Induk Kependudukan (NIK)</label>
                   <div className="relative flex items-center">
-                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                       <CreditCard className="w-5 h-5" />
                     </div>
                     <Input
@@ -284,15 +284,15 @@ export const ClientAuthPage: React.FC = () => {
                       maxLength={16}
                       required
                       style={{ paddingLeft: '3.25rem' }}
-                      className="w-full pr-4 h-11 rounded-xl bg-slate-900 border border-white/20 text-sm text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
+                      className="w-full pr-4 h-11 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-xs font-semibold text-white">Nama Lengkap Sesuai KTP</label>
+                  <label className="text-xs font-semibold text-foreground">Nama Lengkap Sesuai KTP</label>
                   <div className="relative flex items-center">
-                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                    <div className="absolute left-3.5 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                       <UserCheck className="w-5 h-5" />
                     </div>
                     <Input
@@ -302,16 +302,16 @@ export const ClientAuthPage: React.FC = () => {
                       placeholder="Budi Santoso"
                       required
                       style={{ paddingLeft: '3.25rem' }}
-                      className="w-full pr-4 h-11 rounded-xl bg-slate-900 border border-white/20 text-sm text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
+                      className="w-full pr-4 h-11 rounded-xl bg-secondary border border-border text-sm text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-white">WhatsApp Aktif</label>
+                    <label className="text-xs font-semibold text-foreground">WhatsApp Aktif</label>
                     <div className="relative flex items-center">
-                      <div className="absolute left-3 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                      <div className="absolute left-3 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                         <Phone className="w-4 h-4" />
                       </div>
                       <Input
@@ -321,14 +321,14 @@ export const ClientAuthPage: React.FC = () => {
                         placeholder="+6281234567890"
                         required
                         style={{ paddingLeft: '2.5rem' }}
-                        className="w-full pr-3 h-10 rounded-xl bg-slate-900 border border-white/20 text-xs text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
+                        className="w-full pr-3 h-10 rounded-xl bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
                       />
                     </div>
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-white">Alamat Email</label>
+                    <label className="text-xs font-semibold text-foreground">Alamat Email</label>
                     <div className="relative flex items-center">
-                      <div className="absolute left-3 flex items-center justify-center pointer-events-none z-10 text-slate-400">
+                      <div className="absolute left-3 flex items-center justify-center pointer-events-none z-10 text-muted-foreground">
                         <Mail className="w-4 h-4" />
                       </div>
                       <Input
@@ -338,7 +338,7 @@ export const ClientAuthPage: React.FC = () => {
                         placeholder="budi@email.com"
                         required
                         style={{ paddingLeft: '2.5rem' }}
-                        className="w-full pr-3 h-10 rounded-xl bg-slate-900 border border-white/20 text-xs text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
+                        className="w-full pr-3 h-10 rounded-xl bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 transition-all"
                       />
                     </div>
                   </div>
@@ -346,41 +346,41 @@ export const ClientAuthPage: React.FC = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-white">Kata Sandi Baru</label>
+                    <label className="text-xs font-semibold text-foreground">Kata Sandi Baru</label>
                     <Input
                       type="password"
                       value={regPassword}
                       onChange={(e) => setRegPassword(e.target.value)}
                       placeholder="••••••••••••"
                       required
-                      className="w-full px-3 h-10 rounded-xl bg-slate-900 border border-white/20 text-xs text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
+                      className="w-full px-3 h-10 rounded-xl bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-xs font-semibold text-white">Konfirmasi Sandi</label>
+                    <label className="text-xs font-semibold text-foreground">Konfirmasi Sandi</label>
                     <Input
                       type="password"
                       value={regConfirmPassword}
                       onChange={(e) => setRegConfirmPassword(e.target.value)}
                       placeholder="••••••••••••"
                       required
-                      className="w-full px-3 h-10 rounded-xl bg-slate-900 border border-white/20 text-xs text-white placeholder:text-slate-500 focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
+                      className="w-full px-3 h-10 rounded-xl bg-secondary border border-border text-xs text-foreground placeholder:text-muted-foreground focus-visible:ring-1 focus-visible:ring-blue-500 font-mono transition-all"
                     />
                   </div>
                 </div>
 
                 <div className="pt-1.5">
-                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-slate-200 select-none">
+                  <label className="flex items-start gap-2.5 cursor-pointer text-xs text-muted-foreground select-none">
                     <input
                       type="checkbox"
                       checked={agreeTerms}
                       onChange={(e) => setAgreeTerms(e.target.checked)}
                       required
-                      className="rounded border-white/20 bg-slate-900 text-blue-600 focus:ring-0 mt-0.5 w-4 h-4"
+                      className="rounded border-border bg-secondary text-blue-600 focus:ring-0 mt-0.5 w-4 h-4"
                     />
-                    <span className="leading-tight text-[11px] text-slate-300">
-                      Saya menyetujui <strong className="text-white">Ketentuan Layanan</strong> &amp;{' '}
-                      <strong className="text-white">Kebijakan Privasi NDA</strong> Justica.
+                    <span className="leading-tight text-[11px] text-muted-foreground">
+                      Saya menyetujui <strong className="text-foreground">Ketentuan Layanan</strong> &amp;{' '}
+                      <strong className="text-foreground">Kebijakan Privasi NDA</strong> Justica.
                     </span>
                   </label>
                 </div>
@@ -401,8 +401,8 @@ export const ClientAuthPage: React.FC = () => {
               <div className="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-500/40 flex items-start gap-3 animate-fade-in text-xs text-amber-300">
                 <AlertCircle className="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" />
                 <div>
-                  <p className="font-bold text-white uppercase text-[11px] tracking-wider">INFORMASI AKUN:</p>
-                  <p className="text-slate-200 mt-0.5 leading-relaxed">
+                  <p className="font-bold text-foreground uppercase text-[11px] tracking-wider">INFORMASI AKUN:</p>
+                  <p className="text-muted-foreground mt-0.5 leading-relaxed">
                     Akun Anda sedang dalam peninjauan oleh tim kepatuhan layanan. Silakan hubungi pusat bantuan atau
                     periksa email terdaftar untuk aktivasi instan.
                   </p>
@@ -410,11 +410,11 @@ export const ClientAuthPage: React.FC = () => {
               </div>
             )}
 
-            <div className="pt-3 border-t border-white/10 text-center">
+            <div className="pt-3 border-t border-border text-center">
               <button
                 type="button"
                 onClick={() => setShowStatusAlert(!showStatusAlert)}
-                className="text-[11px] text-slate-300 hover:text-white underline transition-colors font-medium"
+                className="text-[11px] text-muted-foreground hover:text-foreground underline transition-colors font-medium"
               >
                 {showStatusAlert ? 'Sembunyikan Status Peninjauan' : 'Simulasikan Status Peninjauan Kepatuhan'}
               </button>
@@ -423,7 +423,7 @@ export const ClientAuthPage: React.FC = () => {
         </main>
 
         {/* Footer inside Left Panel */}
-        <footer className="px-6 sm:px-10 py-4 border-t border-white/10 text-center text-[11px] text-slate-400 flex-shrink-0">
+        <footer className="px-6 sm:px-10 py-4 border-t border-border text-center text-[11px] text-muted-foreground flex-shrink-0">
           © 2026 JUSTICA Legal Platform • Verifikasi 2 Langkah &amp; E2EE Hardened.
         </footer>
       </div>

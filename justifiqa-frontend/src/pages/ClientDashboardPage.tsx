@@ -1,76 +1,70 @@
-import React, { useState } from 'react';
-import { BaseLayout } from '@/components/BaseLayout';
-import { EscrowStatusBanner } from '@/components/client/EscrowStatusBanner';
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ClientHeaderAndTabs } from '@/components/client/ClientHeaderAndTabs';
-import { ClientOverviewTab } from '@/components/client/ClientOverviewTab';
-import { ClientCatalogTab } from '@/components/client/ClientCatalogTab';
+import { ClientGreetingCard } from '@/components/client/ClientGreetingCard';
+import { ClientOverviewTables } from '@/components/client/ClientOverviewTables';
+import { AdvocateCatalogTab } from '@/components/client/AdvocateCatalogTab';
+import { MOCK_ADVOCATES } from '@/data/clientAdvocates';
+import { AdvocateProfileDetailModal } from '@/components/client/AdvocateProfileDetailModal';
+import { CheckoutEscrowModal } from '@/components/client/CheckoutEscrowModal';
 import { ClientIracTab } from '@/components/client/ClientIracTab';
-import { ConsultationBookingModal } from '@/components/ConsultationBookingModal';
 import { DocumentDraftingModal } from '@/components/DocumentDraftingModal';
-import type { ConsultationTier, EscrowTransaction } from '@/types/consultation';
-import type { IracAnalysis, LegalDocumentDraft } from '@/types/irac';
+import { DEFAULT_SESSIONS } from '@/types/auth';
+import { ACTIVE_CONSULTATIONS, HISTORY_DOCUMENTS } from '@/data/clientPortalData';
+import type { Advocate, CheckoutDraft, ClientTabKey } from '@/types/client';
+import type { IracAnalysis } from '@/types/irac';
 
 export const ClientDashboardPage: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<'overview' | 'catalog' | 'irac'>('overview');
-  const [selectedTier, setSelectedTier] = useState<ConsultationTier | null>(null);
-  const [latestTransaction, setLatestTransaction] = useState<EscrowTransaction | null>(null);
+  const navigate = useNavigate();
+  const session = DEFAULT_SESSIONS.CLIENT;
+  const [activeTab, setActiveTab] = useState<ClientTabKey>('dashboard');
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  );
+  const [selectedAdvocate, setSelectedAdvocate] = useState<Advocate | null>(null);
+  const [checkoutDraft, setCheckoutDraft] = useState<CheckoutDraft | null>(null);
   const [activeIrac, setActiveIrac] = useState<IracAnalysis | null>(null);
-  const [downloadedDraftInfo, setDownloadedDraftInfo] = useState<{ title: string; wormHash: string } | null>(null);
-  const [specialtyFilter, setSpecialtyFilter] = useState<string>('ALL');
-  const [onlineOnly, setOnlineOnly] = useState<boolean>(false);
+  const [notice, setNotice] = useState<string | null>(null);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', themeMode === 'dark');
+  }, [themeMode]);
+
+  const openProBonoProfile = () => {
+    setActiveTab('catalog');
+    setSelectedAdvocate(MOCK_ADVOCATES.find((item) => item.hasProBonoQuota) ?? null);
+  };
+
+  const startCheckout = (draft: CheckoutDraft) => {
+    setSelectedAdvocate(null);
+    setCheckoutDraft(draft);
+  };
+
+  const completeCheckout = () => {
+    setCheckoutDraft(null);
+    setActiveTab('dashboard');
+    setNotice('Pemesanan terkonfirmasi. Ruang konsultasi E2EE akan tersedia pada jadwal sesi.');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   return (
-    <BaseLayout>
-      {(session) => (
-        <div className="space-y-8 py-6 animate-fade-in font-sans w-full">
-          <EscrowStatusBanner
-            latestTransaction={latestTransaction}
-            downloadedDraftInfo={downloadedDraftInfo}
-          />
-          <ClientHeaderAndTabs activeTab={activeTab} onTabChange={setActiveTab} />
-
-          {activeTab === 'overview' && (
-            <ClientOverviewTab
-              session={session}
-              onNavigateCatalog={() => setActiveTab('catalog')}
-              onTabChange={setActiveTab}
-            />
-          )}
-
-          {activeTab === 'catalog' && (
-            <ClientCatalogTab
-              specialtyFilter={specialtyFilter}
-              onSpecialtyChange={setSpecialtyFilter}
-              onlineOnly={onlineOnly}
-              onOnlineOnlyChange={setOnlineOnly}
-              onSelectTier={setSelectedTier}
-            />
-          )}
-
-          {activeTab === 'irac' && (
-            <ClientIracTab onProceedToDraft={setActiveIrac} />
-          )}
-
-          <ConsultationBookingModal
-            tier={selectedTier}
-            session={session}
-            onClose={() => setSelectedTier(null)}
-            onBookingSuccess={(tx) => {
-              setLatestTransaction(tx);
-              setActiveTab('overview');
-            }}
-          />
-
-          <DocumentDraftingModal
-            analysis={activeIrac}
-            session={session}
-            onClose={() => setActiveIrac(null)}
-            onDraftDownloaded={(draft: LegalDocumentDraft, wormHash: string) => {
-              setDownloadedDraftInfo({ title: draft.title, wormHash });
-            }}
-          />
-        </div>
-      )}
-    </BaseLayout>
+    <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
+      <ClientHeaderAndTabs activeTab={activeTab} onTabChange={setActiveTab} themeMode={themeMode}
+        onToggleTheme={() => setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark'))} onNavigate={navigate} />
+      <main className="max-w-[1600px] mx-auto w-full px-4 sm:px-8 md:px-10 py-8 sm:py-10">
+        {notice && <div role="status" className="client-notice-success">{notice}</div>}
+        {activeTab === 'dashboard' && <div className="client-dashboard-shell animate-fade-in">
+          <ClientGreetingCard clientName={session.userName} onStartCatalogSearch={() => setActiveTab('catalog')} onStartProBono={openProBonoProfile} />
+          <ClientOverviewTables activeConsultations={ACTIVE_CONSULTATIONS} historyDocuments={HISTORY_DOCUMENTS}
+            onOpenConsultation={() => setNotice('Ruang konsultasi Batch 3 belum dipasang; data sesi Anda tetap aman.')}
+            onDownloadDocument={(id) => setNotice(`Dokumen ${id} siap diteruskan ke layanan unduhan WORM Vault.`)} />
+        </div>}
+        {activeTab === 'catalog' && <AdvocateCatalogTab onViewProfile={setSelectedAdvocate} />}
+        {activeTab === 'irac' && <ClientIracTab onProceedToDraft={setActiveIrac} />}
+      </main>
+      {selectedAdvocate && <AdvocateProfileDetailModal advocate={selectedAdvocate} onClose={() => setSelectedAdvocate(null)} onProceedToCheckout={startCheckout} />}
+      {checkoutDraft && <CheckoutEscrowModal draft={checkoutDraft} onClose={() => setCheckoutDraft(null)} onEnterConsultationRoom={completeCheckout} />}
+      <DocumentDraftingModal analysis={activeIrac} session={session} onClose={() => setActiveIrac(null)} />
+    </div>
   );
 };

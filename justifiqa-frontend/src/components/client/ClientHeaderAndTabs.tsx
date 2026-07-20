@@ -1,71 +1,81 @@
-import React from 'react';
+// src/components/client/ClientHeaderAndTabs.tsx
 import { Link } from 'react-router-dom';
-import { ArrowLeft, ShieldCheck, LayoutDashboard, Search, BrainCircuit } from 'lucide-react';
+import { Scale, Sun, Moon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { ClientTabNav } from './ClientTabNav';
+import type { ClientTabKey } from '@/types/client';
 
-export type ClientTabType = 'overview' | 'catalog' | 'irac';
-
-export interface ClientHeaderAndTabsProps {
-  activeTab: ClientTabType;
-  onTabChange: (tab: ClientTabType) => void;
+interface ClientHeaderAndTabsProps {
+  activeTab: ClientTabKey;
+  onTabChange: (tab: ClientTabKey) => void;
+  themeMode: 'dark' | 'light';
+  onToggleTheme: () => void;
+  onNavigate?: (path: string) => void;
 }
 
-export const ClientHeaderAndTabs: React.FC<ClientHeaderAndTabsProps> = ({
+export function ClientHeaderAndTabs({
   activeTab,
   onTabChange,
-}) => {
+  themeMode,
+  onToggleTheme,
+  onNavigate,
+}: ClientHeaderAndTabsProps) {
   return (
-    <div className="w-full flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 py-4 border-b border-border/60 transition-all duration-300">
-      {/* Brand & Verification Badge Group */}
-      <div className="flex flex-wrap items-center gap-3">
-        <Button
-          asChild
-          variant="outline"
-          size="sm"
-          className="rounded-xl gap-2 font-semibold shadow-sm border-border hover:border-primary transition-all min-h-[38px]"
-        >
-          <Link to="/">
-            <ArrowLeft className="w-4 h-4 text-primary flex-shrink-0" />
-            <span>Gerbang Utama</span>
-          </Link>
-        </Button>
-        <Badge
-          variant="outline"
-          className="px-3.5 py-1.5 rounded-full border-primary/40 bg-primary/10 text-primary text-xs font-bold gap-1.5 whitespace-nowrap min-h-[36px]"
-        >
-          <ShieldCheck className="w-3.5 h-3.5 flex-shrink-0" />
-          <span>MOCK-J-CL-02..04 • Portal Klien Terverifikasi</span>
-        </Badge>
+    <header className="gateway-navbar-shell">
+      <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-8 flex items-center justify-between gap-4">
+        {/* Brand */}
+        <Link to="/" className="navbar-brand-pill flex-shrink-0" onClick={() => onNavigate?.('/')}>
+          <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-lg">
+            <Scale className="w-5 h-5" />
+          </div>
+          <div className="hidden sm:flex flex-col leading-tight">
+            <span className="font-extrabold text-base tracking-tight text-foreground font-heading">JUSTICA</span>
+            <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">Portal Klien Terverifikasi</span>
+          </div>
+        </Link>
+
+        {/* Tab Switcher — desktop */}
+        <ClientTabNav activeTab={activeTab} onTabChange={onTabChange} className="hidden md:flex" />
+
+        {/* Right controls */}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onToggleTheme}
+            className="rounded-full gap-1.5 font-semibold h-9 px-3"
+          >
+            {themeMode === 'dark' ? (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-400" />
+                <span className="hidden sm:inline">Light</span>
+              </>
+            ) : (
+              <>
+                <Moon className="w-3.5 h-3.5 text-blue-500" />
+                <span className="hidden sm:inline">Dark</span>
+              </>
+            )}
+          </Button>
+          <Button
+            asChild
+            variant="outline"
+            size="sm"
+            className="rounded-full gap-1.5 font-semibold h-9 px-3"
+          >
+            <Link to="/" onClick={() => onNavigate?.('/')}>
+              <Settings className="w-3.5 h-3.5" />
+              <span className="hidden lg:inline">Pengaturan</span>
+            </Link>
+          </Button>
+        </div>
       </div>
 
-      {/* Navigation Tabs Switcher */}
-      <div className="flex flex-wrap sm:flex-nowrap items-center gap-1 rounded-2xl bg-secondary/80 p-1.5 border border-border shadow-inner max-w-full overflow-x-auto">
-        <button
-          type="button"
-          onClick={() => onTabChange('overview')}
-          className={`client-tab-btn ${activeTab === 'overview' ? 'active' : ''}`}
-        >
-          <LayoutDashboard className="w-4 h-4 flex-shrink-0" />
-          <span>Dasbor Saya &amp; Riwayat</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onTabChange('catalog')}
-          className={`client-tab-btn ${activeTab === 'catalog' ? 'active' : ''}`}
-        >
-          <Search className="w-4 h-4 flex-shrink-0" />
-          <span>Cari &amp; Katalog Advokat</span>
-        </button>
-        <button
-          type="button"
-          onClick={() => onTabChange('irac')}
-          className={`client-tab-btn ${activeTab === 'irac' ? 'active' : ''}`}
-        >
-          <BrainCircuit className="w-4 h-4 flex-shrink-0" />
-          <span>IRAC Bedah Kasus</span>
-        </button>
+      {/* Tab Switcher — mobile */}
+      <div className="md:hidden w-full px-4 pb-3 -mt-1">
+        <ClientTabNav activeTab={activeTab} onTabChange={onTabChange} className="flex" />
       </div>
-    </div>
+    </header>
   );
-};
+}
