@@ -15,7 +15,7 @@ export const IracHeaderSection: React.FC = () => {
 
       <p className="text-muted-foreground text-sm md:text-base leading-relaxed">
         Tuliskan cerita kronologi hukum Anda atau pilih prasetel sengketa di bawah. 
-        Mesin AI Justifiqa akan membedah secara yuridis menjadi rumusan{' '}
+        Mesin AI Justica akan membedah secara yuridis menjadi rumusan{' '}
         <strong className="text-foreground">Issue, Rule, Application, dan Conclusion</strong>.
       </p>
     </div>

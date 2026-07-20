@@ -10,7 +10,7 @@ interface ClientHeaderAndTabsProps {
   onTabChange: (tab: ClientTabKey) => void;
   themeMode: 'dark' | 'light';
   onToggleTheme: () => void;
-  onShowUnavailableNotice: (message: string) => void;
+  onOpenSettings: () => void;
 }
 
 export function ClientHeaderAndTabs({
@@ -18,7 +18,7 @@ export function ClientHeaderAndTabs({
   onTabChange,
   themeMode,
   onToggleTheme,
-  onShowUnavailableNotice,
+  onOpenSettings,
 }: ClientHeaderAndTabsProps) {
   return (
     <header className="gateway-navbar-shell">
@@ -62,7 +62,7 @@ export function ClientHeaderAndTabs({
             type="button"
             variant="outline"
             size="sm"
-            onClick={() => onShowUnavailableNotice('Modul Pengaturan Profil adalah cakupan rute berikutnya dan segera tersedia.')}
+            onClick={onOpenSettings}
             className="rounded-full gap-1.5 font-semibold h-9 px-3"
           >
             <Settings className="w-3.5 h-3.5" />

@@ -631,8 +631,26 @@ a {
   .consultation-success-action { @apply bg-emerald-600 text-white hover:bg-emerald-700; }
   .consultation-secondary-action { @apply border border-border bg-secondary text-foreground hover:border-primary; }
   .consultation-warning-action { @apply border border-amber-500/50 bg-transparent text-amber-600 dark:text-amber-400 hover:bg-amber-500/10; }
-  .consultation-security-badge { @apply rounded-full border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 font-extrabold; min-height: 40px; }
-  .consultation-clock-badge { @apply rounded-full border-primary/40 bg-primary/10 text-primary px-3 py-1.5 font-mono font-extrabold; min-height: 40px; }
+  .consultation-security-badge {
+    @apply rounded-full border-blue-500/40 bg-blue-500/10 text-blue-600 dark:text-blue-400 px-3 py-1.5 font-extrabold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
+  .consultation-clock-badge {
+    @apply rounded-full border-primary/40 bg-primary/10 text-primary px-3 py-1.5 font-mono font-extrabold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
   .consultation-privileged-banner { @apply mb-6 rounded-xl border border-primary/35 px-4 py-3 text-center text-xs sm:text-sm font-extrabold tracking-wide text-foreground shadow-sm; background: linear-gradient(90deg, color-mix(in srgb, var(--primary) 18%, transparent), color-mix(in srgb, #2563eb 16%, transparent)); }
   .consultation-content-grid { @apply grid grid-cols-1 lg:grid-cols-[2.3fr_1fr] gap-6 lg:gap-8 items-stretch; }
   .consultation-card-shell {
@@ -651,7 +669,12 @@ a {
   .consultation-chat-input-row { @apply flex flex-col sm:flex-row items-stretch gap-3; }
   .consultation-chat-input { @apply h-11 flex-1 rounded-xl border-border bg-background text-foreground; }
   .consultation-info-list { @apply flex flex-col; }
-  .consultation-info-row { @apply py-4 border-b border-border flex flex-col gap-1 text-sm; }
+  .consultation-info-row {
+    @apply py-4 border-b border-border flex flex-col gap-1 text-sm;
+    white-space: nowrap;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
   .consultation-info-row span { @apply text-muted-foreground; }
   .consultation-info-row strong { @apply text-foreground; }
   .consultation-info-actions { @apply pt-5 flex flex-col items-stretch gap-3; }
@@ -660,7 +683,16 @@ a {
   .deliverable-vault-shell { @apply max-w-[920px] mx-auto; }
   .deliverable-heading { @apply text-center px-5 sm:px-8 py-7 border-b border-border; }
   .deliverable-meta { @apply flex flex-col lg:flex-row lg:items-center justify-between gap-5 rounded-xl border border-border bg-secondary/40 p-5; }
-  .deliverable-legal-badge { @apply rounded-lg border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2 font-extrabold text-center; min-height: 40px; }
+  .deliverable-legal-badge {
+    @apply rounded-lg border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 px-4 py-2 font-extrabold text-center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
   .deliverable-preview { @apply rounded-xl border border-border bg-background p-5 sm:p-7 text-sm leading-7 text-foreground shadow-inner; }
   .deliverable-actions { @apply mt-auto flex flex-col items-stretch gap-3; }
   .deliverable-actions .consultation-action { @apply w-full; }
@@ -670,17 +702,113 @@ a {
   .offline-qr-card { @apply rounded-2xl border-4 border-secondary bg-white p-6 text-center text-slate-900 shadow-inner; }
   .offline-qr-mark { @apply text-8xl leading-none font-black; }
   .offline-detail-card { @apply rounded-2xl border border-border bg-secondary/40 p-5; }
-  .offline-status-badge { @apply rounded-full border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 font-extrabold; min-height: 40px; }
+  .offline-status-badge {
+    @apply rounded-full border-amber-500/50 bg-amber-500/10 text-amber-600 dark:text-amber-400 px-3 py-1.5 font-extrabold;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+  }
   .offline-status-badge.verified { @apply border-emerald-500/50 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400; }
   .review-modal-shell { @apply max-w-[680px]; }
   .review-modal-body { @apply p-6 sm:p-8 flex flex-col gap-6; }
   .review-star-grid { @apply grid grid-cols-5 gap-2; }
-  .review-star-button { @apply min-h-12 rounded-xl border border-border bg-secondary text-muted-foreground font-extrabold transition-all; }
+  .review-star-button {
+    @apply rounded-xl border border-border bg-secondary text-muted-foreground font-extrabold transition-all;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 48px;
+    box-sizing: border-box;
+  }
   .review-star-button.active { @apply border-amber-500 bg-amber-500 text-slate-950 shadow-lg; }
   .review-textarea { @apply w-full min-h-32 rounded-xl border border-border bg-background p-4 text-sm text-foreground outline-none focus:border-ring focus:ring-2 focus:ring-ring/30; }
   .review-anonymize-row { @apply flex items-start gap-3 text-sm text-muted-foreground cursor-pointer; }
   .review-anonymize-row input { @apply mt-0.5 size-5 shrink-0 accent-primary; }
   .fair-clock-guardrail { @apply rounded-2xl border border-amber-500/40 bg-amber-500/10 p-5 text-sm leading-relaxed text-foreground; }
+
+  /* --- Shared Authenticated Shell Cleanup (Sub-Batch 3.2) --- */
+  .shared-app-navbar { @apply w-full max-w-[1600px] mx-auto px-4 sm:px-8 md:px-10 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border bg-card/90 backdrop-blur-xl shadow-lg; }
+  .shared-brand-mark { @apply flex items-center gap-3 min-w-0; }
+  .shared-brand-icon { @apply size-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shadow-lg shrink-0; }
+  .shared-navbar-actions { @apply ml-auto flex items-center gap-3 shrink-0; }
+  .shared-theme-action { @apply h-10 rounded-full border-border bg-secondary text-foreground font-bold; min-height: 40px; }
+  .shared-user-status { @apply hidden lg:flex items-center gap-3 pl-3 border-l border-border text-right; }
+  .shared-footer-shell { @apply mt-auto border-t border-border bg-card py-8 px-6 md:px-12 text-card-foreground; }
+  .shared-footer-inner { @apply max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6; }
+  .shared-footer-badge { @apply inline-flex items-center gap-1.5 min-h-10 px-3 py-1.5 rounded-lg border border-border bg-secondary text-xs font-semibold whitespace-nowrap shrink-0; }
+
+  /* --- Client Dispute Center & Account Settings (Sub-Batch 3.2) --- */
+  .dispute-page-shell { @apply min-h-screen bg-background text-foreground overflow-x-clip transition-colors duration-300; }
+  .dispute-main-shell { @apply w-full max-w-[1180px] mx-auto px-4 sm:px-8 py-8 sm:py-12; }
+  .dispute-header-shell { @apply sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-xl shadow-lg; }
+  .dispute-header-inner { @apply w-full max-w-[1440px] mx-auto px-4 sm:px-8 py-4 flex flex-col lg:flex-row lg:items-center gap-4; }
+  .dispute-header-actions { @apply ml-auto flex items-center gap-2 overflow-x-auto max-w-full; }
+  .dispute-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    box-sizing: border-box;
+    max-width: 100%;
+    overflow-x: auto;
+    border-radius: 0.75rem;
+    padding-inline: 1rem;
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+  .dispute-primary-action { @apply bg-blue-600 text-white hover:bg-blue-700; }
+  .dispute-danger-action { @apply bg-red-600 text-white hover:bg-red-700; }
+  .dispute-success-action { @apply bg-emerald-600 text-white hover:bg-emerald-700; }
+  .dispute-secondary-action { @apply border border-border bg-secondary text-foreground hover:border-primary; }
+  .dispute-card-shell { @apply flex flex-col gap-0 rounded-2xl border border-border bg-card text-card-foreground overflow-hidden; box-shadow: var(--shadow-glass); }
+  .dispute-card-header { @apply px-5 sm:px-8 py-6 border-b border-border text-center; }
+  .dispute-card-content { @apply flex-1 p-5 sm:p-8; }
+  .dispute-card-footer { @apply mt-auto px-5 sm:px-8 py-6 border-t border-border; }
+  .dispute-monitoring-shell { @apply max-w-[980px] mx-auto; }
+  .dispute-form-shell { @apply max-w-[860px]; }
+  .dispute-section { @apply flex flex-col gap-4; }
+  .dispute-section-title { @apply font-heading text-base sm:text-lg font-extrabold text-foreground; }
+  .dispute-case-card { @apply rounded-xl border border-border bg-secondary/40 p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4; }
+  .dispute-freeze-badge { @apply rounded-lg border-red-500/50 bg-red-500/10 text-red-600 dark:text-red-400 px-3 py-2 font-extrabold; min-height: 40px; }
+  .dispute-radio-option { @apply flex items-start gap-3 rounded-xl border border-border bg-background p-4 text-sm font-bold text-foreground cursor-pointer transition-all; }
+  .dispute-radio-option.active { @apply border-red-500 bg-red-500/10; }
+  .dispute-radio-option input { @apply mt-0.5 size-5 shrink-0 accent-red-600; }
+  .dispute-textarea { @apply w-full min-h-32 rounded-xl border border-border bg-background p-4 text-sm text-foreground outline-none focus:border-red-500 focus:ring-2 focus:ring-red-500/20; }
+  .dispute-file-input { @apply w-full rounded-xl border-2 border-dashed border-border bg-secondary/30 p-5 text-sm text-muted-foreground file:mr-4 file:rounded-lg file:border-0 file:bg-secondary file:px-4 file:py-2 file:font-bold file:text-foreground; }
+  .dispute-consent-row { @apply flex items-start gap-3 text-sm text-muted-foreground cursor-pointer; }
+  .dispute-consent-row input { @apply mt-0.5 size-5 shrink-0 accent-red-600; }
+  .dispute-form-actions { @apply flex flex-col sm:flex-row gap-3; }
+  .dispute-form-actions .dispute-action { @apply flex-1; }
+  .dispute-table-wrap { @apply w-full overflow-x-auto; }
+  .dispute-table { @apply w-full min-w-[820px] border-collapse text-sm; }
+  .dispute-table th { @apply bg-secondary px-4 py-3 text-left text-xs font-extrabold uppercase tracking-wider text-muted-foreground border-b border-border; }
+  .dispute-table td { @apply px-4 py-4 border-b border-border align-middle; }
+  .dispute-timeline { @apply rounded-xl border border-border bg-secondary/30 p-5 sm:p-7; }
+  .dispute-log-item { @apply grid grid-cols-[auto_1fr] gap-4 py-3 text-sm leading-relaxed border-b border-border last:border-0; }
+  .dispute-log-time { @apply font-mono text-xs font-extrabold text-muted-foreground whitespace-nowrap; }
+  .dispute-recommendation { @apply rounded-xl border border-emerald-500/40 bg-emerald-500/10 p-5 text-sm text-foreground; }
+  .settings-modal-shell { @apply max-w-[920px]; }
+  .settings-tabs { @apply grid grid-cols-2 gap-1.5 rounded-xl border border-border bg-secondary/40 p-1.5; }
+  .settings-tab-action { @apply min-h-11 rounded-lg text-sm font-extrabold text-muted-foreground; }
+  .settings-tab-action.active { @apply bg-primary text-primary-foreground shadow-md; }
+  .settings-panel { @apply flex flex-col gap-6; }
+  .settings-summary-card { @apply rounded-xl border border-border bg-secondary/30 p-5; }
+  .settings-summary-row { @apply flex flex-col sm:flex-row sm:items-center justify-between gap-2 py-3 border-b border-border last:border-0 text-sm; }
+  .settings-summary-row span { @apply text-muted-foreground; }
+  .settings-summary-row strong { @apply text-foreground; }
+  .settings-device-table { @apply w-full min-w-[720px] border-collapse text-sm; }
+  .settings-device-table th { @apply bg-secondary px-4 py-3 text-left text-xs font-extrabold uppercase text-muted-foreground border-b border-border; }
+  .settings-device-table td { @apply px-4 py-4 border-b border-border; }
+  .settings-privacy-option { @apply flex items-start gap-3 rounded-xl border border-border bg-secondary/30 p-4 text-sm font-bold text-foreground cursor-pointer; }
+  .settings-privacy-option input { @apply mt-0.5 size-5 shrink-0 accent-primary; }
+  .settings-danger-zone { @apply rounded-2xl border border-red-500/50 bg-red-500/10 p-5 sm:p-6; }
 }
 
 /* ==========================================================================

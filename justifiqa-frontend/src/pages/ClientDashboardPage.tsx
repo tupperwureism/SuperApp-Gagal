@@ -7,6 +7,7 @@ import { AdvocateCatalogTab } from '@/components/client/AdvocateCatalogTab';
 import { MOCK_ADVOCATES } from '@/data/clientAdvocates';
 import { AdvocateProfileDetailModal } from '@/components/client/AdvocateProfileDetailModal';
 import { CheckoutEscrowModal } from '@/components/client/CheckoutEscrowModal';
+import { AccountSettingsTab } from '@/components/client/AccountSettingsTab';
 import { DEFAULT_SESSIONS } from '@/types/auth';
 import { ACTIVE_CONSULTATIONS, HISTORY_DOCUMENTS } from '@/data/clientPortalData';
 import type { Advocate, CheckoutDraft, ClientTabKey } from '@/types/client';
@@ -21,6 +22,7 @@ export const ClientDashboardPage: React.FC = () => {
   const [selectedAdvocate, setSelectedAdvocate] = useState<Advocate | null>(null);
   const [checkoutDraft, setCheckoutDraft] = useState<CheckoutDraft | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', themeMode === 'dark');
@@ -45,10 +47,7 @@ export const ClientDashboardPage: React.FC = () => {
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <ClientHeaderAndTabs activeTab={activeTab} onTabChange={setActiveTab} themeMode={themeMode}
         onToggleTheme={() => setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark'))}
-        onShowUnavailableNotice={(message) => {
-          setNotice(message);
-          window.scrollTo({ top: 0, behavior: 'smooth' });
-        }} />
+        onOpenSettings={() => setShowSettings(true)} />
       <main className="max-w-[1600px] mx-auto w-full px-4 sm:px-8 md:px-10 py-8 sm:py-10">
         {notice && <div role="status" className="client-notice-success">{notice}</div>}
         {activeTab === 'dashboard' && <div className="client-dashboard-shell animate-fade-in">
@@ -61,6 +60,7 @@ export const ClientDashboardPage: React.FC = () => {
       </main>
       {selectedAdvocate && <AdvocateProfileDetailModal advocate={selectedAdvocate} onClose={() => setSelectedAdvocate(null)} onProceedToCheckout={startCheckout} />}
       {checkoutDraft && <CheckoutEscrowModal draft={checkoutDraft} onClose={() => setCheckoutDraft(null)} onEnterConsultationRoom={completeCheckout} />}
+      {showSettings && <AccountSettingsTab onClose={() => setShowSettings(false)} />}
     </div>
   );
 };

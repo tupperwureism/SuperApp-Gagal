@@ -1,45 +1,35 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { Navbar } from './Navbar';
 import { Footer } from './Footer';
 import type { UserRole, AuthSession } from '../types/auth';
 import { DEFAULT_SESSIONS } from '../types/auth';
 
 interface BaseLayoutProps {
-  children: (session: AuthSession, onRoleChange: (newRole: UserRole) => void) => React.ReactNode;
+  children: (session: AuthSession) => React.ReactNode;
 }
 
 export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
-  const navigate = useNavigate();
   const location = useLocation();
-
-  // Determine initial role based on current path or state
-  const getInitialRole = (): UserRole => {
-    if (location.pathname.startsWith('/advocate')) return 'ADVOCATE';
-    if (location.pathname.startsWith('/ai-legal')) return 'AI_ASSISTANT';
-    return 'CLIENT';
-  };
-
-  const [currentRole, setCurrentRole] = useState<UserRole>(getInitialRole);
+  const currentRole: UserRole = location.pathname.startsWith('/advocate')
+    ? 'ADVOCATE'
+    : location.pathname.startsWith('/ai-legal') ? 'AI_ASSISTANT' : 'CLIENT';
   const currentSession = DEFAULT_SESSIONS[currentRole];
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  );
 
-  const handleRoleChange = (newRole: UserRole) => {
-    setCurrentRole(newRole);
-    if (newRole === 'CLIENT') {
-      navigate('/client/dashboard');
-    } else if (newRole === 'ADVOCATE') {
-      navigate('/advocate/dashboard');
-    } else if (newRole === 'AI_ASSISTANT') {
-      navigate('/ai-legal');
-    }
-  };
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', themeMode === 'dark');
+  }, [themeMode]);
 
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground transition-colors duration-300">
-      <Navbar currentSession={currentSession} onRoleChange={handleRoleChange} />
+      <Navbar currentSession={currentSession} themeMode={themeMode}
+        onToggleTheme={() => setThemeMode((mode) => mode === 'dark' ? 'light' : 'dark')} />
 
       <main className="flex-grow w-full max-w-[1600px] mx-auto px-4 sm:px-8 md:px-10 py-8">
-        {children(currentSession, handleRoleChange)}
+        {children(currentSession)}
       </main>
 
       <Footer />
