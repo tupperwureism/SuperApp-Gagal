@@ -10,7 +10,7 @@ interface ClientHeaderAndTabsProps {
   onTabChange: (tab: ClientTabKey) => void;
   themeMode: 'dark' | 'light';
   onToggleTheme: () => void;
-  onNavigate?: (path: string) => void;
+  onShowUnavailableNotice: (message: string) => void;
 }
 
 export function ClientHeaderAndTabs({
@@ -18,13 +18,13 @@ export function ClientHeaderAndTabs({
   onTabChange,
   themeMode,
   onToggleTheme,
-  onNavigate,
+  onShowUnavailableNotice,
 }: ClientHeaderAndTabsProps) {
   return (
     <header className="gateway-navbar-shell">
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-8 flex items-center justify-between gap-4">
         {/* Brand */}
-        <Link to="/" className="navbar-brand-pill flex-shrink-0" onClick={() => onNavigate?.('/')}>
+        <Link to="/" className="navbar-brand-pill flex-shrink-0">
           <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-lg">
             <Scale className="w-5 h-5" />
           </div>
@@ -48,26 +48,25 @@ export function ClientHeaderAndTabs({
           >
             {themeMode === 'dark' ? (
               <>
-                <Sun className="w-3.5 h-3.5 text-amber-400" />
-                <span className="hidden sm:inline">Light</span>
+                <Moon className="w-4 h-4 text-blue-400" />
+                <span className="hidden sm:inline">Dark Mode</span>
               </>
             ) : (
               <>
-                <Moon className="w-3.5 h-3.5 text-blue-500" />
-                <span className="hidden sm:inline">Dark</span>
+                <Sun className="w-4 h-4 text-amber-500" />
+                <span className="hidden sm:inline">Light Mode</span>
               </>
             )}
           </Button>
           <Button
-            asChild
+            type="button"
             variant="outline"
             size="sm"
+            onClick={() => onShowUnavailableNotice('Modul Pengaturan Profil adalah cakupan rute berikutnya dan segera tersedia.')}
             className="rounded-full gap-1.5 font-semibold h-9 px-3"
           >
-            <Link to="/" onClick={() => onNavigate?.('/')}>
-              <Settings className="w-3.5 h-3.5" />
-              <span className="hidden lg:inline">Pengaturan</span>
-            </Link>
+            <Settings className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Pengaturan</span>
           </Button>
         </div>
       </div>

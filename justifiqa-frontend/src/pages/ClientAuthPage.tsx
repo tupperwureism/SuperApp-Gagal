@@ -93,13 +93,13 @@ export const ClientAuthPage: React.FC = () => {
             >
               {themeMode === 'dark' ? (
                 <>
-                  <Sun className="w-3.5 h-3.5 text-amber-400" />
-                  <span>Light</span>
+                  <Moon className="w-4 h-4 text-blue-400" />
+                  <span>Dark Mode</span>
                 </>
               ) : (
                 <>
-                  <Moon className="w-3.5 h-3.5 text-blue-400" />
-                  <span>Dark</span>
+                  <Sun className="w-4 h-4 text-amber-500" />
+                  <span>Light Mode</span>
                 </>
               )}
             </Button>
@@ -429,7 +429,7 @@ export const ClientAuthPage: React.FC = () => {
       </div>
 
       {/* RIGHT PANEL: 50% SPLIT — SHOWCASE BILLBOARD (Stretching from top to bottom) */}
-      <div className="hidden lg:flex w-full lg:w-1/2 min-h-screen bg-gradient-to-br from-[#0a1128] via-slate-950 to-[#07191d] p-10 xl:p-14 flex-col justify-between relative overflow-hidden z-10">
+      <div className="auth-promo-panel hidden lg:flex w-full lg:w-1/2 min-h-screen bg-gradient-to-br from-[#0a1128] via-slate-950 to-[#07191d] p-10 xl:p-14 flex-col justify-between relative overflow-hidden z-10">
         {/* Background Aesthetic Watermarks & Glows */}
         <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-blue-600/15 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[160px] pointer-events-none" />
@@ -454,7 +454,7 @@ export const ClientAuthPage: React.FC = () => {
 
           {/* 3 Pillar Feature Cards */}
           <div className="grid grid-cols-1 gap-4">
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-start gap-4 transition-all hover:border-blue-400/60 hover:bg-white/10 shadow-lg">
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/30 backdrop-blur-md flex items-start gap-4 transition-all hover:border-blue-400/60 hover:bg-white/10 shadow-lg">
               <div className="p-3 rounded-xl bg-blue-500/20 text-blue-400 border border-blue-500/40 flex-shrink-0 mt-0.5 shadow-sm">
                 <Lock className="w-5 h-5" />
               </div>
@@ -466,7 +466,7 @@ export const ClientAuthPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-start gap-4 transition-all hover:border-amber-400/60 hover:bg-white/10 shadow-lg">
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/30 backdrop-blur-md flex items-start gap-4 transition-all hover:border-amber-400/60 hover:bg-white/10 shadow-lg">
               <div className="p-3 rounded-xl bg-amber-500/20 text-amber-400 border border-amber-500/40 flex-shrink-0 mt-0.5 shadow-sm">
                 <Key className="w-5 h-5" />
               </div>
@@ -478,7 +478,7 @@ export const ClientAuthPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="p-5 rounded-2xl bg-white/5 border border-white/15 backdrop-blur-md flex items-start gap-4 transition-all hover:border-emerald-400/60 hover:bg-white/10 shadow-lg">
+            <div className="p-5 rounded-2xl bg-white/5 border border-white/30 backdrop-blur-md flex items-start gap-4 transition-all hover:border-emerald-400/60 hover:bg-white/10 shadow-lg">
               <div className="p-3 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex-shrink-0 mt-0.5 shadow-sm">
                 <Database className="w-5 h-5" />
               </div>
@@ -493,7 +493,7 @@ export const ClientAuthPage: React.FC = () => {
         </div>
 
         {/* Bottom Trust Status Banner */}
-        <div className="relative z-10 pt-6 border-t border-white/15 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
+        <div className="relative z-10 pt-6 border-t border-white/30 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
           <div className="flex items-center gap-2.5">
             <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
             <span className="font-semibold text-white">Sistem Aktif &amp; Terproteksi WebAuthn Hardened</span>

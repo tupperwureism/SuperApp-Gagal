@@ -50,8 +50,8 @@ export const NavbarGateway: React.FC<NavbarGatewayProps> = ({
             aria-label={isDark ? 'Aktifkan Light Mode' : 'Aktifkan Dark Mode'}
           >
             {isDark
-              ? <Moon className="w-4 h-4 shrink-0" />
-              : <Sun className="w-4 h-4 shrink-0" />
+              ? <Moon className="w-4 h-4 shrink-0 text-blue-400" />
+              : <Sun className="w-4 h-4 shrink-0 text-amber-500" />
             }
             <span className="hidden sm:inline">{isDark ? 'Dark Mode' : 'Light Mode'}</span>
           </button>

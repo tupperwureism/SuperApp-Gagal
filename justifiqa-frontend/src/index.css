@@ -269,6 +269,26 @@ a {
     transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
+  .auth-promo-panel {
+    color: #ffffff !important;
+  }
+
+  .auth-promo-panel h2,
+  .auth-promo-panel h4,
+  .auth-promo-panel .badge,
+  .auth-promo-panel .font-semibold {
+    color: #ffffff !important;
+  }
+
+  .auth-promo-panel p,
+  .auth-promo-panel .font-mono {
+    color: #e2e8f0 !important;
+  }
+
+  .auth-promo-panel .badge {
+    border-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
   /* --- Hero Section & Chips --- */
   .hero-section-container {
     @apply max-w-5xl mx-auto w-full text-center py-14 sm:py-20 px-4 flex flex-col items-center gap-9;

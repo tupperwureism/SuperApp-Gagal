@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { ClientHeaderAndTabs } from '@/components/client/ClientHeaderAndTabs';
 import { ClientGreetingCard } from '@/components/client/ClientGreetingCard';
 import { ClientOverviewTables } from '@/components/client/ClientOverviewTables';
@@ -7,15 +6,11 @@ import { AdvocateCatalogTab } from '@/components/client/AdvocateCatalogTab';
 import { MOCK_ADVOCATES } from '@/data/clientAdvocates';
 import { AdvocateProfileDetailModal } from '@/components/client/AdvocateProfileDetailModal';
 import { CheckoutEscrowModal } from '@/components/client/CheckoutEscrowModal';
-import { ClientIracTab } from '@/components/client/ClientIracTab';
-import { DocumentDraftingModal } from '@/components/DocumentDraftingModal';
 import { DEFAULT_SESSIONS } from '@/types/auth';
 import { ACTIVE_CONSULTATIONS, HISTORY_DOCUMENTS } from '@/data/clientPortalData';
 import type { Advocate, CheckoutDraft, ClientTabKey } from '@/types/client';
-import type { IracAnalysis } from '@/types/irac';
 
 export const ClientDashboardPage: React.FC = () => {
-  const navigate = useNavigate();
   const session = DEFAULT_SESSIONS.CLIENT;
   const [activeTab, setActiveTab] = useState<ClientTabKey>('dashboard');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
@@ -23,7 +18,6 @@ export const ClientDashboardPage: React.FC = () => {
   );
   const [selectedAdvocate, setSelectedAdvocate] = useState<Advocate | null>(null);
   const [checkoutDraft, setCheckoutDraft] = useState<CheckoutDraft | null>(null);
-  const [activeIrac, setActiveIrac] = useState<IracAnalysis | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
   useEffect(() => {
@@ -50,7 +44,11 @@ export const ClientDashboardPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
       <ClientHeaderAndTabs activeTab={activeTab} onTabChange={setActiveTab} themeMode={themeMode}
-        onToggleTheme={() => setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark'))} onNavigate={navigate} />
+        onToggleTheme={() => setThemeMode((mode) => (mode === 'dark' ? 'light' : 'dark'))}
+        onShowUnavailableNotice={(message) => {
+          setNotice(message);
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} />
       <main className="max-w-[1600px] mx-auto w-full px-4 sm:px-8 md:px-10 py-8 sm:py-10">
         {notice && <div role="status" className="client-notice-success">{notice}</div>}
         {activeTab === 'dashboard' && <div className="client-dashboard-shell animate-fade-in">
@@ -60,11 +58,9 @@ export const ClientDashboardPage: React.FC = () => {
             onDownloadDocument={(id) => setNotice(`Dokumen ${id} siap diteruskan ke layanan unduhan WORM Vault.`)} />
         </div>}
         {activeTab === 'catalog' && <AdvocateCatalogTab onViewProfile={setSelectedAdvocate} />}
-        {activeTab === 'irac' && <ClientIracTab onProceedToDraft={setActiveIrac} />}
       </main>
       {selectedAdvocate && <AdvocateProfileDetailModal advocate={selectedAdvocate} onClose={() => setSelectedAdvocate(null)} onProceedToCheckout={startCheckout} />}
       {checkoutDraft && <CheckoutEscrowModal draft={checkoutDraft} onClose={() => setCheckoutDraft(null)} onEnterConsultationRoom={completeCheckout} />}
-      <DocumentDraftingModal analysis={activeIrac} session={session} onClose={() => setActiveIrac(null)} />
     </div>
   );
 };

@@ -16,7 +16,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
   // Determine initial role based on current path or state
   const getInitialRole = (): UserRole => {
     if (location.pathname.startsWith('/advocate')) return 'ADVOCATE';
-    if (location.pathname.startsWith('/navigator')) return 'AI_ASSISTANT';
+    if (location.pathname.startsWith('/ai-legal')) return 'AI_ASSISTANT';
     return 'CLIENT';
   };
 
@@ -30,7 +30,7 @@ export const BaseLayout: React.FC<BaseLayoutProps> = ({ children }) => {
     } else if (newRole === 'ADVOCATE') {
       navigate('/advocate/dashboard');
     } else if (newRole === 'AI_ASSISTANT') {
-      navigate('/navigator');
+      navigate('/ai-legal');
     }
   };
 

@@ -1,5 +1,5 @@
 import type React from 'react';
-import { LayoutDashboard, Search, Scale } from 'lucide-react';
+import { LayoutDashboard, Search } from 'lucide-react';
 import type { ClientTabKey } from '@/types/client';
 
 interface ClientTabNavProps {
@@ -11,7 +11,6 @@ interface ClientTabNavProps {
 const TAB_ITEMS: { key: ClientTabKey; label: string; icon: React.ElementType }[] = [
   { key: 'dashboard', label: 'Dasbor Saya & Riwayat', icon: LayoutDashboard },
   { key: 'catalog', label: 'Cari & Katalog Advokat', icon: Search },
-  { key: 'irac', label: 'IRAC Bedah Kasus', icon: Scale },
 ];
 
 export function ClientTabNav({ activeTab, onTabChange, className = '' }: ClientTabNavProps) {
