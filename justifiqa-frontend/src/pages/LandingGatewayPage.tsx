@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { NavbarGateway } from '../components/gateway/NavbarGateway';
 import { HeroSearchSection } from '../components/gateway/HeroSearchSection';
@@ -70,16 +71,6 @@ export const LandingGatewayPage: React.FC = () => {
             onChipClick={handleChipClick}
           />
 
-          {/* Section B: Search Preview (conditional) */}
-          {showSearchPreview && (
-            <div className="w-full animate-fade-in -mt-6">
-              <SearchPreviewCard
-                searchQuery={searchQuery}
-                onClose={() => setShowSearchPreview(false)}
-              />
-            </div>
-          )}
-
           {/* Section C: Portal Cards */}
           <PortalCardsGrid isDark={isDark} />
 
@@ -93,6 +84,15 @@ export const LandingGatewayPage: React.FC = () => {
         © 2026 JUSTICA Legal Platform &bull; Seluruh sesi konsultasi dilindungi kerahasiaan
         hubungan advokat-klien (Attorney-Client Privilege) &amp; WORM Audit Trail.
       </footer>
+
+      {/* ── SEARCH PREVIEW MODAL (Portal → di-render ke document.body, di luar stacking context) ── */}
+      {showSearchPreview && createPortal(
+        <SearchPreviewCard
+          searchQuery={searchQuery}
+          onClose={() => setShowSearchPreview(false)}
+        />,
+        document.body,
+      )}
     </div>
   );
 };

@@ -53,8 +53,8 @@ export const AdvocateAuthPage: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-950 text-foreground flex flex-col lg:flex-row font-sans transition-colors duration-300 selection:bg-emerald-500/30 relative overflow-x-hidden">
-      {/* LEFT PANEL: FIXED 580PX FULL-HEIGHT AUTHENTICATION TERMINAL */}
-      <div className="w-full lg:w-[540px] xl:w-[580px] flex-shrink-0 min-h-screen bg-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/15 z-20 relative shadow-2xl">
+      {/* LEFT PANEL: 50% SPLIT — AUTHENTICATION TERMINAL */}
+      <div className="w-full lg:w-1/2 flex-shrink-0 min-h-screen bg-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/15 z-20 relative shadow-2xl">
         {/* Topbar inside Left Panel */}
         <header className="px-6 sm:px-10 pt-6 pb-4 flex items-center justify-between border-b border-white/10 flex-shrink-0">
           <Link to="/" className="flex items-center gap-2.5 group">
@@ -100,8 +100,8 @@ export const AdvocateAuthPage: React.FC = () => {
         </header>
 
         {/* Center Form Container */}
-        <main className="flex-1 flex flex-col justify-center px-6 sm:px-10 py-8 my-auto">
-          <div className="w-full max-w-[420px] mx-auto space-y-6 animate-fade-in">
+        <main className="flex-1 flex flex-col justify-center px-8 sm:px-12 md:px-14 py-8 my-auto">
+          <div className="w-full max-w-[440px] mx-auto space-y-6 animate-fade-in">
             {/* Title & Subtitle (MOCK-J-AD-01) */}
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto shadow-md">
@@ -272,8 +272,8 @@ export const AdvocateAuthPage: React.FC = () => {
         </footer>
       </div>
 
-      {/* RIGHT PANEL: FLEX-1 FULL-HEIGHT SHOWCASE BILLBOARD (Stretching from top to bottom) */}
-      <div className="hidden lg:flex flex-1 min-h-screen bg-gradient-to-br from-slate-900 via-[#07191d] to-slate-950 p-12 xl:p-20 flex-col justify-between relative overflow-hidden z-10">
+      {/* RIGHT PANEL: 50% SPLIT — SHOWCASE BILLBOARD (Stretching from top to bottom) */}
+      <div className="hidden lg:flex w-full lg:w-1/2 min-h-screen bg-gradient-to-br from-slate-900 via-[#07191d] to-slate-950 p-10 xl:p-14 flex-col justify-between relative overflow-hidden z-10">
         {/* Background Aesthetic Glows & Watermark */}
         <div className="absolute top-1/4 right-1/4 w-[600px] h-[600px] bg-emerald-600/15 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute bottom-1/4 left-1/4 w-[600px] h-[600px] bg-teal-500/10 rounded-full blur-[160px] pointer-events-none" />
