@@ -7,9 +7,11 @@ import { EncryptedChatPanel } from '@/components/client/room/EncryptedChatPanel'
 import { FairClockGuardrailModal } from '@/components/client/modals/FairClockGuardrailModal';
 import { OfflineConsultationQRModal } from '@/components/client/modals/OfflineConsultationQRModal';
 import { ReviewRatingModal } from '@/components/client/modals/ReviewRatingModal';
+import { PreChatMoUModal } from '../components/common/PreChatMoUModal';
 
 export function ClientConsultationRoomPage() {
   const navigate = useNavigate();
+  const [hasAcceptedMoU, setHasAcceptedMoU] = useState(false);
   const [activeView, setActiveView] = useState<ConsultationView>('chat');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
     document.documentElement.classList.contains('dark') ? 'dark' : 'light'
@@ -51,6 +53,13 @@ export function ClientConsultationRoomPage() {
       {showFairClock && <FairClockGuardrailModal onClose={() => setShowFairClock(false)} />}
       {showQr && <OfflineConsultationQRModal onClose={() => setShowQr(false)} />}
       {showReview && <ReviewRatingModal onClose={() => setShowReview(false)} onSubmit={submitReview} />}
+      <PreChatMoUModal
+        isOpen={!hasAcceptedMoU}
+        onAccept={() => setHasAcceptedMoU(true)}
+        onCancel={() => navigate('/client/dashboard')}
+        userRole="client"
+        partnerName="Dr. Mahendra Kusuma, S.H., M.H."
+      />
     </div>
   );
 }

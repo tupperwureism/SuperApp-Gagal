@@ -14,9 +14,11 @@ import { CommandCenterActiveCasesTable } from '../components/advocate/CommandCen
 import { ScheduleManagementCard, type ScheduleSlots } from '../components/advocate/ScheduleManagementCard';
 import { AdvocateE2EEHeaderAndSla } from '../components/advocate/AdvocateE2EEHeaderAndSla';
 import { AdvocateE2EEChatPanel } from '../components/advocate/AdvocateE2EEChatPanel';
+import { PreChatMoUModal } from '../components/common/PreChatMoUModal';
 
 export const AdvocateDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdvocateTabKey>('command_center');
+  const [hasAcceptedAdvocateMoU, setHasAcceptedAdvocateMoU] = useState(false);
   const [practiceStatus, setPracticeStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
   const [simulateConflict, setSimulateConflict] = useState(false);
   const [conflictError, setConflictError] = useState<string | null>(null);
@@ -125,6 +127,13 @@ export const AdvocateDashboardPage: React.FC = () => {
           {/* TAB 2 CONTENT: RUANG KONSULTASI ADVOKAT E2EE (MOCK-J-AD-04) */}
           {activeTab === 'e2ee_room' && (
             <div className="space-y-8 animate-fade-in">
+              <PreChatMoUModal
+                isOpen={!hasAcceptedAdvocateMoU}
+                onAccept={() => setHasAcceptedAdvocateMoU(true)}
+                onCancel={() => setActiveTab('command_center')}
+                userRole="advocate"
+                partnerName="PT Mitra Jaya"
+              />
               <AdvocateE2EEHeaderAndSla
                 clockSeconds={clockSeconds}
                 formatClock={formatClock}
