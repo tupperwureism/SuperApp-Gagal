@@ -1,6 +1,6 @@
 // src/components/client/ClientHeaderAndTabs.tsx
-import { Link } from 'react-router-dom';
-import { Scale, Sun, Moon, Settings } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import { LogOut, Scale, Sun, Moon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ClientTabNav } from './ClientTabNav';
 import type { ClientTabKey } from '@/types/client';
@@ -20,6 +20,13 @@ export function ClientHeaderAndTabs({
   onToggleTheme,
   onOpenSettings,
 }: ClientHeaderAndTabsProps) {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    localStorage.removeItem('justica_auth_session');
+    navigate('/');
+  };
+
   return (
     <header className="gateway-navbar-shell">
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-8 flex items-center justify-between gap-4">
@@ -67,6 +74,16 @@ export function ClientHeaderAndTabs({
           >
             <Settings className="w-3.5 h-3.5" />
             <span className="hidden lg:inline">Pengaturan</span>
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleLogout}
+            className="navbar-btn-action border-border bg-secondary text-foreground hover:bg-secondary/80"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+            <span className="hidden lg:inline">Keluar</span>
           </Button>
         </div>
       </div>

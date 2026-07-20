@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import {
   Scale,
   ArrowLeft,
@@ -27,6 +27,8 @@ export const ClientAuthPage: React.FC = () => {
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>('dark');
   const [showStatusAlert, setShowStatusAlert] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const redirectUrl = searchParams.get('redirect') || '/client/dashboard';
 
   // Login form state
   const [loginIdentifier, setLoginIdentifier] = useState('');
@@ -58,7 +60,8 @@ export const ClientAuthPage: React.FC = () => {
 
   const handleLoginSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate('/client/dashboard');
+    localStorage.setItem('justica_auth_session', 'true');
+    navigate(redirectUrl);
   };
 
   const handleRegisterSubmit = (e: React.FormEvent) => {
@@ -67,7 +70,8 @@ export const ClientAuthPage: React.FC = () => {
       alert('Konfirmasi kata sandi tidak cocok.');
       return;
     }
-    navigate('/client/dashboard');
+    localStorage.setItem('justica_auth_session', 'true');
+    navigate(redirectUrl);
   };
 
   return (

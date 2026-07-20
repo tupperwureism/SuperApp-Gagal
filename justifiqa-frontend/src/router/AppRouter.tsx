@@ -16,6 +16,11 @@ import { ClientDisputeCenterPage } from '../pages/ClientDisputeCenterPage';
 import { AdvocateDashboardPage } from '../pages/AdvocateDashboardPage';
 import { AiNavigatorPage } from '../pages/AiNavigatorPage';
 
+const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
+  const hasClientSession = localStorage.getItem('justica_auth_session') === 'true';
+  return hasClientSession ? children : <Navigate to="/client/auth" replace />;
+};
+
 /**
  * AppRouter — Central Route Mapping untuk Justifiqa SuperApp (Batch 1 Complete)
  * Semua navigasi trigger dari komponen via <Link to="..."> atau useNavigate().
@@ -37,10 +42,10 @@ export const AppRouter: React.FC = () => {
         <Route path="/advocate/login" element={<AdvocateLoginPage />} />
 
         {/* ── Batch 2+: Protected Portal Routes ── */}
-        <Route path="/client/dashboard" element={<ClientDashboardPage />} />
-        <Route path="/client/room/:sessionId" element={<ClientConsultationRoomPage />} />
-        <Route path="/client/room" element={<ClientConsultationRoomPage />} />
-        <Route path="/client/dispute" element={<ClientDisputeCenterPage />} />
+        <Route path="/client/dashboard" element={<ProtectedRoute><ClientDashboardPage /></ProtectedRoute>} />
+        <Route path="/client/room/:sessionId" element={<ProtectedRoute><ClientConsultationRoomPage /></ProtectedRoute>} />
+        <Route path="/client/room" element={<ProtectedRoute><ClientConsultationRoomPage /></ProtectedRoute>} />
+        <Route path="/client/dispute" element={<ProtectedRoute><ClientDisputeCenterPage /></ProtectedRoute>} />
         <Route path="/advocate/dashboard" element={<AdvocateDashboardPage />} />
         <Route path="/ai-legal" element={<AiNavigatorPage />} />
 

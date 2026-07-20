@@ -95,14 +95,14 @@ export const AdvocateQuickProfile: React.FC<AdvocateQuickProfileProps> = ({ sear
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4">
         <Button
           variant="outline"
-          onClick={() => navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}
+          onClick={() => navigate(`/client/auth?redirect=${encodeURIComponent(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}`)}
           className="w-full h-14 rounded-2xl font-bold text-base border-border bg-secondary hover:bg-secondary/80 text-foreground transition-all shadow-sm cursor-pointer"
         >
           Lihat Profil Lengkap
         </Button>
         <Button
           variant="default"
-          onClick={() => navigate(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}
+          onClick={() => navigate(`/client/auth?redirect=${encodeURIComponent(`/client/dashboard?q=${encodeURIComponent(searchQuery)}`)}`)}
           className="w-full h-14 rounded-2xl font-black text-base bg-gradient-to-r from-amber-500 via-amber-400 to-yellow-500 text-slate-950 hover:from-amber-400 hover:to-yellow-400 transition-all shadow-[0_10px_30px_rgba(245,158,11,0.35)] flex items-center justify-center gap-2 cursor-pointer"
         >
           <span>Konsultasi Sekarang</span>
