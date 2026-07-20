@@ -74,8 +74,8 @@ export const ClientAuthPage: React.FC = () => {
     <div className="min-h-screen bg-slate-950 text-foreground flex flex-col lg:flex-row font-sans transition-colors duration-300 selection:bg-blue-500/30 relative overflow-x-hidden">
       {/* LEFT PANEL: 50% SPLIT — AUTHENTICATION TERMINAL */}
       <div className="w-full lg:w-1/2 flex-shrink-0 min-h-screen bg-slate-950 flex flex-col justify-between border-b lg:border-b-0 lg:border-r border-white/15 z-20 relative shadow-2xl">
-        {/* Topbar inside Left Panel */}
-        <header className="px-6 sm:px-10 pt-6 pb-4 flex items-center justify-between border-b border-white/10 flex-shrink-0">
+        {/* Topbar inside Left Panel — px constrained so nothing bleeds into center divider */}
+        <header className="w-full px-5 sm:px-8 pt-5 pb-4 flex items-center justify-between border-b border-white/10 flex-shrink-0 min-h-[70px]">
           <Link to="/" className="flex items-center gap-2.5 group">
             <div className="p-2 rounded-xl bg-blue-600 text-white shadow-lg group-hover:scale-105 transition-transform">
               <Scale className="w-5 h-5" />
@@ -118,9 +118,9 @@ export const ClientAuthPage: React.FC = () => {
           </div>
         </header>
 
-        {/* Center Form Container */}
-        <main className="flex-1 flex flex-col justify-center px-8 sm:px-12 md:px-14 py-8 my-auto">
-          <div className="w-full max-w-[440px] mx-auto space-y-6 animate-fade-in">
+        {/* Center Form Container — items-center ensures box is CENTERED inside its 50% half */}
+        <main className="flex-1 flex flex-col items-center justify-center py-8">
+          <div className="w-full max-w-[440px] sm:max-w-[480px] mx-auto px-6 sm:px-8 space-y-6 animate-fade-in">
             {/* Title & Subtitle (MOCK-J-CL-01) */}
             <div className="text-center space-y-2">
               <div className="w-12 h-12 rounded-2xl bg-blue-500/15 border border-blue-500/40 flex items-center justify-center text-blue-400 mx-auto shadow-md">
