@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { ClientHeaderAndTabs } from '@/components/client/ClientHeaderAndTabs';
 import { ClientGreetingCard } from '@/components/client/ClientGreetingCard';
 import { ClientOverviewTables } from '@/components/client/ClientOverviewTables';
@@ -11,6 +12,7 @@ import { ACTIVE_CONSULTATIONS, HISTORY_DOCUMENTS } from '@/data/clientPortalData
 import type { Advocate, CheckoutDraft, ClientTabKey } from '@/types/client';
 
 export const ClientDashboardPage: React.FC = () => {
+  const navigate = useNavigate();
   const session = DEFAULT_SESSIONS.CLIENT;
   const [activeTab, setActiveTab] = useState<ClientTabKey>('dashboard');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
@@ -36,9 +38,7 @@ export const ClientDashboardPage: React.FC = () => {
 
   const completeCheckout = () => {
     setCheckoutDraft(null);
-    setActiveTab('dashboard');
-    setNotice('Pemesanan terkonfirmasi. Ruang konsultasi E2EE akan tersedia pada jadwal sesi.');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate('/client/room/ses-001');
   };
 
   return (
@@ -54,7 +54,7 @@ export const ClientDashboardPage: React.FC = () => {
         {activeTab === 'dashboard' && <div className="client-dashboard-shell animate-fade-in">
           <ClientGreetingCard clientName={session.userName} onStartCatalogSearch={() => setActiveTab('catalog')} onStartProBono={openProBonoProfile} />
           <ClientOverviewTables activeConsultations={ACTIVE_CONSULTATIONS} historyDocuments={HISTORY_DOCUMENTS}
-            onOpenConsultation={() => setNotice('Ruang konsultasi Batch 3 belum dipasang; data sesi Anda tetap aman.')}
+            onOpenConsultation={() => navigate('/client/room/ses-001')}
             onDownloadDocument={(id) => setNotice(`Dokumen ${id} siap diteruskan ke layanan unduhan WORM Vault.`)} />
         </div>}
         {activeTab === 'catalog' && <AdvocateCatalogTab onViewProfile={setSelectedAdvocate} />}
