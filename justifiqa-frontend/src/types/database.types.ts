@@ -44,18 +44,21 @@ export type Database = {
           {
             foreignKeyName: "fk_review_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_review_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
           {
             foreignKeyName: "fk_review_client"
             columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
@@ -93,12 +96,14 @@ export type Database = {
           {
             foreignKeyName: "fk_sanction_admin"
             columns: ["issued_by_admin_id"]
+            isOneToOne: false
             referencedRelation: "users_admin"
             referencedColumns: ["admin_id"]
           },
           {
             foreignKeyName: "fk_sanction_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
@@ -163,6 +168,7 @@ export type Database = {
           {
             foreignKeyName: "fk_tier_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
@@ -254,18 +260,21 @@ export type Database = {
           {
             foreignKeyName: "fk_booking_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_booking_client"
             columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "fk_booking_slot"
             columns: ["slot_id"]
+            isOneToOne: false
             referencedRelation: "consultation_slots"
             referencedColumns: ["slot_id"]
           },
@@ -321,12 +330,14 @@ export type Database = {
           {
             foreignKeyName: "fk_irac_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_irac_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
@@ -364,6 +375,7 @@ export type Database = {
           {
             foreignKeyName: "fk_chat_meta_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
@@ -404,12 +416,14 @@ export type Database = {
           {
             foreignKeyName: "fk_slot_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_slot_tier"
             columns: ["tier_id"]
+            isOneToOne: false
             referencedRelation: "advocate_service_tiers"
             referencedColumns: ["tier_id"]
           },
@@ -459,18 +473,21 @@ export type Database = {
           {
             foreignKeyName: "dispute_cases_reported_by_client_id_fkey"
             columns: ["reported_by_client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
           {
             foreignKeyName: "fk_dispute_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
           {
             foreignKeyName: "fk_dispute_escrow"
             columns: ["escrow_id"]
+            isOneToOne: false
             referencedRelation: "escrow_transactions"
             referencedColumns: ["escrow_id"]
           },
@@ -505,12 +522,14 @@ export type Database = {
           {
             foreignKeyName: "fk_signature_admin"
             columns: ["mediator_admin_id"]
+            isOneToOne: false
             referencedRelation: "users_admin"
             referencedColumns: ["admin_id"]
           },
           {
             foreignKeyName: "fk_signature_dispute"
             columns: ["dispute_id"]
+            isOneToOne: false
             referencedRelation: "dispute_cases"
             referencedColumns: ["dispute_id"]
           },
@@ -542,6 +561,7 @@ export type Database = {
           {
             foreignKeyName: "fk_revision_opinion"
             columns: ["opinion_id"]
+            isOneToOne: false
             referencedRelation: "legal_opinions"
             referencedColumns: ["opinion_id"]
           },
@@ -576,6 +596,7 @@ export type Database = {
           {
             foreignKeyName: "fk_emeterai_opinion"
             columns: ["opinion_id"]
+            isOneToOne: false
             referencedRelation: "legal_opinions"
             referencedColumns: ["opinion_id"]
           },
@@ -613,12 +634,14 @@ export type Database = {
           {
             foreignKeyName: "fk_ledger_escrow"
             columns: ["escrow_id"]
+            isOneToOne: false
             referencedRelation: "escrow_transactions"
             referencedColumns: ["escrow_id"]
           },
           {
             foreignKeyName: "fk_ledger_wallet"
             columns: ["wallet_id"]
+            isOneToOne: false
             referencedRelation: "wallet_balances"
             referencedColumns: ["wallet_id"]
           },
@@ -683,18 +706,21 @@ export type Database = {
           {
             foreignKeyName: "fk_escrow_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_escrow_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
           {
             foreignKeyName: "fk_escrow_client"
             columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
@@ -750,18 +776,21 @@ export type Database = {
           {
             foreignKeyName: "fk_opinion_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_opinion_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
           {
             foreignKeyName: "fk_opinion_client"
             columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
@@ -796,6 +825,7 @@ export type Database = {
           {
             foreignKeyName: "fk_handshake_booking"
             columns: ["booking_id"]
+            isOneToOne: false
             referencedRelation: "booking_sessions"
             referencedColumns: ["booking_id"]
           },
@@ -827,6 +857,7 @@ export type Database = {
           {
             foreignKeyName: "fk_config_admin"
             columns: ["updated_by_admin_id"]
+            isOneToOne: false
             referencedRelation: "users_admin"
             referencedColumns: ["admin_id"]
           },
@@ -861,12 +892,14 @@ export type Database = {
           {
             foreignKeyName: "fk_probono_admin"
             columns: ["verified_by_admin_id"]
+            isOneToOne: false
             referencedRelation: "users_admin"
             referencedColumns: ["admin_id"]
           },
           {
             foreignKeyName: "fk_probono_client"
             columns: ["client_id"]
+            isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
           },
@@ -904,12 +937,14 @@ export type Database = {
           {
             foreignKeyName: "fk_sipp_admin"
             columns: ["verified_by_admin_id"]
+            isOneToOne: false
             referencedRelation: "users_admin"
             referencedColumns: ["admin_id"]
           },
           {
             foreignKeyName: "fk_sipp_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
@@ -953,12 +988,14 @@ export type Database = {
           {
             foreignKeyName: "fk_tax_advocate"
             columns: ["advocate_id"]
+            isOneToOne: false
             referencedRelation: "users_advocate"
             referencedColumns: ["advocate_id"]
           },
           {
             foreignKeyName: "fk_tax_escrow"
             columns: ["escrow_id"]
+            isOneToOne: false
             referencedRelation: "escrow_transactions"
             referencedColumns: ["escrow_id"]
           },
@@ -1315,6 +1352,27 @@ export type Database = {
           p_slot_id: string
         }
         Returns: string
+      }
+      fn_client_checkout_consultation_mutex: {
+        Args: {
+          p_booking_type?: string
+          p_case_summary: string
+          p_slot_id: string
+        }
+        Returns: {
+          advocate_id: string
+          advocate_name: string
+          amount_idr: number
+          booking_code: string
+          booking_id: string
+          created_at: string
+          escrow_id: string
+          escrow_status: string
+          mutex_lock_id: string
+          payment_gateway_ref: string
+          slot_id: string
+          tier_id: string
+        }[]
       }
       fn_mutate_wallet_balance_mutex: {
         Args: {

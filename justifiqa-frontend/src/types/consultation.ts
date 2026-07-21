@@ -26,6 +26,23 @@ export interface ConsultationSlot {
   isBooked: boolean;
 }
 
+export interface LiveConsultationSlot extends ConsultationSlot { tierId: string; price: number; priceLabel: string }
+
+export interface ConsultationCheckout {
+  bookingId: string;
+  bookingCode: string;
+  escrowId: string;
+  slotId: string;
+  tierId: string;
+  advocateId: string;
+  advocateName: string;
+  amount: number;
+  status: string;
+  createdAt: string;
+  mutexLockId: string;
+  paymentReference: string;
+}
+
 export interface EscrowTransaction {
   id: string;
   slotId: string;
