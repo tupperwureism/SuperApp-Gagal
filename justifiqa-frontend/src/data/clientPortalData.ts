@@ -1,8 +1,10 @@
 import type { ActiveConsultation, HistoryDocument } from '@/types/client';
 
+export const DEFAULT_CLIENT_SESSION_ID = 'ses-001';
+
 export const ACTIVE_CONSULTATIONS: ActiveConsultation[] = [
   {
-    id: 'consult-001',
+    id: DEFAULT_CLIENT_SESSION_ID,
     advocateName: 'Dr. Mahendra Kusuma, S.H., M.H.',
     specialty: 'Hukum Bisnis & Sengketa Komersial',
     status: 'Sesi Berjalan (44:12 - E2EE Aktif)',
@@ -10,7 +12,7 @@ export const ACTIVE_CONSULTATIONS: ActiveConsultation[] = [
     actionLabel: 'Buka Ruang',
   },
   {
-    id: 'consult-002',
+    id: 'ses-002',
     advocateName: 'Anita Wulandari, S.H., M.H.',
     specialty: 'Hukum Ketenagakerjaan & PHK',
     status: 'Penyusunan Legal Opinion',

@@ -6,13 +6,15 @@ import { Input } from '@/components/ui/input';
 interface ChatComposerProps {
   value: string;
   onChange: (value: string) => void;
-  onSend: () => void;
+  onSend: () => Promise<void>;
+  disabled: boolean;
+  isSending: boolean;
 }
 
-export function ChatComposer({ value, onChange, onSend }: ChatComposerProps) {
+export function ChatComposer({ value, onChange, onSend, disabled, isSending }: ChatComposerProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSend();
+    void onSend();
   };
 
   return (
@@ -22,10 +24,11 @@ export function ChatComposer({ value, onChange, onSend }: ChatComposerProps) {
         onChange={(event) => onChange(event.target.value)}
         placeholder="Ketik pesan konsultasi Anda di sini..."
         className="consultation-chat-input"
+        disabled={disabled || isSending}
       />
-      <Button type="submit" className="consultation-action consultation-send-action">
+      <Button type="submit" disabled={disabled || isSending || !value.trim()} className="consultation-action consultation-send-action">
         <Send className="size-4" />
-        KIRIM PESAN
+        {isSending ? 'MENGIRIM...' : 'KIRIM PESAN'}
       </Button>
     </form>
   );

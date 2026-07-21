@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { ConsultationRoomHeader } from '@/components/client/room/ConsultationRoomHeader';
 import { ConsultationViewSwitcher, type ConsultationView } from '@/components/client/room/ConsultationViewSwitcher';
 import { DeliverableVaultPanel } from '@/components/client/room/DeliverableVaultPanel';
@@ -8,9 +8,11 @@ import { FairClockGuardrailModal } from '@/components/client/modals/FairClockGua
 import { OfflineConsultationQRModal } from '@/components/client/modals/OfflineConsultationQRModal';
 import { ReviewRatingModal } from '@/components/client/modals/ReviewRatingModal';
 import { PreChatMoUModal } from '../components/common/PreChatMoUModal';
+import { DEFAULT_CLIENT_SESSION_ID } from '@/data/clientPortalData';
 
 export function ClientConsultationRoomPage() {
   const navigate = useNavigate();
+  const { sessionId = DEFAULT_CLIENT_SESSION_ID } = useParams<{ sessionId: string }>();
   const [hasAcceptedMoU, setHasAcceptedMoU] = useState(false);
   const [activeView, setActiveView] = useState<ConsultationView>('chat');
   const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
@@ -22,12 +24,8 @@ export function ClientConsultationRoomPage() {
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', themeMode === 'dark');
+    document.documentElement.classList.toggle('light', themeMode === 'light');
   }, [themeMode]);
-
-  const approveDeliverable = () => {
-    window.alert('Escrow #TRX-9901 berhasil dilepaskan kepada Dr. Mahendra Kusuma. Silakan berikan ulasan layanan.');
-    setShowReview(true);
-  };
 
   const submitReview = () => {
     window.alert('Ulasan terverifikasi berhasil dikirim. Terima kasih telah menjaga transparansi Justica.');
@@ -38,6 +36,7 @@ export function ClientConsultationRoomPage() {
     <div className="consultation-page-shell">
       <ConsultationRoomHeader
         themeMode={themeMode}
+        sessionId={sessionId}
         onBack={() => navigate('/client/dashboard')}
         onPause={() => setShowFairClock(true)}
         onToggleTheme={() => setThemeMode((mode) => mode === 'dark' ? 'light' : 'dark')}
@@ -45,9 +44,9 @@ export function ClientConsultationRoomPage() {
       <main className="consultation-main-shell">
         <ConsultationViewSwitcher activeView={activeView} onChange={setActiveView} />
         {activeView === 'chat' ? (
-          <EncryptedChatPanel onPause={() => setShowFairClock(true)} onOpenVault={() => setActiveView('vault')} onOpenQr={() => setShowQr(true)} />
+          <EncryptedChatPanel sessionId={sessionId} onPause={() => setShowFairClock(true)} onOpenVault={() => setActiveView('vault')} onOpenQr={() => setShowQr(true)} />
         ) : (
-          <DeliverableVaultPanel onApprove={approveDeliverable} />
+          <DeliverableVaultPanel sessionId={sessionId} onEscrowReleased={() => setShowReview(true)} />
         )}
       </main>
       {showFairClock && <FairClockGuardrailModal onClose={() => setShowFairClock(false)} />}

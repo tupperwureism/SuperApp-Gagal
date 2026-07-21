@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 
 interface ConsultationRoomHeaderProps {
   themeMode: 'dark' | 'light';
+  sessionId: string;
   onBack: () => void;
   onPause: () => void;
   onToggleTheme: () => void;
@@ -12,7 +13,7 @@ interface ConsultationRoomHeaderProps {
 
 const INITIAL_SECONDS = 44 * 60 + 12;
 
-export function ConsultationRoomHeader({ themeMode, onBack, onPause, onToggleTheme }: ConsultationRoomHeaderProps) {
+export function ConsultationRoomHeader({ themeMode, sessionId, onBack, onPause, onToggleTheme }: ConsultationRoomHeaderProps) {
   const [secondsLeft, setSecondsLeft] = useState(INITIAL_SECONDS);
 
   useEffect(() => {
@@ -31,7 +32,7 @@ export function ConsultationRoomHeader({ themeMode, onBack, onPause, onToggleThe
         </Button>
         <div className="consultation-title-group">
           <h1 className="consultation-title">Konsultasi Bersama Dr. Mahendra Kusuma, S.H., M.H.</h1>
-          <p className="consultation-subtitle">Sesi #SES-001 • Rekening Bersama #TRX-9901</p>
+          <p className="consultation-subtitle">Sesi #{sessionId.toUpperCase()} • Rekening Bersama #TRX-9901</p>
         </div>
         <div className="consultation-header-actions">
           <Badge variant="outline" className="consultation-security-badge"><ShieldCheck />E2EE Aktif</Badge>

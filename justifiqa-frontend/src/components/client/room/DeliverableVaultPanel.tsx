@@ -2,12 +2,19 @@ import { CheckCircle2, Download, FileCheck2, RefreshCcw, ShieldCheck } from 'luc
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { useVaultDelivery } from '@/hooks/useVaultDelivery';
 
 interface DeliverableVaultPanelProps {
-  onApprove: () => void;
+  sessionId: string;
+  onEscrowReleased: () => void;
 }
 
-export function DeliverableVaultPanel({ onApprove }: DeliverableVaultPanelProps) {
+export function DeliverableVaultPanel({ sessionId, onEscrowReleased }: DeliverableVaultPanelProps) {
+  const { document, isLoading, isReleasing, released, error, download, release } = useVaultDelivery(sessionId);
+  const handleRelease = async () => {
+    if (await release()) onEscrowReleased();
+  };
+
   return (
     <Card className="consultation-card-shell deliverable-vault-shell">
       <CardHeader className="deliverable-heading">
@@ -18,25 +25,26 @@ export function DeliverableVaultPanel({ onApprove }: DeliverableVaultPanelProps)
         <div className="deliverable-meta">
           <div>
             <p className="text-xs font-bold uppercase text-muted-foreground">Judul Dokumen Resmi</p>
-            <h2 className="mt-1 font-heading text-xl font-extrabold">Pendapat Hukum (Legal Opinion) &amp; Kontrak Perjanjian</h2>
-            <p className="mt-1 font-mono text-xs text-blue-500">#DLV-441 • SHA-256: 8f9b201a...</p>
+            <h2 className="mt-1 font-heading text-xl font-extrabold">{document?.title ?? (isLoading ? 'Memuat WORM Vault...' : 'Belum ada dokumen final')}</h2>
+            {document && <p className="mt-1 font-mono text-xs text-blue-500">#{document.opinionId.slice(0, 8).toUpperCase()} • SHA-256: {document.sha256Hash}</p>}
           </div>
-          <Badge variant="outline" className="deliverable-legal-badge"><ShieldCheck />TERVERIFIKASI &amp; SAH BER-e-METERAI PERURI SHA-256</Badge>
+          {document && <Badge variant="outline" className="deliverable-legal-badge"><ShieldCheck />TERVERIFIKASI &amp; SAH BER-e-METERAI PERURI SHA-256</Badge>}
         </div>
         <article className="deliverable-preview">
           <header className="mb-5 border-b-2 border-foreground pb-4 text-center">
             <FileCheck2 className="mx-auto mb-2 size-8 text-blue-500" />
             <h3 className="font-heading font-extrabold">KANTOR HUKUM DR. MAHENDRA KUSUMA &amp; REKAN</h3>
-            <p className="text-xs text-muted-foreground">Legal Opinion • No. 092/LO/MK/VII/2026</p>
+            <p className="text-xs text-muted-foreground">Serial Peruri • {document?.peruriSerial ?? 'Menunggu dokumen final'}</p>
           </header>
-          <p><strong>Berdasarkan analisis Perjanjian Kerjasama Pengadaan Barang No. 44/PKS/2026,</strong> Vendor terbukti melakukan wanprestasi sesuai Pasal 1243 KUHPerdata akibat keterlambatan penyerahan objek perjanjian tanpa keadaan memaksa.</p>
+          <p>{document ? `Dokumen immutable berstatus ${document.status} dengan sisa garansi revisi ${Math.max(0, 2 - document.revisionCount)}x. Isi lengkap hanya dibuka melalui signed URL privat.` : 'Advokat belum menerbitkan dokumen final ber-e-Meterai untuk sesi ini.'}</p>
         </article>
-        <Button type="button" onClick={() => window.alert('Simulasi unduhan: Legal_Opinion_Dr_Mahendra_eMeterai.pdf (2,4 MB) telah diverifikasi SHA-256.')} className="consultation-action consultation-send-action"><Download />UNDUH DOKUMEN LENGKAP (PDF)</Button>
+        {error && <p role="alert" className="text-sm font-semibold text-red-500">{error}</p>}
+        <Button type="button" onClick={() => { void download(); }} disabled={!document} className="consultation-action consultation-send-action"><Download />UNDUH DOKUMEN LENGKAP (PDF)</Button>
       </CardContent>
       <CardFooter className="consultation-card-footer deliverable-actions">
         <h3 className="font-heading text-center text-lg font-extrabold">Apakah dokumen ini sudah memenuhi kebutuhan Anda?</h3>
         <p className="text-center text-sm text-muted-foreground">Persetujuan akhir mencairkan dana Rekening Bersama kepada Advokat.</p>
-        <Button type="button" onClick={onApprove} className="consultation-action consultation-success-action"><CheckCircle2 />SETUJUI &amp; SELESAIKAN PERKARA</Button>
+        <Button type="button" onClick={() => { void handleRelease(); }} disabled={!document || released || isReleasing} className="consultation-action consultation-success-action"><CheckCircle2 />{released ? 'ESCROW TELAH DILEPASKAN' : isReleasing ? 'MEMPROSES MUTEX...' : 'SETUJUI & SELESAIKAN PERKARA'}</Button>
         <Button type="button" variant="outline" onClick={() => window.alert('Form catatan revisi akan dikirim terenkripsi. Sisa garansi perbaikan dokumen: 2x.')} className="consultation-action consultation-warning-action"><RefreshCcw />Ajukan Perbaikan Dokumen (Sisa Garansi: 2x)</Button>
       </CardFooter>
     </Card>
