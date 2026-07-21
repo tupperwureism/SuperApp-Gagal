@@ -1,9 +1,9 @@
-// src/components/client/ClientHeaderAndTabs.tsx
 import { Link, useNavigate } from 'react-router-dom';
 import { LogOut, Scale, Sun, Moon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ClientTabNav } from './ClientTabNav';
 import type { ClientTabKey } from '@/types/client';
+import { authErrorMessage, signOutPortal } from '@/services/portalAuthService';
 
 interface ClientHeaderAndTabsProps {
   activeTab: ClientTabKey;
@@ -22,15 +22,18 @@ export function ClientHeaderAndTabs({
 }: ClientHeaderAndTabsProps) {
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    localStorage.removeItem('justica_auth_session');
-    navigate('/');
+  const handleLogout = async () => {
+    try {
+      await signOutPortal();
+      navigate('/client/login', { replace: true });
+    } catch (error) {
+      alert(authErrorMessage(error));
+    }
   };
 
   return (
     <header className="gateway-navbar-shell">
       <div className="max-w-[1400px] mx-auto w-full px-4 sm:px-8 flex items-center justify-between gap-4">
-        {/* Brand */}
         <Link to="/" className="navbar-brand-pill flex-shrink-0">
           <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-lg">
             <Scale className="w-5 h-5" />
@@ -41,10 +44,7 @@ export function ClientHeaderAndTabs({
           </div>
         </Link>
 
-        {/* Tab Switcher — desktop */}
         <ClientTabNav activeTab={activeTab} onTabChange={onTabChange} className="hidden md:flex" />
-
-        {/* Right controls */}
         <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             type="button"
@@ -79,7 +79,7 @@ export function ClientHeaderAndTabs({
             type="button"
             variant="outline"
             size="sm"
-            onClick={handleLogout}
+            onClick={() => { void handleLogout(); }}
             className="navbar-btn-action border-border bg-secondary text-foreground hover:bg-secondary/80"
           >
             <LogOut className="w-3.5 h-3.5" />
@@ -88,7 +88,6 @@ export function ClientHeaderAndTabs({
         </div>
       </div>
 
-      {/* Tab Switcher — mobile */}
       <div className="md:hidden w-full px-4 pb-3 -mt-1">
         <ClientTabNav activeTab={activeTab} onTabChange={onTabChange} className="flex" />
       </div>

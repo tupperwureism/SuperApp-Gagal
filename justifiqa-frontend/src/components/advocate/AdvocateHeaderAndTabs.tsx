@@ -1,10 +1,11 @@
-import { AlertTriangle, ArrowLeft, Calendar, FileCheck, LayoutDashboard, LogOut, MessageSquare, ShieldCheck, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Award, Calendar, FileCheck, LayoutDashboard, LogOut, MessageSquare, Moon, Settings, ShieldCheck, Sun, Wallet } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { authErrorMessage, signOutPortal } from '@/services/portalAuthService';
 
-export type AdvocateTabKey = 'command_center' | 'e2ee_room' | 'schedule' | 'deliverable' | 'wallet';
+export type AdvocateTabKey = 'command_center' | 'e2ee_room' | 'schedule' | 'deliverable' | 'wallet' | 'pro_bono' | 'settings';
 
 interface AdvocateHeaderAndTabsProps {
   activeTab: AdvocateTabKey;
@@ -14,6 +15,8 @@ interface AdvocateHeaderAndTabsProps {
   simulateConflict: boolean;
   onToggleConflict: (checked: boolean) => void;
   conflictError: string | null;
+  themeMode: 'dark' | 'light';
+  onToggleTheme: () => void;
 }
 
 const tabs = [
@@ -22,13 +25,19 @@ const tabs = [
   { key: 'schedule', label: 'Jadwal & Slot', icon: Calendar },
   { key: 'deliverable', label: 'Deliverable e-Meterai', icon: FileCheck },
   { key: 'wallet', label: 'Dompet & Honor', icon: Wallet },
+  { key: 'pro_bono', label: 'Pro Bono & Laporan', icon: Award },
+  { key: 'settings', label: 'Pengaturan & Lisensi', icon: Settings },
 ] as const;
 
 export function AdvocateHeaderAndTabs(props: AdvocateHeaderAndTabsProps) {
   const navigate = useNavigate();
-  const logout = () => {
-    localStorage.removeItem('justica_advocate_session');
-    navigate('/');
+  const logout = async () => {
+    try {
+      await signOutPortal();
+      navigate('/advocate/login', { replace: true });
+    } catch (error) {
+      alert(authErrorMessage(error));
+    }
   };
 
   return (
@@ -37,11 +46,12 @@ export function AdvocateHeaderAndTabs(props: AdvocateHeaderAndTabsProps) {
         <div className="flex flex-wrap items-center gap-3">
           <Button asChild variant="outline" size="sm" className="min-h-10 rounded-xl font-semibold"><Link to="/"><ArrowLeft />Gerbang Utama</Link></Button>
           <Badge variant="outline" className="min-h-10 rounded-full border-emerald-500/30 bg-emerald-500/10 px-3 text-emerald-500"><ShieldCheck />MOCK-J-AD-02A..06 • Command Center Advokat PERADI</Badge>
-          <Button type="button" variant="outline" size="sm" onClick={logout} className="min-h-10 whitespace-nowrap rounded-xl font-bold"><LogOut />Keluar</Button>
+          <Button type="button" variant="outline" size="sm" onClick={props.onToggleTheme} className="min-h-10 whitespace-nowrap rounded-xl font-semibold">{props.themeMode === 'dark' ? <Moon className="text-blue-400" /> : <Sun className="text-amber-500" />}{props.themeMode === 'dark' ? 'Dark Mode' : 'Light Mode'}</Button>
+          <Button type="button" variant="outline" size="sm" onClick={() => { void logout(); }} className="min-h-10 whitespace-nowrap rounded-xl font-bold"><LogOut />Keluar</Button>
         </div>
-        <div className="flex overflow-x-auto rounded-xl border border-border bg-secondary/60 p-1 shadow-inner">
+        <div className="flex max-w-full overflow-x-auto rounded-xl border border-border bg-secondary/60 p-1 shadow-inner">
           {tabs.map(({ key, label, icon: Icon }) => (
-            <Button key={key} type="button" variant={props.activeTab === key ? 'default' : 'ghost'} size="sm" onClick={() => props.onTabChange(key)} className="min-h-10 whitespace-nowrap rounded-lg font-bold">
+            <Button key={key} type="button" variant={props.activeTab === key ? 'default' : 'ghost'} size="sm" onClick={() => props.onTabChange(key)} className="min-h-10 shrink-0 whitespace-nowrap rounded-lg font-bold">
               <Icon />{label}
             </Button>
           ))}

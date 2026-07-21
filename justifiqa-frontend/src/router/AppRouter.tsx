@@ -1,5 +1,8 @@
-import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import type { ReactElement } from 'react';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import { AuthSessionProvider } from '@/hooks/useAuthSession';
+import type { PortalRole } from '@/types/portalAuth';
+import { PortalProtectedRoute } from './PortalProtectedRoute';
 
 // ── Batch 1: Root Gateway, Verifier & Authentication ──────────────────────────
 import { LandingGatewayPage } from '../pages/LandingGatewayPage';
@@ -15,20 +18,18 @@ import { ClientConsultationRoomPage } from '../pages/ClientConsultationRoomPage'
 import { ClientDisputeCenterPage } from '../pages/ClientDisputeCenterPage';
 import { AdvocateDashboardPage } from '../pages/AdvocateDashboardPage';
 import { AiNavigatorPage } from '../pages/AiNavigatorPage';
+import { AdminDashboardPage } from '../pages/AdminDashboardPage';
+import { AdminLoginPage } from '../pages/admin/AdminLoginPage';
 
-const ProtectedRoute: React.FC<{ children: React.ReactElement }> = ({ children }) => {
-  const hasClientSession = localStorage.getItem('justica_auth_session') === 'true';
-  return hasClientSession ? children : <Navigate to="/client/auth" replace />;
-};
+const protectedElement = (role: PortalRole, element: ReactElement) => (
+  <PortalProtectedRoute requiredRole={role}>{element}</PortalProtectedRoute>
+);
 
-/**
- * AppRouter — Central Route Mapping untuk Justifiqa SuperApp (Batch 1 Complete)
- * Semua navigasi trigger dari komponen via <Link to="..."> atau useNavigate().
- */
-export const AppRouter: React.FC = () => {
+export const AppRouter = () => {
   return (
     <BrowserRouter>
-      <Routes>
+      <AuthSessionProvider>
+        <Routes>
         {/* ── Batch 1: Public Routes ── */}
         <Route path="/" element={<LandingGatewayPage />} />
         <Route path="/public/verify" element={<PublicDocumentVerifierPage />} />
@@ -42,16 +43,20 @@ export const AppRouter: React.FC = () => {
         <Route path="/advocate/login" element={<AdvocateLoginPage />} />
 
         {/* ── Batch 2+: Protected Portal Routes ── */}
-        <Route path="/client/dashboard" element={<ProtectedRoute><ClientDashboardPage /></ProtectedRoute>} />
-        <Route path="/client/room/:sessionId" element={<ProtectedRoute><ClientConsultationRoomPage /></ProtectedRoute>} />
-        <Route path="/client/room" element={<ProtectedRoute><ClientConsultationRoomPage /></ProtectedRoute>} />
-        <Route path="/client/dispute" element={<ProtectedRoute><ClientDisputeCenterPage /></ProtectedRoute>} />
-        <Route path="/advocate/dashboard" element={<AdvocateDashboardPage />} />
+        <Route path="/client/dashboard" element={protectedElement('CLIENT', <ClientDashboardPage />)} />
+        <Route path="/client/room/:sessionId" element={protectedElement('CLIENT', <ClientConsultationRoomPage />)} />
+        <Route path="/client/room" element={protectedElement('CLIENT', <ClientConsultationRoomPage />)} />
+        <Route path="/client/dispute" element={protectedElement('CLIENT', <ClientDisputeCenterPage />)} />
+        <Route path="/advocate/dashboard" element={protectedElement('ADVOCATE', <AdvocateDashboardPage />)} />
         <Route path="/ai-legal" element={<AiNavigatorPage />} />
+        <Route path="/admin/login" element={<AdminLoginPage />} />
+        <Route path="/admin/dashboard" element={protectedElement('ADMIN', <AdminDashboardPage />)} />
+        <Route path="/admin/compliance" element={protectedElement('ADMIN', <Navigate to="/admin/dashboard" replace />)} />
 
         {/* Catch-all → redirect to Root Gateway */}
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+        </Routes>
+      </AuthSessionProvider>
     </BrowserRouter>
   );
 };
