@@ -1,4 +1,4 @@
-export type Json =
+﻿export type Json =
   | string
   | number
   | boolean
@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       advocate_reviews: {
@@ -571,6 +596,7 @@ export type Database = {
         Row: {
           opinion_id: string
           peruri_serial_number: string
+          public_verification_token: string
           sha256_document_hash: string
           stamped_at: string
           stamping_id: string
@@ -579,6 +605,7 @@ export type Database = {
         Insert: {
           opinion_id: string
           peruri_serial_number: string
+          public_verification_token?: string
           sha256_document_hash: string
           stamped_at?: string
           stamping_id?: string
@@ -587,6 +614,7 @@ export type Database = {
         Update: {
           opinion_id?: string
           peruri_serial_number?: string
+          public_verification_token?: string
           sha256_document_hash?: string
           stamped_at?: string
           stamping_id?: string
@@ -831,6 +859,71 @@ export type Database = {
           },
         ]
       }
+      payment_milestones: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: string
+          dispute_refund_rule: string
+          due_at: string | null
+          evidence_condition: string
+          funded_at: string | null
+          milestone_id: string
+          milestone_type: string
+          order_id: string
+          quote_version: number
+          releasable_party: string
+          released_at: string | null
+          sequence_number: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency?: string
+          dispute_refund_rule: string
+          due_at?: string | null
+          evidence_condition: string
+          funded_at?: string | null
+          milestone_id?: string
+          milestone_type: string
+          order_id: string
+          quote_version?: number
+          releasable_party: string
+          released_at?: string | null
+          sequence_number: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: string
+          dispute_refund_rule?: string
+          due_at?: string | null
+          evidence_condition?: string
+          funded_at?: string | null
+          milestone_id?: string
+          milestone_type?: string
+          order_id?: string
+          quote_version?: number
+          releasable_party?: string
+          released_at?: string | null
+          sequence_number?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_payment_milestones_order"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["order_id"]
+          },
+        ]
+      }
       platform_governance_configs: {
         Row: {
           config_key: string
@@ -902,6 +995,123 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
+          },
+        ]
+      }
+      service_fee_lines: {
+        Row: {
+          accepted_at: string | null
+          amount: number
+          created_at: string
+          currency: string
+          description: string
+          fee_line_code: string
+          fee_line_id: string
+          fee_type: string
+          order_id: string
+          quote_version: number
+          updated_at: string
+        }
+        Insert: {
+          accepted_at?: string | null
+          amount: number
+          created_at?: string
+          currency?: string
+          description: string
+          fee_line_code: string
+          fee_line_id?: string
+          fee_type: string
+          order_id: string
+          quote_version?: number
+          updated_at?: string
+        }
+        Update: {
+          accepted_at?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          description?: string
+          fee_line_code?: string
+          fee_line_id?: string
+          fee_type?: string
+          order_id?: string
+          quote_version?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_service_fee_lines_order"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["order_id"]
+          },
+        ]
+      }
+      service_orders: {
+        Row: {
+          accepted_quote_version: number | null
+          assigned_professional_id: string | null
+          client_id: string
+          completed_at: string | null
+          created_at: string
+          currency: string
+          order_id: string
+          origin_booking_id: string | null
+          service_type: string
+          status: string
+          submitted_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          accepted_quote_version?: number | null
+          assigned_professional_id?: string | null
+          client_id: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          order_id?: string
+          origin_booking_id?: string | null
+          service_type: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          accepted_quote_version?: number | null
+          assigned_professional_id?: string | null
+          client_id?: string
+          completed_at?: string | null
+          created_at?: string
+          currency?: string
+          order_id?: string
+          origin_booking_id?: string | null
+          service_type?: string
+          status?: string
+          submitted_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_service_orders_client"
+            columns: ["client_id"]
+            isOneToOne: false
+            referencedRelation: "users_client"
+            referencedColumns: ["client_id"]
+          },
+          {
+            foreignKeyName: "fk_service_orders_origin_booking"
+            columns: ["origin_booking_id"]
+            isOneToOne: false
+            referencedRelation: "booking_sessions"
+            referencedColumns: ["booking_id"]
+          },
+          {
+            foreignKeyName: "fk_service_orders_professional"
+            columns: ["assigned_professional_id"]
+            isOneToOne: false
+            referencedRelation: "users_advocate"
+            referencedColumns: ["advocate_id"]
           },
         ]
       }
@@ -1347,15 +1557,6 @@ export type Database = {
       fn_book_consultation_slot_mutex: {
         Args: {
           p_booking_type?: string
-          p_client_id: string
-          p_notes?: string
-          p_slot_id: string
-        }
-        Returns: string
-      }
-      fn_client_checkout_consultation_mutex: {
-        Args: {
-          p_booking_type?: string
           p_case_summary: string
           p_slot_id: string
         }
@@ -1373,6 +1574,10 @@ export type Database = {
           slot_id: string
           tier_id: string
         }[]
+      }
+      fn_is_verified_advocate: {
+        Args: { p_advocate_id: string }
+        Returns: boolean
       }
       fn_mutate_wallet_balance_mutex: {
         Args: {
@@ -1400,6 +1605,20 @@ export type Database = {
       fn_release_escrow_to_advocate_mutex: {
         Args: { p_escrow_id: string }
         Returns: boolean
+      }
+      fn_verify_public_legal_document: {
+        Args: { p_sha256_hash: string }
+        Returns: {
+          digest_match: boolean
+          document_title: string
+          document_type: string
+          emeterai_serial: string
+          emeterai_status: string
+          finalized_at: string
+          signature_provider_status: string
+          verification_id: string
+          warning: string
+        }[]
       }
     }
     Enums: {
@@ -1529,6 +1748,9 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

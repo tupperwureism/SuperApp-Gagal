@@ -2,7 +2,7 @@ import { supabase } from '@/lib/supabase';
 import type { ConsultationCheckout, LiveConsultationSlot } from '@/types/consultation';
 import type { Database } from '@/types/database.types';
 
-type CheckoutRow = Database['public']['Functions']['fn_client_checkout_consultation_mutex']['Returns'][number];
+type CheckoutRow = Database['public']['Functions']['fn_book_consultation_slot_mutex']['Returns'][number];
 
 const bookingError = (message: string): Error => {
   if (message.includes('SLOT_ALREADY_BOOKED')) return new Error('Slot sudah keduluan dipesan orang lain atau telah kedaluwarsa.');
@@ -50,7 +50,7 @@ const mapCheckout = (row: CheckoutRow): ConsultationCheckout => ({
 });
 
 export async function checkoutConsultation(slotId: string, caseSummary: string): Promise<ConsultationCheckout> {
-  const { data, error } = await supabase.rpc('fn_client_checkout_consultation_mutex', {
+  const { data, error } = await supabase.rpc('fn_book_consultation_slot_mutex', {
     p_slot_id: slotId, p_case_summary: caseSummary, p_booking_type: 'STANDARD',
   });
   if (error) throw bookingError(error.message);
