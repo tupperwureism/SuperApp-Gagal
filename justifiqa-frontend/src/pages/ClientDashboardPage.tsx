@@ -4,6 +4,7 @@ import { ClientHeaderAndTabs } from '@/components/client/ClientHeaderAndTabs';
 import { ClientGreetingCard } from '@/components/client/ClientGreetingCard';
 import { ClientOverviewTables } from '@/components/client/ClientOverviewTables';
 import { AdvocateCatalogTab } from '@/components/client/AdvocateCatalogTab';
+import { ClientCorporateSuiteTab } from '@/components/corporate/ClientCorporateSuiteTab';
 import { MOCK_ADVOCATES } from '@/data/clientAdvocates';
 import { AdvocateProfileDetailModal } from '@/components/client/AdvocateProfileDetailModal';
 import { CheckoutEscrowModal } from '@/components/client/CheckoutEscrowModal';
@@ -57,6 +58,7 @@ export const ClientDashboardPage: React.FC = () => {
             onDownloadDocument={(id) => setNotice(`Dokumen ${id} siap diteruskan ke layanan unduhan WORM Vault.`)} />
         </div>}
         {activeTab === 'catalog' && <AdvocateCatalogTab onViewProfile={setSelectedAdvocate} />}
+        {activeTab === 'j_biz' && <ClientCorporateSuiteTab />}
       </main>
       {selectedAdvocate && <AdvocateProfileDetailModal advocate={selectedAdvocate} onClose={() => setSelectedAdvocate(null)} onProceedToCheckout={startCheckout} />}
       {checkoutDraft && <CheckoutEscrowModal draft={checkoutDraft} onClose={() => setCheckoutDraft(null)} onEnterConsultationRoom={completeCheckout} />}

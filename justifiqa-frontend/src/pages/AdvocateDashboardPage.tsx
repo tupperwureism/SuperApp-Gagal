@@ -15,6 +15,7 @@ import { ScheduleManagementCard, type ScheduleSlots } from '../components/advoca
 import { AdvocateE2EEHeaderAndSla } from '../components/advocate/AdvocateE2EEHeaderAndSla';
 import { AdvocateE2EEChatPanel } from '../components/advocate/AdvocateE2EEChatPanel';
 import { PreChatMoUModal } from '../components/common/PreChatMoUModal';
+import { AdvocateCorporateCaseManager } from '../components/corporate/AdvocateCorporateCaseManager';
 
 export const AdvocateDashboardPage: React.FC = () => {
   const [activeTab, setActiveTab] = useState<AdvocateTabKey>('command_center');
@@ -22,6 +23,9 @@ export const AdvocateDashboardPage: React.FC = () => {
   const [practiceStatus, setPracticeStatus] = useState<'ONLINE' | 'OFFLINE'>('ONLINE');
   const [simulateConflict, setSimulateConflict] = useState(false);
   const [conflictError, setConflictError] = useState<string | null>(null);
+  const [themeMode, setThemeMode] = useState<'dark' | 'light'>(() =>
+    document.documentElement.classList.contains('dark') ? 'dark' : 'light'
+  );
 
   // Fair-Clock SLA Monitor State (MOCK-J-AD-04)
   const [clockSeconds, setClockSeconds] = useState(44 * 60 + 12);
@@ -60,6 +64,11 @@ export const AdvocateDashboardPage: React.FC = () => {
     }
     return () => clearInterval(timer);
   }, [activeTab, isClockPaused, clockSeconds]);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('dark', themeMode === 'dark');
+    document.documentElement.classList.toggle('light', themeMode === 'light');
+  }, [themeMode]);
 
   const handleToggleStatus = () => {
     if (simulateConflict) {
@@ -111,6 +120,8 @@ export const AdvocateDashboardPage: React.FC = () => {
               if (!checked) setConflictError(null);
             }}
             conflictError={conflictError}
+            themeMode={themeMode}
+            onToggleTheme={() => setThemeMode((mode) => mode === 'dark' ? 'light' : 'dark')}
           />
           {/* TAB 1 CONTENT: COMMAND CENTER ADVOKAT (MOCK-J-AD-02A) */}
           {activeTab === 'command_center' && (
@@ -124,6 +135,7 @@ export const AdvocateDashboardPage: React.FC = () => {
               />
             </div>
           )}
+          {activeTab === 'corporate_cases' && <AdvocateCorporateCaseManager />}
           {/* TAB 2 CONTENT: RUANG KONSULTASI ADVOKAT E2EE (MOCK-J-AD-04) */}
           {activeTab === 'e2ee_room' && (
             <div className="space-y-8 animate-fade-in">

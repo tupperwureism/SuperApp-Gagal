@@ -1,7 +1,7 @@
 // src/types/client.ts
 // Kontrak tipe data bersama untuk Client Portal Batch 2 (Dashboard, Catalog, Checkout Escrow)
 
-export type ClientTabKey = 'dashboard' | 'catalog';
+export type ClientTabKey = 'dashboard' | 'catalog' | 'j_biz';
 
 export interface ActiveConsultation {
   id: string;

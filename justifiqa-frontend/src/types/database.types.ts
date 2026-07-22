@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -7,31 +7,6 @@
   | Json[]
 
 export type Database = {
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
-  }
   public: {
     Tables: {
       advocate_reviews: {
@@ -232,6 +207,71 @@ export type Database = {
         }
         Relationships: []
       }
+      beneficial_owners: {
+        Row: {
+          ahu_submission_reference: string | null
+          beneficial_owner_id: string
+          case_id: string
+          control_basis: string
+          created_at: string
+          declaration_version: number
+          evidence_digest: string
+          identity_reference: string
+          natural_person_name: string
+          percentage: number | null
+          person_type: string
+          reviewer_id: string | null
+          reviewer_role: string | null
+          updated_at: string
+          verification_status: string
+          verified_at: string | null
+        }
+        Insert: {
+          ahu_submission_reference?: string | null
+          beneficial_owner_id?: string
+          case_id: string
+          control_basis: string
+          created_at?: string
+          declaration_version?: number
+          evidence_digest: string
+          identity_reference: string
+          natural_person_name: string
+          percentage?: number | null
+          person_type?: string
+          reviewer_id?: string | null
+          reviewer_role?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Update: {
+          ahu_submission_reference?: string | null
+          beneficial_owner_id?: string
+          case_id?: string
+          control_basis?: string
+          created_at?: string
+          declaration_version?: number
+          evidence_digest?: string
+          identity_reference?: string
+          natural_person_name?: string
+          percentage?: number | null
+          person_type?: string
+          reviewer_id?: string | null
+          reviewer_role?: string | null
+          updated_at?: string
+          verification_status?: string
+          verified_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_beneficial_owners_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_service_cases"
+            referencedColumns: ["case_id"]
+          },
+        ]
+      }
       booking_sessions: {
         Row: {
           advocate_first_reply_at: string | null
@@ -406,6 +446,65 @@ export type Database = {
           },
         ]
       }
+      compliance_assessments: {
+        Row: {
+          assessed_at: string | null
+          assessment_id: string
+          assessment_level: string
+          case_id: string
+          created_at: string
+          pep_check_status: string
+          reviewer_decision: string
+          reviewer_id: string
+          reviewer_rationale: string | null
+          reviewer_role: string
+          risk_score: number | null
+          rules_version: string
+          sanctions_check_status: string
+          updated_at: string
+        }
+        Insert: {
+          assessed_at?: string | null
+          assessment_id?: string
+          assessment_level: string
+          case_id: string
+          created_at?: string
+          pep_check_status?: string
+          reviewer_decision?: string
+          reviewer_id: string
+          reviewer_rationale?: string | null
+          reviewer_role: string
+          risk_score?: number | null
+          rules_version: string
+          sanctions_check_status?: string
+          updated_at?: string
+        }
+        Update: {
+          assessed_at?: string | null
+          assessment_id?: string
+          assessment_level?: string
+          case_id?: string
+          created_at?: string
+          pep_check_status?: string
+          reviewer_decision?: string
+          reviewer_id?: string
+          reviewer_rationale?: string | null
+          reviewer_role?: string
+          risk_score?: number | null
+          rules_version?: string
+          sanctions_check_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_compliance_assessments_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_service_cases"
+            referencedColumns: ["case_id"]
+          },
+        ]
+      }
       consultation_slots: {
         Row: {
           advocate_id: string
@@ -451,6 +550,138 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "advocate_service_tiers"
             referencedColumns: ["tier_id"]
+          },
+        ]
+      }
+      corporate_parties: {
+        Row: {
+          case_id: string
+          created_at: string
+          display_name: string
+          effective_from: string
+          effective_to: string | null
+          identity_reference: string
+          ownership_percentage: number | null
+          party_id: string
+          party_type: string
+          role: string
+          updated_at: string
+          voting_percentage: number | null
+        }
+        Insert: {
+          case_id: string
+          created_at?: string
+          display_name: string
+          effective_from?: string
+          effective_to?: string | null
+          identity_reference: string
+          ownership_percentage?: number | null
+          party_id?: string
+          party_type?: string
+          role: string
+          updated_at?: string
+          voting_percentage?: number | null
+        }
+        Update: {
+          case_id?: string
+          created_at?: string
+          display_name?: string
+          effective_from?: string
+          effective_to?: string | null
+          identity_reference?: string
+          ownership_percentage?: number | null
+          party_id?: string
+          party_type?: string
+          role?: string
+          updated_at?: string
+          voting_percentage?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_corporate_parties_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_service_cases"
+            referencedColumns: ["case_id"]
+          },
+        ]
+      }
+      corporate_service_cases: {
+        Row: {
+          assigned_compliance_reviewer_id: string | null
+          assigned_notary_id: string | null
+          authorized_capital_idr: number | null
+          case_id: string
+          created_at: string
+          current_stage: string
+          domicile_city: string
+          domicile_province: string
+          entity_type: string
+          kbli_snapshot: Json
+          legal_scope_version: string
+          order_id: string
+          paid_up_capital_idr: number | null
+          proposed_name: string
+          target_sla_at: string | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_compliance_reviewer_id?: string | null
+          assigned_notary_id?: string | null
+          authorized_capital_idr?: number | null
+          case_id?: string
+          created_at?: string
+          current_stage?: string
+          domicile_city: string
+          domicile_province: string
+          entity_type: string
+          kbli_snapshot?: Json
+          legal_scope_version: string
+          order_id: string
+          paid_up_capital_idr?: number | null
+          proposed_name: string
+          target_sla_at?: string | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_compliance_reviewer_id?: string | null
+          assigned_notary_id?: string | null
+          authorized_capital_idr?: number | null
+          case_id?: string
+          created_at?: string
+          current_stage?: string
+          domicile_city?: string
+          domicile_province?: string
+          entity_type?: string
+          kbli_snapshot?: Json
+          legal_scope_version?: string
+          order_id?: string
+          paid_up_capital_idr?: number | null
+          proposed_name?: string
+          target_sla_at?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_corporate_cases_compliance_reviewer"
+            columns: ["assigned_compliance_reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "users_admin"
+            referencedColumns: ["admin_id"]
+          },
+          {
+            foreignKeyName: "fk_corporate_cases_notary"
+            columns: ["assigned_notary_id"]
+            isOneToOne: false
+            referencedRelation: "users_advocate"
+            referencedColumns: ["advocate_id"]
+          },
+          {
+            foreignKeyName: "fk_corporate_cases_order"
+            columns: ["order_id"]
+            isOneToOne: true
+            referencedRelation: "service_orders"
+            referencedColumns: ["order_id"]
           },
         ]
       }
@@ -751,6 +982,78 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
+          },
+        ]
+      }
+      government_submission_jobs: {
+        Row: {
+          attempt_count: number
+          authorized_submitter_id: string
+          case_id: string
+          created_at: string
+          external_reference_id: string | null
+          idempotency_key: string
+          job_id: string
+          last_error_code: string | null
+          next_retry_at: string | null
+          request_digest: string | null
+          responded_at: string | null
+          response_digest: string | null
+          status: string
+          submitted_at: string | null
+          system: string
+          updated_at: string
+        }
+        Insert: {
+          attempt_count?: number
+          authorized_submitter_id: string
+          case_id: string
+          created_at?: string
+          external_reference_id?: string | null
+          idempotency_key: string
+          job_id?: string
+          last_error_code?: string | null
+          next_retry_at?: string | null
+          request_digest?: string | null
+          responded_at?: string | null
+          response_digest?: string | null
+          status?: string
+          submitted_at?: string | null
+          system: string
+          updated_at?: string
+        }
+        Update: {
+          attempt_count?: number
+          authorized_submitter_id?: string
+          case_id?: string
+          created_at?: string
+          external_reference_id?: string | null
+          idempotency_key?: string
+          job_id?: string
+          last_error_code?: string | null
+          next_retry_at?: string | null
+          request_digest?: string | null
+          responded_at?: string | null
+          response_digest?: string | null
+          status?: string
+          submitted_at?: string | null
+          system?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_government_submission_jobs_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_service_cases"
+            referencedColumns: ["case_id"]
+          },
+          {
+            foreignKeyName: "fk_government_submission_jobs_submitter"
+            columns: ["authorized_submitter_id"]
+            isOneToOne: false
+            referencedRelation: "users_advocate"
+            referencedColumns: ["advocate_id"]
           },
         ]
       }
@@ -1606,6 +1909,37 @@ export type Database = {
         Args: { p_escrow_id: string }
         Returns: boolean
       }
+      fn_transition_corporate_service_case: {
+        Args: {
+          p_case_id: string
+          p_expected_stage: string
+          p_next_stage: string
+        }
+        Returns: {
+          assigned_compliance_reviewer_id: string | null
+          assigned_notary_id: string | null
+          authorized_capital_idr: number | null
+          case_id: string
+          created_at: string
+          current_stage: string
+          domicile_city: string
+          domicile_province: string
+          entity_type: string
+          kbli_snapshot: Json
+          legal_scope_version: string
+          order_id: string
+          paid_up_capital_idr: number | null
+          proposed_name: string
+          target_sla_at: string | null
+          updated_at: string
+        }
+        SetofOptions: {
+          from: "*"
+          to: "corporate_service_cases"
+          isOneToOne: true
+          isSetofReturn: false
+        }
+      }
       fn_verify_public_legal_document: {
         Args: { p_sha256_hash: string }
         Returns: {
@@ -1748,9 +2082,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {},
   },

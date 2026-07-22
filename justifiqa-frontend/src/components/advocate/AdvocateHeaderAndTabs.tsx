@@ -1,11 +1,11 @@
-import { AlertTriangle, ArrowLeft, Award, Calendar, FileCheck, LayoutDashboard, LogOut, MessageSquare, Moon, Settings, ShieldCheck, Sun, Wallet } from 'lucide-react';
+import { AlertTriangle, ArrowLeft, Award, Building2, Calendar, FileCheck, LayoutDashboard, LogOut, MessageSquare, Moon, Settings, ShieldCheck, Sun, Wallet } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { authErrorMessage, signOutPortal } from '@/services/portalAuthService';
 
-export type AdvocateTabKey = 'command_center' | 'e2ee_room' | 'schedule' | 'deliverable' | 'wallet' | 'pro_bono' | 'settings';
+export type AdvocateTabKey = 'command_center' | 'corporate_cases' | 'e2ee_room' | 'schedule' | 'deliverable' | 'wallet' | 'pro_bono' | 'settings';
 
 interface AdvocateHeaderAndTabsProps {
   activeTab: AdvocateTabKey;
@@ -21,6 +21,7 @@ interface AdvocateHeaderAndTabsProps {
 
 const tabs = [
   { key: 'command_center', label: 'Command Center', icon: LayoutDashboard },
+  { key: 'corporate_cases', label: 'J-BIZ Corporate', icon: Building2 },
   { key: 'e2ee_room', label: 'Ruang Konsultasi E2EE', icon: MessageSquare },
   { key: 'schedule', label: 'Jadwal & Slot', icon: Calendar },
   { key: 'deliverable', label: 'Deliverable e-Meterai', icon: FileCheck },

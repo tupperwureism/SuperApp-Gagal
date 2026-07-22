@@ -1,0 +1,39 @@
+import { useState } from 'react';
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { CorporateIntakeStepFields } from './CorporateIntakeStepFields';
+import { EMPTY_INTAKE_DRAFT, INTAKE_STEPS, type CorporateIntakeDraft } from './corporateUiModel';
+
+type Props = { onComplete?: (draft: CorporateIntakeDraft) => void };
+
+export function CorporateIntakeWizard({ onComplete }: Props) {
+  const [step, setStep] = useState(0);
+  const [draft, setDraft] = useState(EMPTY_INTAKE_DRAFT);
+  const [prepared, setPrepared] = useState(false);
+  const isLast = step === INTAKE_STEPS.length - 1;
+
+  const continueFlow = () => {
+    if (!isLast) return setStep((value) => value + 1);
+    setPrepared(true);
+    onComplete?.(draft);
+  };
+
+  return (
+    <Card className="mx-auto w-full max-w-4xl gap-6 rounded-2xl border-border bg-card p-6 shadow-md sm:p-8">
+      <CardHeader className="gap-3 p-0">
+        <div className="flex flex-wrap items-center justify-between gap-3"><Badge variant="outline" className="min-h-7 px-3">J-BIZ Corporate Intake</Badge><span className="text-sm font-semibold text-muted-foreground">Langkah {step + 1} dari {INTAKE_STEPS.length}</span></div>
+        <CardTitle className="text-2xl font-extrabold">{INTAKE_STEPS[step]}</CardTitle>
+        <CardDescription>Data menjadi draft terstruktur untuk pemeriksaan advokat/notaris; pengisian ini bukan pengesahan pemerintah.</CardDescription>
+        <div className="grid grid-cols-5 gap-2" aria-label="Kemajuan intake">{INTAKE_STEPS.map((label, index) => <div key={label} className={`h-2 rounded-full ${index <= step ? 'bg-primary' : 'bg-muted'}`} title={label} />)}</div>
+      </CardHeader>
+      <CardContent className="p-0"><CorporateIntakeStepFields step={step} draft={draft} onChange={(patch) => setDraft((value) => ({ ...value, ...patch }))} /></CardContent>
+      <CardFooter className="flex flex-wrap justify-between gap-3 p-0">
+        <Button type="button" variant="outline" size="lg" disabled={step === 0} onClick={() => setStep((value) => value - 1)} className="min-h-10 rounded-xl"><ArrowLeft />Kembali</Button>
+        <Button type="button" size="lg" onClick={continueFlow} className="min-h-10 rounded-xl">{isLast ? <Check /> : <ArrowRight />}{isLast ? 'Siapkan draft order' : 'Lanjutkan'}</Button>
+      </CardFooter>
+      {prepared && <p role="status" className="rounded-xl border border-primary/30 bg-primary/5 p-3 text-sm">Draft siap. Persistensi order dan pembayaran tetap harus dilakukan melalui endpoint server tervalidasi.</p>}
+    </Card>
+  );
+}
