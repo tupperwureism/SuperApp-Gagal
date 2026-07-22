@@ -3,7 +3,7 @@
 > GENERATED FILE — jangan edit manual. Baca file ini secara on-demand setelah `SYMBOLS_MAP.md` mengarahkan ke area database.
 > Perbarui/verifikasi bersama peta utama memakai `node Tools/generate_symbol_map.mjs [--check]`.
 
-- 109 canonical policies/triggers.
+- 116 canonical policies/triggers.
 - Lokasi memakai `S/` = `supabase/migrations/` dan `D/` = `database/migrations/`; `+N` berarti ada N deklarasi lama.
 
 | Kind | Symbol/relation | Deklarasi pilihan/terbaru |
@@ -51,6 +51,7 @@
 | policy | rls_document_revisions_client_insert ON public.document_revisions | S/20260721000010_align_frontend_schema_contracts.sql:L427 |
 | policy | rls_document_revisions_participant_access ON document_revisions | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L98 +1 |
 | policy | rls_document_revisions_participant_read ON public.document_revisions | S/20260721000010_align_frontend_schema_contracts.sql:L421 |
+| policy | rls_ekyc_logs_subject_read ON public.ekyc_verification_logs | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L321 |
 | policy | rls_emeterai_participant_read ON public.emeterai_stamping_logs | S/20260722000016_p2_b3_service_orders_expand_only.sql:L178 |
 | policy | rls_emeterai_public_verify ON emeterai_stamping_logs | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L131 +1 |
 | policy | rls_escrow_transactions_advocate_read ON public.escrow_transactions | S/20260721000015_harden_verified_advocate_rls_helper.sql:L23 +3 |
@@ -78,6 +79,8 @@
 | policy | rls_probono_cases_compliance_update ON public.probono_cases | S/20260721000010_align_frontend_schema_contracts.sql:L564 |
 | policy | rls_service_fee_lines_participant_read ON public.service_fee_lines | S/20260722000016_p2_b3_service_orders_expand_only.sql:L541 |
 | policy | rls_service_orders_participant_read ON public.service_orders | S/20260722000016_p2_b3_service_orders_expand_only.sql:L525 |
+| policy | rls_signing_envelopes_authorized_read ON public.signing_envelopes | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L332 |
+| policy | rls_signing_parties_authorized_read ON public.signing_envelope_parties | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L336 |
 | policy | rls_sipp_verifications_advocate_read ON sipp_verifications | S/20260715000001_domain1_identity_rbac_licensing.sql:L182 +1 |
 | policy | rls_sipp_verifications_compliance_insert ON public.sipp_verifications | S/20260721000010_align_frontend_schema_contracts.sql:L528 |
 | policy | rls_sipp_verifications_compliance_read ON public.sipp_verifications | S/20260721000010_align_frontend_schema_contracts.sql:L523 |
@@ -99,6 +102,9 @@
 | policy | rls_users_client_self_update ON public.users_client | S/20260721000010_align_frontend_schema_contracts.sql:L281 |
 | policy | rls_wallet_balances_self_read ON wallet_balances | S/20260715000003_domain3_escrow_tax_ledgers_acid.sql:L90 +1 |
 | trigger | trg_guard_corporate_case_stage_mutation ON public.corporate_service_cases | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L320 |
+| trigger | trg_guard_ekyc_log_mutation ON public.ekyc_verification_logs | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L253 |
+| trigger | trg_guard_signing_envelope_mutation ON public.signing_envelopes | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L256 |
+| trigger | trg_guard_signing_party_mutation ON public.signing_envelope_parties | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L259 |
 | trigger | trg_protect_accepted_service_fee_line ON public.service_fee_lines | S/20260722000016_p2_b3_service_orders_expand_only.sql:L402 |
 | trigger | trg_protect_payment_milestone_terms ON public.payment_milestones | S/20260722000016_p2_b3_service_orders_expand_only.sql:L435 |
 | trigger | trg_reconcile_payment_milestones ON public.payment_milestones | S/20260722000016_p2_b3_service_orders_expand_only.sql:L513 |
@@ -110,6 +116,7 @@
 | trigger | trg_touch_corporate_service_cases ON public.corporate_service_cases | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L290 |
 | trigger | trg_touch_government_submission_jobs ON public.government_submission_jobs | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L302 |
 | trigger | trg_validate_corporate_service_case_order ON public.corporate_service_cases | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L275 |
+| trigger | trg_validate_signing_envelope_case ON public.signing_envelopes | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L250 |
 | trigger | trg_worm_advocate_sanctions_vault ON public.advocate_sanctions_log | S/20260716000006_domain_hardening_worm_and_acid_mutex.sql:L22 +1 |
 | trigger | trg_worm_audit_logs_vault ON public.audit_logs_worm | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L33 +2 |
 | trigger | trg_worm_case_irac_notes ON case_irac_notes | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L174 +1 |

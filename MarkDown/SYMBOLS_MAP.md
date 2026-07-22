@@ -5,10 +5,10 @@
 
 ## Cakupan
 
-- 169 source files dipindai.
-- 225 exported TypeScript symbols dalam 144 files.
-- 55 core PostgreSQL objects dari 263 deklarasi migrasi.
-- 109 policies/triggers tersedia on-demand di `MarkDown/SQL_SECURITY_SYMBOLS.md`.
+- 172 source files dipindai.
+- 228 exported TypeScript symbols dalam 146 files.
+- 70 core PostgreSQL objects dari 285 deklarasi migrasi.
+- 116 policies/triggers tersedia on-demand di `MarkDown/SQL_SECURITY_SYMBOLS.md`.
 - Lokasi SQL memakai `S/` = `supabase/migrations/` dan `D/` = `database/migrations/`; `+N` berarti ada N deklarasi lama.
 - Migrasi `supabase/` diprioritaskan di atas salinan `database/`; peta deklarasi ini bukan rekonstruksi state database setelah seluruh migrasi.
 - Indeks SQL sengaja tidak dimuat agar peta tetap ringkas; cari dengan `rg "CREATE .*INDEX" database supabase` bila diperlukan.
@@ -23,7 +23,7 @@
 | components/BaseLayout.tsx | 12v BaseLayout |
 | components/ConsultationBookingModal.tsx | 14v ConsultationBookingModal |
 | components/ConsultationSection.tsx | 7i ConsultationSectionProps, 11v ConsultationSection |
-| components/DocumentDraftingModal.tsx | 32v DocumentDraftingModal |
+| components/DocumentDraftingModal.tsx | 33v DocumentDraftingModal |
 | components/Footer.tsx | 4v Footer |
 | components/IracCard.tsx | 7i IracCardProps, 12v IracCard |
 | components/IracFormCard.tsx | 5i PresetFact, 10i IracFormCardProps, 22v IracFormCard |
@@ -117,6 +117,8 @@
 | components/gateway/SearchPreviewCard.tsx | 16v SearchPreviewCard |
 | components/gateway/TrustBarSection.tsx | 8v TrustBarSection |
 | components/gateway/VerifierPanel.tsx | 13v VerifierPanel |
+| components/signing/EkycVerificationWizard.tsx | 14f EkycVerificationWizard |
+| components/signing/MultiPartySigningPanel.tsx | 7t SigningParty, 10f MultiPartySigningPanel |
 | components/ui/badge.tsx | 50x Badge, 50x badgeVariants |
 | components/ui/button.tsx | 66x Button, 66x buttonVariants |
 | components/ui/card.tsx | 84x Card, 84x CardHeader, 84x CardFooter, 84x CardTitle, 84x CardAction, 84x CardDescription, 84x CardContent |
@@ -160,7 +162,7 @@
 | types/authForms.ts | 1t ThemeMode, 2t AuthTab, 3t SyncStatus, 5i ClientLoginFields, 6i ClientRegistrationFields, 7i AdvocateLoginFields, 8i AdvocateRegistrationFields |
 | types/client.ts | 4t ClientTabKey, 6i ActiveConsultation, 15i HistoryDocument, 23i ServiceOption, 32i Advocate, 49i TimeSlot, 54i CheckoutDraft |
 | types/consultation.ts | 1t ConsultationTierId, 3t EscrowStatus, 5i ConsultationTier, 18i ConsultationSlot, 29i LiveConsultationSlot, 31i ConsultationCheckout, 46i EscrowTransaction, 59i BookingRequest |
-| types/database.types.ts | 1t Json, 9t Database, 1971t Tables, 2000t TablesInsert, 2025t TablesUpdate, 2050t Enums, 2067t CompositeTypes, 2084v Constants |
+| types/database.types.ts | 1t Json, 9t Database, 2150t Tables, 2179t TablesInsert, 2204t TablesUpdate, 2229t Enums, 2246t CompositeTypes, 2263v Constants |
 | types/irac.ts | 1t LegalDocumentTemplateId, 3i IracAnalysis, 16i DocumentClause, 22i LegalDocumentDraft |
 | types/portalAuth.ts | 3t PortalRole, 5v portalHome, 11v portalLogin, 17f getPortalRole, 22f safePortalRedirect |
 
@@ -170,8 +172,12 @@
 | --- | --- | --- |
 | function | public.fn_assert_service_order_financial_reconciliation() | S/20260722000016_p2_b3_service_orders_expand_only.sql:L439 |
 | function | public.fn_book_consultation_slot_mutex( p_slot_id UUID, p_client_id UUID, p_booking_type … | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L38 +4 |
+| function | public.fn_can_read_signing_envelope(p_envelope_id UUID) | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L263 |
 | function | public.fn_client_checkout_consultation_mutex( p_slot_id UUID, p_case_summary TEXT, p_book… | S/20260721000012_add_authenticated_checkout_rpc_facade.sql:L1 |
 | function | public.fn_guard_corporate_case_stage_mutation() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L306 |
+| function | public.fn_guard_ekyc_log_mutation() | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L136 |
+| function | public.fn_guard_signing_envelope_mutation() | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L161 |
+| function | public.fn_guard_signing_party_mutation() | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L206 |
 | function | public.fn_is_verified_advocate(p_advocate_id UUID) | S/20260721000015_harden_verified_advocate_rls_helper.sql:L1 |
 | function | public.fn_mutate_wallet_balance_mutex( p_wallet_id UUID, p_amount NUMERIC, p_mutation_typ… | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L92 +3 |
 | function | public.fn_prevent_worm_mutation() | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L9 +5 |
@@ -183,6 +189,7 @@
 | function | public.fn_touch_corporate_record_updated_at() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L279 |
 | function | public.fn_transition_corporate_service_case( p_case_id UUID, p_expected_stage VARCHAR, p_… | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L324 |
 | function | public.fn_validate_corporate_service_case_order() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L250 |
+| function | public.fn_validate_signing_envelope_case() | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L117 |
 | function | public.fn_verify_public_legal_document(p_sha256_hash TEXT) | S/20260722000016_p2_b3_service_orders_expand_only.sql:L193 |
 | table | advocate_reviews | S/20260715000002_domain2_consultation_fairclock_sla.sql:L162 +1 |
 | table | advocate_sanctions_log | S/20260715000001_domain1_identity_rbac_licensing.sql:L225 +1 |
@@ -206,10 +213,13 @@
 | table | public.compliance_assessments | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L145 |
 | table | public.corporate_parties | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L56 |
 | table | public.corporate_service_cases | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L7 |
+| table | public.ekyc_verification_logs | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L17 |
 | table | public.government_submission_jobs | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L189 |
 | table | public.payment_milestones | S/20260722000016_p2_b3_service_orders_expand_only.sql:L317 |
 | table | public.service_fee_lines | S/20260722000016_p2_b3_service_orders_expand_only.sql:L287 |
 | table | public.service_orders | S/20260722000016_p2_b3_service_orders_expand_only.sql:L246 |
+| table | public.signing_envelope_parties | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L66 |
+| table | public.signing_envelopes | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L42 |
 | table | sipp_verifications | S/20260715000001_domain1_identity_rbac_licensing.sql:L151 +1 |
 | table | tax_pph21_withholdings | S/20260715000003_domain3_escrow_tax_ledgers_acid.sql:L137 +1 |
 | table | user_active_devices | S/20260715000001_domain1_identity_rbac_licensing.sql:L122 +1 |
@@ -218,6 +228,13 @@
 | table | users_advocate | S/20260715000001_domain1_identity_rbac_licensing.sql:L51 +1 |
 | table | users_client | S/20260715000001_domain1_identity_rbac_licensing.sql:L14 +1 |
 | table | wallet_balances | S/20260715000003_domain3_escrow_tax_ledgers_acid.sql:L70 +1 |
+| type | public.ekyc_user_role | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L5 |
+| type | public.ekyc_verification_status | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L7 |
+| type | public.ekyc_verification_type | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L6 |
+| type | public.signing_case_type | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L10 |
+| type | public.signing_envelope_status | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L11 |
+| type | public.signing_party_role | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L14 |
+| type | public.signing_party_status | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L15 |
 | view | public.frontend_advocate_catalog_v | S/20260721000010_align_frontend_schema_contracts.sql:L138 |
 | view | public.frontend_consultation_slots_v | S/20260721000010_align_frontend_schema_contracts.sql:L173 |
 | view | public.frontend_escrow_transactions_v | S/20260721000010_align_frontend_schema_contracts.sql:L188 |

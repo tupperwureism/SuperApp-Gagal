@@ -7,6 +7,31 @@ export type Json =
   | Json[]
 
 export type Database = {
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       advocate_reviews: {
@@ -823,6 +848,45 @@ export type Database = {
           },
         ]
       }
+      ekyc_verification_logs: {
+        Row: {
+          created_at: string
+          provider_name: string
+          provider_reference_id: string | null
+          result_digest_sha256: string | null
+          status: Database["public"]["Enums"]["ekyc_verification_status"]
+          user_id: string
+          user_role: Database["public"]["Enums"]["ekyc_user_role"]
+          verification_id: string
+          verification_type: Database["public"]["Enums"]["ekyc_verification_type"]
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          provider_name: string
+          provider_reference_id?: string | null
+          result_digest_sha256?: string | null
+          status?: Database["public"]["Enums"]["ekyc_verification_status"]
+          user_id: string
+          user_role: Database["public"]["Enums"]["ekyc_user_role"]
+          verification_id?: string
+          verification_type: Database["public"]["Enums"]["ekyc_verification_type"]
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          provider_name?: string
+          provider_reference_id?: string | null
+          result_digest_sha256?: string | null
+          status?: Database["public"]["Enums"]["ekyc_verification_status"]
+          user_id?: string
+          user_role?: Database["public"]["Enums"]["ekyc_user_role"]
+          verification_id?: string
+          verification_type?: Database["public"]["Enums"]["ekyc_verification_type"]
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       emeterai_stamping_logs: {
         Row: {
           opinion_id: string
@@ -1418,6 +1482,101 @@ export type Database = {
           },
         ]
       }
+      signing_envelope_parties: {
+        Row: {
+          created_at: string
+          envelope_id: string
+          party_id: string
+          party_role: Database["public"]["Enums"]["signing_party_role"]
+          party_user_id: string
+          provider_recipient_id: string | null
+          signed_at: string | null
+          signer_email: string
+          signing_order: number
+          signing_status: Database["public"]["Enums"]["signing_party_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          envelope_id: string
+          party_id?: string
+          party_role: Database["public"]["Enums"]["signing_party_role"]
+          party_user_id: string
+          provider_recipient_id?: string | null
+          signed_at?: string | null
+          signer_email: string
+          signing_order: number
+          signing_status?: Database["public"]["Enums"]["signing_party_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          envelope_id?: string
+          party_id?: string
+          party_role?: Database["public"]["Enums"]["signing_party_role"]
+          party_user_id?: string
+          provider_recipient_id?: string | null
+          signed_at?: string | null
+          signer_email?: string
+          signing_order?: number
+          signing_status?: Database["public"]["Enums"]["signing_party_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "signing_envelope_parties_envelope_id_fkey"
+            columns: ["envelope_id"]
+            isOneToOne: false
+            referencedRelation: "signing_envelopes"
+            referencedColumns: ["envelope_id"]
+          },
+        ]
+      }
+      signing_envelopes: {
+        Row: {
+          case_id: string
+          case_type: Database["public"]["Enums"]["signing_case_type"]
+          completed_at: string | null
+          created_at: string
+          created_by: string
+          document_sha256_hash: string
+          document_title: string
+          envelope_id: string
+          external_envelope_id: string
+          provider_name: string
+          status: Database["public"]["Enums"]["signing_envelope_status"]
+          updated_at: string
+        }
+        Insert: {
+          case_id: string
+          case_type: Database["public"]["Enums"]["signing_case_type"]
+          completed_at?: string | null
+          created_at?: string
+          created_by: string
+          document_sha256_hash: string
+          document_title: string
+          envelope_id?: string
+          external_envelope_id: string
+          provider_name: string
+          status?: Database["public"]["Enums"]["signing_envelope_status"]
+          updated_at?: string
+        }
+        Update: {
+          case_id?: string
+          case_type?: Database["public"]["Enums"]["signing_case_type"]
+          completed_at?: string | null
+          created_at?: string
+          created_by?: string
+          document_sha256_hash?: string
+          document_title?: string
+          envelope_id?: string
+          external_envelope_id?: string
+          provider_name?: string
+          status?: Database["public"]["Enums"]["signing_envelope_status"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       sipp_verifications: {
         Row: {
           advocate_id: string
@@ -1878,6 +2037,10 @@ export type Database = {
           tier_id: string
         }[]
       }
+      fn_can_read_signing_envelope: {
+        Args: { p_envelope_id: string }
+        Returns: boolean
+      }
       fn_is_verified_advocate: {
         Args: { p_advocate_id: string }
         Returns: boolean
@@ -1956,7 +2119,23 @@ export type Database = {
       }
     }
     Enums: {
-      [_ in never]: never
+      ekyc_user_role: "client" | "advocate"
+      ekyc_verification_status:
+        | "PENDING"
+        | "PASSED"
+        | "REJECTED"
+        | "REQUIRES_MANUAL_REVIEW"
+      ekyc_verification_type: "LIVENESS_OCR" | "SIPP_BIOMETRIC"
+      signing_case_type: "CONSULTATION" | "CORPORATE"
+      signing_envelope_status:
+        | "DRAFT"
+        | "SENT"
+        | "PARTIALLY_SIGNED"
+        | "COMPLETED"
+        | "VOIDED"
+        | "EXPIRED"
+      signing_party_role: "CLIENT" | "ADVOCATE" | "NOTARY" | "WITNESS"
+      signing_party_status: "PENDING" | "SIGNED" | "REJECTED"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2082,7 +2261,30 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
+  graphql_public: {
     Enums: {},
+  },
+  public: {
+    Enums: {
+      ekyc_user_role: ["client", "advocate"],
+      ekyc_verification_status: [
+        "PENDING",
+        "PASSED",
+        "REJECTED",
+        "REQUIRES_MANUAL_REVIEW",
+      ],
+      ekyc_verification_type: ["LIVENESS_OCR", "SIPP_BIOMETRIC"],
+      signing_case_type: ["CONSULTATION", "CORPORATE"],
+      signing_envelope_status: [
+        "DRAFT",
+        "SENT",
+        "PARTIALLY_SIGNED",
+        "COMPLETED",
+        "VOIDED",
+        "EXPIRED",
+      ],
+      signing_party_role: ["CLIENT", "ADVOCATE", "NOTARY", "WITNESS"],
+      signing_party_status: ["PENDING", "SIGNED", "REJECTED"],
+    },
   },
 } as const

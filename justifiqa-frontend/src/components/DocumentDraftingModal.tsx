@@ -3,6 +3,7 @@ import { X, FileText, Download, Loader2, Database, ShieldCheck, CheckCircle2, Sp
 import type { IracAnalysis, LegalDocumentDraft, LegalDocumentTemplateId } from '../types/irac';
 import type { AuthSession } from '../types/auth';
 import { MockIracService } from '../services/mockIracService';
+import { MultiPartySigningPanel } from './signing/MultiPartySigningPanel';
 
 interface DocumentDraftingModalProps {
   analysis: IracAnalysis | null;
@@ -270,6 +271,17 @@ export const DocumentDraftingModal: React.FC<DocumentDraftingModalProps> = ({
               </div>
             )}
           </div>
+
+          {draft && (
+            <MultiPartySigningPanel
+              key={draft.id}
+              documentTitle={draft.title}
+              parties={[
+                { id: 'client', name: draft.clientName, role: 'CLIENT', status: 'PENDING' },
+                { id: 'advocate', name: draft.advocateName, role: 'ADVOCATE', status: 'PENDING' },
+              ]}
+            />
+          )}
 
           {/* Download Success WORM Box or Action Buttons */}
           {downloadSuccessHash ? (
