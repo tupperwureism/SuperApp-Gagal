@@ -824,8 +824,10 @@ export type Database = {
           case_id: string | null
           document_id: string
           document_type: string
+          public_verification_token: string
           serial_number: string | null
           sha256_document_hash: string
+          signing_envelope_id: string | null
         }
         Insert: {
           anchor_id?: string
@@ -834,8 +836,10 @@ export type Database = {
           case_id?: string | null
           document_id: string
           document_type: string
+          public_verification_token?: string
           serial_number?: string | null
           sha256_document_hash: string
+          signing_envelope_id?: string | null
         }
         Update: {
           anchor_id?: string
@@ -844,8 +848,10 @@ export type Database = {
           case_id?: string | null
           document_id?: string
           document_type?: string
+          public_verification_token?: string
           serial_number?: string | null
           sha256_document_hash?: string
+          signing_envelope_id?: string | null
         }
         Relationships: [
           {
@@ -854,6 +860,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "corporate_service_cases"
             referencedColumns: ["case_id"]
+          },
+          {
+            foreignKeyName: "fk_document_integrity_anchor_envelope"
+            columns: ["signing_envelope_id"]
+            isOneToOne: false
+            referencedRelation: "signing_envelopes"
+            referencedColumns: ["envelope_id"]
           },
         ]
       }

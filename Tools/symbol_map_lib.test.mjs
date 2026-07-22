@@ -78,6 +78,24 @@ test('prefers newer Supabase declarations and reports older occurrences', () => 
   assert.equal(canonical[0].olderCount, 1);
 });
 
+test('prefers the newer migration regardless of filename length', () => {
+  const symbols = [
+    ...extractSqlFile(
+      'CREATE POLICY tenant_read ON public.orders FOR SELECT USING (true);',
+      'supabase/migrations/20260722000020_a_much_longer_legacy_migration_name.sql',
+    ),
+    ...extractSqlFile(
+      'CREATE POLICY tenant_read ON public.orders FOR SELECT USING (false);',
+      'supabase/migrations/20260722000021_hardening.sql',
+    ),
+  ];
+  const canonical = canonicalSqlSymbols(symbols);
+
+  assert.equal(canonical.length, 1);
+  assert.equal(canonical[0].path, 'supabase/migrations/20260722000021_hardening.sql');
+  assert.equal(canonical[0].olderCount, 1);
+});
+
 test('normalizes the public schema while canonicalizing SQL symbols', () => {
   const symbols = [
     ...extractSqlFile('CREATE FUNCTION fn_ping() RETURNS void LANGUAGE sql AS $$ SELECT 1 $$;', 'database/migrations/01.sql'),

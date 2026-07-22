@@ -362,7 +362,7 @@ export async function collectMapData(workspaceRoot) {
 
 function sqlPriority(symbol) {
   const sourcePriority = symbol.path.startsWith('supabase/') ? 2 : 1;
-  return `${sourcePriority}:${symbol.path.padStart(240, '0')}:${String(symbol.line).padStart(8, '0')}`;
+  return `${sourcePriority}:${symbol.path}:${String(symbol.line).padStart(8, '0')}`;
 }
 
 export function canonicalSqlSymbols(symbols) {

@@ -32,7 +32,7 @@ export function NotaryCaseWorkspacePanel() {
       </Card>
       <Card className="gap-4 rounded-2xl border-border bg-card p-6">
         <CardHeader className="p-0"><CardTitle className="flex items-center gap-2 text-lg"><Landmark className="text-primary" />Status Pengajuan AHU &amp; OSS</CardTitle></CardHeader>
-        <CardContent className="grid gap-3 p-0 md:grid-cols-3">{SUBMISSIONS.map(([system, status, reference]) => <div key={system} className="rounded-xl border border-border bg-secondary/30 p-4"><div className="flex items-center justify-between gap-2"><strong className="text-sm">{system}</strong>{status === 'APPROVED' && <CheckCircle2 className="size-4 text-emerald-500" />}</div><Badge variant="outline" className="my-2">{status}</Badge><p className="text-xs text-muted-foreground">{reference}</p></div>)}</CardContent>
+        <CardContent className="grid gap-3 p-0 md:grid-cols-3">{SUBMISSIONS.map(([system, status, reference]) => <div key={system} className="rounded-xl border border-border bg-secondary/30 p-4"><div className="flex items-center justify-between gap-2"><strong className="text-sm">{system}</strong>{status === 'APPROVED' && <CheckCircle2 className="size-4 text-primary" />}</div><Badge variant="outline" className="my-2">{status}</Badge><p className="text-xs text-muted-foreground">{reference}</p></div>)}</CardContent>
       </Card>
       <KemenkumhamStampingModal open={modalOpen} onClose={() => setModalOpen(false)} onSubmit={submitStamping} />
     </section>

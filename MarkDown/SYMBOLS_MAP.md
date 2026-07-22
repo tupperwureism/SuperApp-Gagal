@@ -5,10 +5,10 @@
 
 ## Cakupan
 
-- 178 source files dipindai.
-- 234 exported TypeScript symbols dalam 150 files.
-- 81 core PostgreSQL objects dari 306 deklarasi migrasi.
-- 126 policies/triggers tersedia on-demand di `MarkDown/SQL_SECURITY_SYMBOLS.md`.
+- 184 source files dipindai.
+- 239 exported TypeScript symbols dalam 155 files.
+- 83 core PostgreSQL objects dari 314 deklarasi migrasi.
+- 128 policies/triggers tersedia on-demand di `MarkDown/SQL_SECURITY_SYMBOLS.md`.
 - Lokasi SQL memakai `S/` = `supabase/migrations/` dan `D/` = `database/migrations/`; `+N` berarti ada N deklarasi lama.
 - Migrasi `supabase/` diprioritaskan di atas salinan `database/`; peta deklarasi ini bukan rekonstruksi state database setelah seluruh migrasi.
 - Indeks SQL sengaja tidak dimuat agar peta tetap ringkas; cari dengan `rg "CREATE .*INDEX" database supabase` bila diperlukan.
@@ -23,7 +23,7 @@
 | components/BaseLayout.tsx | 12v BaseLayout |
 | components/ConsultationBookingModal.tsx | 14v ConsultationBookingModal |
 | components/ConsultationSection.tsx | 7i ConsultationSectionProps, 11v ConsultationSection |
-| components/DocumentDraftingModal.tsx | 33v DocumentDraftingModal |
+| components/DocumentDraftingModal.tsx | 18v DocumentDraftingModal |
 | components/Footer.tsx | 4v Footer |
 | components/IracCard.tsx | 7i IracCardProps, 12v IracCard |
 | components/IracFormCard.tsx | 5i PresetFact, 10i IracFormCardProps, 22v IracFormCard |
@@ -111,6 +111,9 @@
 | components/corporate/corporateUiModel.ts | 1t CorporateEntityType, 3t CorporateIntakeDraft, 13v INTAKE_STEPS, 21v CORPORATE_STAGES, 34v EMPTY_INTAKE_DRAFT |
 | components/corporate/notary/KemenkumhamStampingModal.tsx | 8t NotaryStampingRequest, 20f KemenkumhamStampingModal |
 | components/corporate/notary/NotaryCaseWorkspacePanel.tsx | 14f NotaryCaseWorkspacePanel |
+| components/document/DocumentDraftActions.tsx | 6f DocumentDraftActions |
+| components/document/DocumentDraftPreview.tsx | 6f DocumentDraftPreview |
+| components/document/DocumentDraftingForm.tsx | 18f DocumentDraftingForm |
 | components/gateway/AdvocateQuickProfile.tsx | 11v AdvocateQuickProfile |
 | components/gateway/HeroSearchSection.tsx | 21v HeroSearchSection |
 | components/gateway/NavbarGateway.tsx | 15v NavbarGateway |
@@ -129,11 +132,13 @@
 | components/ui/input.tsx | 21x Input |
 | components/verifier/PublicVerifierFormCard.tsx | 20f PublicVerifierFormCard |
 | components/verifier/PublicVerifierHero.tsx | 3f PublicVerifierHero |
-| components/verifier/PublicVerifierResult.tsx | 8f PublicVerifierResult |
+| components/verifier/PublicVerifierResult.tsx | 9f PublicVerifierResult |
 | data/clientAdvocates.ts | 3v MOCK_ADVOCATES |
 | data/clientPortalData.ts | 3v DEFAULT_CLIENT_SESSION_ID, 5v ACTIVE_CONSULTATIONS, 24v HISTORY_DOCUMENTS |
+| data/documentDraftingData.ts | 3v DOCUMENT_TEMPLATES |
 | hooks/authSessionContext.ts | 5i AuthSessionState, 11v AuthSessionContext |
 | hooks/useAuthSession.tsx | 14f AuthSessionProvider |
+| hooks/useDocumentDrafting.ts | 7f useDocumentDrafting |
 | hooks/usePortalSession.ts | 4f usePortalSession |
 | hooks/usePublicVerifier.ts | 9t VerifyStatus, 11t PublicVerificationResult, 17f usePublicVerifier |
 | hooks/useRealtimeChat.ts | 7t RealtimeChatStatus, 19f useRealtimeChat |
@@ -166,7 +171,7 @@
 | types/authForms.ts | 1t ThemeMode, 2t AuthTab, 3t SyncStatus, 5i ClientLoginFields, 6i ClientRegistrationFields, 7i AdvocateLoginFields, 8i AdvocateRegistrationFields |
 | types/client.ts | 4t ClientTabKey, 6i ActiveConsultation, 15i HistoryDocument, 23i ServiceOption, 32i Advocate, 49i TimeSlot, 54i CheckoutDraft |
 | types/consultation.ts | 1t ConsultationTierId, 3t EscrowStatus, 5i ConsultationTier, 18i ConsultationSlot, 29i LiveConsultationSlot, 31i ConsultationCheckout, 46i EscrowTransaction, 59i BookingRequest |
-| types/database.types.ts | 1t Json, 9t Database, 2314t Tables, 2343t TablesInsert, 2368t TablesUpdate, 2393t Enums, 2410t CompositeTypes, 2427v Constants |
+| types/database.types.ts | 1t Json, 9t Database, 2327t Tables, 2356t TablesInsert, 2381t TablesUpdate, 2406t Enums, 2423t CompositeTypes, 2440v Constants |
 | types/irac.ts | 1t LegalDocumentTemplateId, 3i IracAnalysis, 16i DocumentClause, 22i LegalDocumentDraft |
 | types/portalAuth.ts | 3t PortalRole, 5v portalHome, 11v portalLogin, 17f getPortalRole, 22f safePortalRedirect |
 
@@ -174,8 +179,9 @@
 
 | Kind | Symbol/signature | Deklarasi pilihan/terbaru |
 | --- | --- | --- |
+| function | public.fn_assert_completed_envelope_anchor() | S/20260722000021_phase2_holistic_security_hardening.sql:L55 |
 | function | public.fn_assert_service_order_financial_reconciliation() | S/20260722000016_p2_b3_service_orders_expand_only.sql:L439 |
-| function | public.fn_book_consultation_slot_mutex( p_slot_id UUID, p_client_id UUID, p_booking_type … | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L38 +4 |
+| function | public.fn_book_consultation_slot_mutex( p_slot_id UUID, p_case_summary TEXT, p_booking_ty… | S/20260722000016_p2_b3_service_orders_expand_only.sql:L11 +4 |
 | function | public.fn_can_read_signing_envelope(p_envelope_id UUID) | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L263 |
 | function | public.fn_client_checkout_consultation_mutex( p_slot_id UUID, p_case_summary TEXT, p_book… | S/20260721000012_add_authenticated_checkout_rpc_facade.sql:L1 |
 | function | public.fn_guard_corporate_case_stage_mutation() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L306 |
@@ -194,8 +200,9 @@
 | function | public.fn_touch_corporate_record_updated_at() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L279 |
 | function | public.fn_transition_corporate_service_case( p_case_id UUID, p_expected_stage VARCHAR, p_… | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L324 |
 | function | public.fn_validate_corporate_service_case_order() | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L250 |
+| function | public.fn_validate_document_integrity_anchor() | S/20260722000021_phase2_holistic_security_hardening.sql:L20 |
 | function | public.fn_validate_signing_envelope_case() | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L117 |
-| function | public.fn_verify_public_legal_document(p_sha256_hash TEXT) | S/20260722000016_p2_b3_service_orders_expand_only.sql:L193 |
+| function | public.fn_verify_public_legal_document(p_sha256_hash TEXT) | S/20260722000021_phase2_holistic_security_hardening.sql:L118 +1 |
 | function | public.fn_webhook_settle_escrow_mutex( p_provider_event_id VARCHAR, p_order_id UUID, p_am… | S/20260722000019_p2_b7_b8_payment_webhook_and_idempotency_seams.sql:L61 |
 | table | advocate_reviews | S/20260715000002_domain2_consultation_fairclock_sla.sql:L162 +1 |
 | table | advocate_sanctions_log | S/20260715000001_domain1_identity_rbac_licensing.sql:L225 +1 |

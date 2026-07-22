@@ -54,7 +54,7 @@ export const CheckoutEscrowModal: React.FC<CheckoutEscrowModalProps> = ({
             <X className="w-4 h-4" />
           </button>
         </header>
-        <div className="p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
+        <div className="client-modal-body-scroll">
           {step === 'form' && (
             <CheckoutOrderForm draft={draft} onPay={() => setStep('gateway')} onProBonoApproved={approveProBono} />
           )}

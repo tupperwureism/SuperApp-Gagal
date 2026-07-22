@@ -32,7 +32,7 @@ export const CheckoutPaymentInstructions: React.FC<Props> = ({ draft, invoiceId,
       <div className="client-summary-row"><span>Jalur Pembayaran</span><strong>{GATEWAY_LABEL[gateway]}</strong></div>
       <div className="client-summary-row pt-2 border-t border-border"><span>Total Pembayaran</span><strong className="text-lg text-primary">{formatCurrency(getEscrowTotal(draft.service.price))}</strong></div>
     </div>
-    <div className="flex items-center gap-2 text-xs font-bold text-amber-500"><Clock className="w-4 h-4 shrink-0" /><span>Selesaikan pembayaran dalam 15 menit agar slot tetap terkunci.</span></div>
+    <div className="flex items-center gap-2 text-xs font-bold text-primary"><Clock className="w-4 h-4 shrink-0" /><span>Selesaikan pembayaran dalam 15 menit agar slot tetap terkunci.</span></div>
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div className="client-payment-panel items-center justify-center text-center"><div className="w-32 h-32 rounded-xl bg-card border border-border flex items-center justify-center"><QrCode className="w-16 h-16" /></div><strong className="text-xs">Kode QRIS Instan</strong><small>Gunakan e-Wallet atau Mobile Banking</small></div>
       <div className="client-payment-panel">

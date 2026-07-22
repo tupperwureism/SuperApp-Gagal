@@ -30,7 +30,7 @@ export function EscrowDisbursementTrackerPanel({ idempotencyKey, peruriSerial, b
         <div className="flex items-start gap-3"><Fingerprint className="size-4 shrink-0 text-primary" /><span className="min-w-0"><strong className="block text-foreground">Idempotency Key</strong><code className="break-all text-muted-foreground">{idempotencyKey ?? 'Dibuat server saat instruksi payout dimulai'}</code></span></div>
         <div className="flex items-start gap-3"><FileKey2 className="size-4 shrink-0 text-primary" /><span><strong className="block text-foreground">Audit e-Meterai PERURI</strong><span className="text-muted-foreground">{peruriSerial}</span></span></div>
         <div className="flex items-start gap-3"><Landmark className="size-4 shrink-0 text-primary" /><span><strong className="block text-foreground">Referensi BI-FAST</strong><span className="text-muted-foreground">{bifastReference ?? 'Diterbitkan setelah settlement provider'}</span></span></div>
-        <p className="flex items-center gap-2 border-t border-border pt-3 text-muted-foreground"><CheckCircle2 className="size-4 shrink-0 text-emerald-500" />Panggilan provider dijalankan setelah transaksi mutex selesai commit.</p>
+        <p className="flex items-center gap-2 border-t border-border pt-3 text-muted-foreground"><CheckCircle2 className="size-4 shrink-0 text-primary" />Panggilan provider dijalankan setelah transaksi mutex selesai commit.</p>
       </CardContent>
     </Card>
   );

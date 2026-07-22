@@ -557,6 +557,12 @@ a {
   .client-modal-shell { @apply w-full my-auto rounded-3xl border border-border bg-card text-card-foreground shadow-2xl overflow-hidden; }
   .client-modal-header { @apply flex items-center justify-between gap-4 px-6 sm:px-8 py-5 border-b border-border shrink-0; }
   .client-modal-close { @apply w-10 h-10 rounded-full flex items-center justify-center bg-secondary text-muted-foreground hover:text-foreground transition-all shrink-0; min-height: 40px; }
+  .client-modal-body-scroll { @apply p-6 sm:p-8 overflow-y-auto; max-height: 75vh; }
+  .document-drafting-overlay { @apply fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-background/85 backdrop-blur-md overflow-y-auto; }
+  .document-drafting-shell { @apply bg-card w-full max-w-4xl border-2 border-primary/60 shadow-2xl rounded-2xl my-auto flex flex-col overflow-hidden text-card-foreground; max-height: 92vh; }
+  .document-drafting-header { @apply flex items-center justify-between p-6 bg-background/80 border-b border-border shrink-0; }
+  .document-drafting-icon { @apply p-2.5 rounded-xl bg-primary/20 text-primary border border-primary/40 shadow-sm; }
+  .document-draft-preview-scroll { max-height: 400px; }
 
   .client-banner-escrow {
     background: var(--card);
