@@ -821,6 +821,7 @@ export type Database = {
           anchor_id: string
           anchor_source: Database["public"]["Enums"]["document_anchor_source"]
           anchored_at: string
+          case_id: string | null
           document_id: string
           document_type: string
           serial_number: string | null
@@ -830,6 +831,7 @@ export type Database = {
           anchor_id?: string
           anchor_source: Database["public"]["Enums"]["document_anchor_source"]
           anchored_at?: string
+          case_id?: string | null
           document_id: string
           document_type: string
           serial_number?: string | null
@@ -839,12 +841,21 @@ export type Database = {
           anchor_id?: string
           anchor_source?: Database["public"]["Enums"]["document_anchor_source"]
           anchored_at?: string
+          case_id?: string | null
           document_id?: string
           document_type?: string
           serial_number?: string | null
           sha256_document_hash?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "fk_document_integrity_anchor_case"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "corporate_service_cases"
+            referencedColumns: ["case_id"]
+          },
+        ]
       }
       document_revisions: {
         Row: {
@@ -1082,9 +1093,12 @@ export type Database = {
       government_submission_jobs: {
         Row: {
           attempt_count: number
+          authorized_notary_id: string
           authorized_submitter_id: string
           case_id: string
           created_at: string
+          decided_at: string | null
+          external_registration_number: string | null
           external_reference_id: string | null
           idempotency_key: string
           job_id: string
@@ -1094,15 +1108,21 @@ export type Database = {
           responded_at: string | null
           response_digest: string | null
           status: string
+          submission_payload_digest_sha256: string
+          submission_status: Database["public"]["Enums"]["notary_submission_status"]
           submitted_at: string | null
           system: string
+          target_system: Database["public"]["Enums"]["notary_submission_target_system"]
           updated_at: string
         }
         Insert: {
           attempt_count?: number
+          authorized_notary_id: string
           authorized_submitter_id: string
           case_id: string
           created_at?: string
+          decided_at?: string | null
+          external_registration_number?: string | null
           external_reference_id?: string | null
           idempotency_key: string
           job_id?: string
@@ -1112,15 +1132,21 @@ export type Database = {
           responded_at?: string | null
           response_digest?: string | null
           status?: string
+          submission_payload_digest_sha256: string
+          submission_status?: Database["public"]["Enums"]["notary_submission_status"]
           submitted_at?: string | null
           system: string
+          target_system: Database["public"]["Enums"]["notary_submission_target_system"]
           updated_at?: string
         }
         Update: {
           attempt_count?: number
+          authorized_notary_id?: string
           authorized_submitter_id?: string
           case_id?: string
           created_at?: string
+          decided_at?: string | null
+          external_registration_number?: string | null
           external_reference_id?: string | null
           idempotency_key?: string
           job_id?: string
@@ -1130,8 +1156,11 @@ export type Database = {
           responded_at?: string | null
           response_digest?: string | null
           status?: string
+          submission_payload_digest_sha256?: string
+          submission_status?: Database["public"]["Enums"]["notary_submission_status"]
           submitted_at?: string | null
           system?: string
+          target_system?: Database["public"]["Enums"]["notary_submission_target_system"]
           updated_at?: string
         }
         Relationships: [
@@ -2258,6 +2287,8 @@ export type Database = {
       ekyc_verification_type: "LIVENESS_OCR" | "SIPP_BIOMETRIC"
       payout_channel: "BI_FAST" | "RTGS" | "VIRTUAL_ACCOUNT"
       payout_idempotency_status: "INITIATED" | "SUCCESS" | "FAILED"
+      notary_submission_status: "DRAFT" | "SUBMITTED" | "REJECTED" | "APPROVED"
+      notary_submission_target_system: "AHU_SABH" | "AHU_SABU" | "AHU_BO" | "OSS_RBA"
       signing_case_type: "CONSULTATION" | "CORPORATE"
       signing_envelope_status:
         | "DRAFT"
@@ -2414,6 +2445,8 @@ export const Constants = {
       ekyc_verification_type: ["LIVENESS_OCR", "SIPP_BIOMETRIC"],
       payout_channel: ["BI_FAST", "RTGS", "VIRTUAL_ACCOUNT"],
       payout_idempotency_status: ["INITIATED", "SUCCESS", "FAILED"],
+      notary_submission_status: ["DRAFT", "SUBMITTED", "REJECTED", "APPROVED"],
+      notary_submission_target_system: ["AHU_SABH", "AHU_SABU", "AHU_BO", "OSS_RBA"],
       signing_case_type: ["CONSULTATION", "CORPORATE"],
       signing_envelope_status: [
         "DRAFT",

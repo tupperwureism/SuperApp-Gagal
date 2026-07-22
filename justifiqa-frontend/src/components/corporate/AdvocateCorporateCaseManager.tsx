@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import { NotaryCaseWorkspacePanel } from './notary/NotaryCaseWorkspacePanel';
 
 export function AdvocateCorporateCaseManager() {
   const [boVerified, setBoVerified] = useState(false);
@@ -36,6 +37,7 @@ export function AdvocateCorporateCaseManager() {
         <CardContent className="grid gap-4 p-0 md:grid-cols-2"><label className="space-y-2 text-sm font-semibold">Nomor SABH/SABU<Input value={ahuReference} onChange={(e) => setAhuReference(e.target.value)} placeholder="Masukkan referensi AHU" className={fieldClass} /></label><label className="space-y-2 text-sm font-semibold">Nomor Induk Berusaha<Input value={nibReference} onChange={(e) => setNibReference(e.target.value)} placeholder="Masukkan NIB dari OSS" className={fieldClass} /></label></CardContent>
         <p className="text-sm text-muted-foreground">Kontrol ini adalah state UI lokal. Persistensi wajib melalui server workflow, optimistic stage check, dan audit trail.</p>
       </Card>
+      <NotaryCaseWorkspacePanel />
     </section>
   );
 }

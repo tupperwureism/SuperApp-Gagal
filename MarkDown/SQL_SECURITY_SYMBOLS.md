@@ -3,7 +3,7 @@
 > GENERATED FILE — jangan edit manual. Baca file ini secara on-demand setelah `SYMBOLS_MAP.md` mengarahkan ke area database.
 > Perbarui/verifikasi bersama peta utama memakai `node Tools/generate_symbol_map.mjs [--check]`.
 
-- 118 canonical policies/triggers.
+- 126 canonical policies/triggers.
 - Lokasi memakai `S/` = `supabase/migrations/` dan `D/` = `database/migrations/`; `+N` berarti ada N deklarasi lama.
 
 | Kind | Symbol/relation | Deklarasi pilihan/terbaru |
@@ -48,6 +48,9 @@
 | policy | rls_dispute_cases_participant_read ON dispute_cases | S/20260715000005_domain5_probono_disputes_worm_audit.sql:L71 +2 |
 | policy | rls_dispute_signatures_mediator_insert ON public.dispute_mediator_signatures | S/20260721000010_align_frontend_schema_contracts.sql:L598 |
 | policy | rls_dispute_signatures_mediator_read ON dispute_mediator_signatures | S/20260715000005_domain5_probono_disputes_worm_audit.sql:L109 +2 |
+| policy | rls_document_anchors_assigned_notary_insert ON public.document_integrity_anchors | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L165 |
+| policy | rls_document_anchors_assigned_notary_read ON public.document_integrity_anchors | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L152 |
+| policy | rls_document_anchors_client_read ON public.document_integrity_anchors | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L158 |
 | policy | rls_document_revisions_client_insert ON public.document_revisions | S/20260721000010_align_frontend_schema_contracts.sql:L427 |
 | policy | rls_document_revisions_participant_access ON document_revisions | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L98 +1 |
 | policy | rls_document_revisions_participant_read ON public.document_revisions | S/20260721000010_align_frontend_schema_contracts.sql:L421 |
@@ -60,6 +63,10 @@
 | policy | rls_governance_configs_admin_insert ON public.platform_governance_configs | S/20260721000010_align_frontend_schema_contracts.sql:L636 |
 | policy | rls_governance_configs_admin_update ON public.platform_governance_configs | S/20260721000010_align_frontend_schema_contracts.sql:L641 |
 | policy | rls_governance_configs_public_read ON platform_governance_configs | S/20260715000003_domain3_escrow_tax_ledgers_acid.sql:L182 +1 |
+| policy | rls_government_jobs_assigned_notary_insert ON public.government_submission_jobs | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L138 |
+| policy | rls_government_jobs_assigned_notary_read ON public.government_submission_jobs | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L125 |
+| policy | rls_government_jobs_assigned_notary_update ON public.government_submission_jobs | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L144 |
+| policy | rls_government_jobs_client_read ON public.government_submission_jobs | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L131 |
 | policy | rls_government_jobs_professional_read ON public.government_submission_jobs | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L547 |
 | policy | rls_legal_opinions_advocate_access ON legal_opinions | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L71 +1 |
 | policy | rls_legal_opinions_advocate_insert ON public.legal_opinions | S/20260721000010_align_frontend_schema_contracts.sql:L367 |
@@ -111,6 +118,7 @@
 | trigger | trg_reconcile_payment_milestones ON public.payment_milestones | S/20260722000016_p2_b3_service_orders_expand_only.sql:L513 |
 | trigger | trg_reconcile_service_fee_lines ON public.service_fee_lines | S/20260722000016_p2_b3_service_orders_expand_only.sql:L508 |
 | trigger | trg_reconcile_service_order ON public.service_orders | S/20260722000016_p2_b3_service_orders_expand_only.sql:L503 |
+| trigger | trg_sync_notary_submission_contract ON public.government_submission_jobs | S/20260722000020_p2_b8_notary_workspace_and_kemenkumham_seams.sql:L103 |
 | trigger | trg_touch_beneficial_owners ON public.beneficial_owners | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L296 |
 | trigger | trg_touch_compliance_assessments ON public.compliance_assessments | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L299 |
 | trigger | trg_touch_corporate_parties ON public.corporate_parties | S/20260722000017_p2_b4_corporate_concierge_and_bo.sql:L293 |
