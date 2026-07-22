@@ -3,7 +3,7 @@
 > GENERATED FILE — jangan edit manual. Baca file ini secara on-demand setelah `SYMBOLS_MAP.md` mengarahkan ke area database.
 > Perbarui/verifikasi bersama peta utama memakai `node Tools/generate_symbol_map.mjs [--check]`.
 
-- 116 canonical policies/triggers.
+- 118 canonical policies/triggers.
 - Lokasi memakai `S/` = `supabase/migrations/` dan `D/` = `database/migrations/`; `+N` berarti ada N deklarasi lama.
 
 | Kind | Symbol/relation | Deklarasi pilihan/terbaru |
@@ -77,6 +77,7 @@
 | policy | rls_probono_cases_client_read ON probono_cases | S/20260715000005_domain5_probono_disputes_worm_audit.sql:L35 +1 |
 | policy | rls_probono_cases_compliance_read ON public.probono_cases | S/20260721000010_align_frontend_schema_contracts.sql:L559 |
 | policy | rls_probono_cases_compliance_update ON public.probono_cases | S/20260721000010_align_frontend_schema_contracts.sql:L564 |
+| policy | rls_provider_webhook_events_client_read ON public.provider_webhook_events | S/20260722000019_p2_b7_b8_payment_webhook_and_idempotency_seams.sql:L122 |
 | policy | rls_service_fee_lines_participant_read ON public.service_fee_lines | S/20260722000016_p2_b3_service_orders_expand_only.sql:L541 |
 | policy | rls_service_orders_participant_read ON public.service_orders | S/20260722000016_p2_b3_service_orders_expand_only.sql:L525 |
 | policy | rls_signing_envelopes_authorized_read ON public.signing_envelopes | S/20260722000018_p2_b5_b6_ekyc_and_signing_seams.sql:L332 |
@@ -121,6 +122,7 @@
 | trigger | trg_worm_audit_logs_vault ON public.audit_logs_worm | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L33 +2 |
 | trigger | trg_worm_case_irac_notes ON case_irac_notes | S/20260715000004_domain4_legal_opinions_worm_emeterai.sql:L174 +1 |
 | trigger | trg_worm_dispute_signatures_vault ON public.dispute_mediator_signatures | S/20260716000006_domain_hardening_worm_and_acid_mutex.sql:L29 +1 |
+| trigger | trg_worm_document_integrity_anchors ON public.document_integrity_anchors | S/20260722000019_p2_b7_b8_payment_webhook_and_idempotency_seams.sql:L57 |
 | trigger | trg_worm_emeterai_stamping_logs ON public.emeterai_stamping_logs | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L27 +2 |
 | trigger | trg_worm_escrow_payout_ledgers_vault ON public.escrow_payout_ledgers | S/20260716000006_domain_hardening_worm_and_acid_mutex.sql:L36 +1 |
 | trigger | trg_worm_legal_opinions_vault ON public.legal_opinions | S/20260721000011_fix_plpgsql_mutex_and_worm_functions.sql:L21 |

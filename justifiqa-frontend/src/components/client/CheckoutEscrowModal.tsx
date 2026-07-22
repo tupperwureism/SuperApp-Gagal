@@ -3,9 +3,10 @@ import { X, ShieldCheck } from 'lucide-react';
 import { CheckoutOrderForm } from './CheckoutOrderForm';
 import { CheckoutPaymentInstructions } from './CheckoutPaymentInstructions';
 import { CheckoutSuccessReceipt } from './CheckoutSuccessReceipt';
+import { PaymentGatewaySelectorModal, type PaymentGatewayMethod } from '@/components/payment/PaymentGatewaySelectorModal';
 import type { CheckoutDraft } from '@/types/client';
 
-type CheckoutStep = 'form' | 'instructions' | 'success';
+type CheckoutStep = 'form' | 'gateway' | 'instructions' | 'success';
 
 interface CheckoutEscrowModalProps {
   draft: CheckoutDraft;
@@ -15,6 +16,7 @@ interface CheckoutEscrowModalProps {
 
 const STEP_TITLES: Record<CheckoutStep, string> = {
   form: 'Konfirmasi Pemesanan Konsultasi',
+  gateway: 'Pilih Payment Gateway Aman',
   instructions: 'Instruksi Pembayaran Escrow',
   success: 'Pembayaran Berhasil Diverifikasi',
 };
@@ -26,6 +28,7 @@ export const CheckoutEscrowModal: React.FC<CheckoutEscrowModalProps> = ({
 }) => {
   const [step, setStep] = useState<CheckoutStep>('form');
   const [proBonoApproved, setProBonoApproved] = useState(false);
+  const [gateway, setGateway] = useState<PaymentGatewayMethod>('VA_MANDIRI_BCA');
   const invoiceId = useMemo(() => `INV-202607-${Math.floor(100 + Math.random() * 900)}`, []);
   const receiptHash = useMemo(
     () => `SHA256:${Array.from({ length: 16 }, () => Math.floor(Math.random() * 16).toString(16)).join('')}...`,
@@ -53,10 +56,11 @@ export const CheckoutEscrowModal: React.FC<CheckoutEscrowModalProps> = ({
         </header>
         <div className="p-6 sm:p-8 max-h-[75vh] overflow-y-auto">
           {step === 'form' && (
-            <CheckoutOrderForm draft={draft} onPay={() => setStep('instructions')} onProBonoApproved={approveProBono} />
+            <CheckoutOrderForm draft={draft} onPay={() => setStep('gateway')} onProBonoApproved={approveProBono} />
           )}
+          {step === 'gateway' && <PaymentGatewaySelectorModal onConfirm={(method) => { setGateway(method); setStep('instructions'); }} />}
           {step === 'instructions' && (
-            <CheckoutPaymentInstructions draft={draft} invoiceId={invoiceId} onSuccess={() => setStep('success')} />
+            <CheckoutPaymentInstructions draft={draft} invoiceId={invoiceId} gateway={gateway} onSuccess={() => setStep('success')} />
           )}
           {step === 'success' && (
             <CheckoutSuccessReceipt draft={draft} receiptHash={receiptHash} proBono={proBonoApproved} onEnter={onEnterConsultationRoom} />

@@ -3,15 +3,22 @@ import { CheckCircle2, Clock, Copy, FileCheck2, QrCode } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { formatCurrency, getEscrowTotal } from './checkoutPricing';
 import type { CheckoutDraft } from '@/types/client';
+import type { PaymentGatewayMethod } from '@/components/payment/PaymentGatewaySelectorModal';
 
 const ACCOUNTS = [
   { bank: 'Bank BCA', number: '88921 081234567890' },
   { bank: 'Bank Mandiri', number: '89022 081234567890' },
 ];
 
-interface Props { draft: CheckoutDraft; invoiceId: string; onSuccess: () => void }
+const GATEWAY_LABEL: Record<PaymentGatewayMethod, string> = {
+  VA_MANDIRI_BCA: 'Virtual Account Mandiri / BCA',
+  QRIS: 'QRIS',
+  BI_FAST_ADAPTER: 'BI-FAST Adapter',
+};
 
-export const CheckoutPaymentInstructions: React.FC<Props> = ({ draft, invoiceId, onSuccess }) => {
+interface Props { draft: CheckoutDraft; invoiceId: string; gateway: PaymentGatewayMethod; onSuccess: () => void }
+
+export const CheckoutPaymentInstructions: React.FC<Props> = ({ draft, invoiceId, gateway, onSuccess }) => {
   const [copied, setCopied] = useState<string | null>(null);
   const copyAccount = (bank: string, number: string) => {
     void navigator.clipboard?.writeText(number.replace(/\s/g, '')).catch(() => undefined);
@@ -22,6 +29,7 @@ export const CheckoutPaymentInstructions: React.FC<Props> = ({ draft, invoiceId,
     <div className="rounded-2xl border border-border bg-secondary/40 p-5 space-y-2 text-sm">
       <div className="client-summary-row"><span>ID Tagihan</span><strong className="font-mono">{invoiceId}</strong></div>
       <div className="client-summary-row"><span>Layanan Konsultasi</span><strong>{draft.advocate.name} ({draft.service.duration})</strong></div>
+      <div className="client-summary-row"><span>Jalur Pembayaran</span><strong>{GATEWAY_LABEL[gateway]}</strong></div>
       <div className="client-summary-row pt-2 border-t border-border"><span>Total Pembayaran</span><strong className="text-lg text-primary">{formatCurrency(getEscrowTotal(draft.service.price))}</strong></div>
     </div>
     <div className="flex items-center gap-2 text-xs font-bold text-amber-500"><Clock className="w-4 h-4 shrink-0" /><span>Selesaikan pembayaran dalam 15 menit agar slot tetap terkunci.</span></div>

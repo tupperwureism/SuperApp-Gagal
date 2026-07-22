@@ -816,6 +816,36 @@ export type Database = {
           },
         ]
       }
+      document_integrity_anchors: {
+        Row: {
+          anchor_id: string
+          anchor_source: Database["public"]["Enums"]["document_anchor_source"]
+          anchored_at: string
+          document_id: string
+          document_type: string
+          serial_number: string | null
+          sha256_document_hash: string
+        }
+        Insert: {
+          anchor_id?: string
+          anchor_source: Database["public"]["Enums"]["document_anchor_source"]
+          anchored_at?: string
+          document_id: string
+          document_type: string
+          serial_number?: string | null
+          sha256_document_hash: string
+        }
+        Update: {
+          anchor_id?: string
+          anchor_source?: Database["public"]["Enums"]["document_anchor_source"]
+          anchored_at?: string
+          document_id?: string
+          document_type?: string
+          serial_number?: string | null
+          sha256_document_hash?: string
+        }
+        Relationships: []
+      }
       document_revisions: {
         Row: {
           client_feedback_text: string
@@ -1323,6 +1353,47 @@ export type Database = {
           },
         ]
       }
+      payout_idempotency_keys: {
+        Row: {
+          amount: number
+          created_at: string
+          escrow_transaction_id: string
+          idempotency_key: string
+          key_id: string
+          payout_channel: Database["public"]["Enums"]["payout_channel"]
+          status: Database["public"]["Enums"]["payout_idempotency_status"]
+          target_user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          escrow_transaction_id: string
+          idempotency_key: string
+          key_id?: string
+          payout_channel: Database["public"]["Enums"]["payout_channel"]
+          status?: Database["public"]["Enums"]["payout_idempotency_status"]
+          target_user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          escrow_transaction_id?: string
+          idempotency_key?: string
+          key_id?: string
+          payout_channel?: Database["public"]["Enums"]["payout_channel"]
+          status?: Database["public"]["Enums"]["payout_idempotency_status"]
+          target_user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payout_idempotency_keys_escrow_transaction_id_fkey"
+            columns: ["escrow_transaction_id"]
+            isOneToOne: false
+            referencedRelation: "escrow_transactions"
+            referencedColumns: ["escrow_id"]
+          },
+        ]
+      }
       probono_cases: {
         Row: {
           client_id: string
@@ -1362,6 +1433,53 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "users_client"
             referencedColumns: ["client_id"]
+          },
+        ]
+      }
+      provider_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string
+          order_id: string
+          payload_digest_sha256: string
+          processed_at: string | null
+          processed_status: Database["public"]["Enums"]["webhook_processed_status"]
+          provider_event_id: string
+          provider_name: string
+          received_at: string
+          signature_verified: boolean
+        }
+        Insert: {
+          event_id?: string
+          event_type: string
+          order_id: string
+          payload_digest_sha256: string
+          processed_at?: string | null
+          processed_status?: Database["public"]["Enums"]["webhook_processed_status"]
+          provider_event_id: string
+          provider_name: string
+          received_at?: string
+          signature_verified?: boolean
+        }
+        Update: {
+          event_id?: string
+          event_type?: string
+          order_id?: string
+          payload_digest_sha256?: string
+          processed_at?: string | null
+          processed_status?: Database["public"]["Enums"]["webhook_processed_status"]
+          provider_event_id?: string
+          provider_name?: string
+          received_at?: string
+          signature_verified?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_webhook_events_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "service_orders"
+            referencedColumns: ["order_id"]
           },
         ]
       }
@@ -2117,8 +2235,20 @@ export type Database = {
           warning: string
         }[]
       }
+      fn_webhook_settle_escrow_mutex: {
+        Args: {
+          p_amount: number
+          p_order_id: string
+          p_provider_event_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      document_anchor_source:
+        | "JUSTICA_WORM"
+        | "PERURI_EMETERAI"
+        | "PSRE_DIGITAL_SIGN"
       ekyc_user_role: "client" | "advocate"
       ekyc_verification_status:
         | "PENDING"
@@ -2126,6 +2256,8 @@ export type Database = {
         | "REJECTED"
         | "REQUIRES_MANUAL_REVIEW"
       ekyc_verification_type: "LIVENESS_OCR" | "SIPP_BIOMETRIC"
+      payout_channel: "BI_FAST" | "RTGS" | "VIRTUAL_ACCOUNT"
+      payout_idempotency_status: "INITIATED" | "SUCCESS" | "FAILED"
       signing_case_type: "CONSULTATION" | "CORPORATE"
       signing_envelope_status:
         | "DRAFT"
@@ -2136,6 +2268,7 @@ export type Database = {
         | "EXPIRED"
       signing_party_role: "CLIENT" | "ADVOCATE" | "NOTARY" | "WITNESS"
       signing_party_status: "PENDING" | "SIGNED" | "REJECTED"
+      webhook_processed_status: "PENDING" | "PROCESSED" | "FAILED" | "RETRYING"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2266,6 +2399,11 @@ export const Constants = {
   },
   public: {
     Enums: {
+      document_anchor_source: [
+        "JUSTICA_WORM",
+        "PERURI_EMETERAI",
+        "PSRE_DIGITAL_SIGN",
+      ],
       ekyc_user_role: ["client", "advocate"],
       ekyc_verification_status: [
         "PENDING",
@@ -2274,6 +2412,8 @@ export const Constants = {
         "REQUIRES_MANUAL_REVIEW",
       ],
       ekyc_verification_type: ["LIVENESS_OCR", "SIPP_BIOMETRIC"],
+      payout_channel: ["BI_FAST", "RTGS", "VIRTUAL_ACCOUNT"],
+      payout_idempotency_status: ["INITIATED", "SUCCESS", "FAILED"],
       signing_case_type: ["CONSULTATION", "CORPORATE"],
       signing_envelope_status: [
         "DRAFT",
@@ -2285,6 +2425,7 @@ export const Constants = {
       ],
       signing_party_role: ["CLIENT", "ADVOCATE", "NOTARY", "WITNESS"],
       signing_party_status: ["PENDING", "SIGNED", "REJECTED"],
+      webhook_processed_status: ["PENDING", "PROCESSED", "FAILED", "RETRYING"],
     },
   },
 } as const

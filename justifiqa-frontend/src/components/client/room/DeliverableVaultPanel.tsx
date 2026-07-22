@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { useVaultDelivery } from '@/hooks/useVaultDelivery';
+import { EscrowDisbursementTrackerPanel } from '@/components/payment/EscrowDisbursementTrackerPanel';
 
 interface DeliverableVaultPanelProps {
   sessionId: string;
@@ -30,6 +31,10 @@ export function DeliverableVaultPanel({ sessionId, onEscrowReleased }: Deliverab
           </div>
           {document && <Badge variant="outline" className="deliverable-legal-badge"><ShieldCheck />TERVERIFIKASI &amp; SAH BER-e-METERAI PERURI SHA-256</Badge>}
         </div>
+        <EscrowDisbursementTrackerPanel
+          peruriSerial={document?.peruriSerial ?? 'Menunggu anchor dokumen final'}
+          status={released ? 'SUCCESS' : 'NOT_STARTED'}
+        />
         <article className="deliverable-preview">
           <header className="mb-5 border-b-2 border-foreground pb-4 text-center">
             <FileCheck2 className="mx-auto mb-2 size-8 text-blue-500" />
