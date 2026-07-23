@@ -20,41 +20,43 @@
 
 ### Alur Corporate Intake dan Notary Stamping
 
-```mermaid
-sequenceDiagram
-    actor Klien
-    participant CorporateIntakeWizard
-    participant SupabaseDB as Supabase DB
-    participant NotaryWorkspace as Notary Workspace
-    participant WORMTrigger as WORM Trigger
+```plantuml
+@startuml
+actor Klien
+participant "CorporateIntakeWizard" as CorporateIntakeWizard
+participant "Supabase DB" as SupabaseDB
+participant "Notary Workspace" as NotaryWorkspace
+participant "WORM Trigger" as WORMTrigger
 
-    Klien->>CorporateIntakeWizard: Isi data pendirian PT/CV
-    CorporateIntakeWizard->>CorporateIntakeWizard: Validasi kelengkapan PPATK
-    CorporateIntakeWizard->>SupabaseDB: Simpan corporate intake
-    SupabaseDB->>NotaryWorkspace: Publikasikan case untuk notaris
-    NotaryWorkspace->>SupabaseDB: Update status review dan stamping
-    SupabaseDB->>WORMTrigger: Catat audit immutable
-    WORMTrigger-->>SupabaseDB: Audit log terkunci
-    SupabaseDB-->>CorporateIntakeWizard: Status case diperbarui
-    CorporateIntakeWizard-->>Klien: Tampilkan hasil notary stamping
+Klien -> CorporateIntakeWizard: Isi data pendirian PT/CV
+CorporateIntakeWizard -> CorporateIntakeWizard: Validasi kelengkapan PPATK
+CorporateIntakeWizard -> SupabaseDB: Simpan corporate intake
+SupabaseDB -> NotaryWorkspace: Publikasikan case untuk notaris
+NotaryWorkspace -> SupabaseDB: Update status review dan stamping
+SupabaseDB -> WORMTrigger: Catat audit immutable
+WORMTrigger --> SupabaseDB: Audit log terkunci
+SupabaseDB --> CorporateIntakeWizard: Status case diperbarui
+CorporateIntakeWizard --> Klien: Tampilkan hasil notary stamping
+@enduml
 ```
 
 ### Alur e-KYC AI dan Multi-Party Signing
 
-```mermaid
-sequenceDiagram
-    actor Klien
-    participant EkycVerificationWizard
-    participant AIProvider as AI Provider Liveness Log
-    participant AdvocateDashboard as Advocate Dashboard
-    participant SigningEnvelope as Signing Envelope
+```plantuml
+@startuml
+actor Klien
+participant "EkycVerificationWizard" as EkycVerificationWizard
+participant "AI Provider Liveness Log" as AIProvider
+participant "Advocate Dashboard" as AdvocateDashboard
+participant "Signing Envelope" as SigningEnvelope
 
-    Klien->>EkycVerificationWizard: Mulai verifikasi identitas
-    EkycVerificationWizard->>AIProvider: Kirim selfie, ID, dan liveness challenge
-    AIProvider-->>EkycVerificationWizard: Return skor biometrik dan liveness
-    EkycVerificationWizard->>SigningEnvelope: Unlock signer jika verifikasi valid
-    SigningEnvelope->>AdvocateDashboard: Notifikasi pihak siap tanda tangan
-    AdvocateDashboard->>SigningEnvelope: Review dokumen dan kirim undangan signing
-    Klien->>SigningEnvelope: Tanda tangan dokumen
-    SigningEnvelope-->>AdvocateDashboard: Status multi-party signing diperbarui
+Klien -> EkycVerificationWizard: Mulai verifikasi identitas
+EkycVerificationWizard -> AIProvider: Kirim selfie, ID, dan liveness challenge
+AIProvider --> EkycVerificationWizard: Return skor biometrik dan liveness
+EkycVerificationWizard -> SigningEnvelope: Unlock signer jika verifikasi valid
+SigningEnvelope -> AdvocateDashboard: Notifikasi pihak siap tanda tangan
+AdvocateDashboard -> SigningEnvelope: Review dokumen dan kirim undangan signing
+Klien -> SigningEnvelope: Tanda tangan dokumen
+SigningEnvelope --> AdvocateDashboard: Status multi-party signing diperbarui
+@enduml
 ```
