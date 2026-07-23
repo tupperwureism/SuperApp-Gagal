@@ -23,20 +23,33 @@
 ```plantuml
 @startuml
 actor Klien
-participant "CorporateIntakeWizard" as CorporateIntakeWizard
-participant "Supabase DB" as SupabaseDB
-participant "Notary Workspace" as NotaryWorkspace
-participant "WORM Trigger" as WORMTrigger
+participant "Corporate UI" as UI
+database "Supabase DB" as DB
+actor Notaris
 
-Klien -> CorporateIntakeWizard: Isi data pendirian PT/CV
-CorporateIntakeWizard -> CorporateIntakeWizard: Validasi kelengkapan PPATK
-CorporateIntakeWizard -> SupabaseDB: Simpan corporate intake
-SupabaseDB -> NotaryWorkspace: Publikasikan case untuk notaris
-NotaryWorkspace -> SupabaseDB: Update status review dan stamping
-SupabaseDB -> WORMTrigger: Catat audit immutable
-WORMTrigger --> SupabaseDB: Audit log terkunci
-SupabaseDB --> CorporateIntakeWizard: Status case diperbarui
-CorporateIntakeWizard --> Klien: Tampilkan hasil notary stamping
+Klien -> UI: Isi data pendirian PT/CV
+activate UI
+UI -> DB: Simpan corporate intake
+activate DB
+DB --> UI: Intake tersimpan
+deactivate DB
+UI --> Klien: Konfirmasi intake diterima
+deactivate UI
+
+Notaris -> DB: Tarik data corporate intake
+activate DB
+DB --> Notaris: Data intake tersedia
+deactivate DB
+
+Notaris -> DB: Stamping dan update status WORM
+activate DB
+DB --> Notaris: Status WORM terkunci
+deactivate DB
+
+DB -> UI: Notifikasi status stamping
+activate UI
+UI --> Klien: Notifikasi hasil notary stamping
+deactivate UI
 @enduml
 ```
 
@@ -45,18 +58,32 @@ CorporateIntakeWizard --> Klien: Tampilkan hasil notary stamping
 ```plantuml
 @startuml
 actor Klien
-participant "EkycVerificationWizard" as EkycVerificationWizard
-participant "AI Provider Liveness Log" as AIProvider
-participant "Advocate Dashboard" as AdvocateDashboard
-participant "Signing Envelope" as SigningEnvelope
+participant "eKYC Wizard" as UI
+participant "AI Provider" as AI
+database "Supabase DB" as DB
+actor Advokat
 
-Klien -> EkycVerificationWizard: Mulai verifikasi identitas
-EkycVerificationWizard -> AIProvider: Kirim selfie, ID, dan liveness challenge
-AIProvider --> EkycVerificationWizard: Return skor biometrik dan liveness
-EkycVerificationWizard -> SigningEnvelope: Unlock signer jika verifikasi valid
-SigningEnvelope -> AdvocateDashboard: Notifikasi pihak siap tanda tangan
-AdvocateDashboard -> SigningEnvelope: Review dokumen dan kirim undangan signing
-Klien -> SigningEnvelope: Tanda tangan dokumen
-SigningEnvelope --> AdvocateDashboard: Status multi-party signing diperbarui
+Klien -> UI: Scan wajah
+activate UI
+UI -> AI: Verifikasi biometrik
+activate AI
+AI --> UI: Hasil biometrik valid
+deactivate AI
+UI -> DB: Simpan status KYC Hijau
+activate DB
+DB --> UI: Status KYC tersimpan
+deactivate DB
+UI --> Klien: Verifikasi KYC selesai
+deactivate UI
+
+Advokat -> DB: Pantau status multi-party signing
+activate DB
+DB --> Advokat: Semua pihak KYC Hijau
+deactivate DB
+
+Advokat -> DB: Trigger pencairan escrow dan unlock dokumen
+activate DB
+DB --> Advokat: Escrow cair dan dokumen terbuka
+deactivate DB
 @enduml
 ```
