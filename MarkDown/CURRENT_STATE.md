@@ -23,6 +23,10 @@
 | Phase 5 production readiness | **NOT_STARTED** | Tidak ada production approval | Deploy, observability, provider readiness, operational runbook, dan go-live audit masih diperlukan |
 | Documentation control plane bootstrap | **ACCEPTED_LOCAL** | Commit 82e45bb8d17ac0f66dfa51c9e98b333e27317376 | Control plane lokal diterima; bukan production approval |
 | Presentation Readiness & Honest Scope Freeze | **ACCEPTED_LOCAL** | /demo/readiness dan Batches/PRESENTATION_READINESS/ | Presentation aid statis; tidak membuktikan production E2E |
+| Admin role navigation | **IMPLEMENTED_LOCAL** | `PortalProtectedRoute.tsx`, `/admin/login`, `/admin/dashboard` | Sesi non-Admin dialihkan ke portal perannya |
+| Admin MFA/AAL2 | **FUTURE_WORK** | `AdminLoginPage.tsx` | OTP saat ini hanya simulasi antarmuka lokal, bukan verifikasi MFA backend |
+| Trusted frontend admin-role resolution | **HARDENING_REQUIRED** | `portalAuth.ts`, `useAuthSession.tsx` | Role Admin frontend belum sepenuhnya dibatasi ke metadata tepercaya/membership kanonik |
+| Production admin access | **NOT_APPROVED** | Belum ada acceptance produksi | Memerlukan MFA/AAL2, trusted role resolution, E2E security QA, dan go-live approval |
 
 ## Keputusan aktif
 

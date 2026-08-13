@@ -23,6 +23,10 @@
 
 Halaman readiness bersifat presentasional dan tidak menjalankan mutation.
 
+### Catatan Portal Administrator
+
+Portal Administrator tersedia melalui `/admin/login` dan `/admin/dashboard`. Demonstrasi menggunakan akun fixture lokal. OTP masih berupa simulasi antarmuka dan bukan verifikasi Supabase MFA/AAL2. Fitur ini tidak merepresentasikan kesiapan akses Administrator produksi.
+
 ## Urutan demo utama (3–5 menit)
 
 ### 1. Ringkasan
