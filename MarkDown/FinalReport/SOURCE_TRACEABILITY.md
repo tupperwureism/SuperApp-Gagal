@@ -1,0 +1,26 @@
+# Source Traceability Matrix — Laporan Tugas Akhir Justifiqa
+
+> Matriks pelacakan sumber bukti faktual (Source Traceability) yang menghubungkan klaim akademik pada Laporan Tugas Akhir Justifiqa dengan berkas kode sumber, skema migrasi database, RPC, Edge Functions, serta komit Git terkunci per fixed point `53ea5ca5e0aacdf849877c9696f698ec469d9eb6`.
+
+## Matriks Pelacakan Klaim Faktual
+
+| Claim ID | Klaim Laporan | Bab / Section | Source Path / Artifact | Symbol / Table / RPC / Commit Hash | Verification Status |
+|---|---|---|---|---|---|
+| TR-01 | Pengerasan keamanan backend PostgreSQL Phase 2 telah lulus audit integrasi | Bab I / 1.4 & Bab IV / 4.3 | `MarkDown/PHASE_2_BACKEND_FORENSIC_CERTIFICATION.md` | Commit `018fb05e077937326c5ed4e27289f2e3b9d2e505` | VERIFIED (Commit & Forensic Doc) |
+| TR-02 | Corporate Intake 3.A/3.A.1 diterima untuk scope lokal (ACCEPTED_LOCAL) | Bab I / 1.4 & Bab IV / 4.5 | `justifiqa-frontend/src/components/corporate/CorporateIntakeWizard.tsx` | Commit `67439533e079cceded8bbddba1f56a4db6388767` | VERIFIED (Commit & React Component) |
+| TR-03 | Rekonsiliasi dokumentasi audit Corporate Intake selesai secara terminal | Bab IV / 4.5 | `MarkDown/Batches/BATCH_3_A_1_12.md` | Commit `2c7f28a86109d58acf4d1319a84ed04ca2e679bf` | VERIFIED (Commit & Batch Record) |
+| TR-04 | Corporate Escrow Settlement 3.B diterima untuk scope lokal (ACCEPTED_LOCAL) | Bab I / 1.4 & Bab IV / 4.9 | `supabase/migrations/20260813032019_process_corporate_payment_webhook_atomic.sql` | Commit `4cddf6866c50cf410697d330bc528d0daafd99fe` | VERIFIED (Commit & SQL Migration) |
+| TR-05 | Proteksi replay dan concurrency webhook escrow menggunakan locking atomik | Bab IV / 4.10 | `supabase/migrations/20260813064656_preserve_corporate_payment_webhook_replay.sql` | Commit `59ff89dff3f49a8f169f7822c522f14163d5c707` | VERIFIED (Commit & SQL Migration) |
+| TR-06 | Pengisian Corporate Intake berbasis katalog harga versi resmi (Versioned Pricing Catalog) | Bab III / 3.6 & Bab IV / 4.4 | `supabase/migrations/20260729021138_add_versioned_corporate_pricing_catalog.sql` | `public.corporate_pricing_catalogs` & `fn_activate_corporate_pricing_catalog` | VERIFIED (PostgreSQL DDL & Function) |
+| TR-07 | Pembentukan Corporate Intake, Order, Milestone, dan Case dilakukan secara atomik | Bab III / 3.9 & Bab IV / 4.5 | `supabase/migrations/20260729063938_bind_atomic_intake_to_canonical_pricing_catalog.sql` | `public.fn_create_corporate_intake_from_catalog_atomic` | VERIFIED (PostgreSQL RPC) |
+| TR-08 | Pengunggahan bukti Beneficial Owner (BO) dilindungi boundary presigned & WORM storage | Bab III / 3.8 & Bab IV / 4.6 | `supabase/migrations/20260729115454_protected_beneficial_owner_evidence_boundary.sql` | `public.corporate_intake_evidence_artifacts` & `fn_prepare_corporate_intake_evidence_atomic` | VERIFIED (PostgreSQL DDL & RPC) |
+| TR-09 | Validation error dan exception pada Edge Function di-map ke allowlist error yang aman | Bab IV / 4.8 | `justifiqa-frontend/src/services/intakeError.ts` | `INTAKE_ERROR_ALLOWLIST` & `parseIntakeErrorCode` | VERIFIED (TypeScript Module) |
+| TR-10 | Settlement escrow via payment webhook menggunakan verifikasi HMAC SHA-256 raw body exact bytes | Bab IV / 4.10 | `supabase/functions/payment-webhook/handler.ts` | Edge Function handler & `crypto.subtle.verify` | VERIFIED (Deno/TS Edge Handler) |
+| TR-11 | Eksekusi RPC settlement mengunci baris escrow & event untuk mencegah race condition | Bab III / 3.9 & Bab IV / 4.11 | `supabase/migrations/20260813064656_preserve_corporate_payment_webhook_replay.sql` | `public.fn_process_corporate_payment_webhook_atomic` | VERIFIED (PostgreSQL RPC) |
+| TR-12 | Akses DML langsung pada tabel webhook oleh browser ditolak via least-privilege ACL & FORCE RLS | Bab III / 3.8 & Bab IV / 4.12 | `supabase/migrations/20260813064656_preserve_corporate_payment_webhook_replay.sql` | `REVOKE ALL ON public.provider_webhook_events FROM authenticated, anon` | VERIFIED (SQL Grant/Revoke ACL) |
+| TR-13 | Control plane dokumentasi proyek distandarisasi | Bab I / 1.7 | `MarkDown/Batches/DOC_CONTROL_PLANE/BATCH.md` | Commit `82e45bb8d17ac0f66dfa51c9e98b333e27317376` | VERIFIED (Commit & Control Plane) |
+| TR-14 | Scope rilis dan roadmap dibekukan secara jujur pada halaman presentasi | Bab I / 1.4 & Bab IV / 4.13 | `justifiqa-frontend/src/components/presentation/presentationReadinessModel.ts` | Commit `53ea5ca5e0aacdf849877c9696f698ec469d9eb6` | VERIFIED (Commit & Model TS) |
+| TR-15 | Payment Provider Initiation terblokir karena pemilihan provider eksternal belum final | Bab I / 1.4 & Bab IV / 4.16 | `MarkDown/DEMO_GUIDE.md` | Status `BLOCKED_BY_PROVIDER_SELECTION` | VERIFIED (Canonical Reference) |
+| TR-16 | Notary Workspace (Batch 3.C) & e-KYC/Signing (Batch 3.D) berstatus pekerjaan masa depan | Bab I / 1.4 & Bab V / 5.3 | `MarkDown/CURRENT_STATE.md` | Status `FUTURE_WORK` | VERIFIED (Canonical Reference) |
+| TR-17 | Phase 5 Production Readiness belum dimulai | Bab I / 1.4 & Bab V / 5.3 | `MarkDown/CURRENT_STATE.md` | Status `NOT_STARTED` | VERIFIED (Canonical Reference) |
+| TR-18 | Suite pengujian otomatis Phase 2 mencakup 107 passing assertions tanpa kegagalan | Bab IV / 4.14 | `justifiqa-frontend/package.json` | `npm run test:phase2` (107 tests pass) | VERIFIED (Test Harness) |
