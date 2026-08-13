@@ -243,7 +243,6 @@ Berdasarkan pengujian faktual pada tingkat lokal (*ACCEPTED_LOCAL*), platform Ju
 - **UX**: *User Experience*
 - **WORM**: *Write Once Read Many*
 
-
 ---
 
 # BAB I — PENDAHULUAN
@@ -354,7 +353,6 @@ Sistematika penulisan Laporan Tugas Akhir ini disusun dalam lima bab utama sebag
 - **BAB IV IMPLEMENTASI DAN PENGUJIAN**: Menyajikan rincian implementasi fisik kode sumber, skema migrasi PostgreSQL, RPC atomik, Edge Functions, integrasi frontend, verifikasi HMAC, serta laporan hasil pengujian otomatis dan *runtime SQL suite* beserta matriks ketersediaan fitur.
 - **BAB V PENUTUP**: Menyajikan kesimpulan dari seluruh penelitian yang menjawab rumusan masalah, kontribusi faktual sistem, keterbatasan sistem yang diverifikasi, serta saran untuk pengembangan masa depan (*future work*).
 
-
 ---
 
 # BAB II — LANDASAN TEORI
@@ -375,7 +373,7 @@ Salah satu komponen paling krusial dalam *Corporate Intake* di Indonesia adalah 
 
 *Escrow* adalah mekanisme keuangan di mana pihak ketiga yang terpercaya menampung dan mengelola dana pembayaran atas suatu perjanjian hukum sampai seluruh syarat dan kewajiban perikatan dipenuhi oleh para pihak. Dalam penyediaan layanan hukum digital, *escrow* berfungsi melindungi klien dari risiko kegagalan penyelesaian pekerjaan oleh penyedia jasa hukum, sekaligus memberikan kepastian pembayaran (*financial commitment*) bagi praktisi hukum.
 
-Struktur pembayaran *escrow* pada layanan hukum korporasi umumnya dibagi ke dalam beberapa tahapan (*payment milestones*). Setiap *milestone* merepresentasikan persentase atau tahapan pengerjaan tertentu (seperti verifikasi nama perseroan, pemrosesan di Kemenkumham, dan pengesahan akta). Dana yang tersimpan pada akun *escrow* berada dalam status teruji (*HELD_IN_ESCROW*) dan hanya dapat dicairkan (*RELEASED*) atau dikembalikan (*REFUNDED*) setelah memenuhi syarat penandatanganan dokumen atau persetujuan pihak yang berwenang.
+Struktur pembayaran *escrow* pada layanan hukum korporasi umumnya dibagi ke dalam beberapa tahapan (*payment milestones*). Setiap *milestone* merepresentasikan persentase atau tahapan pengerjaan tertentu (seperti verifikasi nama perseroan, pemrosesan di Kemenkumham, dan pengesahan akta). Dana yang tersimpan pada akun *escrow* berada dalam status teruji (*HELD_IN_ESCROW*) meialui pemicu transaksi dan hanya dapat dicairkan (*RELEASED*) atau dikembalikan (*REFUNDED*) setelah memenuhi syarat penandatanganan dokumen atau persetujuan pihak yang berwenang.
 
 ## 2.4 Database Relasional PostgreSQL dan Sifat ACID
 
@@ -409,12 +407,11 @@ Pada sisi antarmuka frontend React, integrasi dengan Supabase menerapkan pemisah
 
 Untuk mencegah mutasi ganda akibat penekanan tombol berulang kali oleh pengguna, antarmuka menerapkan pola *Single-Flight Mutation State*. Pola ini memanfaatkan kait status (*mutation state hooks*) yang mengunci fungsi mutasi ketika status berstatus `PENDING` atau `IN_FLIGHT`. Jika pengguna melakukan aksi pengiriman berulang, permintaan sekunder secara otomatis diabaikan atau dibatalkan sebelum mencapai jaringan (*single-flight guard*). Selain itu, seluruh pesan kesalahan dari backend dipetakan melalui *allowlist error codes* yang aman untuk mencegah kebocoran informasi internal basis data ke layar pengguna (*safe error mapping*).
 
-## 2.8 Pengujian Berbasis Bukti Faktual dan Audit Forensik
+## 2.8 Pengujian Berbasis Bukti Faktual dan Verifikasi Perangkat Lunak
 
-Dalam rekayasa perangkat lunak akademik, kebenaran klaim implementasi sistem tidak boleh bersumber dari asumsi, rancangan teoritis, atau narasi dokumentasi semata. Perangkat lunak yang dikembangkan wajib diaudit menggunakan metode audit forensik 360-derajat (*360-degree forensic audit*) (Pressman & Maxim, 2020).
+Dalam rekayasa perangkat lunak akademik, kebenaran klaim implementasi sistem harus didukung oleh prinsip verifikasi dan validasi perangkat lunak secara menyeluruh (Pressman & Maxim, 2020). Perangkat lunak tidak boleh dinilai hanya dari klaim naratif semata, melainkan wajib dibuktikan melalui eksekusi pengujian empiris.
 
-Audit forensik membandingkan secara langsung antara kewajiban normatif (spesifikasi kebutuhan), bukti komit repositori Git, eksekusi perintah pengujian otomatis (*automated test suites*), dan ketersediaan simbol (*symbol map verification*). Dalam konteks pengujian lokal (*ACCEPTED_LOCAL*), pengujian basis data dilaksanakan menggunakan transaksi *runtime SQL* yang sengaja diakhiri dengan perintah `ROLLBACK` agar tidak mencemari lingkungan basis data pengujian, sambil memastikan bahwa pemicu (*triggers*), aturan RLS, dan penguncian mutex pada objek teruji berfungsi sesuai spesifikasi.
-
+Pada proyek Justifiqa, metode audit forensik 360-derajat (*360-degree forensic audit*) diterapkan sebagai metode audit internal berbasis bukti faktual (*internal evidence-driven audit method*). Metode internal ini membandingkan secara langsung antara kewajiban normatif (spesifikasi kebutuhan), bukti komit repositori Git, eksekusi perintah pengujian otomatis (*automated test suites*), dan ketersediaan pemetaan simbol (*symbol map verification*). Dalam konteks pengujian lokal (*ACCEPTED_LOCAL*), pengujian basis data dilaksanakan menggunakan transaksi *runtime SQL* yang sengaja diakhiri dengan perintah `ROLLBACK` agar tidak mencemari lingkungan basis data pengujian, sambil memastikan bahwa pemicu (*triggers*), aturan RLS, dan penguncian mutex pada objek teruji berfungsi sesuai spesifikasi.
 
 ---
 
@@ -634,7 +631,6 @@ Sebelum suatu *batch* dinyatakan diterima (*ACCEPTED_LOCAL*), *batch* tersebut w
 3. Ketersediaan pemetaan simbol pada `SYMBOLS_MAP.md`.
 4. Kejujuran pelaporan status tanpa menaikkan klaim ke tingkat produksi tanpa otorisasi eksplisit.
 
-
 ---
 
 # BAB IV — IMPLEMENTASI DAN PENGUJIAN
@@ -697,7 +693,7 @@ Tabel 4.1 mencatat daftar komit Git bukti faktual dari seluruh tahapan implement
 
 ## 4.4 Implementasi Versioned Corporate Pricing Catalog
 
-Struktur harga dan *payment milestones* perikatan korporasi diatur secara terpusat melalui migrasi `20260729021138_add_versioned_corporate_pricing_catalog.sql`. 
+Struktur harga dan *payment milestones* perikatan korporasi diatur secara terpusat melalui migrasi `20260729021138_add_versioned_corporate_pricing_catalog.sql`.
 
 Implementasi berbasis tiga tabel utama:
 - `corporate_pricing_catalogs`: Menyimpan versi katalog, jenis layanan (misal: `PT_STANDARD`), dan status aktif.
@@ -728,15 +724,15 @@ DECLARE
 BEGIN
   -- 1. Kunci mutex transaksi berdasarkan order_id
   PERFORM pg_advisory_xact_lock(hashtext(p_order_id::text));
-  
+
   -- 2. Ambil katalog harga aktif secara resmi
-  SELECT catalog_id INTO v_catalog_id 
-  FROM public.corporate_pricing_catalogs 
+  SELECT catalog_id INTO v_catalog_id
+  FROM public.corporate_pricing_catalogs
   WHERE is_active = true LIMIT 1;
-  
-  -- 3. Buat entitas service_orders (status = PAYMENT_PENDING), 
-  --    corporate_service_cases (current_stage = DRAFT), 
-  --    escrow_transactions (status = PENDING_PAYMENT), 
+
+  -- 3. Buat entitas service_orders (status = PAYMENT_PENDING),
+  --    corporate_service_cases (current_stage = DRAFT),
+  --    escrow_transactions (status = PENDING_PAYMENT),
   --    dan payment_milestones (status = PENDING)
   -- 4. Hubungkan bukti berkas BO yang telah tervalidasi
   RETURN jsonb_build_object('success', true, 'case_id', v_case_id);
@@ -891,8 +887,7 @@ Berdasarkan hasil pengujian empiris pada fixed point `53ea5ca5e0aacdf849877c9696
 | Notary Workspace | **FUTURE_WORK** | Seam basis data tersedia, alur browser belum selesai | Diteruskan sebagai target pengembangan Batch 3.C |
 | e-KYC & Signing | **FUTURE_WORK** | Amplop sertifikat & liveness belum end-to-end | Diteruskan sebagai target pengembangan Batch 3.D |
 | Production Go-Live | **NOT_STARTED** | Observability, runbook, & audit live belum ada | Memerlukan fase persiapan Phase 5 secara khusus |
-| Berkas DOCX Rilis | **QA_BLOCKED** | Berkas DOCX dibuat; QA visual terblokir karena LibreOffice tidak ada | `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER` |
-
+| Berkas DOCX Rilis | **QA_BLOCKED** | Berkas DOCX dibuat dengan gaya semantik (`Title`, `Heading 1/2/3`, `PAGE` field); QA visual terblokir karena LibreOffice tidak ada | `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER` |
 
 ---
 
@@ -925,7 +920,7 @@ Sesuai dengan komitmen kejujuran akademis, dilaporkan keterbatasan faktual siste
 3. **e-KYC & Signing Batch 3.D (*FUTURE_WORK*)**: Integrasi penyedia verifikasi liveness luring, penerbitan amplop penandatanganan elektronik, serta pemanggilan API callback PSrE belum diterima secara *end-to-end*.
 4. **Phase 4 Full E2E / Security QA (*FUTURE_WORK*)**: Pengujian *end-to-end* pada lingkungan produksi terdistribusi dan audit keamanan penestrasi penuh belum dilaksanakan.
 5. **Phase 5 Production Readiness (*NOT_STARTED*)**: Penggelaran produksi (*deployment*), pemantauan operasional (*observability*), penyusunan *runbook*, dan audit kelayakan produksi belum dimulai.
-6. **Verifikasi Visual Berkas DOCX**: Berkas laporan format DOCX telah berhasil dibuat secara struktural, namun pengujian rendering visual (*visual render QA*) terblokir karena perangkat lunak LibreOffice/soffice tidak tersedia pada lingkungan eksekusi (`DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER`).
+6. **Verifikasi Visual Berkas DOCX**: Berkas laporan format DOCX telah berhasil dibuat secara struktural dengan gaya semantik Word (`Title`, `Heading 1/2/3`, `PAGE` field), namun pengujian rendering visual (*visual render QA*) terblokir karena perangkat lunak LibreOffice/soffice tidak tersedia pada lingkungan eksekusi (`DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER`).
 
 ## 5.4 Saran Pengembangan Masa Depan (*Future Work*)
 
@@ -936,7 +931,6 @@ Berdasarkan kesimpulan dan keterbatasan di atas, disarankan beberapa langkah pen
 3. **Pelaksanaan Phase 4 (Full Production E2E & PenTest)**: Melaksanakan pengujian E2E menyeluruh pada jaringan produksi dan melakukan uji penetrasi (*penetration testing*) independen untuk memverifikasi ketahanan arsitektur terhadap serangan *OWASP API Top 10*.
 4. **Pelaksanaan Phase 5 (Production Deployment & Observability)**: Mengonfigurasi lingkungan penggelaran produksi terdistribusi, menyiapkan pemantauan performa dan log (*OpenTelemetry / Prometheus*), menyusun *operational runbook*, serta melaksanakan audit kelayakan produksi (*go-live audit*).
 5. **Integrasi Live Payment Gateway**: Memilih vendor penyedia pembayaran resmi (seperti Midtrans atau Xendit) dan mengonfigurasi kredensial produksi untuk mengaktifkan alur pembayaran langsung dari peramban klien.
-
 
 ---
 
@@ -963,7 +957,6 @@ Republik Indonesia. (2022). *Undang-Undang Nomor 27 Tahun 2022 tentang Perlindun
 Republik Indonesia. (2024). *Undang-Undang Nomor 1 Tahun 2024 tentang Perubahan Kedua atas Undang-Undang Nomor 11 Tahun 2008 tentang Informasi dan Transaksi Elektronik*. Lembaran Negara Republik Indonesia Tahun 2024 Nomor 14.
 
 Supabase Inc. (2024). *Supabase Documentation*. https://supabase.com/docs/
-
 
 ---
 

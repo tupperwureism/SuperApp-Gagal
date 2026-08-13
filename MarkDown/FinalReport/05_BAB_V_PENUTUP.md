@@ -27,7 +27,7 @@ Sesuai dengan komitmen kejujuran akademis, dilaporkan keterbatasan faktual siste
 3. **e-KYC & Signing Batch 3.D (*FUTURE_WORK*)**: Integrasi penyedia verifikasi liveness luring, penerbitan amplop penandatanganan elektronik, serta pemanggilan API callback PSrE belum diterima secara *end-to-end*.
 4. **Phase 4 Full E2E / Security QA (*FUTURE_WORK*)**: Pengujian *end-to-end* pada lingkungan produksi terdistribusi dan audit keamanan penestrasi penuh belum dilaksanakan.
 5. **Phase 5 Production Readiness (*NOT_STARTED*)**: Penggelaran produksi (*deployment*), pemantauan operasional (*observability*), penyusunan *runbook*, dan audit kelayakan produksi belum dimulai.
-6. **Verifikasi Visual Berkas DOCX**: Berkas laporan format DOCX telah berhasil dibuat secara struktural, namun pengujian rendering visual (*visual render QA*) terblokir karena perangkat lunak LibreOffice/soffice tidak tersedia pada lingkungan eksekusi (`DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER`).
+6. **Verifikasi Visual Berkas DOCX**: Berkas laporan format DOCX telah berhasil dibuat secara struktural dengan gaya semantik Word (`Title`, `Heading 1/2/3`, `PAGE` field), namun pengujian rendering visual (*visual render QA*) terblokir karena perangkat lunak LibreOffice/soffice tidak tersedia pada lingkungan eksekusi (`DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER`).
 
 ## 5.4 Saran Pengembangan Masa Depan (*Future Work*)
 

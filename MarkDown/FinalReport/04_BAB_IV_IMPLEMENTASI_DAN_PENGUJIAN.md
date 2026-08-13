@@ -58,7 +58,7 @@ Tabel 4.1 mencatat daftar komit Git bukti faktual dari seluruh tahapan implement
 
 ## 4.4 Implementasi Versioned Corporate Pricing Catalog
 
-Struktur harga dan *payment milestones* perikatan korporasi diatur secara terpusat melalui migrasi `20260729021138_add_versioned_corporate_pricing_catalog.sql`. 
+Struktur harga dan *payment milestones* perikatan korporasi diatur secara terpusat melalui migrasi `20260729021138_add_versioned_corporate_pricing_catalog.sql`.
 
 Implementasi berbasis tiga tabel utama:
 - `corporate_pricing_catalogs`: Menyimpan versi katalog, jenis layanan (misal: `PT_STANDARD`), dan status aktif.
@@ -89,15 +89,15 @@ DECLARE
 BEGIN
   -- 1. Kunci mutex transaksi berdasarkan order_id
   PERFORM pg_advisory_xact_lock(hashtext(p_order_id::text));
-  
+
   -- 2. Ambil katalog harga aktif secara resmi
-  SELECT catalog_id INTO v_catalog_id 
-  FROM public.corporate_pricing_catalogs 
+  SELECT catalog_id INTO v_catalog_id
+  FROM public.corporate_pricing_catalogs
   WHERE is_active = true LIMIT 1;
-  
-  -- 3. Buat entitas service_orders (status = PAYMENT_PENDING), 
-  --    corporate_service_cases (current_stage = DRAFT), 
-  --    escrow_transactions (status = PENDING_PAYMENT), 
+
+  -- 3. Buat entitas service_orders (status = PAYMENT_PENDING),
+  --    corporate_service_cases (current_stage = DRAFT),
+  --    escrow_transactions (status = PENDING_PAYMENT),
   --    dan payment_milestones (status = PENDING)
   -- 4. Hubungkan bukti berkas BO yang telah tervalidasi
   RETURN jsonb_build_object('success', true, 'case_id', v_case_id);
@@ -252,4 +252,4 @@ Berdasarkan hasil pengujian empiris pada fixed point `53ea5ca5e0aacdf849877c9696
 | Notary Workspace | **FUTURE_WORK** | Seam basis data tersedia, alur browser belum selesai | Diteruskan sebagai target pengembangan Batch 3.C |
 | e-KYC & Signing | **FUTURE_WORK** | Amplop sertifikat & liveness belum end-to-end | Diteruskan sebagai target pengembangan Batch 3.D |
 | Production Go-Live | **NOT_STARTED** | Observability, runbook, & audit live belum ada | Memerlukan fase persiapan Phase 5 secara khusus |
-| Berkas DOCX Rilis | **QA_BLOCKED** | Berkas DOCX dibuat; QA visual terblokir karena LibreOffice tidak ada | `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER` |
+| Berkas DOCX Rilis | **QA_BLOCKED** | Berkas DOCX dibuat dengan gaya semantik (`Title`, `Heading 1/2/3`, `PAGE` field); QA visual terblokir karena LibreOffice tidak ada | `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER` |

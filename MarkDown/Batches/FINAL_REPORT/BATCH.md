@@ -27,31 +27,25 @@
 8. Phase 5 Production Readiness: `NOT_STARTED`.
 9. Presentation Page (`/demo/readiness`): `ACCEPTED_LOCAL` static presentation aid.
 
-## Mandatory Audit Corrections Completed
+## Mandatory Audit & Structural Refinements Completed
 
-1. **PostgreSQL Version**: Klaim PostgreSQL 16/16.2 dihapus total. Laporan mengacu pada PostgreSQL versi mayor 17 per `supabase/config.toml` (`major_version = 17`).
-2. **State Model Correctness**: Transisi status entitas dipisahkan secara eksplisit (`service_orders`, `corporate_service_cases`, `escrow_transactions`, `payment_milestones`).
-3. **Missing Figure Source Removal**: Rujukan `MarkDown/PHASE_2_STATE_MACHINES.md` yang tidak ada telah dihapus total.
-4. **Figure Classification Honesty**: Seluruh 14 entri gambar diklasifikasikan secara jujur: 5 `INLINE_TEXT_DIAGRAM`, 9 `TO_CAPTURE`, 0 `EMBEDDED_IMAGE`, 0 `SOURCE_AVAILABLE_NOT_RENDERED`.
-5. **DOCX Verification Status**: Dinyatakan secara jujur: `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER.`
-6. **Academic Bibliography Integrity**: Goodman (2016) dan Guttentag (2018) dihapus. Sitasi OWASP dan PostgreSQL diperbaiki mengacu pada dokumentasi web primer resmi.
-7. **Audit Statistics Scoping**: Klaim statistik dikualifikasikan secara spesifik pada objek teraudit per `PHASE_2_BACKEND_FORENSIC_CERTIFICATION.md`.
-8. **Git / Worktree Accuracy**: Branch aktif dilaporkan sebagai `draft_final_report_justifiqa`.
+1. **Trailing Whitespace Elimination**: Seluruh cacat spasi akhir (*trailing whitespace*) dibersihkan dari dokumen Markdown bab dan gabungan (diverifikasi via `git diff --check`).
+2. **Exact Migration Paths**: Gambar 3.3 pada `FIGURE_PLAN.md` mengacu pada path migrasi persis `supabase/migrations/20260722000017_p2_b4_corporate_concierge_and_bo.sql` dan `supabase/migrations/20260813032019_process_corporate_payment_webhook_atomic.sql`.
+3. **Audit Method Wording Precision**: Penulisan Bab II / 2.8 mengklarifikasi bahwa Pressman & Maxim (2020) mendukung verifikasi dan validasi perangkat lunak secara umum, sedangkan *"360-degree forensic audit"* adalah nama metode audit internal proyek berbasis bukti.
+4. **Semantic Word Styles DOCX**: Berkas DOCX dibangun menggunakan gaya semantik Word (`Title`, `Heading 1`, `Heading 2`, `Heading 3`, `Heading 4`) dan menyertakan bidang nomor halaman `PAGE` pada footer.
+5. **DOCX Structural Audit**: Hasil audit struktur OOXML: Valid ZIP OOXML (`True`), 1 Title, 7 Heading 1, 63 Heading 2, 1 Heading 3, 10 Tabel, 1 Field `PAGE`, 0 Media Gambar. Status visual: `DOCX CREATED; STRUCTURAL CHECK PASSED; VISUAL RENDER QA BLOCKED BY MISSING RENDERER`.
 
 ## Checkpoint Progress
 
 | Checkpoint | Deskripsi | Status | Verified Evidence / Artifacts |
 |---|---|---|---|
-| CP-00 | Hard Preflight & Branch/HEAD Verification | COMPLETE | Branch `draft_final_report_justifiqa`, HEAD `53ea5ca5e0aacdf849877c9696f698ec469d9eb6`, staged index clean |
-| CP-01 | Evidence Inventory, Figure Plan, Traceability Setup & Batch Docs | COMPLETE | `FIGURE_PLAN.md`, `SOURCE_TRACEABILITY.md`, `BATCH.md`, `PROMPT_MASTER.md`, `LEARNING.md` |
-| CP-02 | Front Matter + BAB I Pendahuluan | COMPLETE | `00_FRONT_MATTER.md`, `01_BAB_I_PENDAHULUAN.md` |
-| CP-03 | BAB II Landasan Teori + Verified Bibliography | COMPLETE | `02_BAB_II_LANDASAN_TEORI.md`, `06_DAFTAR_PUSTAKA.md` |
-| CP-04 | BAB III Analisis dan Perancangan | COMPLETE | `03_BAB_III_ANALISIS_DAN_PERANCANGAN.md` |
-| CP-05 | BAB IV Implementasi dan Pengujian | COMPLETE | `04_BAB_IV_IMPLEMENTASI_DAN_PENGUJIAN.md` |
-| CP-06 | BAB V Penutup + Lampiran | COMPLETE | `05_BAB_V_PENUTUP.md`, `07_LAMPIRAN.md` |
-| CP-07 | Canonical Markdown Merge & DOCX Generation | COMPLETE | `LAPORAN_TUGAS_AKHIR_JUSTIFIQA.md` (96,253 B), `LAPORAN_TUGAS_AKHIR_JUSTIFIQA.docx` |
-| CP-08 | 2-Axis Audit & Git Staging/Commit Execution | COMPLETE | Verification Gates Clean. Final Status: `READY_FOR_EXTERNAL_REAUDIT` |
+| CP-00 | Hard Preflight & Branch/HEAD Verification | COMPLETE | Branch `draft_final_report_justifiqa`, HEAD `4bd15f848ea78b30e68befaedf499c9d9623d632` |
+| CP-01 | Trailing Whitespace Cleanup & Migration Exact Paths | COMPLETE | Cleaned all .md files, updated `FIGURE_PLAN.md` exact migration paths |
+| CP-02 | Audit Method Wording Clarification | COMPLETE | Updated `02_BAB_II_LANDASAN_TEORI.md` Section 2.8 |
+| CP-03 | Semantic DOCX Rebuild & PAGE Footer | COMPLETE | `build_final_report.py` with Word styles (`Title`, `Heading 1-4`, `PAGE` footer) |
+| CP-04 | DOCX Structural Verification Audit | COMPLETE | Verified ZIP OOXML, Headings (7 H1, 63 H2, 1 H3), 10 Tables, 1 PAGE Field, 0 Media |
+| CP-05 | Staging & Commit Execution | COMPLETE | Staged `MarkDown/FinalReport` & `MarkDown/Batches/FINAL_REPORT`, commit message `fix(report): finalize academic document structure` |
 
 ## Next Exact Action
 
-Stage dan commit berkas laporan di direktori `MarkDown/FinalReport/` dan `MarkDown/Batches/FINAL_REPORT/` sesuai otorisasi prompt pengguna.
+Laporkan ringkasan penyelesaian batch koreksi struktur Laporan Tugas Akhir Justifiqa kepada pengguna.
